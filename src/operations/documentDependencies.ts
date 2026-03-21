@@ -43,7 +43,7 @@ async function documentDependencies(licenses: string[] = [], checkRecursive = tr
         // Establish licence report configuration file path.This in combination with exports in 'package.json'
         // allows us to share local 'licenses/license-report-config.json' file with other projects.
         // 'licenses/license-report-config.json' is in licenses directory, not top level directory, so it does not confuse GitHub license detection engine.
-        const licenseReportConfigPath = fileURLToPath(new URL(import.meta.resolve('@datapos/datapos-development/license-report-config')));
+        const licenseReportConfigPath = fileURLToPath(new URL(import.meta.resolve('@dpuse/dpuse-development/license-report-config')));
 
         await execCommand(
             "1️⃣  Generate 'licenses.json' file",

@@ -1,10 +1,12 @@
 # Data Positioning Development Library
 
-[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=data-positioning_datapos-development&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=data-positioning_datapos-development)
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=data-positioning_dpuse-development&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=data-positioning_dpuse-development)
 <span><!-- OWASP_BADGES_START -->
-[![OWASP](https://img.shields.io/badge/OWASP-passed-4CAF50)](https://data-positioning.github.io/datapos-development/dependency-check-reports/dependency-check-report.html)
+[![OWASP](https://img.shields.io/badge/OWASP-passed-4CAF50)](https://data-positioning.github.io/dpuse-development/dependency-check-reports/dependency-check-report.html)
+
 <!-- OWASP_BADGES_END --></span>
-[![npm version](https://img.shields.io/npm/v/@datapos/datapos-development.svg)](https://www.npmjs.com/package/@datapos/datapos-development)
+
+[![npm version](https://img.shields.io/npm/v/@dpuse/dpuse-development.svg)](https://www.npmjs.com/package/@dpuse/dpuse-development)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](./LICENSE)
 
 <!-- SUMMARY_START -->
@@ -18,8 +20,8 @@ A collection of utilities for managing Data Positioning projects.
 Install as a development dependency:
 
 ```bash
-cd datapos-development
-npm install --save-dev @datapos/datapos-development
+cd dpuse-development
+npm install --save-dev @dpuse/dpuse-development
 ```
 
 > See the Data Positioning security documentation for additional initialization requirements.
@@ -28,19 +30,19 @@ npm install --save-dev @datapos/datapos-development
 
 The library implements the following utilities:
 
-| Name                      | Notes                                                                                                                                                                                                                                                                                                              |
-| ------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| auditDependencies         | Audit the project's dependencies for known security vulnerabilities. uses the owasp-dependency-check module to perform the checks. Updates the OWASP badge(s) at the top of this page. Also runs the 'npm outdated`command.                                                                                        |
-| buildDirectoryIndex       | Build an index for the specified directory path.                                                                                                                                                                                                                                                                   |
-| buildProject              | Builds the package using Vite. Output to '/dist' directory. Wrangler for api. Nuxt for app-nuxt. Builds bundle analysis reports.                                                                                                                                                                                   |
-| checkDependencies         | Identifies outdated dependencies using npm `outdated` and `npm-check-updates` with option to automatically install latest versions.                                                                                                                                                                                |
-| documentDependencies      | Identify licenses of the project's production and peer dependencies. Updates the table in the **Dependency Licenses** section of this page and summary files licenses.json and licenseTree.json in th licenses directory of this repository. Also downloads a copy of dependency license to `licenses/downloads'.. |
-| formatCode                | Uses `prettier` to enforce formatting style rules.                                                                                                                                                                                                                                                                 |
-| lintCode                  | Uses `eslint` to check the code for potential errors and enforces coding style rules.                                                                                                                                                                                                                              |
-| releaseProject            | Bump version, builds config, builds project, synchronise with `GitHub` and publish to `npm` or Cloudflare.                                                                                                                                                                                                         |
-| syncProjectWithGitHub     | Synchronise the local repository with the main GitHub repository.                                                                                                                                                                                                                                                  |
-| testProject               | ❌ Not implemented.                                                                                                                                                                                                                                                                                                |
-| updateDataPosDependencies | Install the latest version of the specified Data Positioning dependencies.                                                                                                                                                                                                                                         |
+| Name                    | Notes                                                                                                                                                                                                                                                                                                              |
+| ----------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| auditDependencies       | Audit the project's dependencies for known security vulnerabilities. uses the owasp-dependency-check module to perform the checks. Updates the OWASP badge(s) at the top of this page. Also runs the 'npm outdated`command.                                                                                        |
+| buildDirectoryIndex     | Build an index for the specified directory path.                                                                                                                                                                                                                                                                   |
+| buildProject            | Builds the package using Vite. Output to '/dist' directory. Wrangler for api. Nuxt for app-nuxt. Builds bundle analysis reports.                                                                                                                                                                                   |
+| checkDependencies       | Identifies outdated dependencies using npm `outdated` and `npm-check-updates` with option to automatically install latest versions.                                                                                                                                                                                |
+| documentDependencies    | Identify licenses of the project's production and peer dependencies. Updates the table in the **Dependency Licenses** section of this page and summary files licenses.json and licenseTree.json in th licenses directory of this repository. Also downloads a copy of dependency license to `licenses/downloads'.. |
+| formatCode              | Uses `prettier` to enforce formatting style rules.                                                                                                                                                                                                                                                                 |
+| lintCode                | Uses `eslint` to check the code for potential errors and enforces coding style rules.                                                                                                                                                                                                                              |
+| releaseProject          | Bump version, builds config, builds project, synchronise with `GitHub` and publish to `npm` or Cloudflare.                                                                                                                                                                                                         |
+| syncProjectWithGitHub   | Synchronise the local repository with the main GitHub repository.                                                                                                                                                                                                                                                  |
+| testProject             | ❌ Not implemented.                                                                                                                                                                                                                                                                                                |
+| updateDPUseDependencies | Install the latest version of the specified Data Positioning dependencies.                                                                                                                                                                                                                                         |
 
 ### Usage
 
@@ -50,16 +52,16 @@ All utilities are designed to be run from `package.json` scripts and assume that
 {
     ...
     "scripts": {
-        "audit": "node -e \"import('@datapos/datapos-development').then(m => m.auditDependencies())\"",
-        "build": "node -e \"import('@datapos/datapos-development').then(m => m.buildProject())\"",
-        "check": "node -e \"import('@datapos/datapos-development').then(m => m.checkDependencies())\"",
-        "document": "node -e \"import('@datapos/datapos-development').then(m => m.documentDependencies(['MIT']))\"",
-        "format": "node -e \"import('@datapos/datapos-development').then(m => m.formatCode())\"",
-        "lint": "node -e \"import('@datapos/datapos-development').then(m => m.lintCode())\"",
-        "release": "node -e \"import('@datapos/datapos-development').then(m => m.releaseProject())\"",
-        "sync": "node -e \"import('@datapos/datapos-development').then(m => m.syncProjectWithGitHub())\"",
-        "test": "node -e \"import('@datapos/datapos-development').then(m => m.testProject())\"",
-        "update": "node -e \"import('@datapos/datapos-development').then(m => m.updateDataPosDependencies(['development']))\""
+        "audit": "node -e \"import('@dpuse/dpuse-development').then(m => m.auditDependencies())\"",
+        "build": "node -e \"import('@dpuse/dpuse-development').then(m => m.buildProject())\"",
+        "check": "node -e \"import('@dpuse/dpuse-development').then(m => m.checkDependencies())\"",
+        "document": "node -e \"import('@dpuse/dpuse-development').then(m => m.documentDependencies(['MIT']))\"",
+        "format": "node -e \"import('@dpuse/dpuse-development').then(m => m.formatCode())\"",
+        "lint": "node -e \"import('@dpuse/dpuse-development').then(m => m.lintCode())\"",
+        "release": "node -e \"import('@dpuse/dpuse-development').then(m => m.releaseProject())\"",
+        "sync": "node -e \"import('@dpuse/dpuse-development').then(m => m.syncProjectWithGitHub())\"",
+        "test": "node -e \"import('@dpuse/dpuse-development').then(m => m.testProject())\"",
+        "update": "node -e \"import('@dpuse/dpuse-development').then(m => m.updateDPUseDependencies(['development']))\""
     }
     ...
 }
@@ -83,15 +85,15 @@ Common resources (files) used across Data Positioning projects.
 
 The Bundle Analysis Report provides a detailed breakdown of the bundle’s composition and module sizes, helping identify which modules contribute most to the final build. It is generated automatically on each release using the `npm` package [rollup-plugin-visualizer](https://www.npmjs.com/package/rollup-plugin-visualizer).
 
-[View the Bundle Analysis Report](https://data-positioning.github.io/datapos-development/bundle-analysis-reports/rollup-visualiser/index.html) created by the **rollup visualiser** plugin.
+[View the Bundle Analysis Report](https://data-positioning.github.io/dpuse-development/bundle-analysis-reports/rollup-visualiser/index.html) created by the **rollup visualiser** plugin.
 
-[View the Bundle Analysis Report](https://data-positioning.github.io/datapos-development/bundle-analysis-reports/sonda/index.html) created by the **sonda** plugin.
+[View the Bundle Analysis Report](https://data-positioning.github.io/dpuse-development/bundle-analysis-reports/sonda/index.html) created by the **sonda** plugin.
 
 ## Dependency Check Report
 
 The OWASP Dependency Check Report identifies known vulnerabilities in project dependencies. It is generated automatically on each release using the `npm` package [owasp-dependency-check](https://dependency-check.github.io/DependencyCheck/index.html).
 
-[View the OWASP Dependency Check Report](https://data-positioning.github.io/datapos-development/dependency-check-report.html)
+[View the OWASP Dependency Check Report](https://data-positioning.github.io/dpuse-development/dependency-check-report.html)
 
 ## Dependency Licenses
 
@@ -100,14 +102,15 @@ The following table lists the top-level production and peer dependencies. All of
 We use the `npm` packages [license-report](https://www.npmjs.com/package/license-report), [license-report-check](https://www.npmjs.com/package/license-report-check), [license-report-recursive](https://www.npmjs.com/package/license-report-recursive) and [license-downloader](https://www.npmjs.com/package/license-downloader) to identify all dependency licenses and include copies of them. We do not use any unlicensed dependencies in either production or development.
 
 <!-- DEPENDENCY_LICENSES_START -->
-|Name|Type|Installed|Latest|Latest Released|Deps|Document|
-|:-|:-|:-:|:-:|:-|-:|:-|
-|@datapos/datapos-shared|MIT|0.3.343|0.3.343|this month: 2025-12-21|3|[LICENSE](https://raw.githubusercontent.com/data-positioning/datapos-shared/main/LICENSE)|
-|acorn|MIT|8.15.0|8.15.0|6 months ago: 2025-06-09|0|⚠️ No license file|
-|acorn-typescript|MIT|1.4.13|1.4.13|23 months ago: 2024-01-03❗|1|[LICENSE](https://raw.githubusercontent.com/TyrealHu/acorn-typescript/master/LICENSE)|
-|acorn-walk|MIT|8.3.4|8.3.4|15 months ago: 2024-09-09❗|1|⚠️ No license file|
-|nanoid|MIT|5.1.6|5.1.6|3 months ago: 2025-09-22|0|[LICENSE](https://raw.githubusercontent.com/ai/nanoid/main/LICENSE)|
-|valibot|MIT|1.2.0|1.2.0|this month: 2025-11-24|1|[LICENSE.md](https://raw.githubusercontent.com/open-circle/valibot/main/LICENSE.md)|
+
+| Name                    | Type | Installed | Latest  | Latest Released             | Deps | Document                                                                                  |
+| :---------------------- | :--- | :-------: | :-----: | :-------------------------- | ---: | :---------------------------------------------------------------------------------------- |
+| @datapos/datapos-shared | MIT  |  0.3.343  | 0.3.343 | this month: 2025-12-21      |    3 | [LICENSE](https://raw.githubusercontent.com/data-positioning/datapos-shared/main/LICENSE) |
+| acorn                   | MIT  |  8.15.0   | 8.15.0  | 6 months ago: 2025-06-09    |    0 | ⚠️ No license file                                                                        |
+| acorn-typescript        | MIT  |  1.4.13   | 1.4.13  | 23 months ago: 2024-01-03❗ |    1 | [LICENSE](https://raw.githubusercontent.com/TyrealHu/acorn-typescript/master/LICENSE)     |
+| acorn-walk              | MIT  |   8.3.4   |  8.3.4  | 15 months ago: 2024-09-09❗ |    1 | ⚠️ No license file                                                                        |
+| nanoid                  | MIT  |   5.1.6   |  5.1.6  | 3 months ago: 2025-09-22    |    0 | [LICENSE](https://raw.githubusercontent.com/ai/nanoid/main/LICENSE)                       |
+| valibot                 | MIT  |   1.2.0   |  1.2.0  | this month: 2025-11-24      |    1 | [LICENSE.md](https://raw.githubusercontent.com/open-circle/valibot/main/LICENSE.md)       |
 
 <!-- DEPENDENCY_LICENSES_END -->
 

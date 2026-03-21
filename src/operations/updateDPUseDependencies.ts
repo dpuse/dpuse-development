@@ -17,16 +17,16 @@ import { getModuleConfig, logOperationHeader, logOperationSuccess, readJSONFile,
 const STEP_ICONS = ['1️⃣', '2️⃣', '3️⃣', '4️⃣', '5️⃣', '6️⃣', '7️⃣', '8️⃣', '9️⃣'];
 
 // Operations - Update datapos dependencies.
-async function updateDataPosDependencies(dependencies: string[] = []): Promise<void> {
+async function updateDPUseDependencies(dependencies: string[] = []): Promise<void> {
     try {
-        logOperationHeader("Update '@datapos/datapos' Dependencies");
+        logOperationHeader("Update '@dpuse/dpuse' Dependencies");
 
         for (const [index, dependency] of dependencies.entries()) {
             const stepIcon = STEP_ICONS.at(index) ?? '🔢';
             if (dependency === 'eslint') {
-                await spawnCommand(`${stepIcon}  Update '${dependency}'`, 'npm', ['install', '@datapos/eslint-config-datapos@latest']);
+                await spawnCommand(`${stepIcon}  Update '${dependency}'`, 'npm', ['install', '@dpuse/eslint-config-dpuse@latest']);
             } else {
-                await spawnCommand(`${stepIcon}  Update '${dependency}'`, 'npm', ['install', `@datapos/datapos-${dependency}@latest`]);
+                await spawnCommand(`${stepIcon}  Update '${dependency}'`, 'npm', ['install', `@dpuse/dpuse-${dependency}@latest`]);
                 if (dependency === 'development') {
                     const configJSON = await readJSONFile<ModuleConfig>('config.json');
                     const moduleTypeConfig = getModuleConfig(configJSON.id);
@@ -36,9 +36,9 @@ async function updateDataPosDependencies(dependencies: string[] = []): Promise<v
             }
         }
 
-        logOperationSuccess("'@datapos/datapos' dependencies updated.");
+        logOperationSuccess("'@dpuse/dpuse' dependencies updated.");
     } catch (error) {
-        console.error("❌ Error updating '@datapos/datapos' dependencies.", error);
+        console.error("❌ Error updating '@dpuse/dpuse' dependencies.", error);
         process.exit(1);
     }
 }
@@ -88,4 +88,4 @@ async function syncConfigFile(moduleDirectory: string, templateFilePath: string,
 }
 
 // Exposures
-export { updateDataPosDependencies };
+export { updateDPUseDependencies };

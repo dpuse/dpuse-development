@@ -3,7 +3,7 @@
  */
 
 /** Dependencies - Framework. */
-import datapos from '@datapos/eslint-config-datapos';
+import dpuse from '@dpuse/eslint-config-dpuse';
 
 /** Exposures - Configuration. */
-export default [...datapos];
+export default [...dpuse];

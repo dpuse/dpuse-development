@@ -24,17 +24,17 @@ export interface ModuleTypeConfig {
 
 /** Constants */
 const MODULE_TYPE_CONFIGS: ModuleTypeConfig[] = [
-    { idPrefix: 'datapos-app-nuxt', typeId: 'app', isPublish: false, uploadGroupName: undefined },
-    { idPrefix: 'datapos-api', typeId: 'api', isPublish: false, uploadGroupName: undefined },
-    { idPrefix: 'datapos-connector', typeId: 'connector', isPublish: true, uploadGroupName: 'connectors' },
-    { idPrefix: 'datapos-context', typeId: 'context', isPublish: true, uploadGroupName: 'contexts' },
-    { idPrefix: 'datapos-development', typeId: 'development', isPublish: true, uploadGroupName: undefined },
-    { idPrefix: 'datapos-engine', typeId: 'engine', isPublish: false, uploadGroupName: 'engine' },
-    { idPrefix: 'datapos-presenter', typeId: 'presenter', isPublish: true, uploadGroupName: 'presenters' },
-    { idPrefix: 'datapos-resources', typeId: 'resources', isPublish: false, uploadGroupName: undefined },
-    { idPrefix: 'datapos-shared', typeId: 'shared', isPublish: true, uploadGroupName: undefined },
-    { idPrefix: 'datapos-tool', typeId: 'tool', isPublish: true, uploadGroupName: 'tools' },
-    { idPrefix: 'eslint-config-datapos', typeId: 'eslint', isPublish: true, uploadGroupName: undefined }
+    { idPrefix: 'dpuse-app', typeId: 'app', isPublish: false, uploadGroupName: undefined },
+    { idPrefix: 'dpuse-api', typeId: 'api', isPublish: false, uploadGroupName: undefined },
+    { idPrefix: 'dpuse-connector', typeId: 'connector', isPublish: true, uploadGroupName: 'connectors' },
+    { idPrefix: 'dpuse-context', typeId: 'context', isPublish: true, uploadGroupName: 'contexts' },
+    { idPrefix: 'dpuse-development', typeId: 'development', isPublish: true, uploadGroupName: undefined },
+    { idPrefix: 'dpuse-engine', typeId: 'engine', isPublish: false, uploadGroupName: 'engine' },
+    { idPrefix: 'dpuse-presenter', typeId: 'presenter', isPublish: true, uploadGroupName: 'presenters' },
+    { idPrefix: 'dpuse-resources', typeId: 'resources', isPublish: false, uploadGroupName: undefined },
+    { idPrefix: 'dpuse-shared', typeId: 'shared', isPublish: true, uploadGroupName: undefined },
+    { idPrefix: 'dpuse-tool', typeId: 'tool', isPublish: true, uploadGroupName: 'tools' },
+    { idPrefix: 'eslint-config-dpuse', typeId: 'eslint', isPublish: true, uploadGroupName: undefined }
 ];
 
 /** Initialisation */
