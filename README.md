@@ -1,8 +1,9 @@
 # Data Positioning Development Library
 
-[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=data-positioning_dpuse-development&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=data-positioning_dpuse-development)
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=dpuse_dpuse-development&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=dpuse_dpuse-development)
 <span><!-- OWASP_BADGES_START -->
-[![OWASP](https://img.shields.io/badge/OWASP-5%20high-EF6C00)](https://data-positioning.github.io/@dpuse/dpuse-development/dependency-check-reports/dependency-check-report.html) [![OWASP](https://img.shields.io/badge/OWASP-4%20moderate-FBC02D)](https://data-positioning.github.io/@dpuse/dpuse-development/dependency-check-reports/dependency-check-report.html)
+[![OWASP](https://img.shields.io/badge/OWASP-5%20high-EF6C00)](https://dpuse.github.io/@dpuse/dpuse-development/dependency-check-reports/dependency-check-report.html) [![OWASP](https://img.shields.io/badge/OWASP-4%20moderate-FBC02D)](https://dpuse.github.io/@dpuse/dpuse-development/dependency-check-reports/dependency-check-report.html)
+
 <!-- OWASP_BADGES_END --></span>
 
 [![npm version](https://img.shields.io/npm/v/@dpuse/dpuse-development.svg)](https://www.npmjs.com/package/@dpuse/dpuse-development)
@@ -84,15 +85,15 @@ Common resources (files) used across Data Positioning projects.
 
 The Bundle Analysis Report provides a detailed breakdown of the bundle’s composition and module sizes, helping identify which modules contribute most to the final build. It is generated automatically on each release using the `npm` package [rollup-plugin-visualizer](https://www.npmjs.com/package/rollup-plugin-visualizer).
 
-[View the Bundle Analysis Report](https://data-positioning.github.io/dpuse-development/bundle-analysis-reports/rollup-visualiser/index.html) created by the **rollup visualiser** plugin.
+[View the Bundle Analysis Report](https://dpuse.github.io/dpuse-development/bundle-analysis-reports/rollup-visualiser/index.html) created by the **rollup visualiser** plugin.
 
-[View the Bundle Analysis Report](https://data-positioning.github.io/dpuse-development/bundle-analysis-reports/sonda/index.html) created by the **sonda** plugin.
+[View the Bundle Analysis Report](https://dpuse.github.io/dpuse-development/bundle-analysis-reports/sonda/index.html) created by the **sonda** plugin.
 
 ## Dependency Check Report
 
 The OWASP Dependency Check Report identifies known vulnerabilities in project dependencies. It is generated automatically on each release using the `npm` package [owasp-dependency-check](https://dependency-check.github.io/DependencyCheck/index.html).
 
-[View the OWASP Dependency Check Report](https://data-positioning.github.io/dpuse-development/dependency-check-report.html)
+[View the OWASP Dependency Check Report](https://dpuse.github.io/dpuse-development/dependency-check-reports/dependency-check-report.html)
 
 ## Dependency Licenses
 

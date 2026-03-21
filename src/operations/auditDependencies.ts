@@ -9,7 +9,17 @@ import type { PackageJson } from 'type-fest';
 
 // Dependencies - Framework.
 import type { ModuleConfig } from '@datapos/datapos-shared/component';
-import { getDirectoryEntries, logOperationHeader, logOperationSuccess, logStepHeader, readJSONFile, readTextFile, spawnCommand, substituteContent, writeTextFile } from '@/utilities';
+import {
+    getDirectoryEntries,
+    logOperationHeader,
+    logOperationSuccess,
+    logStepHeader,
+    readJSONFile,
+    readTextFile,
+    spawnCommand,
+    substituteContent,
+    writeTextFile
+} from '@/utilities';
 
 // Interfaces/Types
 interface DependencyCheckData {
@@ -50,8 +60,11 @@ async function auditDependencies(): Promise<void> {
         try {
             const versions: string[] = await getDirectoryEntries('dependency-check-bin');
             const latestVersion = versions.toSorted((a, b) => a.localeCompare(b)).at(-1);
-            if (latestVersion != null && latestVersion !== '') owaspBinArguments.push('--owasp-bin', `dependency-check-bin/${latestVersion}/dependency-check/bin/dependency-check.sh`);
-        } catch { /* not yet installed - let the wrapper download it */ }
+            if (latestVersion != null && latestVersion !== '')
+                owaspBinArguments.push('--owasp-bin', `dependency-check-bin/${latestVersion}/dependency-check/bin/dependency-check.sh`);
+        } catch {
+            /* not yet installed - let the wrapper download it */
+        }
 
         await spawnCommand('1️⃣', 'owasp-dependency-check', [
             ...owaspBinArguments,
@@ -112,14 +125,14 @@ async function buildOWASPBadges(severityCounts: SeverityCounts): Promise<string[
     if (totalVulnerabilities === 0) {
         console.info('No vulnerabilities found.');
         const badgeUrl = 'https://img.shields.io/badge/OWASP-passed-4CAF50';
-        badges.push(`[![OWASP](${badgeUrl})](https://data-positioning.github.io/${configJSON.id}/dependency-check-reports/dependency-check-report.html)`);
+        badges.push(`[![OWASP](${badgeUrl})](https://dpuse.github.io/${configJSON.id}/dependency-check-reports/dependency-check-report.html)`);
     } else {
         for (const [severity, count] of Object.entries(severityCounts) as [string, number][]) {
             const config = SEVERITY_BADGES[severity as keyof SeverityCounts];
             console.warn(`⚠️  ${count} ${config.label} vulnerability(ies) found.`);
             if (count === 0) continue;
             const badgeUrl = `https://img.shields.io/badge/OWASP-${count}%20${config.label}-${config.color}`;
-            badges.push(`[![OWASP](${badgeUrl})](https://data-positioning.github.io/${configJSON.id}/dependency-check-reports/dependency-check-report.html)`);
+            badges.push(`[![OWASP](${badgeUrl})](https://dpuse.github.io/${configJSON.id}/dependency-check-reports/dependency-check-report.html)`);
         }
     }
     return badges;

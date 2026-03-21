@@ -1,6 +1,6 @@
 {
     "name": "@dpuse/dpuse-development",
-    "version": "0.3.455",
+    "version": "0.3.456",
     "description": "A collection of utilities for managing Data Positioning projects.",
     "license": "MIT",
     "author": "Jonathan Terrell <terrell.jm@gmail.com>",
@@ -9,10 +9,10 @@
     "homepage": "https://www.dpuse.app",
     "repository": {
         "type": "git",
-        "url": "git+https://github.com/data-positioning/dpuse-development.git"
+        "url": "git+https://github.com/dpuse/dpuse-development.git"
     },
     "bugs": {
-        "url": "https://github.com/data-positioning/dpuse-development/issues"
+        "url": "https://github.com/dpuse/dpuse-development/issues"
     },
     "module": "./dist/dpuse-development.es.js",
     "types": "./dist/types/src/index.d.ts",

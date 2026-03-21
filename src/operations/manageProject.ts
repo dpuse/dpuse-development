@@ -174,7 +174,7 @@ async function buildProjectConfig(stepIcon: string, packageJSON: PackageJson): P
     logStepHeader(`${stepIcon}  Build project configuration`);
 
     const configJSON = await readJSONFile<ModuleConfig>('config.json');
-    if (packageJSON.name != null) configJSON.id = packageJSON.name.replace('@datapos/', '').replace('@data-positioning/', '');
+    if (packageJSON.name != null) configJSON.id = packageJSON.name.replace('@dpuse/', '').replace('@dpuse/', ''); // TODO: REMOVE SECOND DPUSE
     if (packageJSON.version != null) configJSON.version = packageJSON.version;
     await writeJSONFile('config.json', configJSON);
 
@@ -213,7 +213,7 @@ async function processOperations<T extends OperationConfig>(packageJSON: Package
     if (usageId === 'unknown') console.warn('⚠️  No usage identified.');
     else console.info(`ℹ️  Supports '${usageId}' usage.`);
 
-    if (packageJSON.name != null) configJSON.id = packageJSON.name.replace('@datapos/', '').replace('@data-positioning/', '');
+    if (packageJSON.name != null) configJSON.id = packageJSON.name.replace('@dpuse/', '').replace('@dpuse/', '');
     if (packageJSON.version != null) configJSON.version = packageJSON.version;
     configJSON.operations = operations;
     configJSON.usageId = usageId ?? 'unknown';

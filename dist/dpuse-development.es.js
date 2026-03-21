@@ -6499,7 +6499,7 @@ function Gr() {
 async function Kr(e, t) {
 	Z(`${e}  Build project configuration`);
 	let n = await Q("config.json");
-	return t.name != null && (n.id = t.name.replace("@datapos/", "").replace("@data-positioning/", "")), t.version != null && (n.version = t.version), await Pr("config.json", n), n;
+	return t.name != null && (n.id = t.name.replace("@dpuse/", "").replace("@dpuse/", "")), t.version != null && (n.version = t.version), await Pr("config.json", n), n;
 }
 async function qr(e, t) {
 	Z(`${e}  Build connector project configuration`);
@@ -6512,7 +6512,7 @@ async function qr(e, t) {
 	return console.log(3333), await Jr(t, n, a, o);
 }
 async function Jr(e, t, n, r) {
-	return n.length > 0 ? (console.info(`ℹ️  Implements ${n.length} operations:`), console.table(n)) : console.warn("⚠️  Implements no operations."), r === "unknown" ? console.warn("⚠️  No usage identified.") : console.info(`ℹ️  Supports '${r}' usage.`), e.name != null && (t.id = e.name.replace("@datapos/", "").replace("@data-positioning/", "")), e.version != null && (t.version = e.version), t.operations = n, t.usageId = r ?? "unknown", await Pr("config.json", t), t;
+	return n.length > 0 ? (console.info(`ℹ️  Implements ${n.length} operations:`), console.table(n)) : console.warn("⚠️  Implements no operations."), r === "unknown" ? console.warn("⚠️  No usage identified.") : console.info(`ℹ️  Supports '${r}' usage.`), e.name != null && (t.id = e.name.replace("@dpuse/", "").replace("@dpuse/", "")), e.version != null && (t.version = e.version), t.operations = n, t.usageId = r ?? "unknown", await Pr("config.json", t), t;
 }
 async function Yr(e, t) {
 	Z(`${e}  Build context project configuration`);
@@ -6603,12 +6603,12 @@ async function ri(e) {
 }
 async function ii(e) {
 	let t = await Q("config.json"), n = [];
-	if (Object.values(e).reduce((e, t) => e + t, 0) === 0) console.info("No vulnerabilities found."), n.push(`[![OWASP](https://img.shields.io/badge/OWASP-passed-4CAF50)](https://data-positioning.github.io/${t.id}/dependency-check-reports/dependency-check-report.html)`);
+	if (Object.values(e).reduce((e, t) => e + t, 0) === 0) console.info("No vulnerabilities found."), n.push(`[![OWASP](https://img.shields.io/badge/OWASP-passed-4CAF50)](https://dpuse.github.io/${t.id}/dependency-check-reports/dependency-check-report.html)`);
 	else for (let [r, i] of Object.entries(e)) {
 		let e = $r[r];
 		if (console.warn(`⚠️  ${i} ${e.label} vulnerability(ies) found.`), i === 0) continue;
 		let a = `https://img.shields.io/badge/OWASP-${i}%20${e.label}-${e.color}`;
-		n.push(`[![OWASP](${a})](https://data-positioning.github.io/${t.id}/dependency-check-reports/dependency-check-report.html)`);
+		n.push(`[![OWASP](${a})](https://dpuse.github.io/${t.id}/dependency-check-reports/dependency-check-report.html)`);
 	}
 	return n;
 }
