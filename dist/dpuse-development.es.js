@@ -6210,7 +6210,7 @@ var Cr = [
 		uploadGroupName: "contexts"
 	},
 	{
-		idPrefix: "@dpuse/dpuse-development",
+		idPrefix: "dpuse-development",
 		typeId: "development",
 		isPublish: !0,
 		uploadGroupName: void 0
@@ -6651,7 +6651,10 @@ async function ci(e = [], t = !0) {
 			"licenses/licenseTree.json",
 			"--output=table",
 			...n
-		])) : (Z("3️⃣  Skip 'licenses/licenseTree.json' file generate"), Z("4️⃣  Skip 'licenses/licenseTree.json' file check")), await Tr("licenses/downloads"), await X("5️⃣  Download license files", "license-downloader", [
+		])) : (Z("3️⃣  Skip 'licenses/licenseTree.json' file generate"), Z("4️⃣  Skip 'licenses/licenseTree.json' file check"));
+		let r = process.env.GITHUB_TOKEN;
+		if (r == null || r === "" || r.startsWith("op://")) throw Error("GITHUB_TOKEN is not resolved. Run the script via \"npm run document\" to use 1Password resolution.");
+		await Tr("licenses/downloads"), await X("5️⃣  Download license files", "license-downloader", [
 			"--source",
 			"licenses/licenses.json",
 			"--licDir",

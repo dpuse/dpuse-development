@@ -68,6 +68,11 @@ async function documentDependencies(licenses: string[] = [], checkRecursive = tr
             logStepHeader("4️⃣  Skip 'licenses/licenseTree.json' file check");
         }
 
+        const githubToken = process.env['GITHUB_TOKEN'];
+        if (githubToken == null || githubToken === '' || githubToken.startsWith('op://')) {
+            throw new Error('GITHUB_TOKEN is not resolved. Run the script via "npm run document" to use 1Password resolution.');
+        }
+
         await clearDirectory('licenses/downloads');
         await execCommand('5️⃣  Download license files', 'license-downloader', [
             '--source',

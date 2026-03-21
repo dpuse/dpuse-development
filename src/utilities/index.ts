@@ -28,7 +28,7 @@ const MODULE_TYPE_CONFIGS: ModuleTypeConfig[] = [
     { idPrefix: 'dpuse-api', typeId: 'api', isPublish: false, uploadGroupName: undefined },
     { idPrefix: 'dpuse-connector', typeId: 'connector', isPublish: true, uploadGroupName: 'connectors' },
     { idPrefix: 'dpuse-context', typeId: 'context', isPublish: true, uploadGroupName: 'contexts' },
-    { idPrefix: '@dpuse/dpuse-development', typeId: 'development', isPublish: true, uploadGroupName: undefined },
+    { idPrefix: 'dpuse-development', typeId: 'development', isPublish: true, uploadGroupName: undefined },
     { idPrefix: 'dpuse-engine', typeId: 'engine', isPublish: false, uploadGroupName: 'engine' },
     { idPrefix: 'dpuse-presenter', typeId: 'presenter', isPublish: true, uploadGroupName: 'presenters' },
     { idPrefix: 'dpuse-resources', typeId: 'resources', isPublish: false, uploadGroupName: undefined },
