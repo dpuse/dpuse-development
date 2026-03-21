@@ -6210,7 +6210,7 @@ var Cr = [
 		uploadGroupName: "contexts"
 	},
 	{
-		idPrefix: "dpuse-development",
+		idPrefix: "@dpuse/dpuse-development",
 		typeId: "development",
 		isPublish: !0,
 		uploadGroupName: void 0
@@ -6300,6 +6300,7 @@ async function Dr(e, n) {
 	return t.readdir(e, n);
 }
 function Or(e) {
+	console.log(1111, e);
 	let t = Cr.find((t) => e.startsWith(t.idPrefix));
 	if (!t) throw Error(`Failed to locate module type configuration for identifier '${e}'.`);
 	return t;
