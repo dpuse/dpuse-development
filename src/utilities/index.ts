@@ -125,7 +125,6 @@ async function getDirectoryEntries(path: string, options?: ObjectEncodingOptions
 
 /** Utilities - Get module type identifier. */
 function getModuleConfig(configId: string): ModuleTypeConfig {
-    console.log(1111, configId);
     const moduleTypeConfig = MODULE_TYPE_CONFIGS.find((config) => configId.startsWith(config.idPrefix));
     if (!moduleTypeConfig) throw new Error(`Failed to locate module type configuration for identifier '${configId}'.`);
     return moduleTypeConfig;
@@ -176,10 +175,10 @@ async function removeFile(path: string): Promise<void> {
 }
 
 /** Utilities - Spawn command. */
-async function spawnCommand(label: string, command: string, arguments_: string[] = [], ignoreErrors = false): Promise<void> {
+async function spawnCommand(label: string, command: string, arguments_: string[] = [], ignoreErrors = false, useShell = false): Promise<void> {
     logStepHeader(`${label} - spawn(${command} ${arguments_.join(' ')})`);
     return new Promise((resolve, reject) => {
-        const child = spawn(command, arguments_, { stdio: 'inherit' });
+        const child = spawn(command, arguments_, { shell: useShell, stdio: 'inherit' });
         child.on('close', (code) => {
             if (code === 0 || ignoreErrors) {
                 resolve();

@@ -31,7 +31,7 @@ declare function readTextFile(path: string): Promise<string>;
 /** Utilities - Remove file. */
 declare function removeFile(path: string): Promise<void>;
 /** Utilities - Spawn command. */
-declare function spawnCommand(label: string, command: string, arguments_?: string[], ignoreErrors?: boolean): Promise<void>;
+declare function spawnCommand(label: string, command: string, arguments_?: string[], ignoreErrors?: boolean, useShell?: boolean): Promise<void>;
 /** Utilities - Substitute content. */
 declare function substituteContent(originalContent: string, substituteContent: string, startMarker: string, endMarker: string): string;
 /** Utilities - Write JSON file. */

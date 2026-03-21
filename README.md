@@ -2,8 +2,7 @@
 
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=data-positioning_dpuse-development&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=data-positioning_dpuse-development)
 <span><!-- OWASP_BADGES_START -->
-[![OWASP](https://img.shields.io/badge/OWASP-passed-4CAF50)](https://data-positioning.github.io/dpuse-development/dependency-check-reports/dependency-check-report.html)
-
+[![OWASP](https://img.shields.io/badge/OWASP-5%20high-EF6C00)](https://data-positioning.github.io/@dpuse/dpuse-development/dependency-check-reports/dependency-check-report.html) [![OWASP](https://img.shields.io/badge/OWASP-4%20moderate-FBC02D)](https://data-positioning.github.io/@dpuse/dpuse-development/dependency-check-reports/dependency-check-report.html)
 <!-- OWASP_BADGES_END --></span>
 
 [![npm version](https://img.shields.io/npm/v/@dpuse/dpuse-development.svg)](https://www.npmjs.com/package/@dpuse/dpuse-development)

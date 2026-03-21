@@ -9,7 +9,7 @@ import type { PackageJson } from 'type-fest';
 
 // Dependencies - Framework.
 import type { ModuleConfig } from '@datapos/datapos-shared/component';
-import { logOperationHeader, logOperationSuccess, logStepHeader, readJSONFile, readTextFile, spawnCommand, substituteContent, writeTextFile } from '@/utilities';
+import { getDirectoryEntries, logOperationHeader, logOperationSuccess, logStepHeader, readJSONFile, readTextFile, spawnCommand, substituteContent, writeTextFile } from '@/utilities';
 
 // Interfaces/Types
 interface DependencyCheckData {
@@ -46,7 +46,15 @@ async function auditDependencies(): Promise<void> {
 
         const packageJSON = await readJSONFile<PackageJson>('package.json');
 
+        const owaspBinArguments: string[] = [];
+        try {
+            const versions: string[] = await getDirectoryEntries('dependency-check-bin');
+            const latestVersion = versions.toSorted((a, b) => a.localeCompare(b)).at(-1);
+            if (latestVersion != null && latestVersion !== '') owaspBinArguments.push('--owasp-bin', `dependency-check-bin/${latestVersion}/dependency-check/bin/dependency-check.sh`);
+        } catch { /* not yet installed - let the wrapper download it */ }
+
         await spawnCommand('1️⃣', 'owasp-dependency-check', [
+            ...owaspBinArguments,
             '--out',
             'dependency-check-reports',
             '--project',

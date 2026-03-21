@@ -6300,7 +6300,6 @@ async function Dr(e, n) {
 	return t.readdir(e, n);
 }
 function Or(e) {
-	console.log(1111, e);
 	let t = Cr.find((t) => e.startsWith(t.idPrefix));
 	if (!t) throw Error(`Failed to locate module type configuration for identifier '${e}'.`);
 	return t;
@@ -6328,10 +6327,13 @@ async function Mr(e) {
 		if (e.code !== "ENOENT") throw e;
 	}
 }
-async function $(e, t, n = [], r = !1) {
-	return Z(`${e} - spawn(${t} ${n.join(" ")})`), new Promise((e, i) => {
-		a(t, n, { stdio: "inherit" }).on("close", (n) => {
-			n === 0 || r ? e() : i(/* @__PURE__ */ Error(`${t} exited with code ${n}`));
+async function $(e, t, n = [], r = !1, i = !1) {
+	return Z(`${e} - spawn(${t} ${n.join(" ")})`), new Promise((e, o) => {
+		a(t, n, {
+			shell: i,
+			stdio: "inherit"
+		}).on("close", (n) => {
+			n === 0 || r ? e() : o(/* @__PURE__ */ Error(`${t} exited with code ${n}`));
 		});
 	});
 }
@@ -6562,11 +6564,18 @@ var $r = {
 }, ei = "<!-- OWASP_BADGES_START -->", ti = "<!-- OWASP_BADGES_END -->";
 async function ni() {
 	try {
-		kr("Audit Dependencies"), await $("1️⃣", "owasp-dependency-check", [
+		kr("Audit Dependencies");
+		let e = await Q("package.json"), t = [];
+		try {
+			let e = (await Dr("dependency-check-bin")).toSorted((e, t) => e.localeCompare(t)).at(-1);
+			e != null && e !== "" && t.push("--owasp-bin", `dependency-check-bin/${e}/dependency-check/bin/dependency-check.sh`);
+		} catch {}
+		await $("1️⃣", "owasp-dependency-check", [
+			...t,
 			"--out",
 			"dependency-check-reports",
 			"--project",
-			(await Q("package.json")).name ?? "unknown",
+			e.name ?? "unknown",
 			"--enableRetired",
 			"--nodePackageSkipDevDependencies",
 			"--nvdApiKey",
