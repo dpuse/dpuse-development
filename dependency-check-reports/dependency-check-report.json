@@ -17,7 +17,7 @@
     },
     "projectInfo": {
         "name": "@dpuse\/dpuse-development",
-        "reportDate": "2026-03-21T15:58:24.340936Z",
+        "reportDate": "2026-03-21T16:09:46.010685Z",
         "credits": {
             "NVD": "This product uses the NVD API but is not endorsed or certified by the NVD. This report contains data retrieved from the National Vulnerability Database: https://nvd.nist.gov",
             "CISA": "This report may contain data retrieved from the CISA Known Exploited Vulnerability Catalog: https://www.cisa.gov/known-exploited-vulnerabilities-catalog",
@@ -30,9 +30,9 @@
 {
             "isVirtual": true,
             "fileName": "@datapos\/datapos-shared:0.3.590",
-            "filePath": "\/Users\/jonathanterrell\/DPUse\/GitHub\/dpuse-development\/package-lock.json?datapos-development:0.3.448\/@datapos\/datapos-shared:0.3.590"
+            "filePath": "\/Users\/jonathanterrell\/DPUse\/GitHub\/dpuse-development\/package-lock.json?dpuse-development:0.3.456\/@datapos\/datapos-shared:0.3.590"
 ,"description": "A library containing common constants, types and utilities used across all Data Positioning projects.","license": "MIT"            ,"projectReferences": [
-                "@datapos\/datapos-development:0.3.448"
+                "@dpuse\/dpuse-development:0.3.456"
             ]
             ,"evidenceCollected": {
                 "vendorEvidence": [
@@ -106,9 +106,9 @@
         },{
             "isVirtual": true,
             "fileName": "acorn-typescript:1.4.13",
-            "filePath": "\/Users\/jonathanterrell\/DPUse\/GitHub\/dpuse-development\/package-lock.json?datapos-development:0.3.448\/acorn-typescript:1.4.13"
+            "filePath": "\/Users\/jonathanterrell\/DPUse\/GitHub\/dpuse-development\/package-lock.json?dpuse-development:0.3.456\/acorn-typescript:1.4.13"
 ,"description": "Alternative, TypeScript parser","license": "MIT"            ,"projectReferences": [
-                "@datapos\/datapos-development:0.3.448"
+                "@dpuse\/dpuse-development:0.3.456"
             ]
             ,"evidenceCollected": {
                 "vendorEvidence": [
@@ -182,9 +182,9 @@
         },{
             "isVirtual": true,
             "fileName": "acorn-walk:8.3.5",
-            "filePath": "\/Users\/jonathanterrell\/DPUse\/GitHub\/dpuse-development\/package-lock.json?datapos-development:0.3.448\/acorn-walk:8.3.5"
+            "filePath": "\/Users\/jonathanterrell\/DPUse\/GitHub\/dpuse-development\/package-lock.json?dpuse-development:0.3.456\/acorn-walk:8.3.5"
 ,"description": "ECMAScript (ESTree) AST walker","license": "MIT"            ,"projectReferences": [
-                "@datapos\/datapos-development:0.3.448"
+                "@dpuse\/dpuse-development:0.3.456"
             ]
             ,"evidenceCollected": {
                 "vendorEvidence": [
@@ -300,16 +300,16 @@
         },{
             "isVirtual": true,
             "fileName": "acorn:8.16.0",
-            "filePath": "\/Users\/jonathanterrell\/DPUse\/GitHub\/dpuse-development\/package-lock.json?datapos-development:0.3.448\/acorn-walk:8.3.5\/acorn:^8.11.0"
+            "filePath": "\/Users\/jonathanterrell\/DPUse\/GitHub\/dpuse-development\/package-lock.json?dpuse-development:0.3.456\/acorn-walk:8.3.5\/acorn:^8.11.0"
 ,"description": "ECMAScript parser","license": "MIT"            ,"projectReferences": [
-                "@datapos\/datapos-development:0.3.448"
-,                "@datapos\/datapos-development:0.3.448\/acorn-walk:8.3.5"
+                "@dpuse\/dpuse-development:0.3.456"
+,                "@dpuse\/dpuse-development:0.3.456\/acorn-walk:8.3.5"
             ]
             ,"relatedDependencies": [
   {
                     "isVirtual": true,
                     "fileName": "acorn:8.16.0",
-                    "filePath": "\/Users\/jonathanterrell\/DPUse\/GitHub\/dpuse-development\/package-lock.json?datapos-development:0.3.448\/acorn:8.16.0"
+                    "filePath": "\/Users\/jonathanterrell\/DPUse\/GitHub\/dpuse-development\/package-lock.json?dpuse-development:0.3.456\/acorn:8.16.0"
 ,
                     "packageIds": [
                             {
@@ -431,188 +431,10 @@
             ]
         },{
             "isVirtual": true,
-            "fileName": "ajv:8.17.1",
-            "filePath": "\/Users\/jonathanterrell\/DPUse\/GitHub\/dpuse-development\/package-lock.json?ajv"
-            ,"projectReferences": [
-                "@datapos\/datapos-development: transitive"
-            ]
-            ,"evidenceCollected": {
-                "vendorEvidence": [
-{
-                            "type": "vendor",
-                            "confidence": "HIGH",
-                            "source": "package.json",
-                            "name": "name",
-                            "value": "ajv"
-                        }
-                ],
-                "productEvidence": [
-{
-                            "type": "product",
-                            "confidence": "HIGHEST",
-                            "source": "package.json",
-                            "name": "name",
-                            "value": "ajv"
-                    }
-                ],
-                "versionEvidence": [
-                    {
-                        "type": "version",
-                        "confidence": "HIGHEST",
-                        "source": "package.json",
-                        "name": "version",
-                        "value": "8.17.1"
-                    }
-                ]
-            }
-                ,"packages": [
-                    {
-                        "id": "pkg:npm\/ajv@8.17.1"
-,"confidence": "HIGHEST"                    }
-            ]
-            ,"vulnerabilities": [
- {
-                "source": "NPM",
-                "name": "GHSA-2g4f-4pwh-qvx6",
-"unscored": "true", "severity" : "moderate",
-                    "cwes": [
-                        "CWE-400",                        "CWE-1333"                    ],
-                "description": "ajv (Another JSON Schema Validator) through version 8.17.1 is vulnerable to Regular Expression Denial of Service (ReDoS) when the `$data` option is enabled. The pattern keyword accepts runtime data via JSON Pointer syntax (`$data` reference), which is passed directly to the JavaScript `RegExp()` constructor without validation. An attacker can inject a malicious regex pattern (e.g., `\\\"^(a|a)*$\\\"`) combined with crafted input to cause catastrophic backtracking. A 31-character payload causes approximately 44 seconds of CPU blocking, with each additional character doubling execution time. This enables complete denial of service with a single HTTP request against any API using ajv with `$data`: true for dynamic schema validation.",
-                "notes": "",
-                "references": [
- {
-                        "source": "NPM Advisory reference: "
-,"url": "https:\/\/github.com\/ajv-validator\/ajv\/commit\/720a23fa453ffae8340e92c9b0fe886c54cfe0d5","name": "https:\/\/github.com\/ajv-validator\/ajv\/commit\/720a23fa453ffae8340e92c9b0fe886c54cfe0d5"                    }, {
-                        "source": "NPM Advisory reference: "
-,"url": "https:\/\/github.com\/ajv-validator\/ajv\/pull\/2590","name": "https:\/\/github.com\/ajv-validator\/ajv\/pull\/2590"                    }, {
-                        "source": "NPM Advisory reference: "
-,"url": "https:\/\/github.com\/github\/advisory-database\/pull\/6991","name": "https:\/\/github.com\/github\/advisory-database\/pull\/6991"                    }, {
-                        "source": "NPM Advisory reference: "
-,"url": "https:\/\/github.com\/ajv-validator\/ajv\/pull\/2588","name": "https:\/\/github.com\/ajv-validator\/ajv\/pull\/2588"                    }, {
-                        "source": "NPM Advisory reference: "
-,"url": "https:\/\/github.com\/ajv-validator\/ajv\/releases\/tag\/v8.18.0","name": "https:\/\/github.com\/ajv-validator\/ajv\/releases\/tag\/v8.18.0"                    }, {
-                        "source": "NPM Advisory reference: "
-,"url": "https:\/\/github.com\/ajv-validator\/ajv\/releases\/tag\/v6.14.0","name": "https:\/\/github.com\/ajv-validator\/ajv\/releases\/tag\/v6.14.0"                    }, {
-                        "source": "NPM Advisory reference: "
-,"url": "https:\/\/github.com\/EthanKim88\/ethan-cve-disclosures\/blob\/main\/CVE-2025-69873-ajv-ReDoS.md","name": "https:\/\/github.com\/EthanKim88\/ethan-cve-disclosures\/blob\/main\/CVE-2025-69873-ajv-ReDoS.md"                    }, {
-                        "source": "NPM Advisory reference: "
-,"url": "https:\/\/nvd.nist.gov\/vuln\/detail\/CVE-2025-69873","name": "https:\/\/nvd.nist.gov\/vuln\/detail\/CVE-2025-69873"                    }, {
-                        "source": "NPM Advisory reference: "
-,"url": "https:\/\/github.com\/ajv-validator\/ajv\/pull\/2586","name": "https:\/\/github.com\/ajv-validator\/ajv\/pull\/2586"                    }, {
-                        "source": "NPM Advisory reference: "
-,"url": "https:\/\/github.com\/advisories\/GHSA-2g4f-4pwh-qvx6","name": "https:\/\/github.com\/advisories\/GHSA-2g4f-4pwh-qvx6"                    }                ],
-                "vulnerableSoftware": [
- {
-                        "software": { 
-                            "id":"cpe:2.3:a:*:ajv:\\>\\=7.0.0-alpha.0\\<8.18.0:*:*:*:*:*:*:*"
-                        }
-                    }                ]
-                }            ]        },{
-            "isVirtual": true,
-            "fileName": "flatted:3.3.2",
-            "filePath": "\/Users\/jonathanterrell\/DPUse\/GitHub\/dpuse-development\/package-lock.json?flatted"
-            ,"projectReferences": [
-                "@datapos\/datapos-development: transitive"
-            ]
-            ,"evidenceCollected": {
-                "vendorEvidence": [
-{
-                            "type": "vendor",
-                            "confidence": "HIGH",
-                            "source": "package.json",
-                            "name": "name",
-                            "value": "flatted"
-                        }
-                ],
-                "productEvidence": [
-{
-                            "type": "product",
-                            "confidence": "HIGHEST",
-                            "source": "package.json",
-                            "name": "name",
-                            "value": "flatted"
-                    }
-                ],
-                "versionEvidence": [
-                    {
-                        "type": "version",
-                        "confidence": "HIGHEST",
-                        "source": "package.json",
-                        "name": "version",
-                        "value": "3.3.2"
-                    }
-                ]
-            }
-                ,"packages": [
-                    {
-                        "id": "pkg:npm\/flatted@3.3.2"
-,"confidence": "HIGHEST"                    }
-            ]
-            ,"vulnerabilities": [
- {
-                "source": "NPM",
-                "name": "GHSA-25h7-pfq9-p65f",
-"unscored": "true", "severity" : "high",
-                    "cvssv3": {
-                        "baseScore": 7.5
-                        ,"attackVector": "NETWORK"
-                        ,"attackComplexity": "LOW"
-                        ,"privilegesRequired": "NONE"
-                        ,"userInteraction": "NONE"
-                        ,"scope": "UNCHANGED"
-                        ,"confidentialityImpact": "NONE"
-                        ,"integrityImpact": "NONE"
-                        ,"availabilityImpact": "HIGH"
-                        ,"baseSeverity": "HIGH"
-,"version": "3.1"                    },
-                    "cwes": [
-                        "CWE-674"                    ],
-                "description": "## Summary\n\nflatted's `parse()` function uses a recursive `revive()` phase to resolve circular references in deserialized JSON. When given a crafted payload with deeply nested or self-referential `$` indices, the recursion depth is unbounded, causing a stack overflow that crashes the Node.js process.\n\n## Impact\n\nDenial of Service (DoS). Any application that passes untrusted input to `flatted.parse()` can be crashed by an unauthenticated attacker with a single request.\n\nflatted has ~87M weekly npm downloads and is used as the circular-JSON serialization layer in many caching and logging libraries.\n\n## Proof of Concept\n\n```javascript\nconst flatted = require('flatted');\n\n\/\/ Build deeply nested circular reference chain\nconst depth = 20000;\nconst arr = new Array(depth + 1);\narr[0] = '{\"a\":\"1\"}';\nfor (let i = 1; i <= depth; i++) {\n  arr[i] = `{\"a\":\"${i + 1}\"}`;\n}\narr[depth] = '{\"a\":\"leaf\"}';\n\nconst payload = JSON.stringify(arr);\nflatted.parse(payload); \/\/ RangeError: Maximum call stack size exceeded\n```\n\n## Fix\n\nThe maintainer has already merged an iterative (non-recursive) implementation in PR #88, converting the recursive `revive()` to a stack-based loop.\n\n## Affected Versions\n\nAll versions prior to the PR #88 fix.",
-                "notes": "",
-                "references": [
- {
-                        "source": "NPM Advisory reference: "
-,"url": "https:\/\/github.com\/WebReflection\/flatted\/pull\/88","name": "https:\/\/github.com\/WebReflection\/flatted\/pull\/88"                    }, {
-                        "source": "NPM Advisory reference: "
-,"url": "https:\/\/github.com\/WebReflection\/flatted\/commit\/7eb65d857e1a40de11c47461cdbc8541449f0606","name": "https:\/\/github.com\/WebReflection\/flatted\/commit\/7eb65d857e1a40de11c47461cdbc8541449f0606"                    }, {
-                        "source": "NPM Advisory reference: "
-,"url": "https:\/\/github.com\/advisories\/GHSA-25h7-pfq9-p65f","name": "https:\/\/github.com\/advisories\/GHSA-25h7-pfq9-p65f"                    }, {
-                        "source": "NPM Advisory reference: "
-,"url": "https:\/\/nvd.nist.gov\/vuln\/detail\/CVE-2026-32141","name": "https:\/\/nvd.nist.gov\/vuln\/detail\/CVE-2026-32141"                    }, {
-                        "source": "NPM Advisory reference: "
-,"url": "https:\/\/github.com\/WebReflection\/flatted\/security\/advisories\/GHSA-25h7-pfq9-p65f","name": "https:\/\/github.com\/WebReflection\/flatted\/security\/advisories\/GHSA-25h7-pfq9-p65f"                    }                ],
-                "vulnerableSoftware": [
- {
-                        "software": { 
-                            "id":"cpe:2.3:a:*:flatted:\\<3.4.0:*:*:*:*:*:*:*"
-                        }
-                    }                ]
-                }, {
-                "source": "NPM",
-                "name": "GHSA-rf6f-7fwh-wjgh",
-"unscored": "true", "severity" : "high",
-                    "cwes": [
-                        "CWE-1321"                    ],
-                "description": "---\n  **Summary**\n\n  The parse() function in flatted can use attacker-controlled string values from the parsed JSON as direct array index\n  keys, without validating that they are numeric. Since the internal input buffer is a JavaScript Array, accessing it\n  with the key \"\\_\\_proto\\_\\_\" returns Array.prototype via the inherited getter. This object is then treated as a legitimate\n   parsed value and assigned as a property of the output object, effectively leaking a live reference to Array.prototype\n   to the consumer. Any code that subsequently writes to that property will pollute the global prototype.\n\n  ---\n  **Root Cause**\n\n  File: esm\/index.js:29 (identical in cjs\/index.js)\n```\n  const resolver = (input, lazy, parsed, $) => output => {\n    for (let ke = keys(output), {length} = ke, y = 0; y < length; y++) {\n      const k = ke[y];\n      const value = output[k];    \n      if (value instanceof Primitive) {\n        const tmp = input[value];      \/\/ Bug is here\n```\n\nNo validation that value is a safe numeric index input is built as a plain Array. JavaScript's property lookup on arrays traverses the prototype chain for non-numeric  keys. The key \"\\_\\_proto\\_\\_\" resolves to Array.prototype, which:\n\n  - has type \"object\" \u2192 passes the typeof tmp === object guard at line 30\n  - is not in the parsed Set yet \u2192 passes the !parsed.has(tmp) guard.\n  - The reference to Array.prototype is then enqueued in lazy and later unconditionally assigned to the output object.\n  ---\n  **Replication Steps**\n```\n  const Flatted = require('flatted'); \n  const parsed = Flatted.parse('[{\"x\":\"__proto__\"}]');\n  parsed.x.polluted = 'pwned';\n  console.log([].polluted);  \/\/ Returns true\n``` \n ---\n  **Impact**\n An attacker can supply a crafted flatted string to parse() that causes the returned object to hold a live reference to Array.prototype, enabling any downstream code that writes to that property to pollute the global prototype chain, potentially causing denial of service or code execution.\n\n  **Recommended solution**\n Validate that the index string represents an integer within the bounds of input before accessing it:\n\n  \/\/ Before (vulnerable)\n  const tmp = input[value];\n\n  \/\/ After (safe)\n  const idx = +value;  \/\/ coerce boxed String \u2192 number\n  const tmp = (Number.isInteger(idx) && idx >= 0 && idx < input.length)\n    ? input[idx]\n    : undefined;",
-                "notes": "",
-                "references": [
- {
-                        "source": "NPM Advisory reference: "
-,"url": "https:\/\/github.com\/WebReflection\/flatted\/security\/advisories\/GHSA-rf6f-7fwh-wjgh","name": "https:\/\/github.com\/WebReflection\/flatted\/security\/advisories\/GHSA-rf6f-7fwh-wjgh"                    }, {
-                        "source": "NPM Advisory reference: "
-,"url": "https:\/\/github.com\/advisories\/GHSA-rf6f-7fwh-wjgh","name": "https:\/\/github.com\/advisories\/GHSA-rf6f-7fwh-wjgh"                    }                ],
-                "vulnerableSoftware": [
- {
-                        "software": { 
-                            "id":"cpe:2.3:a:*:flatted:\\<\\=3.4.1:*:*:*:*:*:*:*"
-                        }
-                    }                ]
-                }            ]        },{
-            "isVirtual": true,
             "fileName": "nanoid:5.1.7",
-            "filePath": "\/Users\/jonathanterrell\/DPUse\/GitHub\/dpuse-development\/package-lock.json?datapos-development:0.3.448\/nanoid:5.1.7"
+            "filePath": "\/Users\/jonathanterrell\/DPUse\/GitHub\/dpuse-development\/package-lock.json?dpuse-development:0.3.456\/nanoid:5.1.7"
 ,"description": "A tiny (118 bytes), secure URL-friendly unique string ID generator","license": "MIT"            ,"projectReferences": [
-                "@datapos\/datapos-development:0.3.448"
+                "@dpuse\/dpuse-development:0.3.456"
             ]
             ,"evidenceCollected": {
                 "vendorEvidence": [
@@ -676,9 +498,9 @@
         },{
             "isVirtual": true,
             "fileName": "typescript:5.9.3",
-            "filePath": "\/Users\/jonathanterrell\/DPUse\/GitHub\/dpuse-development\/package-lock.json?datapos-development:0.3.448\/typescript:5.9.3"
+            "filePath": "\/Users\/jonathanterrell\/DPUse\/GitHub\/dpuse-development\/package-lock.json?dpuse-development:0.3.456\/typescript:5.9.3"
 ,"description": "TypeScript is a language for application scale JavaScript development","license": "Apache-2.0"            ,"projectReferences": [
-                "@datapos\/datapos-development:0.3.448"
+                "@dpuse\/dpuse-development:0.3.456"
             ]
             ,"evidenceCollected": {
                 "vendorEvidence": [
@@ -755,292 +577,10 @@
             ]
         },{
             "isVirtual": true,
-            "fileName": "undici:7.22.0",
-            "filePath": "\/Users\/jonathanterrell\/DPUse\/GitHub\/dpuse-development\/package-lock.json?undici"
-            ,"projectReferences": [
-                "@datapos\/datapos-development: transitive"
-            ]
-            ,"evidenceCollected": {
-                "vendorEvidence": [
-{
-                            "type": "vendor",
-                            "confidence": "HIGH",
-                            "source": "package.json",
-                            "name": "name",
-                            "value": "undici"
-                        }
-                ],
-                "productEvidence": [
-{
-                            "type": "product",
-                            "confidence": "HIGHEST",
-                            "source": "package.json",
-                            "name": "name",
-                            "value": "undici"
-                    }
-                ],
-                "versionEvidence": [
-                    {
-                        "type": "version",
-                        "confidence": "HIGHEST",
-                        "source": "package.json",
-                        "name": "version",
-                        "value": "7.22.0"
-                    }
-                ]
-            }
-                ,"packages": [
-                    {
-                        "id": "pkg:npm\/undici@7.22.0"
-,"confidence": "HIGHEST"                    }
-            ]
-            ,"vulnerabilities": [
- {
-                "source": "NPM",
-                "name": "GHSA-f269-vfmq-vjvj",
-"unscored": "true", "severity" : "high",
-                    "cvssv3": {
-                        "baseScore": 7.5
-                        ,"attackVector": "NETWORK"
-                        ,"attackComplexity": "LOW"
-                        ,"privilegesRequired": "NONE"
-                        ,"userInteraction": "NONE"
-                        ,"scope": "UNCHANGED"
-                        ,"confidentialityImpact": "NONE"
-                        ,"integrityImpact": "NONE"
-                        ,"availabilityImpact": "HIGH"
-                        ,"baseSeverity": "HIGH"
-,"version": "3.1"                    },
-                    "cwes": [
-                        "CWE-248",                        "CWE-1284"                    ],
-                "description": "### Impact\nA server can reply with a WebSocket frame using the 64-bit length form and an extremely large length. undici's ByteParser overflows internal math, ends up in an invalid state, and throws a fatal TypeError that terminates the process. \n\n### Patches\n\n\n Patched in the undici version v7.24.0 and v6.24.0. Users should upgrade to this version or later.\n\n### Workarounds\n\nThere are no workarounds.",
-                "notes": "",
-                "references": [
- {
-                        "source": "NPM Advisory reference: "
-,"url": "https:\/\/cna.openjsf.org\/security-advisories.html","name": "https:\/\/cna.openjsf.org\/security-advisories.html"                    }, {
-                        "source": "NPM Advisory reference: "
-,"url": "https:\/\/github.com\/advisories\/GHSA-f269-vfmq-vjvj","name": "https:\/\/github.com\/advisories\/GHSA-f269-vfmq-vjvj"                    }, {
-                        "source": "NPM Advisory reference: "
-,"url": "https:\/\/hackerone.com\/reports\/3537648","name": "https:\/\/hackerone.com\/reports\/3537648"                    }, {
-                        "source": "NPM Advisory reference: "
-,"url": "https:\/\/github.com\/nodejs\/undici\/security\/advisories\/GHSA-f269-vfmq-vjvj","name": "https:\/\/github.com\/nodejs\/undici\/security\/advisories\/GHSA-f269-vfmq-vjvj"                    }, {
-                        "source": "NPM Advisory reference: "
-,"url": "https:\/\/nvd.nist.gov\/vuln\/detail\/CVE-2026-1528","name": "https:\/\/nvd.nist.gov\/vuln\/detail\/CVE-2026-1528"                    }                ],
-                "vulnerableSoftware": [
- {
-                        "software": { 
-                            "id":"cpe:2.3:a:*:undici:\\>\\=7.0.0\\<7.24.0:*:*:*:*:*:*:*"
-                        }
-                    }                ]
-                }, {
-                "source": "NPM",
-                "name": "GHSA-v9p9-hfj2-hcw8",
-"unscored": "true", "severity" : "high",
-                    "cvssv3": {
-                        "baseScore": 7.5
-                        ,"attackVector": "NETWORK"
-                        ,"attackComplexity": "LOW"
-                        ,"privilegesRequired": "NONE"
-                        ,"userInteraction": "NONE"
-                        ,"scope": "UNCHANGED"
-                        ,"confidentialityImpact": "NONE"
-                        ,"integrityImpact": "NONE"
-                        ,"availabilityImpact": "HIGH"
-                        ,"baseSeverity": "HIGH"
-,"version": "3.1"                    },
-                    "cwes": [
-                        "CWE-248"                    ],
-                "description": "### Impact\n\nThe undici WebSocket client is vulnerable to a denial-of-service attack due to improper validation of the `server_max_window_bits` parameter in the permessage-deflate extension. When a WebSocket client connects to a server, it automatically advertises support for permessage-deflate compression. A malicious server can respond with an out-of-range `server_max_window_bits` value (outside zlib's valid range of 8-15). When the server subsequently sends a compressed frame, the client attempts to create a zlib InflateRaw instance with the invalid windowBits value, causing a synchronous RangeError exception that is not caught, resulting in immediate process termination.\n\nThe vulnerability exists because:\n\n1. The `isValidClientWindowBits()` function only validates that the value contains ASCII digits, not that it falls within the valid range 8-15\n2. The `createInflateRaw()` call is not wrapped in a try-catch block\n3. The resulting exception propagates up through the call stack and crashes the Node.js process\n\n### Patches\n_Has the problem been patched? What versions should users upgrade to?_\n\n### Workarounds\n_Is there a way for users to fix or remediate the vulnerability without upgrading?_",
-                "notes": "",
-                "references": [
- {
-                        "source": "NPM Advisory reference: "
-,"url": "https:\/\/nvd.nist.gov\/vuln\/detail\/CVE-2026-2229","name": "https:\/\/nvd.nist.gov\/vuln\/detail\/CVE-2026-2229"                    }, {
-                        "source": "NPM Advisory reference: "
-,"url": "https:\/\/cna.openjsf.org\/security-advisories.html","name": "https:\/\/cna.openjsf.org\/security-advisories.html"                    }, {
-                        "source": "NPM Advisory reference: "
-,"url": "https:\/\/datatracker.ietf.org\/doc\/html\/rfc7692","name": "https:\/\/datatracker.ietf.org\/doc\/html\/rfc7692"                    }, {
-                        "source": "NPM Advisory reference: "
-,"url": "https:\/\/nodejs.org\/api\/zlib.html#class-zlibinflateraw","name": "https:\/\/nodejs.org\/api\/zlib.html#class-zlibinflateraw"                    }, {
-                        "source": "NPM Advisory reference: "
-,"url": "https:\/\/hackerone.com\/reports\/3487486","name": "https:\/\/hackerone.com\/reports\/3487486"                    }, {
-                        "source": "NPM Advisory reference: "
-,"url": "https:\/\/github.com\/advisories\/GHSA-v9p9-hfj2-hcw8","name": "https:\/\/github.com\/advisories\/GHSA-v9p9-hfj2-hcw8"                    }, {
-                        "source": "NPM Advisory reference: "
-,"url": "https:\/\/github.com\/nodejs\/undici\/security\/advisories\/GHSA-v9p9-hfj2-hcw8","name": "https:\/\/github.com\/nodejs\/undici\/security\/advisories\/GHSA-v9p9-hfj2-hcw8"                    }                ],
-                "vulnerableSoftware": [
- {
-                        "software": { 
-                            "id":"cpe:2.3:a:*:undici:\\>\\=7.0.0\\<7.24.0:*:*:*:*:*:*:*"
-                        }
-                    }                ]
-                }, {
-                "source": "NPM",
-                "name": "GHSA-vrm6-8vpv-qv8q",
-"unscored": "true", "severity" : "high",
-                    "cvssv3": {
-                        "baseScore": 7.5
-                        ,"attackVector": "NETWORK"
-                        ,"attackComplexity": "LOW"
-                        ,"privilegesRequired": "NONE"
-                        ,"userInteraction": "NONE"
-                        ,"scope": "UNCHANGED"
-                        ,"confidentialityImpact": "NONE"
-                        ,"integrityImpact": "NONE"
-                        ,"availabilityImpact": "HIGH"
-                        ,"baseSeverity": "HIGH"
-,"version": "3.1"                    },
-                    "cwes": [
-                        "CWE-409"                    ],
-                "description": "## Description\n\nThe undici WebSocket client is vulnerable to a denial-of-service attack via unbounded memory consumption during permessage-deflate decompression. When a WebSocket connection negotiates the permessage-deflate extension, the client decompresses incoming compressed frames without enforcing any limit on the decompressed data size. A malicious WebSocket server can send a small compressed frame (a \"decompression bomb\") that expands to an extremely large size in memory, causing the Node.js process to exhaust available memory and crash or become unresponsive.\n\nThe vulnerability exists in the `PerMessageDeflate.decompress()` method, which accumulates all decompressed chunks in memory and concatenates them into a single Buffer without checking whether the total size exceeds a safe threshold.\n\n## Impact\n\n- Remote denial of service against any Node.js application using undici's WebSocket client\n- A single compressed WebSocket frame of ~6 MB can decompress to ~1 GB or more\n- Memory exhaustion occurs in native\/external memory, bypassing V8 heap limits\n- No application-level mitigation is possible as decompression occurs before message delivery\n\n### Patches\n\nUsers should upgrade to fixed versions.\n\n### Workarounds\n\nNo workaround are possible.",
-                "notes": "",
-                "references": [
- {
-                        "source": "NPM Advisory reference: "
-,"url": "https:\/\/nvd.nist.gov\/vuln\/detail\/CVE-2026-1526","name": "https:\/\/nvd.nist.gov\/vuln\/detail\/CVE-2026-1526"                    }, {
-                        "source": "NPM Advisory reference: "
-,"url": "https:\/\/cna.openjsf.org\/security-advisories.html","name": "https:\/\/cna.openjsf.org\/security-advisories.html"                    }, {
-                        "source": "NPM Advisory reference: "
-,"url": "https:\/\/datatracker.ietf.org\/doc\/html\/rfc7692","name": "https:\/\/datatracker.ietf.org\/doc\/html\/rfc7692"                    }, {
-                        "source": "NPM Advisory reference: "
-,"url": "https:\/\/owasp.org\/www-community\/attacks\/Denial_of_Service","name": "https:\/\/owasp.org\/www-community\/attacks\/Denial_of_Service"                    }, {
-                        "source": "NPM Advisory reference: "
-,"url": "https:\/\/github.com\/nodejs\/undici\/security\/advisories\/GHSA-vrm6-8vpv-qv8q","name": "https:\/\/github.com\/nodejs\/undici\/security\/advisories\/GHSA-vrm6-8vpv-qv8q"                    }, {
-                        "source": "NPM Advisory reference: "
-,"url": "https:\/\/hackerone.com\/reports\/3481206","name": "https:\/\/hackerone.com\/reports\/3481206"                    }, {
-                        "source": "NPM Advisory reference: "
-,"url": "https:\/\/github.com\/advisories\/GHSA-vrm6-8vpv-qv8q","name": "https:\/\/github.com\/advisories\/GHSA-vrm6-8vpv-qv8q"                    }                ],
-                "vulnerableSoftware": [
- {
-                        "software": { 
-                            "id":"cpe:2.3:a:*:undici:\\>\\=7.0.0\\<7.24.0:*:*:*:*:*:*:*"
-                        }
-                    }                ]
-                }, {
-                "source": "NPM",
-                "name": "GHSA-2mjp-6q6p-2qxm",
-"unscored": "true", "severity" : "moderate",
-                    "cvssv3": {
-                        "baseScore": 6.5
-                        ,"attackVector": "NETWORK"
-                        ,"attackComplexity": "LOW"
-                        ,"privilegesRequired": "NONE"
-                        ,"userInteraction": "NONE"
-                        ,"scope": "UNCHANGED"
-                        ,"confidentialityImpact": "NONE"
-                        ,"integrityImpact": "LOW"
-                        ,"availabilityImpact": "LOW"
-                        ,"baseSeverity": "MEDIUM"
-,"version": "3.1"                    },
-                    "cwes": [
-                        "CWE-444"                    ],
-                "description": "### Impact\n\nUndici allows duplicate HTTP `Content-Length` headers when they are provided in an array with case-variant names (e.g., `Content-Length` and `content-length`). This produces malformed HTTP\/1.1 requests with multiple conflicting `Content-Length` values on the wire.\n\n**Who is impacted:**\n  - Applications using `undici.request()`, `undici.Client`, or similar low-level APIs with headers passed as flat arrays\n  - Applications that accept user-controlled header names without case-normalization\n\n**Potential consequences:**\n  - **Denial of Service**: Strict HTTP parsers (proxies, servers) will reject requests with duplicate `Content-Length` headers (400 Bad Request)\n  - **HTTP Request Smuggling**: In deployments where an intermediary and backend interpret duplicate headers inconsistently (e.g., one uses the first value, the other uses the last), this can enable request smuggling attacks leading to ACL bypass, cache poisoning, or credential hijacking\n\n### Patches\n\n Patched in the undici version v7.24.0 and v6.24.0. Users should upgrade to this version or later.\n\n### Workarounds\n\n  If upgrading is not immediately possible:\n\n  1. **Validate header names**: Ensure no duplicate `Content-Length` headers (case-insensitive) are present before passing headers to undici\n  2. **Use object format**: Pass headers as a plain object (`{ 'content-length': '123' }`) rather than an array, which naturally deduplicates by key\n  3. **Sanitize user input**: If headers originate from user input, normalize header names to lowercase and reject duplicates",
-                "notes": "",
-                "references": [
- {
-                        "source": "NPM Advisory reference: "
-,"url": "https:\/\/cna.openjsf.org\/security-advisories.html","name": "https:\/\/cna.openjsf.org\/security-advisories.html"                    }, {
-                        "source": "NPM Advisory reference: "
-,"url": "https:\/\/www.rfc-editor.org\/rfc\/rfc9110.html#section-8.6","name": "https:\/\/www.rfc-editor.org\/rfc\/rfc9110.html#section-8.6"                    }, {
-                        "source": "NPM Advisory reference: "
-,"url": "https:\/\/cwe.mitre.org\/data\/definitions\/444.html","name": "https:\/\/cwe.mitre.org\/data\/definitions\/444.html"                    }, {
-                        "source": "NPM Advisory reference: "
-,"url": "https:\/\/nvd.nist.gov\/vuln\/detail\/CVE-2026-1525","name": "https:\/\/nvd.nist.gov\/vuln\/detail\/CVE-2026-1525"                    }, {
-                        "source": "NPM Advisory reference: "
-,"url": "https:\/\/hackerone.com\/reports\/3556037","name": "https:\/\/hackerone.com\/reports\/3556037"                    }, {
-                        "source": "NPM Advisory reference: "
-,"url": "https:\/\/github.com\/advisories\/GHSA-2mjp-6q6p-2qxm","name": "https:\/\/github.com\/advisories\/GHSA-2mjp-6q6p-2qxm"                    }, {
-                        "source": "NPM Advisory reference: "
-,"url": "https:\/\/github.com\/nodejs\/undici\/security\/advisories\/GHSA-2mjp-6q6p-2qxm","name": "https:\/\/github.com\/nodejs\/undici\/security\/advisories\/GHSA-2mjp-6q6p-2qxm"                    }                ],
-                "vulnerableSoftware": [
- {
-                        "software": { 
-                            "id":"cpe:2.3:a:*:undici:\\>\\=7.0.0\\<7.24.0:*:*:*:*:*:*:*"
-                        }
-                    }                ]
-                }, {
-                "source": "NPM",
-                "name": "GHSA-phc3-fgpg-7m6h",
-"unscored": "true", "severity" : "moderate",
-                    "cvssv3": {
-                        "baseScore": 5.900000095367432
-                        ,"attackVector": "NETWORK"
-                        ,"attackComplexity": "HIGH"
-                        ,"privilegesRequired": "NONE"
-                        ,"userInteraction": "NONE"
-                        ,"scope": "UNCHANGED"
-                        ,"confidentialityImpact": "NONE"
-                        ,"integrityImpact": "NONE"
-                        ,"availabilityImpact": "HIGH"
-                        ,"baseSeverity": "MEDIUM"
-,"version": "3.1"                    },
-                    "cwes": [
-                        "CWE-770"                    ],
-                "description": "## Impact\nThis is an uncontrolled resource consumption vulnerability (CWE-400) that can lead to Denial of Service (DoS).\n\nIn vulnerable Undici versions, when `interceptors.deduplicate()` is enabled, response data for deduplicated requests could be accumulated in memory for downstream handlers. An attacker-controlled or untrusted upstream endpoint can exploit this with large\/chunked responses and concurrent identical requests, causing high memory usage and potential OOM process termination.\n\nImpacted users are applications that use Undici\u2019s deduplication interceptor against endpoints that may produce large or long-lived response bodies.\n\n## Patches\n\nThe issue has been patched by changing deduplication behavior to stream response chunks to downstream handlers as they arrive (instead of full-body accumulation), and by preventing late deduplication when body streaming has already started.\n\nUsers should upgrade to the first official Undici (and Node.js, where applicable) releases that include this patch.\n\n## Workarounds\nIf upgrading immediately is not possible:\n\n- Disable `interceptors.deduplicate()` for affected clients\/routes.\n- Use `skipHeaderNames` with a marker header to force high-risk requests to bypass deduplication.\n- Avoid concurrent identical requests to untrusted endpoints that may return very large\/chunked bodies.\n- Apply upstream\/proxy response-size and timeout limits.",
-                "notes": "",
-                "references": [
- {
-                        "source": "NPM Advisory reference: "
-,"url": "https:\/\/nvd.nist.gov\/vuln\/detail\/CVE-2026-2581","name": "https:\/\/nvd.nist.gov\/vuln\/detail\/CVE-2026-2581"                    }, {
-                        "source": "NPM Advisory reference: "
-,"url": "https:\/\/cna.openjsf.org\/security-advisories.html","name": "https:\/\/cna.openjsf.org\/security-advisories.html"                    }, {
-                        "source": "NPM Advisory reference: "
-,"url": "https:\/\/github.com\/advisories\/GHSA-phc3-fgpg-7m6h","name": "https:\/\/github.com\/advisories\/GHSA-phc3-fgpg-7m6h"                    }, {
-                        "source": "NPM Advisory reference: "
-,"url": "https:\/\/github.com\/nodejs\/undici\/security\/advisories\/GHSA-phc3-fgpg-7m6h","name": "https:\/\/github.com\/nodejs\/undici\/security\/advisories\/GHSA-phc3-fgpg-7m6h"                    }, {
-                        "source": "NPM Advisory reference: "
-,"url": "https:\/\/hackerone.com\/reports\/3513473","name": "https:\/\/hackerone.com\/reports\/3513473"                    }                ],
-                "vulnerableSoftware": [
- {
-                        "software": { 
-                            "id":"cpe:2.3:a:*:undici:\\>\\=7.17.0\\<7.24.0:*:*:*:*:*:*:*"
-                        }
-                    }                ]
-                }, {
-                "source": "NPM",
-                "name": "GHSA-4992-7rv2-5pvq",
-"unscored": "true", "severity" : "moderate",
-                    "cvssv3": {
-                        "baseScore": 4.599999904632568
-                        ,"attackVector": "NETWORK"
-                        ,"attackComplexity": "LOW"
-                        ,"privilegesRequired": "LOW"
-                        ,"userInteraction": "REQUIRED"
-                        ,"scope": "UNCHANGED"
-                        ,"confidentialityImpact": "LOW"
-                        ,"integrityImpact": "LOW"
-                        ,"availabilityImpact": "NONE"
-                        ,"baseSeverity": "MEDIUM"
-,"version": "3.1"                    },
-                    "cwes": [
-                        "CWE-93"                    ],
-                "description": "### Impact\n\nWhen an application passes user-controlled input to the `upgrade` option of `client.request()`, an attacker can inject CRLF sequences (`\\r\\n`) to:\n\n1. Inject arbitrary HTTP headers\n2. Terminate the HTTP request prematurely and smuggle raw data to non-HTTP services (Redis, Memcached, Elasticsearch)\n\nThe vulnerability exists because undici writes the `upgrade` value directly to the socket without validating for invalid header characters:\n\n```javascript\n\/\/ lib\/dispatcher\/client-h1.js:1121\nif (upgrade) {\n  header += `connection: upgrade\\r\\nupgrade: ${upgrade}\\r\\n`\n}\n```\n\n### Patches\n\n Patched in the undici version v7.24.0 and v6.24.0. Users should upgrade to this version or later.\n\n### Workarounds\n\nSanitize the `upgrade` option string before passing to undici:\n\n```javascript\nfunction sanitizeUpgrade(value) {\n  if (\/[\\r\\n]\/.test(value)) {\n    throw new Error('Invalid upgrade value')\n  }\n  return value\n}\n\nclient.request({\n  upgrade: sanitizeUpgrade(userInput)\n})\n```",
-                "notes": "",
-                "references": [
- {
-                        "source": "NPM Advisory reference: "
-,"url": "https:\/\/cna.openjsf.org\/security-advisories.html","name": "https:\/\/cna.openjsf.org\/security-advisories.html"                    }, {
-                        "source": "NPM Advisory reference: "
-,"url": "https:\/\/github.com\/advisories\/GHSA-4992-7rv2-5pvq","name": "https:\/\/github.com\/advisories\/GHSA-4992-7rv2-5pvq"                    }, {
-                        "source": "NPM Advisory reference: "
-,"url": "https:\/\/github.com\/nodejs\/undici\/security\/advisories\/GHSA-4992-7rv2-5pvq","name": "https:\/\/github.com\/nodejs\/undici\/security\/advisories\/GHSA-4992-7rv2-5pvq"                    }, {
-                        "source": "NPM Advisory reference: "
-,"url": "https:\/\/nvd.nist.gov\/vuln\/detail\/CVE-2026-1527","name": "https:\/\/nvd.nist.gov\/vuln\/detail\/CVE-2026-1527"                    }, {
-                        "source": "NPM Advisory reference: "
-,"url": "https:\/\/hackerone.com\/reports\/3487198","name": "https:\/\/hackerone.com\/reports\/3487198"                    }                ],
-                "vulnerableSoftware": [
- {
-                        "software": { 
-                            "id":"cpe:2.3:a:*:undici:\\>\\=7.0.0\\<7.24.0:*:*:*:*:*:*:*"
-                        }
-                    }                ]
-                }            ]        },{
-            "isVirtual": true,
             "fileName": "valibot:1.3.1",
-            "filePath": "\/Users\/jonathanterrell\/DPUse\/GitHub\/dpuse-development\/package-lock.json?datapos-development:0.3.448\/valibot:1.3.1"
+            "filePath": "\/Users\/jonathanterrell\/DPUse\/GitHub\/dpuse-development\/package-lock.json?dpuse-development:0.3.456\/valibot:1.3.1"
 ,"description": "The modular and type safe schema library for validating structural data","license": "MIT"            ,"projectReferences": [
-                "@datapos\/datapos-development:0.3.448"
+                "@dpuse\/dpuse-development:0.3.456"
             ]
             ,"evidenceCollected": {
                 "vendorEvidence": [

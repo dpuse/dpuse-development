@@ -1,6 +1,6 @@
 {
     "name": "@dpuse/dpuse-development",
-    "version": "0.3.456",
+    "version": "0.3.457",
     "description": "A collection of utilities for managing Data Positioning projects.",
     "license": "MIT",
     "author": "Jonathan Terrell <terrell.jm@gmail.com>",
@@ -77,16 +77,16 @@
         "vitest": "^4.1.0"
     },
     "scripts": {
-        "audit": "op run --env-file=.env -- node -e \"import('./dist/@dpuse/dpuse-development.es.js').then(m => m.auditDependencies())\"",
+        "audit": "op run --env-file=.env -- node -e \"import('./dist/dpuse-development.es.js').then(m => m.auditDependencies())\"",
         "build": "vite build",
-        "check": "node -e \"import('./dist/@dpuse/dpuse-development.es.js').then(m => m.checkDependencies())\"",
-        "document": "op run --env-file=.env -- node -e \"import('./dist/@dpuse/dpuse-development.es.js').then(m => m.documentDependencies(['MIT']))\"",
-        "format": "node -e \"import('./dist/@dpuse/dpuse-development.es.js').then(m => m.formatCode())\"",
-        "lint": "node -e \"import('./dist/@dpuse/dpuse-development.es.js').then(m => m.lintCode())\"",
-        "release": "op run --env-file=.env -- node -e \"import('./dist/@dpuse/dpuse-development.es.js').then(m => m.releaseProject())\"",
-        "sync": "node -e \"import('./dist/@dpuse/dpuse-development.es.js').then(m => m.syncProjectWithGitHub())\"",
-        "test": "node -e \"import('./dist/@dpuse/dpuse-development.es.js').then(m => m.testProject())\"",
-        "update": "node -e \"import('./dist/@dpuse/dpuse-development.es.js').then(m => m.updateDPUseDependencies(['eslint', 'shared']))\""
+        "check": "node -e \"import('./dist/dpuse-development.es.js').then(m => m.checkDependencies())\"",
+        "document": "op run --env-file=.env -- node -e \"import('./dist/dpuse-development.es.js').then(m => m.documentDependencies(['MIT']))\"",
+        "format": "node -e \"import('./dist/dpuse-development.es.js').then(m => m.formatCode())\"",
+        "lint": "node -e \"import('./dist/dpuse-development.es.js').then(m => m.lintCode())\"",
+        "release": "op run --env-file=.env -- node -e \"import('./dist/dpuse-development.es.js').then(m => m.releaseProject())\"",
+        "sync": "node -e \"import('./dist/dpuse-development.es.js').then(m => m.syncProjectWithGitHub())\"",
+        "test": "node -e \"import('./dist/dpuse-development.es.js').then(m => m.testProject())\"",
+        "update": "node -e \"import('./dist/dpuse-development.es.js').then(m => m.updateDPUseDependencies(['eslint', 'shared']))\""
     },
     "engines": {
         "node": ">=22.0.0",
