@@ -11,7 +11,6 @@ import { exec, spawn } from 'node:child_process';
 import type { MethodDefinition, Node } from 'acorn';
 
 // Interfaces/Types
-
 export interface ModuleTypeConfig {
     idPrefix: string;
     typeId: 'app' | 'api' | 'connector' | 'context' | 'development' | 'engine' | 'eslint' | 'presenter' | 'resources' | 'shared' | 'tool';

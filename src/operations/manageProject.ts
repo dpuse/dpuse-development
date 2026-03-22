@@ -1,19 +1,17 @@
-/**
- * Manage project utilities.
- */
-
 /* eslint-disable unicorn/no-process-exit */
 
-// Dependencies - Vendor.
+// External Dependencies
 import type { PackageJson } from 'type-fest';
 import { safeParse } from 'valibot';
 
-// Dependencies - Framework.
+// DPUse Framework
 import { connectorConfigSchema } from '@datapos/datapos-shared/component/connector';
 import type { ModuleConfig } from '@datapos/datapos-shared/component';
 import type { ConnectorConfig, ConnectorOperationName, ConnectorUsageId } from '@datapos/datapos-shared/component/connector';
 import type { ContextConfig, ContextOperation, PresenterConfig, PresenterOperation } from '@datapos/datapos-shared';
 import { contextConfigSchema, presenterConfigSchema } from '@datapos/datapos-shared';
+
+// Development Core
 import {
     execCommand,
     extractOperationsFromSource,
@@ -38,7 +36,8 @@ interface OperationConfig {
     usageId?: string;
 }
 
-/** Constants  */
+// Constants ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
 const CONNECTOR_DESTINATION_OPERATIONS = new Set(['createObject', 'dropObject', 'removeRecords', 'upsertRecords']);
 const CONNECTOR_SOURCE_OPERATIONS = new Set([
     'auditObjectContent',
@@ -51,8 +50,9 @@ const CONNECTOR_SOURCE_OPERATIONS = new Set([
     'retrieveRecords'
 ]);
 
-// Utilities - Build project.
-async function buildProject(): Promise<void> {
+// Actions - Build ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+export async function buildProject(): Promise<void> {
     try {
         logOperationHeader('Build Project');
 
@@ -65,8 +65,9 @@ async function buildProject(): Promise<void> {
     }
 }
 
-// Utilities - Release project.
-async function releaseProject(): Promise<void> {
+// Actions - Release ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+export async function releaseProject(): Promise<void> {
     try {
         logOperationHeader('Release Project');
 
@@ -134,8 +135,102 @@ async function releaseProject(): Promise<void> {
     }
 }
 
-// Utilities - Synchronise project with GitHub.
-async function syncProjectWithGitHub(): Promise<void> {
+async function buildProjectConfig(stepIcon: string, packageJSON: PackageJson): Promise<ModuleConfig> {
+    logStepHeader(`${stepIcon}  Build project configuration`);
+
+    const configJSON = await readJSONFile<ModuleConfig>('config.json');
+    if (packageJSON.name != null) configJSON.id = packageJSON.name.replace('@dpuse/', '').replace('@dpuse/', ''); // TODO: REMOVE SECOND DPUSE
+    if (packageJSON.version != null) configJSON.version = packageJSON.version;
+    await writeJSONFile('config.json', configJSON);
+
+    return configJSON;
+}
+
+async function buildConnectorProjectConfig(stepIcon: string, packageJSON: PackageJson): Promise<ConnectorConfig> {
+    logStepHeader(`${stepIcon}  Build connector project configuration`);
+
+    const [configJSON, indexCode] = await Promise.all([readJSONFile<ConnectorConfig>('config.json'), readTextFile('src/index.ts')]);
+
+    const response = safeParse(connectorConfigSchema, configJSON);
+    if (!response.success) {
+        console.error('❌ Configuration is invalid:');
+        console.table(response.issues);
+        throw new Error('Configuration is invalid.');
+    }
+
+    const operations = extractOperationsFromSource<ConnectorOperationName>(indexCode);
+    const usageId = determineConnectorUsageId(operations);
+
+    return await processOperations<ConnectorConfig>(packageJSON, configJSON, operations, usageId);
+}
+
+async function buildContextProjectConfig(stepIcon: string, packageJSON: PackageJson): Promise<ContextConfig> {
+    logStepHeader(`${stepIcon}  Build context project configuration`);
+
+    const [configJSON, indexCode] = await Promise.all([readJSONFile<ContextConfig>('config.json'), readTextFile('src/index.ts')]);
+
+    const response = safeParse(contextConfigSchema, configJSON);
+    if (!response.success) {
+        console.error('❌ Configuration is invalid:');
+        console.table(response.issues);
+        throw new Error('Configuration is invalid.');
+    }
+
+    const operations = extractOperationsFromSource<ContextOperation>(indexCode);
+    return await processOperations<ContextConfig>(packageJSON, configJSON, operations);
+}
+
+async function buildPresenterProjectConfig(stepIcon: string, packageJSON: PackageJson): Promise<PresenterConfig> {
+    logStepHeader(`${stepIcon}  Build presenter project configuration`);
+
+    const [configJSON, indexCode] = await Promise.all([readJSONFile<PresenterConfig>('config.json'), readTextFile('src/index.ts')]);
+
+    const response = safeParse(presenterConfigSchema, configJSON);
+    if (!response.success) {
+        console.error('❌ Configuration is invalid:');
+        console.table(response.issues);
+        throw new Error('Configuration is invalid.');
+    }
+
+    const operations = extractOperationsFromSource<PresenterOperation>(indexCode);
+    return await processOperations<PresenterConfig>(packageJSON, configJSON, operations);
+}
+
+function determineConnectorUsageId(operations: ConnectorOperationName[]): ConnectorUsageId {
+    let sourceOps = false;
+    let destinationOps = false;
+    for (const operation of operations) {
+        if (CONNECTOR_SOURCE_OPERATIONS.has(operation)) sourceOps = true;
+        if (CONNECTOR_DESTINATION_OPERATIONS.has(operation)) destinationOps = true;
+    }
+    if (sourceOps && destinationOps) return 'bidirectional';
+    if (sourceOps) return 'source';
+    if (destinationOps) return 'destination';
+    return 'unknown';
+}
+
+async function processOperations<T extends OperationConfig>(packageJSON: PackageJson, configJSON: T, operations: string[], usageId?: string): Promise<T> {
+    if (operations.length > 0) {
+        console.info(`ℹ️  Implements ${operations.length} operations:`);
+        console.table(operations);
+    } else console.warn('⚠️  Implements no operations.');
+
+    if (usageId === 'unknown') console.warn('⚠️  No usage identified.');
+    else console.info(`ℹ️  Supports '${usageId}' usage.`);
+
+    if (packageJSON.name != null) configJSON.id = packageJSON.name.replace('@dpuse/', '').replace('@dpuse/', '');
+    if (packageJSON.version != null) configJSON.version = packageJSON.version;
+    configJSON.operations = operations;
+    configJSON.usageId = usageId ?? 'unknown';
+
+    await writeJSONFile('config.json', configJSON);
+
+    return configJSON;
+}
+
+// Actions - Sync ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+export async function syncProjectWithGitHub(): Promise<void> {
     try {
         logOperationHeader('Synchronise Project with GitHub');
 
@@ -157,8 +252,9 @@ async function syncProjectWithGitHub(): Promise<void> {
     }
 }
 
-// Utilities - Test project.
-function testProject(): void {
+// Actions - Test ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+export function testProject(): void {
     try {
         logOperationHeader('Test Project');
 
@@ -169,95 +265,8 @@ function testProject(): void {
     }
 }
 
-// Helpers - Build project configuration.
-async function buildProjectConfig(stepIcon: string, packageJSON: PackageJson): Promise<ModuleConfig> {
-    logStepHeader(`${stepIcon}  Build project configuration`);
+// Helpers ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-    const configJSON = await readJSONFile<ModuleConfig>('config.json');
-    if (packageJSON.name != null) configJSON.id = packageJSON.name.replace('@dpuse/', '').replace('@dpuse/', ''); // TODO: REMOVE SECOND DPUSE
-    if (packageJSON.version != null) configJSON.version = packageJSON.version;
-    await writeJSONFile('config.json', configJSON);
-
-    return configJSON;
-}
-
-// Utilities - Build connector project configuration.
-async function buildConnectorProjectConfig(stepIcon: string, packageJSON: PackageJson): Promise<ConnectorConfig> {
-    logStepHeader(`${stepIcon}  Build connector project configuration`);
-
-    const [configJSON, indexCode] = await Promise.all([readJSONFile<ConnectorConfig>('config.json'), readTextFile('src/index.ts')]);
-
-    const response = safeParse(connectorConfigSchema, configJSON);
-    if (!response.success) {
-        console.error('❌ Configuration is invalid:');
-        console.table(response.issues);
-        throw new Error('Configuration is invalid.');
-    }
-
-    console.log(1111);
-    const operations = extractOperationsFromSource<ConnectorOperationName>(indexCode);
-    console.log(2222);
-    const usageId = determineConnectorUsageId(operations);
-    console.log(3333);
-
-    return await processOperations<ConnectorConfig>(packageJSON, configJSON, operations, usageId);
-}
-
-// Helpers - Process operations.
-async function processOperations<T extends OperationConfig>(packageJSON: PackageJson, configJSON: T, operations: string[], usageId?: string): Promise<T> {
-    if (operations.length > 0) {
-        console.info(`ℹ️  Implements ${operations.length} operations:`);
-        console.table(operations);
-    } else console.warn('⚠️  Implements no operations.');
-
-    if (usageId === 'unknown') console.warn('⚠️  No usage identified.');
-    else console.info(`ℹ️  Supports '${usageId}' usage.`);
-
-    if (packageJSON.name != null) configJSON.id = packageJSON.name.replace('@dpuse/', '').replace('@dpuse/', '');
-    if (packageJSON.version != null) configJSON.version = packageJSON.version;
-    configJSON.operations = operations;
-    configJSON.usageId = usageId ?? 'unknown';
-
-    await writeJSONFile('config.json', configJSON);
-
-    return configJSON;
-}
-
-// Utilities - Build context project configuration.
-async function buildContextProjectConfig(stepIcon: string, packageJSON: PackageJson): Promise<ContextConfig> {
-    logStepHeader(`${stepIcon}  Build context project configuration`);
-
-    const [configJSON, indexCode] = await Promise.all([readJSONFile<ContextConfig>('config.json'), readTextFile('src/index.ts')]);
-
-    const response = safeParse(contextConfigSchema, configJSON);
-    if (!response.success) {
-        console.error('❌ Configuration is invalid:');
-        console.table(response.issues);
-        throw new Error('Configuration is invalid.');
-    }
-
-    const operations = extractOperationsFromSource<ContextOperation>(indexCode);
-    return await processOperations<ContextConfig>(packageJSON, configJSON, operations);
-}
-
-// Utilities - Build presenter project configuration.
-async function buildPresenterProjectConfig(stepIcon: string, packageJSON: PackageJson): Promise<PresenterConfig> {
-    logStepHeader(`${stepIcon}  Build presenter project configuration`);
-
-    const [configJSON, indexCode] = await Promise.all([readJSONFile<PresenterConfig>('config.json'), readTextFile('src/index.ts')]);
-
-    const response = safeParse(presenterConfigSchema, configJSON);
-    if (!response.success) {
-        console.error('❌ Configuration is invalid:');
-        console.table(response.issues);
-        throw new Error('Configuration is invalid.');
-    }
-
-    const operations = extractOperationsFromSource<PresenterOperation>(indexCode);
-    return await processOperations<PresenterConfig>(packageJSON, configJSON, operations);
-}
-
-// Helper - Bump package version.
 async function bumpPackageVersion(stepIcon: string, packageJSON: PackageJson, path = './'): Promise<void> {
     logStepHeader(`${stepIcon}  Bump project version`);
 
@@ -273,20 +282,3 @@ async function bumpPackageVersion(stepIcon: string, packageJSON: PackageJson, pa
         await writeJSONFile(`${path}package.json`, packageJSON);
     }
 }
-
-// Helpers - Determine connector usage identifier.
-function determineConnectorUsageId(operations: ConnectorOperationName[]): ConnectorUsageId {
-    let sourceOps = false;
-    let destinationOps = false;
-    for (const operation of operations) {
-        if (CONNECTOR_SOURCE_OPERATIONS.has(operation)) sourceOps = true;
-        if (CONNECTOR_DESTINATION_OPERATIONS.has(operation)) destinationOps = true;
-    }
-    if (sourceOps && destinationOps) return 'bidirectional';
-    if (sourceOps) return 'source';
-    if (destinationOps) return 'destination';
-    return 'unknown';
-}
-
-// Exposures
-export { buildProject, releaseProject, syncProjectWithGitHub, testProject };

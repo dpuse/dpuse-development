@@ -6421,19 +6421,19 @@ async function Wr() {
 	try {
 		Mr("Release Project");
 		let e = await Z("package.json"), t = await Z("config.json");
-		await Qr("1️⃣", e);
+		await $r("1️⃣", e);
 		let n = Pr(t.id);
 		switch (n.typeId) {
 			case "connector":
-				t = await Jr("2️⃣", e);
+				t = await Kr("2️⃣", e);
 				break;
 			case "context":
-				t = await Xr("2️⃣", e);
+				t = await qr("2️⃣", e);
 				break;
 			case "presenter":
-				t = await Zr("2️⃣", e);
+				t = await Jr("2️⃣", e);
 				break;
-			default: t = await qr("2️⃣", e);
+			default: t = await Gr("2️⃣", e);
 		}
 		if (await X("3️⃣  Bundle project", "vite", ["build"]), await Y("4️⃣  Stage changes", "git", ["add", "."]), await Y("5️⃣  Commit changes", "git", [
 			"commit",
@@ -6468,11 +6468,43 @@ async function Wr() {
 		console.error("❌ Error releasing project.", e), process.exit(1);
 	}
 }
-async function Gr() {
+async function Gr(e, t) {
+	Q(`${e}  Build project configuration`);
+	let n = await Z("config.json");
+	return t.name != null && (n.id = t.name.replace("@dpuse/", "").replace("@dpuse/", "")), t.version != null && (n.version = t.version), await Ar("config.json", n), n;
+}
+async function Kr(e, t) {
+	Q(`${e}  Build connector project configuration`);
+	let [n, r] = await Promise.all([Z("config.json"), Or("src/index.ts")]), i = /* @__PURE__ */ m(Oe, n);
+	if (!i.success) throw console.error("❌ Configuration is invalid:"), console.table(i.issues), Error("Configuration is invalid.");
+	let a = Fr(r);
+	return await Xr(t, n, a, Yr(a));
+}
+async function qr(e, t) {
+	Q(`${e}  Build context project configuration`);
+	let [n, r] = await Promise.all([Z("config.json"), Or("src/index.ts")]), i = /* @__PURE__ */ m(je, n);
+	if (!i.success) throw console.error("❌ Configuration is invalid:"), console.table(i.issues), Error("Configuration is invalid.");
+	return await Xr(t, n, Fr(r));
+}
+async function Jr(e, t) {
+	Q(`${e}  Build presenter project configuration`);
+	let [n, r] = await Promise.all([Z("config.json"), Or("src/index.ts")]), i = /* @__PURE__ */ m(Ne, n);
+	if (!i.success) throw console.error("❌ Configuration is invalid:"), console.table(i.issues), Error("Configuration is invalid.");
+	return await Xr(t, n, Fr(r));
+}
+function Yr(e) {
+	let t = !1, n = !1;
+	for (let r of e) Hr.has(r) && (t = !0), Vr.has(r) && (n = !0);
+	return t && n ? "bidirectional" : t ? "source" : n ? "destination" : "unknown";
+}
+async function Xr(e, t, n, r) {
+	return n.length > 0 ? (console.info(`ℹ️  Implements ${n.length} operations:`), console.table(n)) : console.warn("⚠️  Implements no operations."), r === "unknown" ? console.warn("⚠️  No usage identified.") : console.info(`ℹ️  Supports '${r}' usage.`), e.name != null && (t.id = e.name.replace("@dpuse/", "").replace("@dpuse/", "")), e.version != null && (t.version = e.version), t.operations = n, t.usageId = r ?? "unknown", await Ar("config.json", t), t;
+}
+async function Zr() {
 	try {
 		Mr("Synchronise Project with GitHub");
 		let e = await Z("package.json");
-		Q("Bump project version"), await Qr("1️⃣", e), await Y("2️⃣  Stage changes", "git", ["add", "."]), await Y("3️⃣  Commit changes", "git", [
+		Q("Bump project version"), await $r("1️⃣", e), await Y("2️⃣  Stage changes", "git", ["add", "."]), await Y("3️⃣  Commit changes", "git", [
 			"commit",
 			"-m",
 			`"v${e.version}"`
@@ -6485,54 +6517,19 @@ async function Gr() {
 		console.error("❌ Error synchronising project with GitHub.", e), process.exit(1);
 	}
 }
-function Kr() {
+function Qr() {
 	try {
 		Mr("Test Project"), console.error("\n❌ No tests implemented.\n");
 	} catch (e) {
 		console.error("❌ Error testing project.", e), process.exit(1);
 	}
 }
-async function qr(e, t) {
-	Q(`${e}  Build project configuration`);
-	let n = await Z("config.json");
-	return t.name != null && (n.id = t.name.replace("@dpuse/", "").replace("@dpuse/", "")), t.version != null && (n.version = t.version), await Ar("config.json", n), n;
-}
-async function Jr(e, t) {
-	Q(`${e}  Build connector project configuration`);
-	let [n, r] = await Promise.all([Z("config.json"), Or("src/index.ts")]), i = /* @__PURE__ */ m(Oe, n);
-	if (!i.success) throw console.error("❌ Configuration is invalid:"), console.table(i.issues), Error("Configuration is invalid.");
-	console.log(1111);
-	let a = Fr(r);
-	console.log(2222);
-	let o = $r(a);
-	return console.log(3333), await Yr(t, n, a, o);
-}
-async function Yr(e, t, n, r) {
-	return n.length > 0 ? (console.info(`ℹ️  Implements ${n.length} operations:`), console.table(n)) : console.warn("⚠️  Implements no operations."), r === "unknown" ? console.warn("⚠️  No usage identified.") : console.info(`ℹ️  Supports '${r}' usage.`), e.name != null && (t.id = e.name.replace("@dpuse/", "").replace("@dpuse/", "")), e.version != null && (t.version = e.version), t.operations = n, t.usageId = r ?? "unknown", await Ar("config.json", t), t;
-}
-async function Xr(e, t) {
-	Q(`${e}  Build context project configuration`);
-	let [n, r] = await Promise.all([Z("config.json"), Or("src/index.ts")]), i = /* @__PURE__ */ m(je, n);
-	if (!i.success) throw console.error("❌ Configuration is invalid:"), console.table(i.issues), Error("Configuration is invalid.");
-	return await Yr(t, n, Fr(r));
-}
-async function Zr(e, t) {
-	Q(`${e}  Build presenter project configuration`);
-	let [n, r] = await Promise.all([Z("config.json"), Or("src/index.ts")]), i = /* @__PURE__ */ m(Ne, n);
-	if (!i.success) throw console.error("❌ Configuration is invalid:"), console.table(i.issues), Error("Configuration is invalid.");
-	return await Yr(t, n, Fr(r));
-}
-async function Qr(e, t, n = "./") {
+async function $r(e, t, n = "./") {
 	if (Q(`${e}  Bump project version`), t.version == null) t.version = "0.0.001", console.warn(`⚠️ Project version initialised to '${t.version}'.`), await Ar(`${n}package.json`, t);
 	else {
 		let e = t.version, r = t.version.split(".");
 		t.version = `${r[0]}.${r[1]}.${Number(r[2]) + 1}`, console.info(`Project version bumped from '${e}' to '${t.version}'.`), await Ar(`${n}package.json`, t);
 	}
-}
-function $r(e) {
-	let t = !1, n = !1;
-	for (let r of e) Hr.has(r) && (t = !0), Vr.has(r) && (n = !0);
-	return t && n ? "bidirectional" : t ? "source" : n ? "destination" : "unknown";
 }
 //#endregion
 //#region src/operations/auditDependencies.ts
@@ -6813,6 +6810,6 @@ async function _i(e) {
 	}
 }
 //#endregion
-export { ri as auditDependencies, _i as buildDirectoryIndex, Ur as buildProject, oi as checkDependencies, li as documentDependencies, fi as formatCode, pi as lintCode, Wr as releaseProject, Gr as syncProjectWithGitHub, Kr as testProject, hi as updateDPUseDependencies };
+export { ri as auditDependencies, _i as buildDirectoryIndex, Ur as buildProject, oi as checkDependencies, li as documentDependencies, fi as formatCode, pi as lintCode, Wr as releaseProject, Zr as syncProjectWithGitHub, Qr as testProject, hi as updateDPUseDependencies };
 
 //# sourceMappingURL=dpuse-development.es.js.map

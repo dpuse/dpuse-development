@@ -1,5 +1,1 @@
-/**
- * Format code utilities.
- */
-declare function formatCode(): Promise<void>;
-export { formatCode };
+export declare function formatCode(): Promise<void>;

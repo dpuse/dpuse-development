@@ -1,14 +1,11 @@
-/**
- * Lint code utilities.
- */
-
 /* eslint-disable unicorn/no-process-exit */
 
-// Dependencies - Framework.
+// Development Core
 import { logOperationHeader, logOperationSuccess, spawnCommand } from '@/utilities';
 
-// Utilities - Lint code.
-async function lintCode(): Promise<void> {
+// Actions ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+export async function lintCode(): Promise<void> {
     try {
         logOperationHeader('Lint Code');
 
@@ -20,6 +17,3 @@ async function lintCode(): Promise<void> {
         process.exit(1);
     }
 }
-
-// Exposures
-export { lintCode };

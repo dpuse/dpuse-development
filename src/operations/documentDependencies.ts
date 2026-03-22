@@ -3,7 +3,7 @@
 // External Dependencies
 import { fileURLToPath, URL } from 'node:url';
 
-// DPUse Framework
+// Development Core
 import { clearDirectory, execCommand, logOperationHeader, logOperationSuccess, logStepHeader, readJSONFile, readTextFile, substituteText, writeTextFile } from '@/utilities';
 
 // Interfaces/Types

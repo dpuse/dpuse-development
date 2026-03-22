@@ -5,6 +5,8 @@ import type { PackageJson } from 'type-fest';
 
 // DPUse Framework
 import type { ModuleConfig } from '@datapos/datapos-shared/component';
+
+// Development Core
 import { getDirectoryEntries, logOperationHeader, logOperationSuccess, logStepHeader, readJSONFile, readTextFile, spawnCommand, substituteText, writeTextFile } from '@/utilities';
 
 // Interfaces/Types

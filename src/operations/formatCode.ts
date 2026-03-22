@@ -1,17 +1,14 @@
-/**
- * Format code utilities.
- */
-
 /* eslint-disable unicorn/no-process-exit */
 
-// Dependencies - Vendor.
+// External Dependencies
 import { existsSync } from 'node:fs';
 
-// Dependencies - Framework.
+// Development Core
 import { logOperationHeader, logOperationSuccess, spawnCommand } from '@/utilities';
 
-// Utilities - Format.
-async function formatCode(): Promise<void> {
+// Actions ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+export async function formatCode(): Promise<void> {
     try {
         logOperationHeader('Format Code');
 
@@ -27,6 +24,3 @@ async function formatCode(): Promise<void> {
         process.exit(1);
     }
 }
-
-// Exposures
-export { formatCode };
