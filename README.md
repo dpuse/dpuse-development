@@ -7,7 +7,7 @@
 
 <!-- SUMMARY_START -->
 
-A collection of utilities for managing Data Positioning projects.
+Actions for managing DPUse projects.
 
 <!-- SUMMARY_END -->
 
@@ -24,7 +24,7 @@ npm install --save-dev @dpuse/dpuse-development
 
 ## Utilities
 
-The library implements the following utilities:
+The package implements the following actions:
 
 | Name                    | Notes                                                                                                                                                                                                                                                                                                              |
 | ----------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
