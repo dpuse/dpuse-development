@@ -25,7 +25,7 @@ npm install --save-dev @dpuse/dpuse-development
 
 > See the Data Positioning security documentation for additional initialization requirements.
 
-## Utilities
+## Actions
 
 The package implements the following actions:
 
@@ -135,4 +135,4 @@ Insert link to other document for detailed explanation. Only show messages if is
 
 This project is licensed under the MIT License, permitting free use, modification, and distribution.
 
-[MIT](./LICENSE) © 2026 Data Positioning Pty Ltd
+[MIT](./LICENSE) © 2026 DPUse Pty Ltd
