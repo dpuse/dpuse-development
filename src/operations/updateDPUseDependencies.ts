@@ -1,23 +1,23 @@
-/**
- * Update datapos dependencies utilities.
- */
-
 /* eslint-disable unicorn/no-process-exit */
 
-// Dependencies - Vendor.
+// External Dependencies
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
 
-// Dependencies - Framework.
+// DPUse Framework.
 import type { ModuleConfig } from '@datapos/datapos-shared/component';
+
+// Development Core
 import type { ModuleTypeConfig } from '@/utilities';
 import { getModuleConfig, logOperationHeader, logOperationSuccess, readJSONFile, readTextFile, spawnCommand, writeTextFile } from '@/utilities';
 
-// Constants
+// Constants ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
 const STEP_ICONS = ['1️⃣', '2️⃣', '3️⃣', '4️⃣', '5️⃣', '6️⃣', '7️⃣', '8️⃣', '9️⃣'];
 
-// Operations - Update datapos dependencies.
-async function updateDPUseDependencies(dependencies: string[] = []): Promise<void> {
+// Actions ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+export async function updateDPUseDependencies(dependencies: string[] = []): Promise<void> {
     try {
         logOperationHeader("Update '@dpuse/dpuse' Dependencies");
 
@@ -43,7 +43,8 @@ async function updateDPUseDependencies(dependencies: string[] = []): Promise<voi
     }
 }
 
-// Helpers - Synchronise project configuration files.
+// Helpers ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
 async function syncProjectConfigFiles(moduleTypeConfig: ModuleTypeConfig): Promise<void> {
     const moduleDirectory = path.dirname(fileURLToPath(import.meta.url));
     await syncConfigFile(moduleDirectory, '../', '.editorconfig');
@@ -86,6 +87,3 @@ async function syncConfigFile(moduleDirectory: string, templateFilePath: string,
     await writeTextFile(destinationWritePath, templateContent);
     console.info(`ℹ️  File '${destinationFileName ?? fileName}' synchronised.`);
 }
-
-// Exposures
-export { updateDPUseDependencies };

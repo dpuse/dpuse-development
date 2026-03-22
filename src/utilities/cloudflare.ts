@@ -1,17 +1,16 @@
-/**
- * Cloudflare utilities.
- */
-
-// Dependencies - Vendor.
+// External Dependencies
 import type { ObjectEncodingOptions } from 'node:fs';
 import type { PackageJson } from 'type-fest';
 
-// Dependencies - Framework.
+// DPUse Framework
 import type { ModuleConfig } from '@datapos/datapos-shared/component';
+
+// Development Core
 import { execCommand, getDirectoryEntries, getStatsForPath, readJSONFile } from '@/utilities';
 
-// Utilities - Put state.
-async function putState(): Promise<void> {
+// Actions ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+export async function putState(): Promise<void> {
     const configJSON = await readJSONFile<ModuleConfig>('config.json');
     const options = {
         body: JSON.stringify(configJSON),
@@ -22,8 +21,7 @@ async function putState(): Promise<void> {
     if (!response.ok) throw new Error(await response.text());
 }
 
-// Utilities - Upload directory to Cloudflare R2.
-async function uploadDirectoryToR2(sourceDirectory: string, uploadDirectory: string): Promise<void> {
+export async function uploadDirectoryToR2(sourceDirectory: string, uploadDirectory: string): Promise<void> {
     async function listDirectoryEntriesRecursively(currentSourceDirectory: string, currentDestinationDirectory: string, names: string[]): Promise<void> {
         for (const name of names) {
             const sourceItemPath = `${currentSourceDirectory}/${name}`;
@@ -43,8 +41,7 @@ async function uploadDirectoryToR2(sourceDirectory: string, uploadDirectory: str
     await listDirectoryEntriesRecursively(`${sourceDirectory}/${uploadDirectory}`, uploadDirectory, toplevelNames);
 }
 
-// Utilities - Upload module configuration to Cloudflare 'state' durable object.
-async function uploadModuleConfigToDO(configJSON: ModuleConfig): Promise<void> {
+export async function uploadModuleConfigToDO(configJSON: ModuleConfig): Promise<void> {
     const stateId = configJSON.id;
     const options = {
         body: JSON.stringify(configJSON),
@@ -55,8 +52,7 @@ async function uploadModuleConfigToDO(configJSON: ModuleConfig): Promise<void> {
     if (!response.ok) throw new Error(await response.text());
 }
 
-// Utilities - Upload module to Cloudflare R2.
-async function uploadModuleToR2(packageJSON: PackageJson, uploadDirectoryPath: string): Promise<void> {
+export async function uploadModuleToR2(packageJSON: PackageJson, uploadDirectoryPath: string): Promise<void> {
     const version = `v${packageJSON.version}`;
     async function uploadDirectory(currentDirectory: string, prefix = ''): Promise<void> {
         const entries = await getDirectoryEntries(currentDirectory, { withFileTypes: true } as ObjectEncodingOptions);
@@ -73,6 +69,3 @@ async function uploadModuleToR2(packageJSON: PackageJson, uploadDirectoryPath: s
     }
     await uploadDirectory('dist');
 }
-
-// Exposures
-export { putState, uploadDirectoryToR2, uploadModuleConfigToDO, uploadModuleToR2 };

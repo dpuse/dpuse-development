@@ -1,11 +1,5 @@
-/**
- * Manage project utilities.
- */
+// Actions ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-// Utilities - Test.
-function test(): void {
+export function test(): void {
     console.error('❌ Test NOT implemented.');
 }
-
-// Exposures
-export { test };

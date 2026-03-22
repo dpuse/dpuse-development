@@ -1,14 +1,10 @@
-/**
- * Development utilities.
- */
-
 /* eslint-disable security/detect-non-literal-fs-filename */
 
-// Dependencies - Vendor.
+// External Dependencies
 import { promises as fs } from 'node:fs';
 import { nanoid } from 'nanoid';
 
-// Interfaces/Types - Directory entry.
+// Interfaces/Types
 interface DirectoryEntry {
     name: string;
     typeId: 'folder' | 'object';
@@ -24,8 +20,9 @@ interface DirectoryObjectEntry extends DirectoryEntry {
     typeId: 'object';
 }
 
-// Utilities - Build directory index.
-async function buildDirectoryIndex(id: string): Promise<void> {
+// Actions ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+export async function buildDirectoryIndex(id: string): Promise<void> {
     try {
         console.info(`🚀 Building public directory index for identifier '${id}'...`);
         const index: Record<string, DirectoryEntry[]> = {};
@@ -67,13 +64,16 @@ async function buildDirectoryIndex(id: string): Promise<void> {
     }
 }
 
-// Exposures
-export { buildDirectoryIndex };
-
 export { buildProject, releaseProject, syncProjectWithGitHub, testProject } from '@/operations/manageProject';
+
 export { auditDependencies } from '@/operations/auditDependencies';
+
 export { checkDependencies } from '@/operations/checkDependencies';
+
 export { documentDependencies } from '@/operations/documentDependencies';
+
 export { formatCode } from '@/operations/formatCode';
+
 export { lintCode } from '@/operations/lintCode';
+
 export { updateDPUseDependencies } from '@/operations/updateDPUseDependencies';

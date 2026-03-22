@@ -1,5 +1,1 @@
-/**
- * Update datapos dependencies utilities.
- */
-declare function updateDPUseDependencies(dependencies?: string[]): Promise<void>;
-export { updateDPUseDependencies };
+export declare function updateDPUseDependencies(dependencies?: string[]): Promise<void>;
