@@ -48,7 +48,7 @@ async function syncProjectConfigFiles(moduleTypeConfig: ModuleTypeConfig): Promi
     const moduleDirectory = path.dirname(fileURLToPath(import.meta.url));
     await syncConfigFile(moduleDirectory, '../', '.editorconfig');
     await syncConfigFile(moduleDirectory, '../', '.gitattributes');
-    await (moduleTypeConfig.isPublish
+    await (moduleTypeConfig.isPublished
         ? syncConfigFile(moduleDirectory, '../', '.gitignore_published', '.gitignore2')
         : syncConfigFile(moduleDirectory, '../', '.gitignore_unpublished', '.gitignore2'));
     await syncConfigFile(moduleDirectory, '../', '.markdownlint.json');

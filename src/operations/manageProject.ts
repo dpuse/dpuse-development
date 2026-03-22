@@ -115,7 +115,7 @@ async function releaseProject(): Promise<void> {
             await uploadModuleConfigToDO(configJSON); // This MUST follow 'uploadModuleToR2', otherwise the app will receive a message a new module is available and try to access it before it is uploaded to R2.
         }
 
-        if (moduleTypeConfig.isPublish) {
+        if (moduleTypeConfig.isPublished) {
             const npmrcFileName = '.npmrc';
             try {
                 await writeTextFile(npmrcFileName, `registry=https://registry.npmjs.org/\n//registry.npmjs.org/:_authToken=${process.env['NPM_TOKEN'] ?? ''}`);

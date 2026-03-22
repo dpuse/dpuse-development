@@ -6272,29 +6272,25 @@ async function Tr(e) {
 		}
 	}));
 }
-function Er(e) {
-	console.log("aaaa1");
-	let t = I.extend(Sr()).parse(e, {
-		ecmaVersion: "latest",
-		sourceType: "module",
-		locations: !0
-	});
-	console.log("aaaa2");
-	let n = [];
-	return Ir(t, (e) => {
-		if (console.log("bbbb", e), e.type !== "MethodDefinition") return;
-		console.log("cccc");
-		let t = e, r = t.key;
-		if (r.type !== "Identifier") return;
-		let i = r.name;
-		console.log("dddd"), i && i !== "constructor" && t.accessibility !== "private" && (console.log("eeee"), n.push(i), console.log("ffff"));
-	}), n;
-}
 async function X(e, n, r = [], i) {
 	let a = `${n} ${r.join(" ")}`;
 	e !== void 0 && Z(`${e} - exec(${a})`);
 	let { stdout: o, stderr: s } = await wr(a);
 	i === void 0 ? o.trim() && console.log(o.trim()) : await t.writeFile(i, o.trim(), "utf8"), s.trim() && console.error(s.trim());
+}
+function Er(e) {
+	let t = I.extend(Sr()).parse(e, {
+		ecmaVersion: "latest",
+		sourceType: "module",
+		locations: !0
+	}), n = [];
+	return Ir(t, (e) => {
+		if (e.type !== "MethodDefinition") return;
+		let t = e, r = t.key;
+		if (r.type !== "Identifier") return;
+		let i = r.name;
+		i && i !== "constructor" && t.accessibility !== "private" && n.push(i);
+	}), n;
 }
 async function Dr(e, n) {
 	return t.readdir(e, n);
@@ -6616,7 +6612,7 @@ async function ii(e) {
 //#region src/operations/checkDependencies.ts
 async function ai() {
 	try {
-		kr("Check Dependencies"), await $("1️⃣  Check using 'npm outdated'", "npm", ["outdated"], !0), await $("2️⃣  Check using 'npm-check-updates'", "npm-check-updates", ["-i"]), Ar("Dependencies checked.");
+		kr("Check Dependencies"), await $("1️⃣  Check using 'npm outdated'", "npm", ["outdated"], !0), await $("2️⃣  Check using 'npm-check-updates'", "npm-check-updates", ["-i", "--peer"]), Ar("Dependencies checked.");
 	} catch (e) {
 		console.error("❌ Error checking dependencies.", e), process.exit(1);
 	}
