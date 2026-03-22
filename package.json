@@ -1,7 +1,7 @@
 {
     "name": "@dpuse/dpuse-development",
-    "version": "0.3.467",
-    "description": "A collection of utilities for managing Data Positioning projects.",
+    "version": "0.3.468",
+    "description": "A collection of utilities for managing DPUse projects.",
     "license": "MIT",
     "author": "Jonathan Terrell <terrell.jm@gmail.com>",
     "private": false,
