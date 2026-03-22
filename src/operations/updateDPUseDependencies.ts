@@ -5,7 +5,7 @@ import { fileURLToPath } from 'node:url';
 import path from 'node:path';
 
 // DPUse Framework.
-import type { ModuleConfig } from '@datapos/datapos-shared/component';
+import type { ModuleConfig } from '@dpuse/dpuse-shared/component';
 
 // Development Core
 import type { ModuleTypeConfig } from '@/utilities';

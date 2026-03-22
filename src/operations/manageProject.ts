@@ -5,11 +5,11 @@ import type { PackageJson } from 'type-fest';
 import { safeParse } from 'valibot';
 
 // DPUse Framework
-import { connectorConfigSchema } from '@datapos/datapos-shared/component/connector';
-import type { ModuleConfig } from '@datapos/datapos-shared/component';
-import type { ConnectorConfig, ConnectorOperationName, ConnectorUsageId } from '@datapos/datapos-shared/component/connector';
-import type { ContextConfig, ContextOperation, PresenterConfig, PresenterOperation } from '@datapos/datapos-shared';
-import { contextConfigSchema, presenterConfigSchema } from '@datapos/datapos-shared';
+import { connectorConfigSchema } from '@dpuse/dpuse-shared/component/connector';
+import type { ModuleConfig } from '@dpuse/dpuse-shared/component';
+import type { ConnectorConfig, ConnectorOperationName, ConnectorUsageId } from '@dpuse/dpuse-shared/component/connector';
+import type { ContextConfig, ContextOperation, PresenterConfig, PresenterOperation } from '@dpuse/dpuse-shared';
+import { contextConfigSchema, presenterConfigSchema } from '@dpuse/dpuse-shared';
 
 // Development Core
 import {
@@ -105,14 +105,14 @@ export async function releaseProject(): Promise<void> {
             await putState();
         } else if (moduleTypeConfig.typeId === 'engine') {
             logStepHeader('7️⃣  Register module');
-            await uploadModuleToR2(packageJSON, `datapos-engine-eu/${moduleTypeConfig.uploadGroupName}`);
+            await uploadModuleToR2(packageJSON, `dpuse-engine-eu/${moduleTypeConfig.uploadGroupName}`);
             await uploadModuleConfigToDO(configJSON); // This MUST follow 'uploadModuleToR2', otherwise the app will receive a message a new engine is available and try to access it before it is uploaded to R2.
         } else if (moduleTypeConfig.uploadGroupName === undefined) {
             logStepHeader('7️⃣  Registration NOT required.');
         } else {
             logStepHeader('7️⃣  Register module');
             const moduleTypeName = configJSON.id.split('-').slice(2).join('-');
-            await uploadModuleToR2(packageJSON, `datapos-engine-eu/${moduleTypeConfig.uploadGroupName}/${moduleTypeName}`);
+            await uploadModuleToR2(packageJSON, `dpuse-engine-eu/${moduleTypeConfig.uploadGroupName}/${moduleTypeName}`);
             await uploadModuleConfigToDO(configJSON); // This MUST follow 'uploadModuleToR2', otherwise the app will receive a message a new module is available and try to access it before it is uploaded to R2.
         }
 

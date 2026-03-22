@@ -5,11 +5,11 @@
         "dataSource": [
 {
                 "name": "NVD API Last Checked",
-                "timestamp": "2026-03-22T12:16:01+01"
+                "timestamp": "2026-03-22T16:43:58+01"
             }
 ,{
                 "name": "NVD API Last Modified",
-                "timestamp": "2026-03-22T10:16:07Z"
+                "timestamp": "2026-03-22T15:17:09Z"
             }
         ]
 
@@ -17,7 +17,7 @@
     },
     "projectInfo": {
         "name": "@dpuse\/dpuse-development",
-        "reportDate": "2026-03-22T11:54:37.783485Z",
+        "reportDate": "2026-03-22T16:07:32.353854Z",
         "credits": {
             "NVD": "This product uses the NVD API but is not endorsed or certified by the NVD. This report contains data retrieved from the National Vulnerability Database: https://nvd.nist.gov",
             "CISA": "This report may contain data retrieved from the CISA Known Exploited Vulnerability Catalog: https://www.cisa.gov/known-exploited-vulnerabilities-catalog",
@@ -29,86 +29,10 @@
     "dependencies": [
 {
             "isVirtual": true,
-            "fileName": "@datapos\/datapos-shared:0.3.590",
-            "filePath": "\/Users\/jonathanterrell\/DPUse\/GitHub\/dpuse-development\/package-lock.json?dpuse-development:0.3.456\/@datapos\/datapos-shared:0.3.590"
-,"description": "A library containing common constants, types and utilities used across all Data Positioning projects.","license": "MIT"            ,"projectReferences": [
-                "@dpuse\/dpuse-development:0.3.456"
-            ]
-            ,"evidenceCollected": {
-                "vendorEvidence": [
-{
-                            "type": "vendor",
-                            "confidence": "HIGHEST",
-                            "source": "package.json",
-                            "name": "author",
-                            "value": "Jonathan Terrell <terrell.jm@gmail.com>"
-                        }
-,{
-                            "type": "vendor",
-                            "confidence": "HIGHEST",
-                            "source": "package.json",
-                            "name": "bugs.url",
-                            "value": "https:\/\/github.com\/data-positioning\/datapos-shared\/issues"
-                        }
-,{
-                            "type": "vendor",
-                            "confidence": "HIGHEST",
-                            "source": "package.json",
-                            "name": "description",
-                            "value": "A library containing common constants, types and utilities used across all Data Positioning projects."
-                        }
-,{
-                            "type": "vendor",
-                            "confidence": "HIGHEST",
-                            "source": "package.json",
-                            "name": "homepage",
-                            "value": "https:\/\/www.datapos.app"
-                        }
-,{
-                            "type": "vendor",
-                            "confidence": "HIGHEST",
-                            "source": "package.json",
-                            "name": "name",
-                            "value": "@datapos\/datapos-shared"
-                        }
-,{
-                            "type": "vendor",
-                            "confidence": "HIGHEST",
-                            "source": "package.json",
-                            "name": "name",
-                            "value": "@datapos\/datapos-shared_project"
-                        }
-                ],
-                "productEvidence": [
-{
-                            "type": "product",
-                            "confidence": "HIGHEST",
-                            "source": "package.json",
-                            "name": "name",
-                            "value": "@datapos\/datapos-shared"
-                    }
-                ],
-                "versionEvidence": [
-                    {
-                        "type": "version",
-                        "confidence": "HIGHEST",
-                        "source": "package.json",
-                        "name": "version",
-                        "value": "0.3.590"
-                    }
-                ]
-            }
-                ,"packages": [
-                    {
-                        "id": "pkg:npm\/%40datapos%2Fdatapos-shared@0.3.590"
-,"confidence": "HIGHEST"                    }
-            ]
-        },{
-            "isVirtual": true,
             "fileName": "acorn-typescript:1.4.13",
-            "filePath": "\/Users\/jonathanterrell\/DPUse\/GitHub\/dpuse-development\/package-lock.json?dpuse-development:0.3.456\/acorn-typescript:1.4.13"
+            "filePath": "\/Users\/jonathanterrell\/DPUse\/GitHub\/dpuse-development\/package-lock.json?dpuse-development:0.3.477\/acorn-typescript:1.4.13"
 ,"description": "Alternative, TypeScript parser","license": "MIT"            ,"projectReferences": [
-                "@dpuse\/dpuse-development:0.3.456"
+                "@dpuse\/dpuse-development:0.3.477"
             ]
             ,"evidenceCollected": {
                 "vendorEvidence": [
@@ -182,9 +106,9 @@
         },{
             "isVirtual": true,
             "fileName": "acorn-walk:8.3.5",
-            "filePath": "\/Users\/jonathanterrell\/DPUse\/GitHub\/dpuse-development\/package-lock.json?dpuse-development:0.3.456\/acorn-walk:8.3.5"
+            "filePath": "\/Users\/jonathanterrell\/DPUse\/GitHub\/dpuse-development\/package-lock.json?dpuse-development:0.3.477\/acorn-walk:8.3.5"
 ,"description": "ECMAScript (ESTree) AST walker","license": "MIT"            ,"projectReferences": [
-                "@dpuse\/dpuse-development:0.3.456"
+                "@dpuse\/dpuse-development:0.3.477"
             ]
             ,"evidenceCollected": {
                 "vendorEvidence": [
@@ -300,16 +224,16 @@
         },{
             "isVirtual": true,
             "fileName": "acorn:8.16.0",
-            "filePath": "\/Users\/jonathanterrell\/DPUse\/GitHub\/dpuse-development\/package-lock.json?dpuse-development:0.3.456\/acorn-walk:8.3.5\/acorn:^8.11.0"
+            "filePath": "\/Users\/jonathanterrell\/DPUse\/GitHub\/dpuse-development\/package-lock.json?dpuse-development:0.3.477\/acorn-walk:8.3.5\/acorn:^8.11.0"
 ,"description": "ECMAScript parser","license": "MIT"            ,"projectReferences": [
-                "@dpuse\/dpuse-development:0.3.456"
-,                "@dpuse\/dpuse-development:0.3.456\/acorn-walk:8.3.5"
+                "@dpuse\/dpuse-development:0.3.477"
+,                "@dpuse\/dpuse-development:0.3.477\/acorn-walk:8.3.5"
             ]
             ,"relatedDependencies": [
   {
                     "isVirtual": true,
                     "fileName": "acorn:8.16.0",
-                    "filePath": "\/Users\/jonathanterrell\/DPUse\/GitHub\/dpuse-development\/package-lock.json?dpuse-development:0.3.456\/acorn:8.16.0"
+                    "filePath": "\/Users\/jonathanterrell\/DPUse\/GitHub\/dpuse-development\/package-lock.json?dpuse-development:0.3.477\/acorn:8.16.0"
 ,
                     "packageIds": [
                             {
@@ -432,9 +356,9 @@
         },{
             "isVirtual": true,
             "fileName": "nanoid:5.1.7",
-            "filePath": "\/Users\/jonathanterrell\/DPUse\/GitHub\/dpuse-development\/package-lock.json?dpuse-development:0.3.456\/nanoid:5.1.7"
+            "filePath": "\/Users\/jonathanterrell\/DPUse\/GitHub\/dpuse-development\/package-lock.json?dpuse-development:0.3.477\/nanoid:5.1.7"
 ,"description": "A tiny (118 bytes), secure URL-friendly unique string ID generator","license": "MIT"            ,"projectReferences": [
-                "@dpuse\/dpuse-development:0.3.456"
+                "@dpuse\/dpuse-development:0.3.477"
             ]
             ,"evidenceCollected": {
                 "vendorEvidence": [
@@ -498,9 +422,9 @@
         },{
             "isVirtual": true,
             "fileName": "typescript:5.9.3",
-            "filePath": "\/Users\/jonathanterrell\/DPUse\/GitHub\/dpuse-development\/package-lock.json?dpuse-development:0.3.456\/typescript:5.9.3"
+            "filePath": "\/Users\/jonathanterrell\/DPUse\/GitHub\/dpuse-development\/package-lock.json?dpuse-development:0.3.477\/typescript:5.9.3"
 ,"description": "TypeScript is a language for application scale JavaScript development","license": "Apache-2.0"            ,"projectReferences": [
-                "@dpuse\/dpuse-development:0.3.456"
+                "@dpuse\/dpuse-development:0.3.477"
             ]
             ,"evidenceCollected": {
                 "vendorEvidence": [
@@ -578,9 +502,9 @@
         },{
             "isVirtual": true,
             "fileName": "valibot:1.3.1",
-            "filePath": "\/Users\/jonathanterrell\/DPUse\/GitHub\/dpuse-development\/package-lock.json?dpuse-development:0.3.456\/valibot:1.3.1"
+            "filePath": "\/Users\/jonathanterrell\/DPUse\/GitHub\/dpuse-development\/package-lock.json?dpuse-development:0.3.477\/valibot:1.3.1"
 ,"description": "The modular and type safe schema library for validating structural data","license": "MIT"            ,"projectReferences": [
-                "@dpuse\/dpuse-development:0.3.456"
+                "@dpuse\/dpuse-development:0.3.477"
             ]
             ,"evidenceCollected": {
                 "vendorEvidence": [

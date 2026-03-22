@@ -3,7 +3,7 @@ import type { ObjectEncodingOptions } from 'node:fs';
 import type { PackageJson } from 'type-fest';
 
 // DPUse Framework
-import type { ModuleConfig } from '@datapos/datapos-shared/component';
+import type { ModuleConfig } from '@dpuse/dpuse-shared/component';
 
 // Development Core
 import { execCommand, getDirectoryEntries, getStatsForPath, readJSONFile } from '@/utilities';
@@ -17,7 +17,7 @@ export async function putState(): Promise<void> {
         headers: { 'Content-Type': 'application/json' },
         method: 'PUT'
     };
-    const response = await fetch(`https://api.datapos.app/states/${configJSON.id}`, options);
+    const response = await fetch(`https://api.dpuse.app/states/${configJSON.id}`, options);
     if (!response.ok) throw new Error(await response.text());
 }
 
@@ -32,7 +32,7 @@ export async function uploadDirectoryToR2(sourceDirectory: string, uploadDirecto
                 await listDirectoryEntriesRecursively(sourceItemPath, destinationItemPath, nextLevelChildren);
             } else {
                 console.info(`⚙️ Uploading '${currentSourceDirectory}/${name}'...`);
-                const command = `wrangler r2 object put "datapos-sample-data-eu/${currentDestinationDirectory}/${name}" --file="${currentSourceDirectory}/${name}" --jurisdiction=eu --remote`;
+                const command = `wrangler r2 object put "dpuse-sample-data-eu/${currentDestinationDirectory}/${name}" --file="${currentSourceDirectory}/${name}" --jurisdiction=eu --remote`;
                 await execCommand(undefined, command);
             }
         }
@@ -48,7 +48,7 @@ export async function uploadModuleConfigToDO(configJSON: ModuleConfig): Promise<
         headers: { 'Content-Type': 'application/json' },
         method: 'PUT'
     };
-    const response = await fetch(`https://api.datapos.app/states/${stateId}`, options);
+    const response = await fetch(`https://api.dpuse.app/states/${stateId}`, options);
     if (!response.ok) throw new Error(await response.text());
 }
 
