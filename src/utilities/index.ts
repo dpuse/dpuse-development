@@ -10,7 +10,7 @@ import type { Dirent, ObjectEncodingOptions, Stats } from 'node:fs';
 import { exec, spawn } from 'node:child_process';
 import type { MethodDefinition, Node } from 'acorn';
 
-// Interfaces/Types ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// Constants ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 export interface ModuleTypeConfig {
     idPrefix: string;
@@ -18,9 +18,6 @@ export interface ModuleTypeConfig {
     isPublished: boolean;
     uploadGroupName: 'connectors' | 'contexts' | 'engine' | 'presenters' | 'tools' | undefined;
 }
-
-// Constants ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
 const MODULE_TYPE_CONFIGS: ModuleTypeConfig[] = [
     { idPrefix: 'dpuse-app', typeId: 'app', isPublished: false, uploadGroupName: undefined },
     { idPrefix: 'dpuse-api', typeId: 'api', isPublished: false, uploadGroupName: undefined },
@@ -39,7 +36,7 @@ const MODULE_TYPE_CONFIGS: ModuleTypeConfig[] = [
 
 const asyncExec = promisify(exec);
 
-// Actions ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// Actions - Directory ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 export async function clearDirectory(directoryPath: string): Promise<void> {
     let entries: Dirent[];
@@ -65,6 +62,14 @@ export async function clearDirectory(directoryPath: string): Promise<void> {
     );
 }
 
+export function getDirectoryEntries(path: string): Promise<string[]>;
+export function getDirectoryEntries(path: string, options: ObjectEncodingOptions): Promise<Dirent[]>;
+export async function getDirectoryEntries(path: string, options?: ObjectEncodingOptions): Promise<string[] | Dirent[]> {
+    return fs.readdir(path, options);
+}
+
+// Actions - Command ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
 export async function execCommand(label: string | undefined, command_: string, arguments_: string[] = [], outputFilePath?: string): Promise<void> {
     const command = `${command_} ${arguments_.join(' ')}`;
     if (label !== undefined) logStepHeader(`${label} - exec(${command})`);
@@ -75,6 +80,20 @@ export async function execCommand(label: string | undefined, command_: string, a
         await fs.writeFile(outputFilePath, stdout.trim(), 'utf8');
     }
     if (stderr.trim()) console.error(stderr.trim());
+}
+
+export async function spawnCommand(label: string, command: string, arguments_: string[] = [], ignoreErrors = false, useShell = false): Promise<void> {
+    logStepHeader(`${label} - spawn(${command} ${arguments_.join(' ')})`);
+    return new Promise((resolve, reject) => {
+        const child = spawn(command, arguments_, { shell: useShell, stdio: 'inherit' });
+        child.on('close', (code) => {
+            if (code === 0 || ignoreErrors) {
+                resolve();
+            } else {
+                reject(new Error(`${command} exited with code ${code}`));
+            }
+        });
+    });
 }
 
 export function extractOperationsFromSource<T>(source: string): T[] {
@@ -106,26 +125,16 @@ export function extractOperationsFromSource<T>(source: string): T[] {
     return operations;
 }
 
-/** Utilities - Get directory entries. */
-export function getDirectoryEntries(path: string): Promise<string[]>;
-export function getDirectoryEntries(path: string, options: ObjectEncodingOptions): Promise<Dirent[]>;
-export async function getDirectoryEntries(path: string, options?: ObjectEncodingOptions): Promise<string[] | Dirent[]> {
-    return fs.readdir(path, options);
-}
-
-/** Utilities - Get module type identifier. */
 export function getModuleConfig(configId: string): ModuleTypeConfig {
     const moduleTypeConfig = MODULE_TYPE_CONFIGS.find((config) => configId.startsWith(config.idPrefix));
     if (!moduleTypeConfig) throw new Error(`Failed to locate module type configuration for identifier '${configId}'.`);
     return moduleTypeConfig;
 }
 
-/** Utilities - Get stats for path. */
 export async function getStatsForPath(path: string): Promise<Stats> {
     return await fs.stat(path);
 }
 
-/** Utilities - Log operation header. */
 export function logOperationHeader(text: string): void {
     const cyan = '\u001B[36m';
     const reset = '\u001B[0m';
@@ -135,27 +144,22 @@ export function logOperationHeader(text: string): void {
     console.info(`${line}${reset}`);
 }
 
-/** Utilities - Log operation success. */
 export function logOperationSuccess(message: string): void {
     console.info(`\n✅ ${message}\n`);
 }
 
-/** Utilities - Log step header. */
 export function logStepHeader(text: string): void {
     console.info(`\n${text}\n`);
 }
 
-/** Utilities - Read JSON file. */
 export async function readJSONFile<T>(path: string): Promise<T> {
     return JSON.parse(await fs.readFile(path, 'utf8')) as T;
 }
 
-// Utilities - Read text file.
 export async function readTextFile(path: string): Promise<string> {
     return await fs.readFile(path, 'utf8');
 }
 
-/** Utilities - Remove file. */
 export async function removeFile(path: string): Promise<void> {
     try {
         await fs.unlink(path);
@@ -164,22 +168,6 @@ export async function removeFile(path: string): Promise<void> {
     }
 }
 
-/** Utilities - Spawn command. */
-export async function spawnCommand(label: string, command: string, arguments_: string[] = [], ignoreErrors = false, useShell = false): Promise<void> {
-    logStepHeader(`${label} - spawn(${command} ${arguments_.join(' ')})`);
-    return new Promise((resolve, reject) => {
-        const child = spawn(command, arguments_, { shell: useShell, stdio: 'inherit' });
-        child.on('close', (code) => {
-            if (code === 0 || ignoreErrors) {
-                resolve();
-            } else {
-                reject(new Error(`${command} exited with code ${code}`));
-            }
-        });
-    });
-}
-
-/** Utilities - Substitute content. */
 export function substituteContent(originalContent: string, substituteContent: string, startMarker: string, endMarker: string): string {
     const startIndex = originalContent.indexOf(startMarker);
     const endIndex = originalContent.indexOf(endMarker);
@@ -187,17 +175,16 @@ export function substituteContent(originalContent: string, substituteContent: st
     return `${originalContent.slice(0, Math.max(0, startIndex + startMarker.length))}\n${substituteContent}\n${originalContent.slice(Math.max(0, endIndex))}`;
 }
 
-/** Utilities - Write JSON file. */
 export async function writeJSONFile(path: string, data: object): Promise<void> {
     await fs.writeFile(path, JSON.stringify(data, undefined, 4), 'utf8');
 }
 
-/** Utilities - Write text file. */
 export async function writeTextFile(path: string, data: string): Promise<void> {
     await fs.writeFile(path, data, 'utf8');
 }
 
-/** Helpers - Traverse AST (Abstract Syntax Tree). */
+// Helpers ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
 function traverseAST(node: Node, doIt: (node: Node) => void): void {
     doIt(node);
     for (const [key, value_] of Object.entries(node)) {
