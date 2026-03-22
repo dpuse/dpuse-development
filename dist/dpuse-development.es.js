@@ -6277,12 +6277,12 @@ async function Dr(e, n) {
 }
 async function Y(e, n, r = [], i) {
 	let a = `${n} ${r.join(" ")}`;
-	e !== void 0 && Z(`${e} - exec(${a})`);
+	e !== void 0 && Q(`${e} - exec(${a})`);
 	let { stdout: o, stderr: s } = await Tr(a);
 	i === void 0 ? o.trim() && console.log(o.trim()) : await t.writeFile(i, o.trim(), "utf8"), s.trim() && console.error(s.trim());
 }
 async function X(e, t, n = [], r = !1, i = !1) {
-	return Z(`${e} - spawn(${t} ${n.join(" ")})`), new Promise((e, o) => {
+	return Q(`${e} - spawn(${t} ${n.join(" ")})`), new Promise((e, o) => {
 		a(t, n, {
 			shell: i,
 			stdio: "inherit"
@@ -6291,13 +6291,47 @@ async function X(e, t, n = [], r = !1, i = !1) {
 		});
 	});
 }
-function Or(e) {
+async function Z(e) {
+	return JSON.parse(await t.readFile(e, "utf8"));
+}
+async function Or(e) {
+	return await t.readFile(e, "utf8");
+}
+async function kr(e) {
+	try {
+		await t.unlink(e);
+	} catch (e) {
+		if (e.code !== "ENOENT") throw e;
+	}
+}
+async function Ar(e, n) {
+	await t.writeFile(e, JSON.stringify(n, void 0, 4), "utf8");
+}
+async function jr(e, n) {
+	await t.writeFile(e, n, "utf8");
+}
+function Mr(e) {
+	let t = "─".repeat(Math.max(e.length + 60, 60));
+	console.info(`\n[36m${t}`), console.info(`▶️  ${e}`), console.info(`${t}[0m`);
+}
+function Nr(e) {
+	console.info(`\n✅ ${e}\n`);
+}
+function Q(e) {
+	console.info(`\n${e}\n`);
+}
+function Pr(e) {
+	let t = wr.find((t) => e.startsWith(t.idPrefix));
+	if (!t) throw Error(`Failed to locate module type configuration for identifier '${e}'.`);
+	return t;
+}
+function Fr(e) {
 	let t = F.extend(Cr()).parse(e, {
 		ecmaVersion: "latest",
 		sourceType: "module",
 		locations: !0
 	}), n = [];
-	return Lr(t, (e) => {
+	return Ir(t, (e) => {
 		if (e.type !== "MethodDefinition") return;
 		let t = e, r = t.key;
 		if (r.type !== "Identifier") return;
@@ -6305,46 +6339,7 @@ function Or(e) {
 		i && i !== "constructor" && t.accessibility !== "private" && n.push(i);
 	}), n;
 }
-function kr(e) {
-	let t = wr.find((t) => e.startsWith(t.idPrefix));
-	if (!t) throw Error(`Failed to locate module type configuration for identifier '${e}'.`);
-	return t;
-}
-function Ar(e) {
-	let t = "─".repeat(Math.max(e.length + 60, 60));
-	console.info(`\n[36m${t}`), console.info(`▶️  ${e}`), console.info(`${t}[0m`);
-}
-function jr(e) {
-	console.info(`\n✅ ${e}\n`);
-}
-function Z(e) {
-	console.info(`\n${e}\n`);
-}
-async function Q(e) {
-	return JSON.parse(await t.readFile(e, "utf8"));
-}
-async function Mr(e) {
-	return await t.readFile(e, "utf8");
-}
-async function Nr(e) {
-	try {
-		await t.unlink(e);
-	} catch (e) {
-		if (e.code !== "ENOENT") throw e;
-	}
-}
-function Pr(e, t, n, r) {
-	let i = e.indexOf(n), a = e.indexOf(r);
-	if (i === -1 || a === -1) throw Error(`Markers ${n}-${r} not found in content.`);
-	return `${e.slice(0, Math.max(0, i + n.length))}\n${t}\n${e.slice(Math.max(0, a))}`;
-}
-async function Fr(e, n) {
-	await t.writeFile(e, JSON.stringify(n, void 0, 4), "utf8");
-}
-async function Ir(e, n) {
-	await t.writeFile(e, n, "utf8");
-}
-function Lr(e, t) {
+function Ir(e, t) {
 	t(e);
 	for (let [n, r] of Object.entries(e)) {
 		if ([
@@ -6357,15 +6352,20 @@ function Lr(e, t) {
 		let e = r;
 		if (Array.isArray(e)) for (let n of e) {
 			let e = n;
-			e && typeof e.type == "string" && Lr(e, t);
+			e && typeof e.type == "string" && Ir(e, t);
 		}
-		else e && typeof e == "object" && typeof e.type == "string" && Lr(e, t);
+		else e && typeof e == "object" && typeof e.type == "string" && Ir(e, t);
 	}
+}
+function Lr(e, t, n, r) {
+	let i = e.indexOf(n), a = e.indexOf(r);
+	if (i === -1 || a === -1) throw Error(`Markers ${n}-${r} not found in content.`);
+	return `${e.slice(0, Math.max(0, i + n.length))}\n${t}\n${e.slice(Math.max(0, a))}`;
 }
 //#endregion
 //#region src/utilities/cloudflare.ts
 async function Rr() {
-	let e = await Q("config.json"), t = {
+	let e = await Z("config.json"), t = {
 		body: JSON.stringify(e),
 		headers: { "Content-Type": "application/json" },
 		method: "PUT"
@@ -6412,17 +6412,17 @@ var Vr = new Set([
 ]);
 async function Ur() {
 	try {
-		Ar("Build Project"), await X("1️⃣  Bundle project", "vite", ["build"]), jr("Project built.");
+		Mr("Build Project"), await X("1️⃣  Bundle project", "vite", ["build"]), Nr("Project built.");
 	} catch (e) {
 		console.error("❌ Error building project.", e), process.exit(1);
 	}
 }
 async function Wr() {
 	try {
-		Ar("Release Project");
-		let e = await Q("package.json"), t = await Q("config.json");
+		Mr("Release Project");
+		let e = await Z("package.json"), t = await Z("config.json");
 		await Qr("1️⃣", e);
-		let n = kr(t.id);
+		let n = Pr(t.id);
 		switch (n.typeId) {
 			case "connector":
 				t = await Jr("2️⃣", e);
@@ -6443,36 +6443,36 @@ async function Wr() {
 			"push",
 			"origin",
 			"main:main"
-		]), n.typeId === "app") Z("7️⃣  Register module"), await Rr();
-		else if (n.typeId === "engine") Z("7️⃣  Register module"), await Br(e, `datapos-engine-eu/${n.uploadGroupName}`), await zr(t);
-		else if (n.uploadGroupName === void 0) Z("7️⃣  Registration NOT required.");
+		]), n.typeId === "app") Q("7️⃣  Register module"), await Rr();
+		else if (n.typeId === "engine") Q("7️⃣  Register module"), await Br(e, `datapos-engine-eu/${n.uploadGroupName}`), await zr(t);
+		else if (n.uploadGroupName === void 0) Q("7️⃣  Registration NOT required.");
 		else {
-			Z("7️⃣  Register module");
+			Q("7️⃣  Register module");
 			let r = t.id.split("-").slice(2).join("-");
 			await Br(e, `datapos-engine-eu/${n.uploadGroupName}/${r}`), await zr(t);
 		}
 		if (n.isPublished) {
 			let e = ".npmrc";
 			try {
-				await Ir(e, `registry=https://registry.npmjs.org/\n//registry.npmjs.org/:_authToken=${process.env.NPM_TOKEN ?? ""}`), await X("8️⃣  Publish to npm", "npm", [
+				await jr(e, `registry=https://registry.npmjs.org/\n//registry.npmjs.org/:_authToken=${process.env.NPM_TOKEN ?? ""}`), await X("8️⃣  Publish to npm", "npm", [
 					"publish",
 					"--access",
 					"public"
 				]);
 			} finally {
-				await Nr(e);
+				await kr(e);
 			}
-		} else Z(`8️⃣  Publishing NOT required for package with type identifier of '${n.typeId}'.`);
-		jr(`Project version '${e.version}' released.`);
+		} else Q(`8️⃣  Publishing NOT required for package with type identifier of '${n.typeId}'.`);
+		Nr(`Project version '${e.version}' released.`);
 	} catch (e) {
 		console.error("❌ Error releasing project.", e), process.exit(1);
 	}
 }
 async function Gr() {
 	try {
-		Ar("Synchronise Project with GitHub");
-		let e = await Q("package.json");
-		Z("Bump project version"), await Qr("1️⃣", e), await Y("2️⃣  Stage changes", "git", ["add", "."]), await Y("3️⃣  Commit changes", "git", [
+		Mr("Synchronise Project with GitHub");
+		let e = await Z("package.json");
+		Q("Bump project version"), await Qr("1️⃣", e), await Y("2️⃣  Stage changes", "git", ["add", "."]), await Y("3️⃣  Commit changes", "git", [
 			"commit",
 			"-m",
 			`"v${e.version}"`
@@ -6480,53 +6480,53 @@ async function Gr() {
 			"push",
 			"origin",
 			"main:main"
-		]), jr(`Project version '${e.version}' synchronised with GitHub.`);
+		]), Nr(`Project version '${e.version}' synchronised with GitHub.`);
 	} catch (e) {
 		console.error("❌ Error synchronising project with GitHub.", e), process.exit(1);
 	}
 }
 function Kr() {
 	try {
-		Ar("Test Project"), console.error("\n❌ No tests implemented.\n");
+		Mr("Test Project"), console.error("\n❌ No tests implemented.\n");
 	} catch (e) {
 		console.error("❌ Error testing project.", e), process.exit(1);
 	}
 }
 async function qr(e, t) {
-	Z(`${e}  Build project configuration`);
-	let n = await Q("config.json");
-	return t.name != null && (n.id = t.name.replace("@dpuse/", "").replace("@dpuse/", "")), t.version != null && (n.version = t.version), await Fr("config.json", n), n;
+	Q(`${e}  Build project configuration`);
+	let n = await Z("config.json");
+	return t.name != null && (n.id = t.name.replace("@dpuse/", "").replace("@dpuse/", "")), t.version != null && (n.version = t.version), await Ar("config.json", n), n;
 }
 async function Jr(e, t) {
-	Z(`${e}  Build connector project configuration`);
-	let [n, r] = await Promise.all([Q("config.json"), Mr("src/index.ts")]), i = /* @__PURE__ */ m(Oe, n);
+	Q(`${e}  Build connector project configuration`);
+	let [n, r] = await Promise.all([Z("config.json"), Or("src/index.ts")]), i = /* @__PURE__ */ m(Oe, n);
 	if (!i.success) throw console.error("❌ Configuration is invalid:"), console.table(i.issues), Error("Configuration is invalid.");
 	console.log(1111);
-	let a = Or(r);
+	let a = Fr(r);
 	console.log(2222);
 	let o = $r(a);
 	return console.log(3333), await Yr(t, n, a, o);
 }
 async function Yr(e, t, n, r) {
-	return n.length > 0 ? (console.info(`ℹ️  Implements ${n.length} operations:`), console.table(n)) : console.warn("⚠️  Implements no operations."), r === "unknown" ? console.warn("⚠️  No usage identified.") : console.info(`ℹ️  Supports '${r}' usage.`), e.name != null && (t.id = e.name.replace("@dpuse/", "").replace("@dpuse/", "")), e.version != null && (t.version = e.version), t.operations = n, t.usageId = r ?? "unknown", await Fr("config.json", t), t;
+	return n.length > 0 ? (console.info(`ℹ️  Implements ${n.length} operations:`), console.table(n)) : console.warn("⚠️  Implements no operations."), r === "unknown" ? console.warn("⚠️  No usage identified.") : console.info(`ℹ️  Supports '${r}' usage.`), e.name != null && (t.id = e.name.replace("@dpuse/", "").replace("@dpuse/", "")), e.version != null && (t.version = e.version), t.operations = n, t.usageId = r ?? "unknown", await Ar("config.json", t), t;
 }
 async function Xr(e, t) {
-	Z(`${e}  Build context project configuration`);
-	let [n, r] = await Promise.all([Q("config.json"), Mr("src/index.ts")]), i = /* @__PURE__ */ m(je, n);
+	Q(`${e}  Build context project configuration`);
+	let [n, r] = await Promise.all([Z("config.json"), Or("src/index.ts")]), i = /* @__PURE__ */ m(je, n);
 	if (!i.success) throw console.error("❌ Configuration is invalid:"), console.table(i.issues), Error("Configuration is invalid.");
-	return await Yr(t, n, Or(r));
+	return await Yr(t, n, Fr(r));
 }
 async function Zr(e, t) {
-	Z(`${e}  Build presenter project configuration`);
-	let [n, r] = await Promise.all([Q("config.json"), Mr("src/index.ts")]), i = /* @__PURE__ */ m(Ne, n);
+	Q(`${e}  Build presenter project configuration`);
+	let [n, r] = await Promise.all([Z("config.json"), Or("src/index.ts")]), i = /* @__PURE__ */ m(Ne, n);
 	if (!i.success) throw console.error("❌ Configuration is invalid:"), console.table(i.issues), Error("Configuration is invalid.");
-	return await Yr(t, n, Or(r));
+	return await Yr(t, n, Fr(r));
 }
 async function Qr(e, t, n = "./") {
-	if (Z(`${e}  Bump project version`), t.version == null) t.version = "0.0.001", console.warn(`⚠️ Project version initialised to '${t.version}'.`), await Fr(`${n}package.json`, t);
+	if (Q(`${e}  Bump project version`), t.version == null) t.version = "0.0.001", console.warn(`⚠️ Project version initialised to '${t.version}'.`), await Ar(`${n}package.json`, t);
 	else {
 		let e = t.version, r = t.version.split(".");
-		t.version = `${r[0]}.${r[1]}.${Number(r[2]) + 1}`, console.info(`Project version bumped from '${e}' to '${t.version}'.`), await Fr(`${n}package.json`, t);
+		t.version = `${r[0]}.${r[1]}.${Number(r[2]) + 1}`, console.info(`Project version bumped from '${e}' to '${t.version}'.`), await Ar(`${n}package.json`, t);
 	}
 }
 function $r(e) {
@@ -6560,8 +6560,8 @@ var ei = {
 }, ti = "<!-- OWASP_BADGES_START -->", ni = "<!-- OWASP_BADGES_END -->";
 async function ri() {
 	try {
-		Ar("Audit Dependencies");
-		let e = await Q("package.json"), t = [];
+		Mr("Audit Dependencies");
+		let e = await Z("package.json"), t = [];
 		try {
 			let e = (await Dr("dependency-check-bin")).toSorted((e, t) => e.localeCompare(t)).at(-1);
 			e != null && e !== "" && t.push("--owasp-bin", `dependency-check-bin/${e}/dependency-check/bin/dependency-check.sh`);
@@ -6576,14 +6576,14 @@ async function ri() {
 			"--nodePackageSkipDevDependencies",
 			"--nvdApiKey",
 			process.env.OWASP_NVD_API_KEY ?? ""
-		]), await ii("2️⃣"), await X("3️⃣  Check using 'npm audit'", "npm", ["audit"]), jr("Dependencies audited.");
+		]), await ii("2️⃣"), await X("3️⃣  Check using 'npm audit'", "npm", ["audit"]), Nr("Dependencies audited.");
 	} catch (e) {
 		console.error("❌ Error auditing dependencies.", e), process.exit(1);
 	}
 }
 async function ii(e) {
-	Z(`${e}  Insert OWASP Badge(s) into 'README.md'`);
-	let t = await Q("dependency-check-reports/dependency-check-report.json"), n = {
+	Q(`${e}  Insert OWASP Badge(s) into 'README.md'`);
+	let t = await Z("dependency-check-reports/dependency-check-report.json"), n = {
 		critical: 0,
 		high: 0,
 		moderate: 0,
@@ -6595,10 +6595,10 @@ async function ii(e) {
 		e in n ? n[e]++ : n.unknown++;
 	}
 	let r = await ai(n);
-	await Ir("README.md", Pr(await Mr("./README.md"), r.join(" "), ti, ni)), console.info("OWASP audit badge(s) inserted into 'README.md'");
+	await jr("README.md", Lr(await Or("./README.md"), r.join(" "), ti, ni)), console.info("OWASP audit badge(s) inserted into 'README.md'");
 }
 async function ai(e) {
-	let t = await Q("config.json"), n = [];
+	let t = await Z("config.json"), n = [];
 	if (Object.values(e).reduce((e, t) => e + t, 0) === 0) console.info("No vulnerabilities found."), n.push(`[![OWASP](https://img.shields.io/badge/OWASP-passed-4CAF50)](https://dpuse.github.io/${t.id}/dependency-check-reports/dependency-check-report.html)`);
 	else for (let [r, i] of Object.entries(e)) {
 		let e = ei[r];
@@ -6612,7 +6612,7 @@ async function ai(e) {
 //#region src/operations/checkDependencies.ts
 async function oi() {
 	try {
-		Ar("Check Dependencies"), await X("1️⃣  Check using 'npm outdated'", "npm", ["outdated"], !0), await X("2️⃣  Check using 'npm-check-updates'", "npm-check-updates", ["-i", "--peer"]), jr("Dependencies checked.");
+		Mr("Check Dependencies"), await X("1️⃣  Check using 'npm outdated'", "npm", ["outdated"], !0), await X("2️⃣  Check using 'npm-check-updates'", "npm-check-updates", ["-i", "--peer"]), Nr("Dependencies checked.");
 	} catch (e) {
 		console.error("❌ Error checking dependencies.", e), process.exit(1);
 	}
@@ -6622,7 +6622,7 @@ async function oi() {
 var si = "<!-- DEPENDENCY_LICENSES_START -->", ci = "<!-- DEPENDENCY_LICENSES_END -->";
 async function li(e = [], t = !0) {
 	try {
-		Ar("Document Dependencies");
+		Mr("Document Dependencies");
 		let n = e.flatMap((e) => ["--allowed", `'${e}'`]);
 		await Y("1️⃣  Generate 'licenses.json' file", "license-report", [
 			"--config",
@@ -6647,7 +6647,7 @@ async function li(e = [], t = !0) {
 			"licenses/licenseTree.json",
 			"--output=table",
 			...n
-		])) : (Z("3️⃣  Skip 'licenses/licenseTree.json' file generate"), Z("4️⃣  Skip 'licenses/licenseTree.json' file check"));
+		])) : (Q("3️⃣  Skip 'licenses/licenseTree.json' file generate"), Q("4️⃣  Skip 'licenses/licenseTree.json' file check"));
 		let r = process.env.GITHUB_TOKEN;
 		if (r == null || r === "" || r.startsWith("op://")) throw Error("GITHUB_TOKEN is not resolved. Run the script via \"npm run document\" to use 1Password resolution.");
 		await Er("licenses/downloads"), await Y("5️⃣  Download license files", "license-downloader", [
@@ -6658,15 +6658,15 @@ async function li(e = [], t = !0) {
 			"--githubToken.tokenEnvVar",
 			"GITHUB_TOKEN",
 			"--download"
-		]), await ui("6️⃣", t), jr("Dependencies documented.");
+		]), await ui("6️⃣", t), Nr("Dependencies documented.");
 	} catch (e) {
 		console.error("❌ Error documenting dependencies.", e), process.exit(1);
 	}
 }
 async function ui(e, t) {
-	Z(`${e}  Insert licenses into 'README.md'`);
-	let n = await Q("licenses/licenses.json"), r = await Q("licenses/downloads/licenses.ext.json"), i = [];
-	t && (i = await Q("licenses/licenseTree.json"));
+	Q(`${e}  Insert licenses into 'README.md'`);
+	let n = await Z("licenses/licenses.json"), r = await Z("licenses/downloads/licenses.ext.json"), i = [];
+	t && (i = await Z("licenses/licenseTree.json"));
 	let a = [...(() => {
 		let e = /* @__PURE__ */ new Map();
 		for (let t of n) e.set(t.name, { ...t });
@@ -6690,8 +6690,8 @@ async function ui(e, t) {
 		let t = e.installedVersion === e.remoteVersion ? e.installedVersion : `${e.installedVersion} ⚠️`, n = e.latestRemoteModified ? di(e.latestRemoteModified.split("T")[0]) : "n/a", r = e.dependencyCount != null && e.dependencyCount >= 0 ? e.dependencyCount : "n/a", i;
 		i = e.licenseFileLink == null || e.licenseFileLink == "" ? "⚠️ No license file" : `[${e.licenseFileLink.slice(Math.max(0, e.licenseFileLink.lastIndexOf("/") + 1))}](${e.licenseFileLink})`, o += `|${e.name}|${e.licenseType}|${t}|${e.remoteVersion}|${n}|${r}|${i}|\n`;
 	}
-	let s = Pr(await Mr("./README.md"), o, si, ci);
-	await Ir("README.md", s), console.info("OWASP audit badge(s) inserted into 'README.md'"), await Ir("README.md", s);
+	let s = Lr(await Or("./README.md"), o, si, ci);
+	await jr("README.md", s), console.info("OWASP audit badge(s) inserted into 'README.md'"), await jr("README.md", s);
 }
 function di(e) {
 	if (e == null || e === "") return "n/a";
@@ -6704,13 +6704,13 @@ function di(e) {
 //#region src/operations/formatCode.ts
 async function fi() {
 	try {
-		Ar("Format Code"), await X("1️⃣  Format", "prettier", [
+		Mr("Format Code"), await X("1️⃣  Format", "prettier", [
 			"--write",
 			"*.json",
 			"*.md",
 			"*.ts",
 			...["app", "src"].filter((t) => e(t)).map((e) => `${e}/**`)
-		]), jr("Code formatted.");
+		]), Nr("Code formatted.");
 	} catch (e) {
 		console.error("❌ Error formatting code.", e), process.exit(1);
 	}
@@ -6719,7 +6719,7 @@ async function fi() {
 //#region src/operations/lintCode.ts
 async function pi() {
 	try {
-		Ar("Lint Code"), await X("1️⃣  Lint", "eslint", ["."]), jr("Code linted.");
+		Mr("Lint Code"), await X("1️⃣  Lint", "eslint", ["."]), Nr("Code linted.");
 	} catch (e) {
 		console.error("❌ Error linting code.", e), process.exit(1);
 	}
@@ -6739,12 +6739,12 @@ var mi = [
 ];
 async function hi(e = []) {
 	try {
-		Ar("Update '@dpuse/dpuse' Dependencies");
+		Mr("Update '@dpuse/dpuse' Dependencies");
 		for (let [t, n] of e.entries()) {
 			let e = mi.at(t) ?? "🔢";
-			n === "eslint" ? await X(`${e}  Update '${n}'`, "npm", ["install", "@dpuse/eslint-config-dpuse@latest"]) : (await X(`${e}  Update '${n}'`, "npm", ["install", `@dpuse/dpuse-${n}@latest`]), n === "development" && await gi(kr((await Q("config.json")).id)));
+			n === "eslint" ? await X(`${e}  Update '${n}'`, "npm", ["install", "@dpuse/eslint-config-dpuse@latest"]) : (await X(`${e}  Update '${n}'`, "npm", ["install", `@dpuse/dpuse-${n}@latest`]), n === "development" && await gi(Pr((await Z("config.json")).id)));
 		}
-		jr("'@dpuse/dpuse' dependencies updated.");
+		Nr("'@dpuse/dpuse' dependencies updated.");
 	} catch (e) {
 		console.error("❌ Error updating '@dpuse/dpuse' dependencies.", e), process.exit(1);
 	}
@@ -6754,9 +6754,9 @@ async function gi(e) {
 	await $(t, "../", ".editorconfig"), await $(t, "../", ".gitattributes"), await (e.isPublished ? $(t, "../", ".gitignore_published", ".gitignore2") : $(t, "../", ".gitignore_unpublished", ".gitignore2")), await $(t, "../", ".markdownlint.json"), await $(t, "../", "LICENSE"), await $(t, "../", "tsconfig.json", "tsconfig2.json"), e.typeId === "eslint" || (await $(t, "../", "eslint.config.ts", "eslint.config2.ts"), await $(t, "../", "vite.config.ts", "vite.config2.ts"), await $(t, "../", "vitest.config.ts", "vitest.config2.ts"));
 }
 async function $(e, t, r, i) {
-	let a = await Mr(n.resolve(e, `${t}${r}`)), o = n.resolve(process.cwd(), r.split("_")[0] ?? r), s = n.resolve(process.cwd(), i ?? r), c;
+	let a = await Or(n.resolve(e, `${t}${r}`)), o = n.resolve(process.cwd(), r.split("_")[0] ?? r), s = n.resolve(process.cwd(), i ?? r), c;
 	try {
-		c = await Mr(o);
+		c = await Or(o);
 	} catch (e) {
 		if (e.code !== "ENOENT") throw e;
 	}
@@ -6764,7 +6764,7 @@ async function $(e, t, r, i) {
 		console.info(`ℹ️  File '${r.split("_")[0] ?? r}' is already up to date.`);
 		return;
 	}
-	await Ir(s, a), console.info(`ℹ️  File '${i ?? r}' synchronised.`);
+	await jr(s, a), console.info(`ℹ️  File '${i ?? r}' synchronised.`);
 }
 //#endregion
 //#region src/index.ts

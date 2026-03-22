@@ -1,9 +1,5 @@
-/**
- * ESLint configuration.
- */
-
-/** Dependencies - Framework. */
+// DPUse Framework
 import dpuse from '@dpuse/eslint-config-dpuse';
 
-/** Exposures - Configuration. */
+// ESlint Configuration
 export default [...dpuse];

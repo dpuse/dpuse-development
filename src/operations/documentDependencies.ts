@@ -1,16 +1,12 @@
-/**
- * Document dependencies utilities.
- */
-
 /* eslint-disable unicorn/no-process-exit */
 
-/** Dependencies - Vendor. */
+// External Dependencies
 import { fileURLToPath, URL } from 'node:url';
 
-/** Dependencies - Framework. */
-import { clearDirectory, execCommand, logOperationHeader, logOperationSuccess, logStepHeader, readJSONFile, readTextFile, substituteContent, writeTextFile } from '@/utilities';
+// DPUse Framework
+import { clearDirectory, execCommand, logOperationHeader, logOperationSuccess, logStepHeader, readJSONFile, readTextFile, substituteText, writeTextFile } from '@/utilities';
 
-/** Interfaces/Types */
+// Interfaces/Types
 interface License {
     department: string;
     relatedTo: string;
@@ -29,12 +25,14 @@ interface License {
     licenseFileLink?: string;
 }
 
-/** Constants */
+// Constants ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
 const START_MARKER = '<!-- DEPENDENCY_LICENSES_START -->';
 const END_MARKER = '<!-- DEPENDENCY_LICENSES_END -->';
 
-/** Utilities - Document. */
-async function documentDependencies(licenses: string[] = [], checkRecursive = true): Promise<void> {
+// Actions ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+export async function documentDependencies(licenses: string[] = [], checkRecursive = true): Promise<void> {
     try {
         logOperationHeader('Document Dependencies');
 
@@ -93,7 +91,8 @@ async function documentDependencies(licenses: string[] = [], checkRecursive = tr
     }
 }
 
-/** Helpers - Insert licenses into README file. */
+// Helpers ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
 async function insertLicensesIntoReadme(stepIcon: string, checkRecursive: boolean): Promise<void> {
     logStepHeader(`${stepIcon}  Insert licenses into 'README.md'`);
 
@@ -143,15 +142,14 @@ async function insertLicensesIntoReadme(stepIcon: string, checkRecursive: boolea
         licensesContent += `|${license.name}|${license.licenseType}|${installedVersion}|${license.remoteVersion}|${latestUpdate}|${dependencyCount}|${licenseLink}|\n`;
     }
 
-    // Insert licenses into README
+    // Insert licenses into README.
     const originalContent = await readTextFile('./README.md');
-    const newContent = substituteContent(originalContent, licensesContent, START_MARKER, END_MARKER);
+    const newContent = substituteText(originalContent, licensesContent, START_MARKER, END_MARKER);
     await writeTextFile('README.md', newContent);
     console.info("OWASP audit badge(s) inserted into 'README.md'");
     await writeTextFile('README.md', newContent);
 }
 
-/** Helpers */
 function determineLatestAge(momentString?: string): string {
     if (momentString == null || momentString === '') return 'n/a';
 
@@ -169,6 +167,3 @@ function determineLatestAge(momentString?: string): string {
     if (months <= 12) return `${months} months ago: ${dateString} ⚠️`;
     return `${months} months ago: ${dateString}❗`;
 }
-
-/** Exposures */
-export { documentDependencies };

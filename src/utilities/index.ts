@@ -10,7 +10,7 @@ import type { Dirent, ObjectEncodingOptions, Stats } from 'node:fs';
 import { exec, spawn } from 'node:child_process';
 import type { MethodDefinition, Node } from 'acorn';
 
-// Constants ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// Interfaces/Types
 
 export interface ModuleTypeConfig {
     idPrefix: string;
@@ -18,6 +18,9 @@ export interface ModuleTypeConfig {
     isPublished: boolean;
     uploadGroupName: 'connectors' | 'contexts' | 'engine' | 'presenters' | 'tools' | undefined;
 }
+
+// Constants ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
 const MODULE_TYPE_CONFIGS: ModuleTypeConfig[] = [
     { idPrefix: 'dpuse-app', typeId: 'app', isPublished: false, uploadGroupName: undefined },
     { idPrefix: 'dpuse-api', typeId: 'api', isPublished: false, uploadGroupName: undefined },
@@ -96,44 +99,33 @@ export async function spawnCommand(label: string, command: string, arguments_: s
     });
 }
 
-export function extractOperationsFromSource<T>(source: string): T[] {
-    // @ts-expect-error - acorn-typescript runtime mismatch is fine.
-    const TSParser = Parser.extend(acornTypeScript());
-    const ast = TSParser.parse(source, {
-        ecmaVersion: 'latest',
-        sourceType: 'module',
-        locations: true
-    });
+// Actions - File ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-    const operations: T[] = [];
-
-    traverseAST(ast, (node) => {
-        if (node.type !== 'MethodDefinition') return;
-
-        const md = node as MethodDefinition & { accessibility?: string };
-        const key = md.key;
-        if (key.type !== 'Identifier') return;
-        const name = key.name;
-
-        if (!name) return;
-        if (name === 'constructor') return;
-        if (md.accessibility === 'private') return;
-
-        operations.push(name as T);
-    });
-
-    return operations;
+export async function readJSONFile<T>(path: string): Promise<T> {
+    return JSON.parse(await fs.readFile(path, 'utf8')) as T;
 }
 
-export function getModuleConfig(configId: string): ModuleTypeConfig {
-    const moduleTypeConfig = MODULE_TYPE_CONFIGS.find((config) => configId.startsWith(config.idPrefix));
-    if (!moduleTypeConfig) throw new Error(`Failed to locate module type configuration for identifier '${configId}'.`);
-    return moduleTypeConfig;
+export async function readTextFile(path: string): Promise<string> {
+    return await fs.readFile(path, 'utf8');
 }
 
-export async function getStatsForPath(path: string): Promise<Stats> {
-    return await fs.stat(path);
+export async function removeFile(path: string): Promise<void> {
+    try {
+        await fs.unlink(path);
+    } catch (error) {
+        if ((error as NodeJS.ErrnoException).code !== 'ENOENT') throw error; // Ignore missing file errors, rethrow others.
+    }
 }
+
+export async function writeJSONFile(path: string, data: object): Promise<void> {
+    await fs.writeFile(path, JSON.stringify(data, undefined, 4), 'utf8');
+}
+
+export async function writeTextFile(path: string, data: string): Promise<void> {
+    await fs.writeFile(path, data, 'utf8');
+}
+
+// Actions - Log ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 export function logOperationHeader(text: string): void {
     const cyan = '\u001B[36m';
@@ -152,38 +144,44 @@ export function logStepHeader(text: string): void {
     console.info(`\n${text}\n`);
 }
 
-export async function readJSONFile<T>(path: string): Promise<T> {
-    return JSON.parse(await fs.readFile(path, 'utf8')) as T;
+// Actions - Module ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+export function getModuleConfig(configId: string): ModuleTypeConfig {
+    const moduleTypeConfig = MODULE_TYPE_CONFIGS.find((config) => configId.startsWith(config.idPrefix));
+    if (!moduleTypeConfig) throw new Error(`Failed to locate module type configuration for identifier '${configId}'.`);
+    return moduleTypeConfig;
 }
 
-export async function readTextFile(path: string): Promise<string> {
-    return await fs.readFile(path, 'utf8');
+// Actions - Path ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+export async function getStatsForPath(path: string): Promise<Stats> {
+    return await fs.stat(path);
 }
 
-export async function removeFile(path: string): Promise<void> {
-    try {
-        await fs.unlink(path);
-    } catch (error) {
-        if ((error as NodeJS.ErrnoException).code !== 'ENOENT') throw error; // Ignore missing file errors, rethrow others.
-    }
-}
+// Actions - Source ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-export function substituteContent(originalContent: string, substituteContent: string, startMarker: string, endMarker: string): string {
-    const startIndex = originalContent.indexOf(startMarker);
-    const endIndex = originalContent.indexOf(endMarker);
-    if (startIndex === -1 || endIndex === -1) throw new Error(`Markers ${startMarker}-${endMarker} not found in content.`);
-    return `${originalContent.slice(0, Math.max(0, startIndex + startMarker.length))}\n${substituteContent}\n${originalContent.slice(Math.max(0, endIndex))}`;
+export function extractOperationsFromSource<T>(source: string): T[] {
+    // @ts-expect-error - acorn-typescript runtime mismatch is fine.
+    const TSParser = Parser.extend(acornTypeScript());
+    const ast = TSParser.parse(source, {
+        ecmaVersion: 'latest',
+        sourceType: 'module',
+        locations: true
+    });
+    const operations: T[] = [];
+    traverseAST(ast, (node) => {
+        if (node.type !== 'MethodDefinition') return;
+        const md = node as MethodDefinition & { accessibility?: string };
+        const key = md.key;
+        if (key.type !== 'Identifier') return;
+        const name = key.name;
+        if (!name) return;
+        if (name === 'constructor') return;
+        if (md.accessibility === 'private') return;
+        operations.push(name as T);
+    });
+    return operations;
 }
-
-export async function writeJSONFile(path: string, data: object): Promise<void> {
-    await fs.writeFile(path, JSON.stringify(data, undefined, 4), 'utf8');
-}
-
-export async function writeTextFile(path: string, data: string): Promise<void> {
-    await fs.writeFile(path, data, 'utf8');
-}
-
-// Helpers ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 function traverseAST(node: Node, doIt: (node: Node) => void): void {
     doIt(node);
@@ -199,4 +197,13 @@ function traverseAST(node: Node, doIt: (node: Node) => void): void {
             traverseAST(value, doIt);
         }
     }
+}
+
+// Actions - Text ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+export function substituteText(originalText: string, substituteText: string, startMarker: string, endMarker: string): string {
+    const startIndex = originalText.indexOf(startMarker);
+    const endIndex = originalText.indexOf(endMarker);
+    if (startIndex === -1 || endIndex === -1) throw new Error(`Markers ${startMarker}-${endMarker} not found in content.`);
+    return `${originalText.slice(0, Math.max(0, startIndex + startMarker.length))}\n${substituteText}\n${originalText.slice(Math.max(0, endIndex))}`;
 }

@@ -1,25 +1,11 @@
-/**
- * Audit dependencies utilities.
- */
-
 /* eslint-disable unicorn/no-process-exit */
 
-// Dependencies - Vendor.
+// External Dependencies
 import type { PackageJson } from 'type-fest';
 
-// Dependencies - Framework.
+// DPUse Framework
 import type { ModuleConfig } from '@datapos/datapos-shared/component';
-import {
-    getDirectoryEntries,
-    logOperationHeader,
-    logOperationSuccess,
-    logStepHeader,
-    readJSONFile,
-    readTextFile,
-    spawnCommand,
-    substituteContent,
-    writeTextFile
-} from '@/utilities';
+import { getDirectoryEntries, logOperationHeader, logOperationSuccess, logStepHeader, readJSONFile, readTextFile, spawnCommand, substituteText, writeTextFile } from '@/utilities';
 
 // Interfaces/Types
 interface DependencyCheckData {
@@ -37,20 +23,22 @@ interface SeverityCounts {
     unknown: number;
 }
 
-// Constants
+// Constants ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
 const SEVERITY_BADGES: Record<keyof SeverityCounts, BadgeConfig> = {
     critical: { color: 'D32F2F', label: 'critical' },
     high: { color: 'EF6C00', label: 'high' },
     moderate: { color: 'FBC02D', label: 'moderate' },
     low: { color: '6D8C31', label: 'low' },
     unknown: { color: '616161', label: 'unknown' }
-    // See sample badges in ~/tests/sampleBadges.md. Also included 'info' colouring.
+    // See sample badges in ~/tests/sampleBadges.md, also includes 'info' colouring.
 };
 const START_MARKER = '<!-- OWASP_BADGES_START -->';
 const END_MARKER = '<!-- OWASP_BADGES_END -->';
 
-// Utilities - Audit dependencies.
-async function auditDependencies(): Promise<void> {
+// Actions ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+export async function auditDependencies(): Promise<void> {
     try {
         logOperationHeader('Audit Dependencies');
 
@@ -89,7 +77,8 @@ async function auditDependencies(): Promise<void> {
     }
 }
 
-// Helpers - Insert OWASP dependency check badge into README file.
+// Helpers ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
 async function insertOWASPDependencyCheckBadgeIntoReadme(stepIcon: string): Promise<void> {
     logStepHeader(`${stepIcon}  Insert OWASP Badge(s) into 'README.md'`);
 
@@ -112,12 +101,11 @@ async function insertOWASPDependencyCheckBadgeIntoReadme(stepIcon: string): Prom
 
     // Insert badges into README
     const originalContent = await readTextFile('./README.md');
-    const newContent = substituteContent(originalContent, badges.join(' '), START_MARKER, END_MARKER);
+    const newContent = substituteText(originalContent, badges.join(' '), START_MARKER, END_MARKER);
     await writeTextFile('README.md', newContent);
     console.info("OWASP audit badge(s) inserted into 'README.md'");
 }
 
-// Helpers - Build OWASP badges.
 async function buildOWASPBadges(severityCounts: SeverityCounts): Promise<string[]> {
     const configJSON = await readJSONFile<ModuleConfig>('config.json');
     const badges: string[] = [];
@@ -137,6 +125,3 @@ async function buildOWASPBadges(severityCounts: SeverityCounts): Promise<string[
     }
     return badges;
 }
-
-// Exposures
-export { auditDependencies };
