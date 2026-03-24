@@ -102,6 +102,7 @@ We use the `npm` packages [license-report](https://www.npmjs.com/package/license
 <!-- DEPENDENCY_LICENSES_START -->
 |Name|Type|Installed|Latest|Latest Released|Deps|Document|
 |:-|:-|:-:|:-:|:-|-:|:-|
+|@dpuse/dpuse-shared|MIT|0.3.594 ⚠️|0.3.595|this month: 2026-03-23|0|[LICENSE](https://raw.githubusercontent.com/dpuse/dpuse-shared/main/LICENSE)|
 |acorn|MIT|8.16.0|8.16.0|1 month ago: 2026-02-19|0|⚠️ No license file|
 |acorn-typescript|MIT|1.4.13|1.4.13|26 months ago: 2024-01-03❗|1|[LICENSE](https://raw.githubusercontent.com/TyrealHu/acorn-typescript/master/LICENSE)|
 |acorn-walk|MIT|8.3.5|8.3.5|1 month ago: 2026-02-19|1|⚠️ No license file|
