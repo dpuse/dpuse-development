@@ -11,7 +11,7 @@ export async function checkDependencies(): Promise<void> {
 
         await spawnCommand("1️⃣  Check using 'npm outdated'", 'npm', ['outdated'], true);
 
-        await spawnCommand("2️⃣  Check using 'npm-check-updates'", 'npm-check-updates', ['-i', '--peer']);
+        await spawnCommand("2️⃣  Check using 'npm-check-updates'", 'npm-check-updates', ['-i', '--dep dev,prod,peer,optional']);
 
         logOperationSuccess('Dependencies checked.');
     } catch (error) {
