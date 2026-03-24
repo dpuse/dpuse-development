@@ -6609,7 +6609,11 @@ async function ii(e) {
 //#region src/operations/checkDependencies.ts
 async function ai() {
 	try {
-		jr("Check Dependencies"), await Z("1️⃣  Check using 'npm outdated'", "npm", ["outdated"], !0), await Z("2️⃣  Check using 'npm-check-updates'", "npm-check-updates", ["-i", "--dep dev,prod,peer,optional"]), Mr("Dependencies checked.");
+		jr("Check Dependencies"), await Z("1️⃣  Check using 'npm outdated'", "npm", ["outdated"], !0), await Z("2️⃣  Check using 'npm-check-updates'", "npm-check-updates", [
+			"-i",
+			"--dep",
+			"dev,prod,peer,optional"
+		]), Mr("Dependencies checked.");
 	} catch (e) {
 		console.error("❌ Error checking dependencies.", e), process.exit(1);
 	}
