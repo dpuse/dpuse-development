@@ -235,15 +235,32 @@ export async function syncProjectWithGitHub(): Promise<void> {
         logOperationHeader('Synchronise Project with GitHub');
 
         const packageJSON = await readJSONFile<PackageJson>('package.json');
+        const configJSON = await readJSONFile<ModuleConfig>('config.json');
 
         logStepHeader('Bump project version');
         await bumpPackageVersion('1️⃣', packageJSON);
 
-        await execCommand('2️⃣  Stage changes', 'git', ['add', '.']);
+        const moduleTypeConfig = getModuleConfig(configJSON.id);
 
-        await execCommand('3️⃣  Commit changes', 'git', ['commit', '-m', `"v${packageJSON.version}"`]);
+        switch (moduleTypeConfig.typeId) {
+            case 'connector':
+                await buildConnectorProjectConfig('2️⃣', packageJSON);
+                break;
+            case 'context':
+                await buildContextProjectConfig('2️⃣', packageJSON);
+                break;
+            case 'presenter':
+                await buildPresenterProjectConfig('2️⃣', packageJSON);
+                break;
+            default:
+                await buildProjectConfig('2️⃣', packageJSON);
+        }
 
-        await execCommand('4️⃣  Push changes', 'git', ['push', 'origin', 'main:main']);
+        await execCommand('3️⃣  Stage changes', 'git', ['add', '.']);
+
+        await execCommand('4️⃣  Commit changes', 'git', ['commit', '-m', `"v${packageJSON.version}"`]);
+
+        await execCommand('5️⃣  Push changes', 'git', ['push', 'origin', 'main:main']);
 
         logOperationSuccess(`Project version '${packageJSON.version}' synchronised with GitHub.`);
     } catch (error) {
