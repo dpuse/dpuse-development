@@ -237,7 +237,7 @@ export async function syncProjectWithGitHub(): Promise<void> {
         const packageJSON = await readJSONFile<PackageJson>('package.json');
         const configJSON = await readJSONFile<ModuleConfig>('config.json');
 
-        logStepHeader('Bump project version');
+        // logStepHeader('Bump project version');
         await bumpPackageVersion('1️⃣', packageJSON);
 
         const moduleTypeConfig = getModuleConfig(configJSON.id);
