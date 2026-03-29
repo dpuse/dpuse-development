@@ -17,7 +17,7 @@ export async function putState(): Promise<void> {
         headers: { 'Content-Type': 'application/json' },
         method: 'PUT'
     };
-    const response = await fetch(`https://api.dpuse.app/states/${configJSON.id}`, options);
+    const response = await fetch(`https://api.dpuse.app/configs/${configJSON.id}`, options);
     if (!response.ok) throw new Error(await response.text());
 }
 
@@ -48,7 +48,7 @@ export async function uploadModuleConfigToDO(configJSON: ModuleConfig): Promise<
         headers: { 'Content-Type': 'application/json' },
         method: 'PUT'
     };
-    const response = await fetch(`https://api.dpuse.app/states/${stateId}`, options);
+    const response = await fetch(`https://api.dpuse.app/configs/${stateId}`, options);
     if (!response.ok) throw new Error(await response.text());
 }
 
