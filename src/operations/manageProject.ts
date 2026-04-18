@@ -5,9 +5,9 @@ import type { PackageJson } from 'type-fest';
 import { safeParse } from 'valibot';
 
 // DPUse Framework
-import { connectorConfigSchema } from '@dpuse/dpuse-shared/component/connector';
+import { connectorConfigSchema } from '@dpuse/dpuse-shared/component/module/connector';
 import type { ModuleConfig } from '@dpuse/dpuse-shared/component';
-import type { ConnectorConfig, ConnectorOperationName, ConnectorUsageId } from '@dpuse/dpuse-shared/component/connector';
+import type { ConnectorConfig, ConnectorOperationName, ConnectorUsageId } from '@dpuse/dpuse-shared/component/module/connector';
 import type { ContextConfig, ContextOperation, PresenterConfig, PresenterOperation } from '@dpuse/dpuse-shared';
 import { contextConfigSchema, presenterConfigSchema } from '@dpuse/dpuse-shared';
 
