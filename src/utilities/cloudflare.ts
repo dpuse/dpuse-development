@@ -3,7 +3,7 @@ import type { ObjectEncodingOptions } from 'node:fs';
 import type { PackageJson } from 'type-fest';
 
 // DPUse Framework
-import type { ModuleConfig } from '@dpuse/dpuse-shared/component';
+import type { ModuleConfig } from '@dpuse/dpuse-shared/component/module';
 
 // Development Core
 import { execCommand, getDirectoryEntries, getStatsForPath, readJSONFile } from '@/utilities';

@@ -5,7 +5,7 @@ import { fileURLToPath } from 'node:url';
 import path from 'node:path';
 
 // DPUse Framework.
-import type { ModuleConfig } from '@dpuse/dpuse-shared/component';
+import type { ModuleConfig } from '@dpuse/dpuse-shared/component/module';
 
 // Development Core
 import type { ModuleTypeConfig } from '@/utilities';
