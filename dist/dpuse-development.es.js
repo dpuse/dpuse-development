@@ -36,7 +36,7 @@ function m(e, t, n) {
 	};
 }
 //#endregion
-//#region node_modules/@dpuse/dpuse-shared/dist/locale-CrC0-wPd.js
+//#region node_modules/@dpuse/dpuse-shared/dist/componentConfig.schema-CpjcH9JV.js
 var h;
 /* @__NO_SIDE_EFFECTS__ */
 function g(e) {
@@ -406,13 +406,13 @@ function he(e, t) {
 		}
 	};
 }
-var ge = /* @__PURE__ */ C({
+var T = (e) => /* @__PURE__ */ he(e.map((e) => /* @__PURE__ */ ue(e))), ge = /* @__PURE__ */ C({
 	en: /* @__PURE__ */ w(),
 	es: /* @__PURE__ */ w()
 }), _e = /* @__PURE__ */ C({
 	en: /* @__PURE__ */ fe(/* @__PURE__ */ w()),
 	es: /* @__PURE__ */ fe(/* @__PURE__ */ w())
-}), T = (e) => /* @__PURE__ */ he(e.map((e) => /* @__PURE__ */ ue(e)));
+});
 T([
 	"app",
 	"connector",
@@ -484,14 +484,14 @@ var ve = T([
 	"tool"
 ]);
 //#endregion
-//#region node_modules/@dpuse/dpuse-shared/dist/moduleConfig.schema-Ct8Q53dE.js
+//#region node_modules/@dpuse/dpuse-shared/dist/moduleConfig.schema-DE8ldb7c.js
 var Ce = {
 	...Se,
 	version: /* @__PURE__ */ w()
 };
 ({ ...Ce });
 //#endregion
-//#region node_modules/@dpuse/dpuse-shared/dist/dpuse-shared-connector.es.js
+//#region node_modules/@dpuse/dpuse-shared/dist/dpuse-shared-componentModuleConnector.es.js
 var we = T([
 	"application",
 	"curatedDataset",
@@ -541,16 +541,16 @@ var we = T([
 	vendorAccountURL: /* @__PURE__ */ S(/* @__PURE__ */ w()),
 	vendorDocumentationURL: /* @__PURE__ */ S(/* @__PURE__ */ w()),
 	vendorHomeURL: /* @__PURE__ */ S(/* @__PURE__ */ w())
-}), Ae = T(["list"]), je = /* @__PURE__ */ C({
+}), Ae = /* @__PURE__ */ C({
 	...Se,
 	typeId: /* @__PURE__ */ ue("contextModelGroup"),
 	modelRefs: /* @__PURE__ */ ce(xe),
 	order: /* @__PURE__ */ de()
-}), Me = /* @__PURE__ */ C({
+}), je = T(["listContextFocuses"]), Me = /* @__PURE__ */ C({
 	...Ce,
 	typeId: /* @__PURE__ */ ue("context"),
-	models: /* @__PURE__ */ ce(je),
-	operations: /* @__PURE__ */ ce(Ae)
+	models: /* @__PURE__ */ ce(Ae),
+	operations: /* @__PURE__ */ ce(je)
 }), Ne = T([
 	"list",
 	"render",

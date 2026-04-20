@@ -6,10 +6,10 @@ import { safeParse } from 'valibot';
 
 // DPUse Framework
 import { connectorConfigSchema } from '@dpuse/dpuse-shared/component/module/connector';
-import type { ModuleConfig } from '@dpuse/dpuse-shared/component';
+import type { ModuleConfig } from '@dpuse/dpuse-shared/component/module';
 import type { ConnectorConfig, ConnectorOperationName, ConnectorUsageId } from '@dpuse/dpuse-shared/component/module/connector';
-import type { ContextConfig, ContextOperation, PresenterConfig, PresenterOperation } from '@dpuse/dpuse-shared';
-import { contextConfigSchema, presenterConfigSchema } from '@dpuse/dpuse-shared';
+import { type ContextConfig, contextConfigSchema, type ContextOperationName } from '@dpuse/dpuse-shared/component/module/context';
+import { type PresenterConfig, presenterConfigSchema, type PresenterOperationName } from '@dpuse/dpuse-shared/component/module/presenter';
 
 // Development Core
 import {
@@ -176,7 +176,7 @@ async function buildContextProjectConfig(stepIcon: string, packageJSON: PackageJ
         throw new Error('Configuration is invalid.');
     }
 
-    const operations = extractOperationsFromSource<ContextOperation>(indexCode);
+    const operations = extractOperationsFromSource<ContextOperationName>(indexCode);
     return await processOperations<ContextConfig>(packageJSON, configJSON, operations);
 }
 
@@ -192,7 +192,7 @@ async function buildPresenterProjectConfig(stepIcon: string, packageJSON: Packag
         throw new Error('Configuration is invalid.');
     }
 
-    const operations = extractOperationsFromSource<PresenterOperation>(indexCode);
+    const operations = extractOperationsFromSource<PresenterOperationName>(indexCode);
     return await processOperations<PresenterConfig>(packageJSON, configJSON, operations);
 }
 
