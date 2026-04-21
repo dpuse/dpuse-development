@@ -20,7 +20,7 @@ interface DirectoryObjectEntry extends DirectoryEntry {
     typeId: 'object';
 }
 
-// Actions ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// Actions ─────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 export async function buildDirectoryIndex(id: string): Promise<void> {
     try {

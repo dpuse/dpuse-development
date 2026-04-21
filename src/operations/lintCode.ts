@@ -3,7 +3,7 @@
 // Development Core
 import { logOperationHeader, logOperationSuccess, spawnCommand } from '@/utilities';
 
-// Actions ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// Actions ─────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 export async function lintCode(): Promise<void> {
     try {

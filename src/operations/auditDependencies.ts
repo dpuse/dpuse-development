@@ -25,7 +25,7 @@ interface SeverityCounts {
     unknown: number;
 }
 
-// Constants ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// Constants ───────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const SEVERITY_BADGES: Record<keyof SeverityCounts, BadgeConfig> = {
     critical: { color: 'D32F2F', label: 'critical' },
@@ -38,7 +38,7 @@ const SEVERITY_BADGES: Record<keyof SeverityCounts, BadgeConfig> = {
 const START_MARKER = '<!-- OWASP_BADGES_START -->';
 const END_MARKER = '<!-- OWASP_BADGES_END -->';
 
-// Actions ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// Actions ─────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 export async function auditDependencies(): Promise<void> {
     try {
@@ -79,7 +79,7 @@ export async function auditDependencies(): Promise<void> {
     }
 }
 
-// Helpers ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// Helpers ─────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 async function insertOWASPDependencyCheckBadgeIntoReadme(stepIcon: string): Promise<void> {
     logStepHeader(`${stepIcon}  Insert OWASP Badge(s) into 'README.md'`);

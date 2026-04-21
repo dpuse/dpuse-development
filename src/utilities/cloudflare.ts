@@ -8,7 +8,7 @@ import type { ModuleConfig } from '@dpuse/dpuse-shared/component/module';
 // Development Core
 import { execCommand, getDirectoryEntries, getStatsForPath, readJSONFile } from '@/utilities';
 
-// Actions ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// Actions ─────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 export async function putState(): Promise<void> {
     const configJSON = await readJSONFile<ModuleConfig>('config.json');

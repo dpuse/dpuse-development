@@ -36,7 +36,7 @@ interface OperationConfig {
     usageId?: string;
 }
 
-// Constants ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// Constants ───────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const CONNECTOR_DESTINATION_OPERATIONS = new Set(['createObject', 'dropObject', 'removeRecords', 'upsertRecords']);
 const CONNECTOR_SOURCE_OPERATIONS = new Set([
@@ -50,7 +50,7 @@ const CONNECTOR_SOURCE_OPERATIONS = new Set([
     'retrieveRecords'
 ]);
 
-// Actions - Build ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// Actions - Build ─────────────────────────────────────────────────────────────────────────────────────────────────────
 
 export async function buildProject(): Promise<void> {
     try {
@@ -65,7 +65,7 @@ export async function buildProject(): Promise<void> {
     }
 }
 
-// Actions - Release ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// Actions - Release ───────────────────────────────────────────────────────────────────────────────────────────────────
 
 export async function releaseProject(): Promise<void> {
     try {
@@ -228,7 +228,7 @@ async function processOperations<T extends OperationConfig>(packageJSON: Package
     return configJSON;
 }
 
-// Actions - Sync ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// Actions - Sync ──────────────────────────────────────────────────────────────────────────────────────────────────────
 
 export async function syncProjectWithGitHub(): Promise<void> {
     try {
@@ -269,7 +269,7 @@ export async function syncProjectWithGitHub(): Promise<void> {
     }
 }
 
-// Actions - Test ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// Actions - Test ──────────────────────────────────────────────────────────────────────────────────────────────────────
 
 export function testProject(): void {
     try {
@@ -282,7 +282,7 @@ export function testProject(): void {
     }
 }
 
-// Helpers ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// Helpers ─────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 async function bumpPackageVersion(stepIcon: string, packageJSON: PackageJson, path = './'): Promise<void> {
     logStepHeader(`${stepIcon}  Bump project version`);

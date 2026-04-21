@@ -6,7 +6,7 @@ import { existsSync } from 'node:fs';
 // Development Core
 import { logOperationHeader, logOperationSuccess, spawnCommand } from '@/utilities';
 
-// Actions ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// Actions ─────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 export async function formatCode(): Promise<void> {
     try {

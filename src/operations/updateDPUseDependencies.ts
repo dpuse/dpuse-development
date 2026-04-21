@@ -11,11 +11,11 @@ import type { ModuleConfig } from '@dpuse/dpuse-shared/component/module';
 import type { ModuleTypeConfig } from '@/utilities';
 import { getModuleConfig, logOperationHeader, logOperationSuccess, readJSONFile, readTextFile, spawnCommand, writeTextFile } from '@/utilities';
 
-// Constants ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// Constants ───────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const STEP_ICONS = ['1️⃣', '2️⃣', '3️⃣', '4️⃣', '5️⃣', '6️⃣', '7️⃣', '8️⃣', '9️⃣'];
 
-// Actions ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// Actions ─────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 export async function updateDPUseDependencies(dependencies: string[] = []): Promise<void> {
     try {
@@ -43,7 +43,7 @@ export async function updateDPUseDependencies(dependencies: string[] = []): Prom
     }
 }
 
-// Helpers ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// Helpers ─────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 async function syncProjectConfigFiles(moduleTypeConfig: ModuleTypeConfig): Promise<void> {
     const moduleDirectory = path.dirname(fileURLToPath(import.meta.url));
