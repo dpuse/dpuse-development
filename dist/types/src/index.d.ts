@@ -6,3 +6,4 @@ export { documentDependencies } from './operations/documentDependencies';
 export { formatCode } from './operations/formatCode';
 export { lintCode } from './operations/lintCode';
 export { updateDPUseDependencies } from './operations/updateDPUseDependencies';
+export { uploadDirectoryToR2 } from './utilities/cloudflare';

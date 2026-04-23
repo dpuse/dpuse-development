@@ -6316,13 +6316,16 @@ function jr(e) {
 	if (!t) throw Error(`Failed to locate module type configuration for identifier '${e}'.`);
 	return t;
 }
-function Mr(e) {
+async function Mr(e) {
+	return await t.stat(e);
+}
+function Nr(e) {
 	let t = F.extend(br()).parse(e, {
 		ecmaVersion: "latest",
 		sourceType: "module",
 		locations: !0
 	}), n = [];
-	return Nr(t, (e) => {
+	return Pr(t, (e) => {
 		if (e.type !== "MethodDefinition") return;
 		let t = e, r = t.key;
 		if (r.type !== "Identifier") return;
@@ -6330,7 +6333,7 @@ function Mr(e) {
 		i && i !== "constructor" && t.accessibility !== "private" && n.push(i);
 	}), n;
 }
-function Nr(e, t) {
+function Pr(e, t) {
 	t(e);
 	for (let [n, r] of Object.entries(e)) {
 		if ([
@@ -6343,19 +6346,19 @@ function Nr(e, t) {
 		let e = r;
 		if (Array.isArray(e)) for (let n of e) {
 			let e = n;
-			e && typeof e.type == "string" && Nr(e, t);
+			e && typeof e.type == "string" && Pr(e, t);
 		}
-		else e && typeof e == "object" && typeof e.type == "string" && Nr(e, t);
+		else e && typeof e == "object" && typeof e.type == "string" && Pr(e, t);
 	}
 }
-function Pr(e, t, n, r) {
+function Fr(e, t, n, r) {
 	let i = e.indexOf(n), a = e.indexOf(r);
 	if (i === -1 || a === -1) throw Error(`Markers ${n}-${r} not found in content.`);
 	return `${e.slice(0, Math.max(0, i + n.length))}\n${t}\n${e.slice(Math.max(0, a))}`;
 }
 //#endregion
 //#region src/utilities/cloudflare.ts
-async function Fr() {
+async function Ir() {
 	let e = await Q("config.json"), t = {
 		body: JSON.stringify(e),
 		headers: { "Content-Type": "application/json" },
@@ -6363,7 +6366,17 @@ async function Fr() {
 	}, n = await fetch(`https://api.dpuse.app/configs/${e.id}`, t);
 	if (!n.ok) throw Error(await n.text());
 }
-async function Ir(e) {
+async function Lr(e, t) {
+	async function n(e, t, r) {
+		for (let i of r) {
+			let r = `${e}/${i}`, a = `${t}/${i}`;
+			(await Mr(r)).isDirectory() ? await n(r, a, await wr(r)) : (console.info(`⚙️ Uploading '${e}/${i}'...`), await X(void 0, `wrangler r2 object put "dpuse-sample-data-eu/${t}/${i}" --file="${e}/${i}" --jurisdiction=eu --remote`));
+		}
+	}
+	let r = await wr(`${e}/${t}/`);
+	await n(`${e}/${t}`, t, r);
+}
+async function Rr(e) {
 	let t = e.id, n = {
 		body: JSON.stringify(e),
 		headers: { "Content-Type": "application/json" },
@@ -6371,7 +6384,7 @@ async function Ir(e) {
 	}, r = await fetch(`https://api.dpuse.app/configs/${t}`, n);
 	if (!r.ok) throw Error(await r.text());
 }
-async function Lr(e, t) {
+async function zr(e, t) {
 	let n = `v${e.version}`;
 	async function r(e, r = "") {
 		let i = await wr(e, { withFileTypes: !0 });
@@ -6386,12 +6399,12 @@ async function Lr(e, t) {
 }
 //#endregion
 //#region src/operations/manageProject.ts
-var Rr = new Set([
+var Br = new Set([
 	"createObject",
 	"dropObject",
 	"removeRecords",
 	"upsertRecords"
-]), zr = new Set([
+]), Vr = new Set([
 	"auditObjectContent",
 	"findObjectFolderPath",
 	"getReadableStream",
@@ -6401,30 +6414,30 @@ var Rr = new Set([
 	"retrieveChunks",
 	"retrieveRecords"
 ]);
-async function Br() {
+async function Hr() {
 	try {
 		kr("Build Project"), await Z("1️⃣  Bundle project", "vite", ["build"]), Ar("Project built.");
 	} catch (e) {
 		console.error("❌ Error building project.", e), process.exit(1);
 	}
 }
-async function Vr() {
+async function Ur() {
 	try {
 		kr("Release Project");
 		let e = await Q("package.json"), t = await Q("config.json");
-		await Xr("1️⃣", e);
+		await Qr("1️⃣", e);
 		let n = jr(t.id);
 		switch (n.typeId) {
 			case "connector":
-				t = await Ur("2️⃣", e);
-				break;
-			case "context":
-				t = await Wr("2️⃣", e);
-				break;
-			case "presenter":
 				t = await Gr("2️⃣", e);
 				break;
-			default: t = await Hr("2️⃣", e);
+			case "context":
+				t = await Kr("2️⃣", e);
+				break;
+			case "presenter":
+				t = await qr("2️⃣", e);
+				break;
+			default: t = await Wr("2️⃣", e);
 		}
 		if (await Z("3️⃣  Bundle project", "vite", ["build"]), await X("4️⃣  Stage changes", "git", ["add", "."]), await X("5️⃣  Commit changes", "git", [
 			"commit",
@@ -6434,13 +6447,13 @@ async function Vr() {
 			"push",
 			"origin",
 			"main:main"
-		]), n.typeId === "app") $("7️⃣  Register module"), await Fr();
-		else if (n.typeId === "engine") $("7️⃣  Register module"), await Lr(e, `dpuse-engine-eu/${n.uploadGroupName}`), await Ir(t);
+		]), n.typeId === "app") $("7️⃣  Register module"), await Ir();
+		else if (n.typeId === "engine") $("7️⃣  Register module"), await zr(e, `dpuse-engine-eu/${n.uploadGroupName}`), await Rr(t);
 		else if (n.uploadGroupName === void 0) $("7️⃣  Registration NOT required.");
 		else {
 			$("7️⃣  Register module");
 			let r = t.id.split("-").slice(2).join("-");
-			await Lr(e, `dpuse-engine-eu/${n.uploadGroupName}/${r}`), await Ir(t);
+			await zr(e, `dpuse-engine-eu/${n.uploadGroupName}/${r}`), await Rr(t);
 		}
 		if (n.isPublished) {
 			let e = ".npmrc";
@@ -6459,53 +6472,53 @@ async function Vr() {
 		console.error("❌ Error releasing project.", e), process.exit(1);
 	}
 }
-async function Hr(e, t) {
+async function Wr(e, t) {
 	$(`${e}  Build project configuration`);
 	let n = await Q("config.json");
 	return t.name != null && (n.id = t.name.replace("@dpuse/", "").replace("@dpuse/", "")), t.version != null && (n.version = t.version), await Dr("config.json", n), n;
 }
-async function Ur(e, t) {
+async function Gr(e, t) {
 	$(`${e}  Build connector project configuration`);
 	let [n, r] = await Promise.all([Q("config.json"), Tr("src/index.ts")]), i = /* @__PURE__ */ m(ke, n);
 	if (!i.success) throw console.error("❌ Configuration is invalid:"), console.table(i.issues), Error("Configuration is invalid.");
-	let a = Mr(r);
-	return await qr(t, n, a, Kr(a));
+	let a = Nr(r);
+	return await Yr(t, n, a, Jr(a));
 }
-async function Wr(e, t) {
+async function Kr(e, t) {
 	$(`${e}  Build context project configuration`);
 	let [n, r] = await Promise.all([Q("config.json"), Tr("src/index.ts")]), i = /* @__PURE__ */ m(Me, n);
 	if (!i.success) throw console.error("❌ Configuration is invalid:"), console.table(i.issues), Error("Configuration is invalid.");
-	return await qr(t, n, Mr(r));
+	return await Yr(t, n, Nr(r));
 }
-async function Gr(e, t) {
+async function qr(e, t) {
 	$(`${e}  Build presenter project configuration`);
 	let [n, r] = await Promise.all([Q("config.json"), Tr("src/index.ts")]), i = /* @__PURE__ */ m(Pe, n);
 	if (!i.success) throw console.error("❌ Configuration is invalid:"), console.table(i.issues), Error("Configuration is invalid.");
-	return await qr(t, n, Mr(r));
+	return await Yr(t, n, Nr(r));
 }
-function Kr(e) {
+function Jr(e) {
 	let t = !1, n = !1;
-	for (let r of e) zr.has(r) && (t = !0), Rr.has(r) && (n = !0);
+	for (let r of e) Vr.has(r) && (t = !0), Br.has(r) && (n = !0);
 	return t && n ? "bidirectional" : t ? "source" : n ? "destination" : "unknown";
 }
-async function qr(e, t, n, r) {
+async function Yr(e, t, n, r) {
 	return n.length > 0 ? (console.info(`ℹ️  Implements ${n.length} operations:`), console.table(n)) : console.warn("⚠️  Implements no operations."), r === "unknown" ? console.warn("⚠️  No usage identified.") : console.info(`ℹ️  Supports '${r}' usage.`), e.name != null && (t.id = e.name.replace("@dpuse/", "").replace("@dpuse/", "")), e.version != null && (t.version = e.version), t.operations = n, t.usageId = r ?? "unknown", await Dr("config.json", t), t;
 }
-async function Jr() {
+async function Xr() {
 	try {
 		kr("Synchronise Project with GitHub");
 		let e = await Q("package.json"), t = await Q("config.json");
-		switch (await Xr("1️⃣", e), jr(t.id).typeId) {
+		switch (await Qr("1️⃣", e), jr(t.id).typeId) {
 			case "connector":
-				await Ur("2️⃣", e);
-				break;
-			case "context":
-				await Wr("2️⃣", e);
-				break;
-			case "presenter":
 				await Gr("2️⃣", e);
 				break;
-			default: await Hr("2️⃣", e);
+			case "context":
+				await Kr("2️⃣", e);
+				break;
+			case "presenter":
+				await qr("2️⃣", e);
+				break;
+			default: await Wr("2️⃣", e);
 		}
 		await X("3️⃣  Stage changes", "git", ["add", "."]), await X("4️⃣  Commit changes", "git", [
 			"commit",
@@ -6520,14 +6533,14 @@ async function Jr() {
 		console.error("❌ Error synchronising project with GitHub.", e), process.exit(1);
 	}
 }
-function Yr() {
+function Zr() {
 	try {
 		kr("Test Project"), console.error("\n❌ No tests implemented.\n");
 	} catch (e) {
 		console.error("❌ Error testing project.", e), process.exit(1);
 	}
 }
-async function Xr(e, t, n = "./") {
+async function Qr(e, t, n = "./") {
 	if ($(`${e}  Bump project version`), t.version == null) t.version = "0.0.001", console.warn(`⚠️ Project version initialised to '${t.version}'.`), await Dr(`${n}package.json`, t);
 	else {
 		let e = t.version, r = t.version.split(".");
@@ -6536,7 +6549,7 @@ async function Xr(e, t, n = "./") {
 }
 //#endregion
 //#region src/operations/auditDependencies.ts
-var Zr = {
+var $r = {
 	critical: {
 		color: "D32F2F",
 		label: "critical"
@@ -6557,8 +6570,8 @@ var Zr = {
 		color: "616161",
 		label: "unknown"
 	}
-}, Qr = "<!-- OWASP_BADGES_START -->", $r = "<!-- OWASP_BADGES_END -->";
-async function ei() {
+}, ei = "<!-- OWASP_BADGES_START -->", ti = "<!-- OWASP_BADGES_END -->";
+async function ni() {
 	try {
 		kr("Audit Dependencies");
 		let e = await Q("package.json"), t = [];
@@ -6576,12 +6589,12 @@ async function ei() {
 			"--nodePackageSkipDevDependencies",
 			"--nvdApiKey",
 			process.env.OWASP_NVD_API_KEY ?? ""
-		]), await ti("2️⃣"), await Z("3️⃣  Check using 'npm audit'", "npm", ["audit"]), Ar("Dependencies audited.");
+		]), await ri("2️⃣"), await Z("3️⃣  Check using 'npm audit'", "npm", ["audit"]), Ar("Dependencies audited.");
 	} catch (e) {
 		console.error("❌ Error auditing dependencies.", e), process.exit(1);
 	}
 }
-async function ti(e) {
+async function ri(e) {
 	$(`${e}  Insert OWASP Badge(s) into 'README.md'`);
 	let t = await Q("dependency-check-reports/dependency-check-report.json"), n = {
 		critical: 0,
@@ -6594,14 +6607,14 @@ async function ti(e) {
 		let e = t.severity?.toLowerCase() ?? "unknown";
 		e in n ? n[e]++ : n.unknown++;
 	}
-	let r = await ni(n);
-	await Or("README.md", Pr(await Tr("./README.md"), r.join(" "), Qr, $r)), console.info("OWASP audit badge(s) inserted into 'README.md'");
+	let r = await ii(n);
+	await Or("README.md", Fr(await Tr("./README.md"), r.join(" "), ei, ti)), console.info("OWASP audit badge(s) inserted into 'README.md'");
 }
-async function ni(e) {
+async function ii(e) {
 	let t = await Q("config.json"), n = [];
 	if (Object.values(e).reduce((e, t) => e + t, 0) === 0) console.info("No vulnerabilities found."), n.push(`[![OWASP](https://img.shields.io/badge/OWASP-passed-4CAF50)](https://dpuse.github.io/${t.id}/dependency-check-reports/dependency-check-report.html)`);
 	else for (let [r, i] of Object.entries(e)) {
-		let e = Zr[r];
+		let e = $r[r];
 		if (console.warn(`⚠️  ${i} ${e.label} vulnerability(ies) found.`), i === 0) continue;
 		let a = `https://img.shields.io/badge/OWASP-${i}%20${e.label}-${e.color}`;
 		n.push(`[![OWASP](${a})](https://dpuse.github.io/${t.id}/dependency-check-reports/dependency-check-report.html)`);
@@ -6610,7 +6623,7 @@ async function ni(e) {
 }
 //#endregion
 //#region src/operations/checkDependencies.ts
-async function ri() {
+async function ai() {
 	try {
 		kr("Check Dependencies"), await Z("1️⃣  Check using 'npm outdated'", "npm", ["outdated"], !0), await Z("2️⃣  Check using 'npm-check-updates'", "npm-check-updates", [
 			"-i",
@@ -6623,8 +6636,8 @@ async function ri() {
 }
 //#endregion
 //#region src/operations/documentDependencies.ts
-var ii = "<!-- DEPENDENCY_LICENSES_START -->", ai = "<!-- DEPENDENCY_LICENSES_END -->";
-async function oi(e = [], t = !0) {
+var oi = "<!-- DEPENDENCY_LICENSES_START -->", si = "<!-- DEPENDENCY_LICENSES_END -->";
+async function ci(e = [], t = !0) {
 	try {
 		kr("Document Dependencies");
 		let n = e.flatMap((e) => ["--allowed", `'${e}'`]);
@@ -6662,12 +6675,12 @@ async function oi(e = [], t = !0) {
 			"--githubToken.tokenEnvVar",
 			"GITHUB_TOKEN",
 			"--download"
-		]), await si("6️⃣", t), Ar("Dependencies documented.");
+		]), await li("6️⃣", t), Ar("Dependencies documented.");
 	} catch (e) {
 		console.error("❌ Error documenting dependencies.", e), process.exit(1);
 	}
 }
-async function si(e, t) {
+async function li(e, t) {
 	$(`${e}  Insert licenses into 'README.md'`);
 	let n = await Q("licenses/licenses.json"), r = await Q("licenses/downloads/licenses.ext.json"), i = [];
 	t && (i = await Q("licenses/licenseTree.json"));
@@ -6691,13 +6704,13 @@ async function si(e, t) {
 		return e.values();
 	})()], o = "|Name|Type|Installed|Latest|Latest Released|Deps|Document|\n|:-|:-|:-:|:-:|:-|-:|:-|\n";
 	for (let e of a) {
-		let t = e.installedVersion === e.remoteVersion ? e.installedVersion : `${e.installedVersion} ⚠️`, n = e.latestRemoteModified ? ci(e.latestRemoteModified.split("T")[0]) : "n/a", r = e.dependencyCount != null && e.dependencyCount >= 0 ? e.dependencyCount : "n/a", i;
+		let t = e.installedVersion === e.remoteVersion ? e.installedVersion : `${e.installedVersion} ⚠️`, n = e.latestRemoteModified ? ui(e.latestRemoteModified.split("T")[0]) : "n/a", r = e.dependencyCount != null && e.dependencyCount >= 0 ? e.dependencyCount : "n/a", i;
 		i = e.licenseFileLink == null || e.licenseFileLink == "" ? "⚠️ No license file" : `[${e.licenseFileLink.slice(Math.max(0, e.licenseFileLink.lastIndexOf("/") + 1))}](${e.licenseFileLink})`, o += `|${e.name}|${e.licenseType}|${t}|${e.remoteVersion}|${n}|${r}|${i}|\n`;
 	}
-	let s = Pr(await Tr("./README.md"), o, ii, ai);
+	let s = Fr(await Tr("./README.md"), o, oi, si);
 	await Or("README.md", s), console.info("OWASP audit badge(s) inserted into 'README.md'"), await Or("README.md", s);
 }
-function ci(e) {
+function ui(e) {
 	if (e == null || e === "") return "n/a";
 	let t = e.split("T")[0];
 	if (t == null || t === "") return "n/a";
@@ -6706,7 +6719,7 @@ function ci(e) {
 }
 //#endregion
 //#region src/operations/formatCode.ts
-async function li() {
+async function di() {
 	try {
 		kr("Format Code"), await Z("1️⃣  Format", "prettier", [
 			"--write",
@@ -6721,7 +6734,7 @@ async function li() {
 }
 //#endregion
 //#region src/operations/lintCode.ts
-async function ui() {
+async function fi() {
 	try {
 		kr("Lint Code"), await Z("1️⃣  Lint", "eslint", ["."]), Ar("Code linted.");
 	} catch (e) {
@@ -6730,7 +6743,7 @@ async function ui() {
 }
 //#endregion
 //#region src/operations/updateDPUseDependencies.ts
-var di = [
+var pi = [
 	"1️⃣",
 	"2️⃣",
 	"3️⃣",
@@ -6741,23 +6754,23 @@ var di = [
 	"8️⃣",
 	"9️⃣"
 ];
-async function fi(e = []) {
+async function mi(e = []) {
 	try {
 		kr("Update '@dpuse/dpuse' Dependencies");
 		for (let [t, n] of e.entries()) {
-			let e = di.at(t) ?? "🔢";
-			n === "eslint" ? await Z(`${e}  Update '${n}'`, "npm", ["install", "@dpuse/eslint-config-dpuse@latest"]) : (await Z(`${e}  Update '${n}'`, "npm", ["install", `@dpuse/dpuse-${n}@latest`]), n === "development" && await pi(jr((await Q("config.json")).id)));
+			let e = pi.at(t) ?? "🔢";
+			n === "eslint" ? await Z(`${e}  Update '${n}'`, "npm", ["install", "@dpuse/eslint-config-dpuse@latest"]) : (await Z(`${e}  Update '${n}'`, "npm", ["install", `@dpuse/dpuse-${n}@latest`]), n === "development" && await hi(jr((await Q("config.json")).id)));
 		}
 		Ar("'@dpuse/dpuse' dependencies updated.");
 	} catch (e) {
 		console.error("❌ Error updating '@dpuse/dpuse' dependencies.", e), process.exit(1);
 	}
 }
-async function pi(e) {
+async function hi(e) {
 	let t = n.dirname(s(import.meta.url));
-	await mi(t, "../", ".editorconfig"), await mi(t, "../", ".gitattributes"), await (e.isPublished ? mi(t, "../", ".gitignore_published", ".gitignore2") : mi(t, "../", ".gitignore_unpublished", ".gitignore2")), await mi(t, "../", ".markdownlint.json"), await mi(t, "../", "LICENSE"), await mi(t, "../", "tsconfig.json", "tsconfig2.json"), e.typeId === "eslint" || (await mi(t, "../", "eslint.config.ts", "eslint.config2.ts"), await mi(t, "../", "vite.config.ts", "vite.config2.ts"), await mi(t, "../", "vitest.config.ts", "vitest.config2.ts"));
+	await gi(t, "../", ".editorconfig"), await gi(t, "../", ".gitattributes"), await (e.isPublished ? gi(t, "../", ".gitignore_published", ".gitignore2") : gi(t, "../", ".gitignore_unpublished", ".gitignore2")), await gi(t, "../", ".markdownlint.json"), await gi(t, "../", "LICENSE"), await gi(t, "../", "tsconfig.json", "tsconfig2.json"), e.typeId === "eslint" || (await gi(t, "../", "eslint.config.ts", "eslint.config2.ts"), await gi(t, "../", "vite.config.ts", "vite.config2.ts"), await gi(t, "../", "vitest.config.ts", "vitest.config2.ts"));
 }
-async function mi(e, t, r, i) {
+async function gi(e, t, r, i) {
 	let a = await Tr(n.resolve(e, `${t}${r}`)), o = n.resolve(process.cwd(), r.split("_")[0] ?? r), s = n.resolve(process.cwd(), i ?? r), c;
 	try {
 		c = await Tr(o);
@@ -6772,7 +6785,7 @@ async function mi(e, t, r, i) {
 }
 //#endregion
 //#region src/index.ts
-async function hi(e) {
+async function _i(e) {
 	try {
 		console.info(`🚀 Building public directory index for identifier '${e}'...`);
 		let n = {};
@@ -6817,6 +6830,6 @@ async function hi(e) {
 	}
 }
 //#endregion
-export { ei as auditDependencies, hi as buildDirectoryIndex, Br as buildProject, ri as checkDependencies, oi as documentDependencies, li as formatCode, ui as lintCode, Vr as releaseProject, Jr as syncProjectWithGitHub, Yr as testProject, fi as updateDPUseDependencies };
+export { ni as auditDependencies, _i as buildDirectoryIndex, Hr as buildProject, ai as checkDependencies, ci as documentDependencies, di as formatCode, fi as lintCode, Ur as releaseProject, Xr as syncProjectWithGitHub, Zr as testProject, mi as updateDPUseDependencies, Lr as uploadDirectoryToR2 };
 
 //# sourceMappingURL=dpuse-development.es.js.map
