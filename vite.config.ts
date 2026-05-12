@@ -42,7 +42,7 @@ export default defineConfig({
         sourcemap: true,
         target: 'ESNext' // Emit modern JavaScript for consumers.
     },
-    plugins: [dts({ outDir: 'dist/types' })], // Generate type declarations in dist/types.
+    plugins: [dts({ outDirs: 'dist/types' })], // Generate type declarations in dist/types.
     resolve: {
         alias: {
             '~': fileURLToPath(new URL('./', import.meta.url)), // Base alias matching tsconfig.
