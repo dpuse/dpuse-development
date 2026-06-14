@@ -54,10 +54,9 @@ export default defineConfig(
     // Rule overrides.
     {
         rules: {
-            '@typescript-eslint/no-unused-vars': 'warn',
-
-            'import-x/no-duplicates': 'warn',
             'sort-imports': ['warn', { allowSeparatedGroups: true, ignoreCase: true, memberSyntaxSortOrder: ['none', 'all', 'single', 'multiple'] }],
+
+            '@typescript-eslint/no-unused-vars': 'warn',
 
             '@eslint-community/eslint-comments/require-description': 'warn',
 
