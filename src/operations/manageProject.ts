@@ -1,5 +1,3 @@
-/* eslint-disable unicorn/no-process-exit */
-
 // External Dependencies
 import type { PackageJson } from 'type-fest';
 import { safeParse } from 'valibot';
@@ -61,6 +59,7 @@ export async function buildProject(): Promise<void> {
         logOperationSuccess('Project built.');
     } catch (error) {
         console.error('❌ Error building project.', error);
+        // eslint-disable-next-line unicorn/no-process-exit -- This only runs from package script.
         process.exit(1);
     }
 }
@@ -96,7 +95,7 @@ export async function releaseProject(): Promise<void> {
 
         await execCommand('4️⃣  Stage changes', 'git', ['add', '.']);
 
-        await execCommand('5️⃣  Commit changes', 'git', ['commit', '-m', `"v${packageJSON.version}"`]);
+        await execCommand('5️⃣  Commit changes', 'git', ['commit', '-m', `"v${packageJSON.version ?? 'unknown'}"`]);
 
         await execCommand('6️⃣  Push changes', 'git', ['push', 'origin', 'main:main']);
 
@@ -105,7 +104,7 @@ export async function releaseProject(): Promise<void> {
             await putState();
         } else if (moduleTypeConfig.typeId === 'engine') {
             logStepHeader('7️⃣  Register module');
-            await uploadModuleToR2(packageJSON, `dpuse-engine-eu/${moduleTypeConfig.uploadGroupName}`);
+            await uploadModuleToR2(packageJSON, `dpuse-engine-eu/${moduleTypeConfig.uploadGroupName ?? 'unknown'}`);
             await uploadModuleConfigToDO(configJSON); // This MUST follow 'uploadModuleToR2', otherwise the app will receive a message a new engine is available and try to access it before it is uploaded to R2.
         } else if (moduleTypeConfig.uploadGroupName === undefined) {
             logStepHeader('7️⃣  Registration NOT required.');
@@ -128,9 +127,10 @@ export async function releaseProject(): Promise<void> {
             logStepHeader(`8️⃣  Publishing NOT required for package with type identifier of '${moduleTypeConfig.typeId}'.`);
         }
 
-        logOperationSuccess(`Project version '${packageJSON.version}' released.`);
+        logOperationSuccess(`Project version '${packageJSON.version ?? 'unknown'}' released.`);
     } catch (error) {
         console.error('❌ Error releasing project.', error);
+        // eslint-disable-next-line unicorn/no-process-exit -- This only runs from package script.
         process.exit(1);
     }
 }
@@ -211,12 +211,12 @@ function determineConnectorUsageId(operations: ConnectorOperationName[]): Connec
 
 async function processOperations<T extends OperationConfig>(packageJSON: PackageJson, configJSON: T, operations: string[], usageId?: string): Promise<T> {
     if (operations.length > 0) {
-        console.info(`ℹ️  Implements ${operations.length} operations:`);
+        console.info(`ℹ️  Implements ${String(operations.length)} operations:`);
         console.table(operations);
     } else console.warn('⚠️  Implements no operations.');
 
     if (usageId === 'unknown') console.warn('⚠️  No usage identified.');
-    else console.info(`ℹ️  Supports '${usageId}' usage.`);
+    else console.info(`ℹ️  Supports '${usageId ?? 'unknown'}' usage.`);
 
     if (packageJSON.name != null) configJSON.id = packageJSON.name.replace('@dpuse/', '').replace('@dpuse/', '');
     if (packageJSON.version != null) configJSON.version = packageJSON.version;
@@ -258,13 +258,14 @@ export async function syncProjectWithGitHub(): Promise<void> {
 
         await execCommand('3️⃣  Stage changes', 'git', ['add', '.']);
 
-        await execCommand('4️⃣  Commit changes', 'git', ['commit', '-m', `"v${packageJSON.version}"`]);
+        await execCommand('4️⃣  Commit changes', 'git', ['commit', '-m', `"v${packageJSON.version ?? 'unknown'}"`]);
 
         await execCommand('5️⃣  Push changes', 'git', ['push', 'origin', 'main:main']);
 
-        logOperationSuccess(`Project version '${packageJSON.version}' synchronised with GitHub.`);
+        logOperationSuccess(`Project version '${packageJSON.version ?? 'unknown'}' synchronised with GitHub.`);
     } catch (error) {
         console.error('❌ Error synchronising project with GitHub.', error);
+        // eslint-disable-next-line unicorn/no-process-exit -- This only runs from package script.
         process.exit(1);
     }
 }
@@ -278,6 +279,7 @@ export function testProject(): void {
         console.error('\n❌ No tests implemented.\n');
     } catch (error) {
         console.error('❌ Error testing project.', error);
+        // eslint-disable-next-line unicorn/no-process-exit -- This only runs from package script.
         process.exit(1);
     }
 }
@@ -294,7 +296,7 @@ async function bumpPackageVersion(stepIcon: string, packageJSON: PackageJson, pa
     } else {
         const oldVersion = packageJSON.version;
         const versionSegments = packageJSON.version.split('.');
-        packageJSON.version = `${versionSegments[0]}.${versionSegments[1]}.${Number(versionSegments[2]) + 1}`;
+        packageJSON.version = `${versionSegments[0] ?? 'unknown'}.${versionSegments[1] ?? 'unknown'}.${String(Number(versionSegments[2]) + 1)}`;
         console.info(`Project version bumped from '${oldVersion}' to '${packageJSON.version}'.`);
         await writeJSONFile(`${path}package.json`, packageJSON);
     }

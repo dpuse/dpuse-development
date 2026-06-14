@@ -1,5 +1,3 @@
-/* eslint-disable unicorn/no-process-exit */
-
 // External Dependencies
 import { fileURLToPath, URL } from 'node:url';
 
@@ -87,6 +85,7 @@ export async function documentDependencies(licenses: string[] = [], checkRecursi
         logOperationSuccess('Dependencies documented.');
     } catch (error) {
         console.error('❌ Error documenting dependencies.', error);
+        // eslint-disable-next-line unicorn/no-process-exit -- This only runs from package script.
         process.exit(1);
     }
 }
@@ -98,8 +97,7 @@ async function insertLicensesIntoReadme(stepIcon: string, checkRecursive: boolea
 
     const productionPackageLicenses = await readJSONFile<License[]>('licenses/licenses.json');
     const productionDownloadLicenses = await readJSONFile<License[]>('licenses/downloads/licenses.ext.json');
-    let productionPackageLicenseTree: License[] = [];
-    if (checkRecursive) productionPackageLicenseTree = await readJSONFile<License[]>('licenses/licenseTree.json');
+    const productionPackageLicenseTree: License[] = checkRecursive ? await readJSONFile<License[]>('licenses/licenseTree.json') : [];
 
     const mergedLicenses = [
         ...((): MapIterator<License> => {
@@ -127,7 +125,7 @@ async function insertLicensesIntoReadme(stepIcon: string, checkRecursive: boolea
     for (const license of mergedLicenses) {
         const installedVersion = license.installedVersion === license.remoteVersion ? license.installedVersion : `${license.installedVersion} ⚠️`;
 
-        const latestUpdate = license.latestRemoteModified ? determineLatestAge(license.latestRemoteModified.split('T')[0]) : 'n/a';
+        const latestUpdate = license.latestRemoteModified ? determineLatestAge(license.latestRemoteModified.split('T', 1)[0]) : 'n/a';
 
         const dependencyCount = license.dependencyCount != null && license.dependencyCount >= 0 ? license.dependencyCount : 'n/a';
 
@@ -139,7 +137,7 @@ async function insertLicensesIntoReadme(stepIcon: string, checkRecursive: boolea
             licenseLink = `[${lastPart}](${license.licenseFileLink})`;
         }
 
-        licensesContent += `|${license.name}|${license.licenseType}|${installedVersion}|${license.remoteVersion}|${latestUpdate}|${dependencyCount}|${licenseLink}|\n`;
+        licensesContent += `|${license.name}|${license.licenseType}|${installedVersion}|${license.remoteVersion}|${latestUpdate}|${String(dependencyCount)}|${licenseLink}|\n`;
     }
 
     // Insert licenses into README.
@@ -153,7 +151,7 @@ async function insertLicensesIntoReadme(stepIcon: string, checkRecursive: boolea
 function determineLatestAge(momentString?: string): string {
     if (momentString == null || momentString === '') return 'n/a';
 
-    const dateString = momentString.split('T')[0];
+    const dateString = momentString.split('T', 1)[0];
     if (dateString == null || dateString === '') return 'n/a';
 
     const input = new Date(dateString);
@@ -163,7 +161,7 @@ function determineLatestAge(momentString?: string): string {
 
     if (months === 0) return `this month: ${dateString}`;
     if (months === 1) return `1 month ago: ${dateString}`;
-    if (months <= 6) return `${months} months ago: ${dateString}`;
-    if (months <= 12) return `${months} months ago: ${dateString} ⚠️`;
-    return `${months} months ago: ${dateString}❗`;
+    if (months <= 6) return `${String(months)} months ago: ${dateString}`;
+    if (months <= 12) return `${String(months)} months ago: ${dateString} ⚠️`;
+    return `${String(months)} months ago: ${dateString}❗`;
 }

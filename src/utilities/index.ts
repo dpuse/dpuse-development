@@ -92,7 +92,7 @@ export async function spawnCommand(label: string, command: string, arguments_: s
             if (code === 0 || ignoreErrors) {
                 resolve();
             } else {
-                reject(new Error(`${command} exited with code ${code}`));
+                reject(new Error(`${command} exited with code ${String(code ?? 'unknown')}`));
             }
         });
     });
@@ -127,8 +127,8 @@ export async function writeTextFile(path: string, data: string): Promise<void> {
 // Actions - Log ───────────────────────────────────────────────────────────────────────────────────────────────────────
 
 export function logOperationHeader(text: string): void {
-    const cyan = '\u001B[36m';
-    const reset = '\u001B[0m';
+    const cyan = '\u{1B}[36m';
+    const reset = '\u{1B}[0m';
     const line = '─'.repeat(Math.max(text.length + 60, 60));
     console.info(`\n${cyan}${line}`);
     console.info(`▶️  ${text}`);
@@ -206,3 +206,5 @@ export function substituteText(originalText: string, substituteText: string, sta
     if (startIndex === -1 || endIndex === -1) throw new Error(`Markers ${startMarker}-${endMarker} not found in content.`);
     return `${originalText.slice(0, Math.max(0, startIndex + startMarker.length))}\n${substituteText}\n${originalText.slice(Math.max(0, endIndex))}`;
 }
+
+/* eslint-enable security/detect-non-literal-fs-filename */

@@ -53,13 +53,13 @@ export async function uploadModuleConfigToDO(configJSON: ModuleConfig): Promise<
 }
 
 export async function uploadModuleToR2(packageJSON: PackageJson, uploadDirectoryPath: string): Promise<void> {
-    const version = `v${packageJSON.version}`;
+    const version = `v${packageJSON.version ?? 'unknown'}`;
     async function uploadDirectory(currentDirectory: string, prefix = ''): Promise<void> {
         const entries = await getDirectoryEntries(currentDirectory, { withFileTypes: true } as ObjectEncodingOptions);
         for (const entry of entries) {
+            if (entry.isDirectory()) continue;
             const fullPath = `${currentDirectory}/${entry.name}`;
             const relativePath = prefix ? `${prefix}/${entry.name}` : entry.name;
-            if (entry.isDirectory()) continue;
             const r2Path = `${uploadDirectoryPath}_${version}/${relativePath}`.replaceAll('\\', '/');
             const nonJavaScripContentType = entry.name.endsWith('.css') ? 'text/css' : 'application/octet-stream';
             const contentType = entry.name.endsWith('.js') ? 'application/javascript' : nonJavaScripContentType;

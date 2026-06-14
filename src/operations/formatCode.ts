@@ -1,5 +1,3 @@
-/* eslint-disable unicorn/no-process-exit */
-
 // External Dependencies
 import { existsSync } from 'node:fs';
 
@@ -21,6 +19,7 @@ export async function formatCode(): Promise<void> {
         logOperationSuccess('Code formatted.');
     } catch (error) {
         console.error('❌ Error formatting code.', error);
+        // eslint-disable-next-line unicorn/no-process-exit -- This only runs from package script.
         process.exit(1);
     }
 }

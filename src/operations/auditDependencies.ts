@@ -1,5 +1,3 @@
-/* eslint-disable unicorn/no-process-exit */
-
 // External Dependencies
 import type { PackageJson } from 'type-fest';
 
@@ -65,7 +63,11 @@ export async function auditDependencies(): Promise<void> {
             '--enableRetired',
             '--nodePackageSkipDevDependencies',
             '--nvdApiKey',
-            process.env['OWASP_NVD_API_KEY'] ?? ''
+            process.env['OWASP_NVD_API_KEY'] ?? '',
+            '--ossIndexUsername',
+            process.env['SONATYPE_USER_EMAIL'] ?? '',
+            '--ossIndexPassword',
+            process.env['SONATYPE_USER_TOKEN'] ?? ''
         ]);
 
         await insertOWASPDependencyCheckBadgeIntoReadme('2️⃣');
@@ -75,6 +77,7 @@ export async function auditDependencies(): Promise<void> {
         logOperationSuccess('Dependencies audited.');
     } catch (error) {
         console.error('❌ Error auditing dependencies.', error);
+        // eslint-disable-next-line unicorn/no-process-exit -- This only runs from package script.
         process.exit(1);
     }
 }
@@ -90,7 +93,7 @@ async function insertOWASPDependencyCheckBadgeIntoReadme(stepIcon: string): Prom
         if (dependency.vulnerabilities == null) continue;
         for (const vulnerability of dependency.vulnerabilities) {
             const severity = vulnerability.severity?.toLowerCase() ?? 'unknown';
-            if (severity in severityCounts) {
+            if (Object.hasOwn(severityCounts, severity)) {
                 severityCounts[severity as keyof SeverityCounts]++;
             } else {
                 severityCounts.unknown++;
@@ -119,9 +122,9 @@ async function buildOWASPBadges(severityCounts: SeverityCounts): Promise<string[
     } else {
         for (const [severity, count] of Object.entries(severityCounts) as [string, number][]) {
             const config = SEVERITY_BADGES[severity as keyof SeverityCounts];
-            console.warn(`⚠️  ${count} ${config.label} vulnerability(ies) found.`);
+            console.warn(`⚠️  ${String(count)} ${config.label} vulnerability(ies) found.`);
             if (count === 0) continue;
-            const badgeUrl = `https://img.shields.io/badge/OWASP-${count}%20${config.label}-${config.color}`;
+            const badgeUrl = `https://img.shields.io/badge/OWASP-${String(count)}%20${config.label}-${config.color}`;
             badges.push(`[![OWASP](${badgeUrl})](https://dpuse.github.io/${configJSON.id}/dependency-check-reports/dependency-check-report.html)`);
         }
     }

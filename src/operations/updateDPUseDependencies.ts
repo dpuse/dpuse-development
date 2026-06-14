@@ -1,5 +1,3 @@
-/* eslint-disable unicorn/no-process-exit */
-
 // External Dependencies
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
@@ -39,6 +37,7 @@ export async function updateDPUseDependencies(dependencies: string[] = []): Prom
         logOperationSuccess("'@dpuse/dpuse' dependencies updated.");
     } catch (error) {
         console.error("❌ Error updating '@dpuse/dpuse' dependencies.", error);
+        // eslint-disable-next-line unicorn/no-process-exit -- This only runs from package script.
         process.exit(1);
     }
 }
@@ -49,9 +48,12 @@ async function syncProjectConfigFiles(moduleTypeConfig: ModuleTypeConfig): Promi
     const moduleDirectory = path.dirname(fileURLToPath(import.meta.url));
     await syncConfigFile(moduleDirectory, '../', '.editorconfig');
     await syncConfigFile(moduleDirectory, '../', '.gitattributes');
-    await (moduleTypeConfig.isPublished
-        ? syncConfigFile(moduleDirectory, '../', '.gitignore_published', '.gitignore2')
-        : syncConfigFile(moduleDirectory, '../', '.gitignore_unpublished', '.gitignore2'));
+    await syncConfigFile(
+        moduleDirectory,
+        '../',
+        moduleTypeConfig.isPublished ? '.gitignore_published' : '.gitignore_unpublished',
+        '.gitignore2'
+    );
     await syncConfigFile(moduleDirectory, '../', '.markdownlint.json');
     await syncConfigFile(moduleDirectory, '../', 'LICENSE');
     await syncConfigFile(moduleDirectory, '../', 'tsconfig.json', 'tsconfig2.json');
@@ -69,7 +71,7 @@ async function syncConfigFile(moduleDirectory: string, templateFilePath: string,
     const templatePath = path.resolve(moduleDirectory, `${templateFilePath}${fileName}`);
     const templateContent = await readTextFile(templatePath);
 
-    const destinationPath = path.resolve(process.cwd(), fileName.split('_')[0] ?? fileName);
+    const destinationPath = path.resolve(process.cwd(), fileName.split('_', 1)[0] ?? fileName);
     const destinationWritePath = path.resolve(process.cwd(), destinationFileName ?? fileName);
 
     let destinationContent;
@@ -80,7 +82,7 @@ async function syncConfigFile(moduleDirectory: string, templateFilePath: string,
     }
 
     if (destinationContent === templateContent) {
-        console.info(`ℹ️  File '${fileName.split('_')[0] ?? fileName}' is already up to date.`);
+        console.info(`ℹ️  File '${fileName.split('_', 1)[0] ?? fileName}' is already up to date.`);
         return;
     }
 
