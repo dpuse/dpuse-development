@@ -6243,6 +6243,12 @@ var Cr = [
 		uploadGroupName: "engine"
 	},
 	{
+		idPrefix: "dpuse-kb",
+		typeId: "kb",
+		isPublished: !1,
+		uploadGroupName: void 0
+	},
+	{
 		idPrefix: "dpuse-presenter",
 		typeId: "presenter",
 		isPublished: !0,
