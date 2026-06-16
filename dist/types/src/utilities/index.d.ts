@@ -1,7 +1,7 @@
 import { Dirent, ObjectEncodingOptions, Stats } from 'node:fs';
 export interface ModuleTypeConfig {
     idPrefix: string;
-    typeId: 'app' | 'api' | 'connector' | 'context' | 'development' | 'engine' | 'eslint' | 'presenter' | 'resources' | 'shared' | 'tool';
+    typeId: 'app' | 'api' | 'connector' | 'context' | 'development' | 'engine' | 'eslint' | 'kb' | 'presenter' | 'resources' | 'shared' | 'tool';
     isPublished: boolean;
     uploadGroupName: 'connectors' | 'contexts' | 'engine' | 'presenters' | 'tools' | undefined;
 }
