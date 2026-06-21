@@ -10,7 +10,7 @@ import skipFormatting from 'eslint-config-prettier';
 import tseslint from 'typescript-eslint';
 import { defineConfig, globalIgnores } from 'eslint/config';
 
-// ── Configuration ────────────────────────────────────────────────────────────────────────────────────────────────────
+// ── ESLint Configuration ─────────────────────────────────────────────────────────────────────────────────────────────
 
 export default defineConfig(
     // Linting scope, strict TypeScript type-checking, and module resolver.

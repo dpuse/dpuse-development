@@ -6624,7 +6624,8 @@ async function ri() {
 			"--ossIndexUsername",
 			process.env.SONATYPE_USER_EMAIL ?? "",
 			"--ossIndexPassword",
-			process.env.SONATYPE_USER_TOKEN ?? ""
+			process.env.SONATYPE_USER_TOKEN ?? "",
+			"--noupdate"
 		]), await ii("2️⃣"), await X("3️⃣  Check using 'npm audit'", "npm", ["audit"]), jr("Dependencies audited.");
 	} catch (e) {
 		console.error("❌ Error auditing dependencies.", e), process.exit(1);
