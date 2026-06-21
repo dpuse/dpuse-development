@@ -1,6 +1,6 @@
 {
     "name": "@dpuse/dpuse-development",
-    "version": "0.3.508",
+    "version": "0.3.509",
     "description": "Actions for managing DPUse projects.",
     "license": "MIT",
     "author": "Jonathan Terrell <terrell.jm@gmail.com>",
@@ -41,7 +41,7 @@
         "vitest.config.ts"
     ],
     "dependencies": {
-        "@dpuse/dpuse-shared": "^0.3.673",
+        "@dpuse/dpuse-shared": "^0.3.674",
         "acorn": "^8.17.0",
         "acorn-typescript": "^1.4.13",
         "acorn-walk": "^8.3.5",
@@ -92,5 +92,9 @@
     "engines": {
         "node": ">=22.0.0",
         "npm": ">=11.0.0"
+    },
+    "allowScripts": {
+        "fsevents@2.3.3": true,
+        "unrs-resolver@1.11.1": true
     }
 }
