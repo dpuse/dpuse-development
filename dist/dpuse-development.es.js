@@ -6706,7 +6706,7 @@ async function si(e = "", t = !0) {
 			"--relativeModulePath",
 			"--relativeLicensePath",
 			"--onlyAllow",
-			"\"allowedLicenses\"",
+			`"${e}"`,
 			"--out",
 			"licenses/licenses.json"
 		]), await Tr("3️⃣  Check using 'npm audit'", "npm", [

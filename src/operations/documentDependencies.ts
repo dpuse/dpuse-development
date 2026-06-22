@@ -107,7 +107,7 @@ export async function documentDependencies(allowedLicenses = '', checkRecursive 
                 '--relativeModulePath',
                 '--relativeLicensePath',
                 '--onlyAllow',
-                `"allowedLicenses"`,
+                `"${allowedLicenses}"`,
                 '--out',
                 'licenses/licenses.json'
             ]
