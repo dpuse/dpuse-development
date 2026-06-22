@@ -1,6 +1,3 @@
-// ── External Dependencies & Registrations
-// import { fileURLToPath, URL } from 'node:url';
-
 // ── Local (Development) Framework
 import {
     clearDirectory,
@@ -18,20 +15,11 @@ import {
 // ── Types ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 interface License {
-    department: string;
-    relatedTo: string;
     name: string;
-    licensePeriod: string;
-    material: string;
-    licenseType: string;
-    link: string;
-    remoteVersion: string;
+    licenseTypes: string;
     installedVersion: string;
-    definedVersion: string;
     author: string;
-    latestRemoteModified: string;
-    requires?: License[];
-    dependencyCount?: number;
+    publishedDate: string;
     licenseFileLink?: string;
 }
 
@@ -44,6 +32,11 @@ interface ProductionPackageLicense {
     licenseFile?: string;
 }
 
+interface NpmPackageTree {
+    version?: string;
+    dependencies?: Record<string, NpmPackageTree>;
+}
+
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const START_MARKER = '<!-- DEPENDENCY_LICENSES_START -->';
@@ -51,59 +44,11 @@ const END_MARKER = '<!-- DEPENDENCY_LICENSES_END -->';
 
 // ── Actions ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-export async function documentDependencies(allowedLicenses = '', _checkRecursive = true): Promise<void> {
+export async function documentDependencies(allowedLicenses = 'MIT'): Promise<void> {
     try {
         logOperationHeader('Document Dependencies');
 
-        // const allowedFlags = licenses.flatMap((license) => ['--allowed', `'${license}'`]);
-
-        // // Establish licence report configuration file path.This in combination with exports in 'package.json'
-        // // allows us to share local 'licenses/license-report-config.json' file with other projects.
-        // // 'licenses/license-report-config.json' is in licenses directory, not top level directory, so it does not confuse GitHub license detection engine.
-        // const licenseReportConfigPath = fileURLToPath(new URL(import.meta.resolve('@dpuse/dpuse-development/license-report-config')));
-
-        // await execCommand(
-        //     "1️⃣  Generate 'licenses.json' file",
-        //     'license-report',
-        //     ['--config', `'${licenseReportConfigPath}'`, '--only=prod,peer', '--output=json'],
-        //     'licenses/licenses.json'
-        // );
-
-        // await execCommand("2️⃣  Check 'licenses.json' file", 'license-report-check', ['--source', 'licenses/licenses.json', '--output=table', ...allowedFlags]);
-
-        // if (checkRecursive) {
-        //     await execCommand(
-        //         "3️⃣  Generate 'licenseTree.json' file",
-        //         'license-report-recursive',
-        //         ['--only=prod,peer', '--output=tree', '--recurse', '--department.value=n/a', '--licensePeriod.value=n/a', '--material.value=n/a', '--relatedTo.value=n/a'],
-        //         'licenses/licenseTree.json'
-        //     );
-
-        //     await execCommand("4️⃣  Check 'licenseTree.json' file", 'license-report-check', ['--source', 'licenses/licenseTree.json', '--output=table', ...allowedFlags]);
-        // } else {
-        //     logStepHeader("3️⃣  Skip 'licenses/licenseTree.json' file generate");
-        //     logStepHeader("4️⃣  Skip 'licenses/licenseTree.json' file check");
-        // }
-
-        // const githubToken = process.env['GITHUB_TOKEN'];
-        // if (githubToken == null || githubToken === '' || githubToken.startsWith('op://')) {
-        //     throw new Error('GITHUB_TOKEN is not resolved. Run the script via "npm run document" to use 1Password resolution.');
-        // }
-
-        // await clearDirectory('licenses/downloads');
-        // await execCommand('5️⃣  Download license files', 'license-downloader', [
-        //     '--source',
-        //     'licenses/licenses.json',
-        //     '--licDir',
-        //     'licenses/downloads',
-        //     '--githubToken.tokenEnvVar',
-        //     'GITHUB_TOKEN',
-        //     '--download'
-        // ]);
-
         await clearDirectory('licenses/downloads');
-
-        // license-checker-rseidelsohn --production --json --files ./licenses/downloads --relativeLicensePath --out licenses.json
 
         await execCommand('1️⃣  Identify production licenses', 'license-checker-rseidelsohn', [
             '--production',
@@ -120,7 +65,7 @@ export async function documentDependencies(allowedLicenses = '', _checkRecursive
 
         await spawnCommandToFile('2️⃣  Identify transitive dependencies', 'npm', ['ls', '--all', '--json', '--omit=dev'], 'licenses/licenseTree.json');
 
-        await insertLicensesIntoReadme('3️⃣');
+        await insertLicensesIntoReadme('3️⃣4️⃣');
 
         logOperationSuccess('Dependencies documented.');
     } catch (error) {
@@ -130,88 +75,99 @@ export async function documentDependencies(allowedLicenses = '', _checkRecursive
     }
 }
 
-// Helpers ─────────────────────────────────────────────────────────────────────────────────────────────────────────────
+// ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 async function insertLicensesIntoReadme(stepIcon: string): Promise<void> {
     logStepHeader(`${stepIcon}  Insert licenses into 'README.md'`);
 
-    const productionPackageLicenses = await readJSONFile<Record<string, ProductionPackageLicense>>('licenses/licenses.json');
+    const [productionPackageLicenses, licenseTree] = await Promise.all([
+        readJSONFile<Record<string, ProductionPackageLicense>>('licenses/licenses.json'),
+        readJSONFile<NpmPackageTree>('licenses/licenseTree.json')
+    ]);
 
-    const byName = new Map<string, License>();
+    const byKey = new Map<string, License>();
     for (const [key, value] of Object.entries(productionPackageLicenses)) {
-        const [name, license] = parseLicenseEntry(key, value);
-        byName.set(name, license);
+        byKey.set(key, parseLicenseEntry(key, value));
     }
 
-    await Promise.all(byName.values().map(async (license) => {
-        license.latestRemoteModified = await fetchPublishDate(license.name, license.installedVersion);
-    }));
+    await Promise.all(
+        byKey.values().map(async (license) => {
+            license.publishedDate = await fetchPublishDate(license.name, license.installedVersion);
+        })
+    );
 
-    let licensesContent = '|Name|Type|Installed|Latest|Latest Released|Deps|Document|\n|:-|:-|:-:|:-:|:-|-:|:-|\n';
-    for (const license of byName.values()) {
-        licensesContent += formatLicenseRow(license);
+    const rows: string[] = [];
+    if (licenseTree.dependencies != null) {
+        walkTree(licenseTree.dependencies, byKey, rows, '');
     }
+
+    const licensesContent = `|Name|License|Version|Published|Document|\n|:-|:-|:-:|:-|:-|\n${rows.join('')}`;
 
     const originalContent = await readTextFile('./README.md');
     const newContent = substituteText(originalContent, licensesContent, START_MARKER, END_MARKER);
     await writeTextFile('README.md', newContent);
-    console.info("OWASP audit badge(s) inserted into 'README.md'");
-    await writeTextFile('README.md', newContent);
 }
 
-function parseLicenseEntry(key: string, value: ProductionPackageLicense): [string, License] {
+function parseLicenseEntry(key: string, value: ProductionPackageLicense): License {
     const lastAt = key.lastIndexOf('@');
     const name = lastAt > 0 ? key.slice(0, lastAt) : key;
     const installedVersion = lastAt > 0 ? key.slice(lastAt + 1) : '';
-    return [name, {
-        department: '',
-        relatedTo: '',
+    return {
         name,
-        licensePeriod: '',
-        material: '',
-        licenseType: value.licenses,
-        link: value.repository ?? '',
-        remoteVersion: installedVersion,
+        licenseTypes: value.licenses,
         installedVersion,
-        definedVersion: installedVersion,
         author: value.publisher ?? '',
-        latestRemoteModified: '',
-        ...(value.licenseFile != null && { licenseFileLink: value.licenseFile }),
-    }];
+        publishedDate: '',
+        ...(value.licenseFile != null && { licenseFileLink: value.licenseFile })
+    };
 }
 
 async function fetchPublishDate(name: string, version: string): Promise<string> {
     try {
         const response = await fetch(`https://registry.npmjs.org/${name.replace('/', '%2F')}`);
         if (response.ok) {
-            const data = await response.json() as { time?: Record<string, string> };
+            const data = (await response.json()) as { time?: Record<string, string> };
             const timeMap = new Map(Object.entries(data.time ?? {}));
             return timeMap.get(version) ?? '';
         }
     } catch {
-        // ignore network errors
+        // Ignore network errors.
     }
     return '';
 }
 
-function formatLicenseRow(license: License): string {
-    const installedVersion = license.installedVersion === license.remoteVersion
-        ? license.installedVersion
-        : `${license.installedVersion} ⚠️`;
-    const latestUpdate = license.latestRemoteModified
-        ? determineLatestAge(license.latestRemoteModified.split('T', 1)[0])
-        : 'n/a';
-    const dependencyCount = license.dependencyCount != null && license.dependencyCount >= 0
-        ? license.dependencyCount
+function walkTree(
+    deps: Record<string, NpmPackageTree>,
+    byKey: Map<string, License>,
+    rows: string[],
+    prefix: string
+): void {
+    const lastKey = Object.keys(deps).at(-1);
+    for (const [name, node] of Object.entries(deps)) {
+        const isLast = name === lastKey;
+        const version = node.version ?? '';
+        const connector = isLast ? '└── ' : '├── ';
+        const childPrefix = isLast ? '&nbsp;&nbsp;&nbsp;&nbsp;' : '│&nbsp;&nbsp;&nbsp;';
+        rows.push(formatTreeRow(`${prefix}${connector}${name}`, version, byKey.get(`${name}@${version}`)));
+        if (node.dependencies != null) {
+            walkTree(node.dependencies, byKey, rows, `${prefix}${childPrefix}`);
+        }
+    }
+}
+
+function formatTreeRow(nameWithPrefix: string, version: string, license: License | undefined): string {
+    const licenseType = license?.licenseTypes ?? 'n/a';
+    const publishedDate = license?.publishedDate
+        ? determineLatestAge(license.publishedDate.split('T', 1)[0])
         : 'n/a';
     let licenseLink;
-    if (license.licenseFileLink == null || license.licenseFileLink == '') {
+    if (license?.licenseFileLink == null || license.licenseFileLink === '') {
         licenseLink = '⚠️ No license file';
     } else {
         const lastPart = license.licenseFileLink.slice(Math.max(0, license.licenseFileLink.lastIndexOf('/') + 1));
         licenseLink = `[${lastPart}](${license.licenseFileLink})`;
     }
-    return `|${license.name}|${license.licenseType}|${installedVersion}|${license.remoteVersion}|${latestUpdate}|${String(dependencyCount)}|${licenseLink}|\n`;
+    return `|${nameWithPrefix}|${licenseType}|${version}|${publishedDate}|${licenseLink}|\n`;
 }
 
 function determineLatestAge(momentString?: string): string {
