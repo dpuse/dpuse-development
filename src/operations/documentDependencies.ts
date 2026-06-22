@@ -96,22 +96,18 @@ export async function documentDependencies(allowedLicenses = '', checkRecursive 
 
         // license-checker-rseidelsohn --production --json --files ./licenses/downloads --relativeLicensePath --out licenses.json
 
-        await execCommand(
-            '1️⃣  Generate a production-dependency license report (licenses/licenses.json) and download the corresponding license text files (licenses/downloads).',
-            'license-checker-rseidelsohn',
-            [
-                '--production',
-                '--json',
-                '--files',
-                'licenses/downloads',
-                '--relativeModulePath',
-                '--relativeLicensePath',
-                '--onlyAllow',
-                `"${allowedLicenses}"`,
-                '--out',
-                'licenses/licenses.json'
-            ]
-        );
+        await execCommand('1️⃣  Identify licenses', 'license-checker-rseidelsohn', [
+            '--production',
+            '--json',
+            '--files',
+            'licenses/downloads',
+            '--relativeModulePath',
+            '--relativeLicensePath',
+            '--onlyAllow',
+            `"${allowedLicenses}"`,
+            '--out',
+            'licenses/licenses.json'
+        ]);
 
         await spawnCommandToFile("3️⃣  Check using 'npm audit'", 'npm', ['ls', '--all', '--json', '--omit=dev'], 'licenses/licenseTree.json');
 

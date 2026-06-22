@@ -6698,7 +6698,7 @@ async function oi() {
 //#region src/operations/documentDependencies.ts
 async function si(e = "", t = !0) {
 	try {
-		Ar("Document Dependencies"), await Sr("licenses/downloads"), await wr("1️⃣  Generate a production-dependency license report (licenses/licenses.json) and download the corresponding license text files (licenses/downloads).", "license-checker-rseidelsohn", [
+		Ar("Document Dependencies"), await Sr("licenses/downloads"), await wr("1️⃣  Identify licenses", "license-checker-rseidelsohn", [
 			"--production",
 			"--json",
 			"--files",
