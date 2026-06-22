@@ -53,9 +53,9 @@ export async function documentDependencies(allowedLicenses = 'MIT'): Promise<voi
     try {
         logOperationHeader('Document Dependencies');
 
-        await clearDirectory('licenses/downloads');
+        await clearDirectory('1️⃣  Clear downloaded licenses', 'licenses/downloads');
 
-        await execCommand('1️⃣  Identify production licenses', 'license-checker-rseidelsohn', [
+        await execCommand('2️⃣  Identify production licenses', 'license-checker-rseidelsohn', [
             '--production',
             '--json',
             '--files',
@@ -68,9 +68,9 @@ export async function documentDependencies(allowedLicenses = 'MIT'): Promise<voi
             'licenses/licenses.json'
         ]);
 
-        await spawnCommandToFile('2️⃣  Identify transitive dependencies', 'npm', ['ls', '--all', '--json', '--omit=dev'], 'licenses/licenseTree.json');
+        await spawnCommandToFile('3️⃣  Identify transitive dependencies', 'npm', ['ls', '--all', '--json', '--omit=dev'], 'licenses/licenseTree.json');
 
-        await insertLicensesIntoReadme('3️⃣');
+        await insertLicensesIntoReadme('4️⃣');
 
         logOperationSuccess('Dependencies documented.');
     } catch (error) {
@@ -160,9 +160,9 @@ function formatLicenseRow(license: License): string {
     return `|[${license.name}](${license.repository})|${license.licenseTypes}|${license.installedVersion}|${licenseLink}|\n`;
 }
 
-function walkTreeList(deps: Record<string, NpmPackageTree>, licensesByKey: Map<string, License>, items: string[], depth: number): void {
+function walkTreeList(dependencies: Record<string, NpmPackageTree>, licensesByKey: Map<string, License>, items: string[], depth: number): void {
     const indent = '  '.repeat(depth);
-    for (const [name, node] of Object.entries(deps)) {
+    for (const [name, node] of Object.entries(dependencies)) {
         const version = node.version ?? '';
         const license = licensesByKey.get(`${name}@${version}`);
         const nameLink = license == null ? name : `[${name}](${license.repository})`;

@@ -41,7 +41,8 @@ const asyncExec = promisify(exec);
 
 // Actions - Directory ─────────────────────────────────────────────────────────────────────────────────────────────────
 
-export async function clearDirectory(directoryPath: string): Promise<void> {
+export async function clearDirectory(label: string | undefined, directoryPath: string): Promise<void> {
+    if (label !== undefined) logStepHeader(`${label} - clear(${directoryPath})`);
     let entries: Dirent[];
 
     // Get top level entries in directory.

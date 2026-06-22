@@ -6276,16 +6276,17 @@ var br = [
 		uploadGroupName: void 0
 	}
 ], xr = r(i);
-async function Sr(e) {
-	let r;
+async function Sr(e, r) {
+	e !== void 0 && $(`${e} - clear(${r})`);
+	let i;
 	try {
-		r = await t.readdir(e, { withFileTypes: !0 });
+		i = await t.readdir(r, { withFileTypes: !0 });
 	} catch (e) {
 		if (e.code === "ENOENT") return;
 		throw e;
 	}
-	await Promise.all(r.map(async (r) => {
-		let i = n.join(e, r.name);
+	await Promise.all(i.map(async (e) => {
+		let i = n.join(r, e.name);
 		try {
 			await t.rm(i, {
 				recursive: !0,
@@ -6699,7 +6700,7 @@ async function oi() {
 var si = "<!-- DEPENDENCY_LICENSES_START -->", ci = "<!-- DEPENDENCY_LICENSES_END -->", li = "<!-- DEPENDENCY_TREE_START -->", ui = "<!-- DEPENDENCY_TREE_END -->";
 async function di(e = "MIT") {
 	try {
-		Ar("Document Dependencies"), await Sr("licenses/downloads"), await wr("1️⃣  Identify production licenses", "license-checker-rseidelsohn", [
+		Ar("Document Dependencies"), await Sr("1️⃣  Clear downloaded licenses", "licenses/downloads"), await wr("2️⃣  Identify production licenses", "license-checker-rseidelsohn", [
 			"--production",
 			"--json",
 			"--files",
@@ -6710,12 +6711,12 @@ async function di(e = "MIT") {
 			`"${e}"`,
 			"--out",
 			"licenses/licenses.json"
-		]), await Tr("2️⃣  Identify transitive dependencies", "npm", [
+		]), await Tr("3️⃣  Identify transitive dependencies", "npm", [
 			"ls",
 			"--all",
 			"--json",
 			"--omit=dev"
-		], "licenses/licenseTree.json"), await fi("3️⃣"), jr("Dependencies documented.");
+		], "licenses/licenseTree.json"), await fi("4️⃣"), jr("Dependencies documented.");
 	} catch (e) {
 		console.error("❌ Error documenting dependencies.", e), process.exit(1);
 	}

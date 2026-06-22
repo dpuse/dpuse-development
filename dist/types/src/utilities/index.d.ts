@@ -5,7 +5,7 @@ export interface ModuleTypeConfig {
     isPublished: boolean;
     uploadGroupName: 'connectors' | 'contexts' | 'engine' | 'presenters' | 'tools' | undefined;
 }
-export declare function clearDirectory(directoryPath: string): Promise<void>;
+export declare function clearDirectory(label: string | undefined, directoryPath: string): Promise<void>;
 export declare function getDirectoryEntries(path: string): Promise<string[]>;
 export declare function getDirectoryEntries(path: string, options: ObjectEncodingOptions): Promise<Dirent[]>;
 export declare function execCommand(label: string | undefined, command_: string, arguments_?: string[], outputFilePath?: string): Promise<void>;
