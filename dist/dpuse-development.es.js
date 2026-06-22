@@ -6728,7 +6728,7 @@ async function fi(e) {
 		let t = await mi(e.name, e.installedVersion);
 		e.latestVersion = t.latestVersion, e.publishedDate = t.publishedDate;
 	}));
-	let i = "|Name|License|Installed|Latest|Published|Document|\n|:-|:-|:-:|:-:|:-|:-|\n";
+	let i = "|Name|License|Installed|Document|\n|:-|:-|:-:|:-|\n";
 	for (let e of r.values()) i += hi(e);
 	let a = [];
 	n.dependencies != null && gi(n.dependencies, r, a, 0), await kr("README.md", Ir(Ir(await Er("./README.md"), i, si, ci), a.join("\n"), li, ui));
@@ -6763,16 +6763,14 @@ async function mi(e, t) {
 	};
 }
 function hi(e) {
-	let t = e.installedVersion === e.latestVersion ? e.installedVersion : `${e.installedVersion} ⚠️`, n = e.publishedDate ? _i(e.publishedDate.split("T", 1)[0]) : "n/a", r;
-	return r = e.licenseFileLink == null || e.licenseFileLink === "" ? "⚠️ No license file" : `[${e.licenseFileLink.slice(Math.max(0, e.licenseFileLink.lastIndexOf("/") + 1))}](licenses/${e.licenseFileLink})`, `|[${e.name}](${e.repository})|${e.licenseTypes}|${t}|${e.latestVersion}|${n}|${r}|\n`;
+	let t;
+	return t = e.licenseFileLink == null || e.licenseFileLink === "" ? "⚠️ No license file" : `[${e.licenseFileLink.slice(Math.max(0, e.licenseFileLink.lastIndexOf("/") + 1))}](licenses/${e.licenseFileLink})`, `|[${e.name}](${e.repository})|${e.licenseTypes}|${e.installedVersion}|${t}|\n`;
 }
 function gi(e, t, n, r) {
 	let i = "  ".repeat(r);
 	for (let [a, o] of Object.entries(e)) {
-		let e = o.version ?? "", s = t.get(`${a}@${e}`), c = s?.licenseTypes ?? "n/a", l;
-		l = s?.licenseFileLink == null || s.licenseFileLink === "" ? "⚠️ No license file" : `[${s.licenseFileLink.slice(Math.max(0, s.licenseFileLink.lastIndexOf("/") + 1))}](licenses/${s.licenseFileLink})`;
-		let u = s == null ? a : `[${a}](${s.repository})`;
-		n.push(`${i}- **${u}** \`${e}\` ${c} — ${l}`), o.dependencies != null && gi(o.dependencies, t, n, r + 1);
+		let e = o.version ?? "", s = t.get(`${a}@${e}`), c = s == null ? a : `[${a}](${s.repository})`, l = [s?.latestVersion ? `latest: \`${s.latestVersion}\`` : "", s?.publishedDate ? _i(s.publishedDate.split("T", 1)[0]) : ""].filter(Boolean).join(" · "), u = l === "" ? "" : ` — ${l}`;
+		n.push(`${i}- **${c}** \`${e}\`${u}`), o.dependencies != null && gi(o.dependencies, t, n, r + 1);
 	}
 }
 function _i(e) {

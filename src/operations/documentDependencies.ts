@@ -102,7 +102,7 @@ async function insertLicensesIntoReadme(stepIcon: string): Promise<void> {
         })
     );
 
-    let licensesContent = '|Name|License|Installed|Latest|Published|Document|\n|:-|:-|:-:|:-:|:-|:-|\n';
+    let licensesContent = '|Name|License|Installed|Document|\n|:-|:-|:-:|:-|\n';
     for (const license of byKey.values()) {
         licensesContent += formatLicenseRow(license);
     }
@@ -152,12 +152,6 @@ async function fetchNpmData(name: string, version: string): Promise<{ latestVers
 }
 
 function formatLicenseRow(license: License): string {
-    const installed = license.installedVersion === license.latestVersion
-        ? license.installedVersion
-        : `${license.installedVersion} ⚠️`;
-    const publishedDate = license.publishedDate
-        ? determineLatestAge(license.publishedDate.split('T', 1)[0])
-        : 'n/a';
     let licenseLink;
     if (license.licenseFileLink == null || license.licenseFileLink === '') {
         licenseLink = '⚠️ No license file';
@@ -165,7 +159,7 @@ function formatLicenseRow(license: License): string {
         const lastPart = license.licenseFileLink.slice(Math.max(0, license.licenseFileLink.lastIndexOf('/') + 1));
         licenseLink = `[${lastPart}](licenses/${license.licenseFileLink})`;
     }
-    return `|[${license.name}](${license.repository})|${license.licenseTypes}|${installed}|${license.latestVersion}|${publishedDate}|${licenseLink}|\n`;
+    return `|[${license.name}](${license.repository})|${license.licenseTypes}|${license.installedVersion}|${licenseLink}|\n`;
 }
 
 function walkTreeList(
@@ -178,16 +172,12 @@ function walkTreeList(
     for (const [name, node] of Object.entries(deps)) {
         const version = node.version ?? '';
         const license = byKey.get(`${name}@${version}`);
-        const licenseType = license?.licenseTypes ?? 'n/a';
-        let documentLink;
-        if (license?.licenseFileLink == null || license.licenseFileLink === '') {
-            documentLink = '⚠️ No license file';
-        } else {
-            const lastPart = license.licenseFileLink.slice(Math.max(0, license.licenseFileLink.lastIndexOf('/') + 1));
-            documentLink = `[${lastPart}](licenses/${license.licenseFileLink})`;
-        }
         const nameLink = license == null ? name : `[${name}](${license.repository})`;
-        items.push(`${indent}- **${nameLink}** \`${version}\` ${licenseType} — ${documentLink}`);
+        const latest = license?.latestVersion ? `latest: \`${license.latestVersion}\`` : '';
+        const published = license?.publishedDate ? determineLatestAge(license.publishedDate.split('T', 1)[0]) : '';
+        const versionSuffix = [latest, published].filter(Boolean).join(' · ');
+        const versionDetail = versionSuffix === '' ? '' : ` — ${versionSuffix}`;
+        items.push(`${indent}- **${nameLink}** \`${version}\`${versionDetail}`);
         if (node.dependencies != null) {
             walkTreeList(node.dependencies, byKey, items, depth + 1);
         }
