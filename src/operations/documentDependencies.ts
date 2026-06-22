@@ -146,7 +146,7 @@ async function fetchNpmData(name: string, version: string): Promise<{ latestVers
             const timeMap = new Map(Object.entries(data.time ?? {}));
             const latestVersion = distributionTags.get('latest') ?? '';
             const publishedDate = timeMap.get(version) ?? '';
-            const latestPublishedDate = latestVersion === version ? '' : timeMap.get(latestVersion) ?? '';
+            const latestPublishedDate = latestVersion === version ? '' : (timeMap.get(latestVersion) ?? '');
             return { latestVersion, latestPublishedDate, publishedDate };
         }
     } catch {
@@ -156,24 +156,8 @@ async function fetchNpmData(name: string, version: string): Promise<{ latestVers
 }
 
 function formatLicenseRow(license: License): string {
-    let licenseLink;
-    if (license.licenseFileLink == null || license.licenseFileLink === '') {
-        licenseLink = '⚠️ No license file';
-    } else {
-        const lastPart = license.licenseFileLink.slice(Math.max(0, license.licenseFileLink.lastIndexOf('/') + 1));
-        licenseLink = `[${lastPart}](licenses/${license.licenseFileLink})`;
-    }
+    const licenseLink = license.licenseFileLink == null || license.licenseFileLink === '' ? '⚠️ No license file' : `[LICENSE](licenses/${license.licenseFileLink})`;
     return `|[${license.name}](${license.repository})|${license.licenseTypes}|${license.installedVersion}|${licenseLink}|\n`;
-}
-
-function formatVersionDetail(license: License | undefined): string {
-    if (license == null) return '';
-    const published = license.publishedDate ? determineLatestAge(license.publishedDate.split('T', 1)[0]) : '';
-    const isOutdated = license.latestVersion !== '' && license.latestVersion !== license.installedVersion;
-    if (!isOutdated) return published === '' ? '' : ` — ${published}`;
-    const latestAge = license.latestPublishedDate ? determineLatestAge(license.latestPublishedDate.split('T', 1)[0]) : '';
-    const latestClause = latestAge === '' ? `latest: \`${license.latestVersion}\`` : `latest: \`${license.latestVersion}\` · ${latestAge}`;
-    return published === '' ? ` — ⚠️ → ${latestClause}` : ` — ${published} ⚠️ → ${latestClause}`;
 }
 
 function walkTreeList(deps: Record<string, NpmPackageTree>, licensesByKey: Map<string, License>, items: string[], depth: number): void {
@@ -183,11 +167,21 @@ function walkTreeList(deps: Record<string, NpmPackageTree>, licensesByKey: Map<s
         const license = licensesByKey.get(`${name}@${version}`);
         const nameLink = license == null ? name : `[${name}](${license.repository})`;
         const versionDetail = formatVersionDetail(license);
-        items.push(`${indent}- **${nameLink}** \`${version}\`${versionDetail}`);
+        items.push(`${indent}- **${nameLink}** ${version}${versionDetail}`);
         if (node.dependencies != null) {
             walkTreeList(node.dependencies, licensesByKey, items, depth + 1);
         }
     }
+}
+
+function formatVersionDetail(license: License | undefined): string {
+    if (license == null) return '';
+    const published = license.publishedDate ? determineLatestAge(license.publishedDate.split('T', 1)[0]) : '';
+    const isOutdated = license.latestVersion !== '' && license.latestVersion !== license.installedVersion;
+    if (!isOutdated) return published === '' ? '' : ` — ${published}`;
+    const latestAge = license.latestPublishedDate ? determineLatestAge(license.latestPublishedDate.split('T', 1)[0]) : '';
+    const latestClause = latestAge === '' ? `latest: ${license.latestVersion} ⚠️` : `latest: ${license.latestVersion} · ${latestAge} ⚠️`;
+    return published === '' ? ` — → ${latestClause}` : ` — ${published} → ${latestClause}`;
 }
 
 function determineLatestAge(momentString?: string): string {

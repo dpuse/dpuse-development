@@ -6731,7 +6731,7 @@ async function fi(e) {
 	let i = "|Name|License(s)|Version|Document|\n|:-|:-|:-:|:-|\n";
 	for (let e of r.values()) i += hi(e);
 	let a = [];
-	n.dependencies != null && _i(n.dependencies, r, a, 0), await kr("README.md", Ir(Ir(await Er("./README.md"), i, si, ci), a.join("\n"), li, ui));
+	n.dependencies != null && gi(n.dependencies, r, a, 0), await kr("README.md", Ir(Ir(await Er("./README.md"), i, si, ci), a.join("\n"), li, ui));
 }
 function pi(e, t) {
 	let n = e.lastIndexOf("@"), r = n > 0 ? e.slice(0, n) : e, i = n > 0 ? e.slice(n + 1) : "";
@@ -6766,22 +6766,22 @@ async function mi(e, t) {
 	};
 }
 function hi(e) {
-	let t;
-	return t = e.licenseFileLink == null || e.licenseFileLink === "" ? "⚠️ No license file" : `[${e.licenseFileLink.slice(Math.max(0, e.licenseFileLink.lastIndexOf("/") + 1))}](licenses/${e.licenseFileLink})`, `|[${e.name}](${e.repository})|${e.licenseTypes}|${e.installedVersion}|${t}|\n`;
+	let t = e.licenseFileLink == null || e.licenseFileLink === "" ? "⚠️ No license file" : `[LICENSE](licenses/${e.licenseFileLink})`;
+	return `|[${e.name}](${e.repository})|${e.licenseTypes}|${e.installedVersion}|${t}|\n`;
 }
-function gi(e) {
+function gi(e, t, n, r) {
+	let i = "  ".repeat(r);
+	for (let [a, o] of Object.entries(e)) {
+		let e = o.version ?? "", s = t.get(`${a}@${e}`), c = s == null ? a : `[${a}](${s.repository})`, l = _i(s);
+		n.push(`${i}- **${c}** ${e}${l}`), o.dependencies != null && gi(o.dependencies, t, n, r + 1);
+	}
+}
+function _i(e) {
 	if (e == null) return "";
 	let t = e.publishedDate ? vi(e.publishedDate.split("T", 1)[0]) : "";
 	if (!(e.latestVersion !== "" && e.latestVersion !== e.installedVersion)) return t === "" ? "" : ` — ${t}`;
-	let n = e.latestPublishedDate ? vi(e.latestPublishedDate.split("T", 1)[0]) : "", r = n === "" ? `latest: \`${e.latestVersion}\`` : `latest: \`${e.latestVersion}\` · ${n}`;
-	return t === "" ? ` — ⚠️ → ${r}` : ` — ${t} ⚠️ → ${r}`;
-}
-function _i(e, t, n, r) {
-	let i = "  ".repeat(r);
-	for (let [a, o] of Object.entries(e)) {
-		let e = o.version ?? "", s = t.get(`${a}@${e}`), c = s == null ? a : `[${a}](${s.repository})`, l = gi(s);
-		n.push(`${i}- **${c}** \`${e}\`${l}`), o.dependencies != null && _i(o.dependencies, t, n, r + 1);
-	}
+	let n = e.latestPublishedDate ? vi(e.latestPublishedDate.split("T", 1)[0]) : "", r = n === "" ? `latest: ${e.latestVersion} ⚠️` : `latest: ${e.latestVersion} · ${n} ⚠️`;
+	return t === "" ? ` — → ${r}` : ` — ${t} → ${r}`;
 }
 function vi(e) {
 	if (e == null || e === "") return "n/a";
