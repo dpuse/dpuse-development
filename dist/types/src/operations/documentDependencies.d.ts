@@ -1,1 +1,1 @@
-export declare function documentDependencies(licenses?: string[], checkRecursive?: boolean): Promise<void>;
+export declare function documentDependencies(allowedLicenses?: string, checkRecursive?: boolean): Promise<void>;

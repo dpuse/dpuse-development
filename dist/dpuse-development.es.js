@@ -6696,14 +6696,17 @@ async function oi() {
 }
 //#endregion
 //#region src/operations/documentDependencies.ts
-async function si(e = [], t = !0) {
+async function si(e = "", t = !0) {
 	try {
 		Ar("Document Dependencies"), await Sr("licenses/downloads"), await wr("1️⃣  Generate a production-dependency license report (licenses/licenses.json) and download the corresponding license text files (licenses/downloads).", "license-checker-rseidelsohn", [
 			"--production",
 			"--json",
 			"--files",
 			"licenses/downloads",
+			"--relativeModulePath",
 			"--relativeLicensePath",
+			"--onlyAllow",
+			e,
 			"--out",
 			"licenses/licenses.json"
 		]), await Tr("3️⃣  Check using 'npm audit'", "npm", [
