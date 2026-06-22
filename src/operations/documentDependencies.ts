@@ -143,10 +143,10 @@ async function insertLicensesIntoReadme(stepIcon: string, checkRecursive: boolea
             //     byName.set(license.name, existing ? { ...existing, ...license } : { ...license });
             // }
 
-            for (const license of productionPackageLicenseTree) {
-                const existing = byName.get(license.name);
-                if (existing) byName.set(license.name, { ...existing, dependencyCount: license.requires?.length ?? 0 });
-            }
+            // for (const license of productionPackageLicenseTree) {
+            //     const existing = byName.get(license.name);
+            //     if (existing) byName.set(license.name, { ...existing, dependencyCount: license.requires?.length ?? 0 });
+            // }
 
             return byName.values();
         })()

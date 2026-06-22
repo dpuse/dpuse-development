@@ -6722,24 +6722,19 @@ async function li(e = "", t = !0) {
 }
 async function ui(e, t) {
 	$(`${e}  Insert licenses into 'README.md'`);
-	let n = await Q("licenses/licenses.json"), r = t ? await Q("licenses/licenseTree.json") : [], i = [...(() => {
+	let n = await Q("licenses/licenses.json");
+	t && await Q("licenses/licenseTree.json");
+	let r = [...(() => {
 		let e = /* @__PURE__ */ new Map();
 		for (let t of n) e.set(t.name, { ...t });
-		for (let t of r) {
-			let n = e.get(t.name);
-			n && e.set(t.name, {
-				...n,
-				dependencyCount: t.requires?.length ?? 0
-			});
-		}
 		return e.values();
-	})()], a = "|Name|Type|Installed|Latest|Latest Released|Deps|Document|\n|:-|:-|:-:|:-:|:-|-:|:-|\n";
-	for (let e of i) {
-		let t = e.installedVersion === e.remoteVersion ? e.installedVersion : `${e.installedVersion} ⚠️`, n = e.latestRemoteModified ? di(e.latestRemoteModified.split("T", 1)[0]) : "n/a", r = e.dependencyCount != null && e.dependencyCount >= 0 ? e.dependencyCount : "n/a", i;
-		i = e.licenseFileLink == null || e.licenseFileLink == "" ? "⚠️ No license file" : `[${e.licenseFileLink.slice(Math.max(0, e.licenseFileLink.lastIndexOf("/") + 1))}](${e.licenseFileLink})`, a += `|${e.name}|${e.licenseType}|${t}|${e.remoteVersion}|${n}|${String(r)}|${i}|\n`;
+	})()], i = "|Name|Type|Installed|Latest|Latest Released|Deps|Document|\n|:-|:-|:-:|:-:|:-|-:|:-|\n";
+	for (let e of r) {
+		let t = e.installedVersion === e.remoteVersion ? e.installedVersion : `${e.installedVersion} ⚠️`, n = e.latestRemoteModified ? di(e.latestRemoteModified.split("T", 1)[0]) : "n/a", r = e.dependencyCount != null && e.dependencyCount >= 0 ? e.dependencyCount : "n/a", a;
+		a = e.licenseFileLink == null || e.licenseFileLink == "" ? "⚠️ No license file" : `[${e.licenseFileLink.slice(Math.max(0, e.licenseFileLink.lastIndexOf("/") + 1))}](${e.licenseFileLink})`, i += `|${e.name}|${e.licenseType}|${t}|${e.remoteVersion}|${n}|${String(r)}|${a}|\n`;
 	}
-	let o = Ir(await Er("./README.md"), a, si, ci);
-	await kr("README.md", o), console.info("OWASP audit badge(s) inserted into 'README.md'"), await kr("README.md", o);
+	let a = Ir(await Er("./README.md"), i, si, ci);
+	await kr("README.md", a), console.info("OWASP audit badge(s) inserted into 'README.md'"), await kr("README.md", a);
 }
 function di(e) {
 	if (e == null || e === "") return "n/a";
