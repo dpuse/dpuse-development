@@ -96,7 +96,7 @@ export async function documentDependencies(allowedLicenses = '', checkRecursive 
 
         // license-checker-rseidelsohn --production --json --files ./licenses/downloads --relativeLicensePath --out licenses.json
 
-        await execCommand('1️⃣  Identify licenses', 'license-checker-rseidelsohn', [
+        await execCommand('1️⃣  Identify production licenses', 'license-checker-rseidelsohn', [
             '--production',
             '--json',
             '--files',
@@ -109,9 +109,9 @@ export async function documentDependencies(allowedLicenses = '', checkRecursive 
             'licenses/licenses.json'
         ]);
 
-        await spawnCommandToFile("3️⃣  Check using 'npm audit'", 'npm', ['ls', '--all', '--json', '--omit=dev'], 'licenses/licenseTree.json');
+        await spawnCommandToFile('2️⃣  Identify transitive dependencies', 'npm', ['ls', '--all', '--json', '--omit=dev'], 'licenses/licenseTree.json');
 
-        // await insertLicensesIntoReadme('6️⃣', checkRecursive);
+        await insertLicensesIntoReadme('3️⃣', checkRecursive);
 
         logOperationSuccess('Dependencies documented.');
     } catch (error) {
