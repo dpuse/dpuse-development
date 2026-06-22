@@ -127,7 +127,7 @@ async function insertLicensesIntoReadme(stepIcon: string, checkRecursive: boolea
     logStepHeader(`${stepIcon}  Insert licenses into 'README.md'`);
 
     const productionPackageLicenses = await readJSONFile<License[]>('licenses/licenses.json');
-    const productionDownloadLicenses = await readJSONFile<License[]>('licenses/downloads/licenses.ext.json');
+    // const productionDownloadLicenses = await readJSONFile<License[]>('licenses/downloads/licenses.ext.json');
     const productionPackageLicenseTree: License[] = checkRecursive ? await readJSONFile<License[]>('licenses/licenseTree.json') : [];
 
     const mergedLicenses = [
@@ -138,10 +138,10 @@ async function insertLicensesIntoReadme(stepIcon: string, checkRecursive: boolea
                 byName.set(license.name, { ...license });
             }
 
-            for (const license of productionDownloadLicenses) {
-                const existing = byName.get(license.name);
-                byName.set(license.name, existing ? { ...existing, ...license } : { ...license });
-            }
+            // for (const license of productionDownloadLicenses) {
+            //     const existing = byName.get(license.name);
+            //     byName.set(license.name, existing ? { ...existing, ...license } : { ...license });
+            // }
 
             for (const license of productionPackageLicenseTree) {
                 const existing = byName.get(license.name);
