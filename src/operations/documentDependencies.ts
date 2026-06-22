@@ -20,6 +20,7 @@ interface License {
     licenseTypes: string;
     installedVersion: string;
     latestVersion: string;
+    latestPublishedDate: string;
     author: string;
     publishedDate: string;
     licenseFileLink?: string;
@@ -98,6 +99,7 @@ async function insertLicensesIntoReadme(stepIcon: string): Promise<void> {
         licensesByKey.values().map(async (license) => {
             const data = await fetchNpmData(license.name, license.installedVersion);
             license.latestVersion = data.latestVersion;
+            license.latestPublishedDate = data.latestPublishedDate;
             license.publishedDate = data.publishedDate;
         })
     );
@@ -129,12 +131,13 @@ function parseLicenseEntry(key: string, value: ProductionPackageLicense): Licens
         installedVersion,
         author: value.publisher ?? '',
         latestVersion: '',
+        latestPublishedDate: '',
         publishedDate: '',
         ...(value.licenseFile != null && { licenseFileLink: value.licenseFile })
     };
 }
 
-async function fetchNpmData(name: string, version: string): Promise<{ latestVersion: string; publishedDate: string }> {
+async function fetchNpmData(name: string, version: string): Promise<{ latestVersion: string; latestPublishedDate: string; publishedDate: string }> {
     try {
         const response = await fetch(`https://registry.npmjs.org/${name.replace('/', '%2F')}`);
         if (response.ok) {
@@ -143,12 +146,13 @@ async function fetchNpmData(name: string, version: string): Promise<{ latestVers
             const timeMap = new Map(Object.entries(data.time ?? {}));
             const latestVersion = distributionTags.get('latest') ?? '';
             const publishedDate = timeMap.get(version) ?? '';
-            return { latestVersion, publishedDate };
+            const latestPublishedDate = latestVersion === version ? '' : timeMap.get(latestVersion) ?? '';
+            return { latestVersion, latestPublishedDate, publishedDate };
         }
     } catch {
         // Ignore network errors.
     }
-    return { latestVersion: '', publishedDate: '' };
+    return { latestVersion: '', latestPublishedDate: '', publishedDate: '' };
 }
 
 function formatLicenseRow(license: License): string {
@@ -162,16 +166,23 @@ function formatLicenseRow(license: License): string {
     return `|[${license.name}](${license.repository})|${license.licenseTypes}|${license.installedVersion}|${licenseLink}|\n`;
 }
 
+function formatVersionDetail(license: License | undefined): string {
+    if (license == null) return '';
+    const published = license.publishedDate ? determineLatestAge(license.publishedDate.split('T', 1)[0]) : '';
+    const isOutdated = license.latestVersion !== '' && license.latestVersion !== license.installedVersion;
+    if (!isOutdated) return published === '' ? '' : ` — ${published}`;
+    const latestAge = license.latestPublishedDate ? determineLatestAge(license.latestPublishedDate.split('T', 1)[0]) : '';
+    const latestClause = latestAge === '' ? `latest: \`${license.latestVersion}\`` : `latest: \`${license.latestVersion}\` · ${latestAge}`;
+    return published === '' ? ` — ⚠️ → ${latestClause}` : ` — ${published} ⚠️ → ${latestClause}`;
+}
+
 function walkTreeList(deps: Record<string, NpmPackageTree>, licensesByKey: Map<string, License>, items: string[], depth: number): void {
     const indent = '  '.repeat(depth);
     for (const [name, node] of Object.entries(deps)) {
         const version = node.version ?? '';
         const license = licensesByKey.get(`${name}@${version}`);
         const nameLink = license == null ? name : `[${name}](${license.repository})`;
-        const latest = license?.latestVersion ? `latest: \`${license.latestVersion}\`` : '';
-        const published = license?.publishedDate ? determineLatestAge(license.publishedDate.split('T', 1)[0]) : '';
-        const versionSuffix = [latest, published].filter(Boolean).join(' · ');
-        const versionDetail = versionSuffix === '' ? '' : ` — ${versionSuffix}`;
+        const versionDetail = formatVersionDetail(license);
         items.push(`${indent}- **${nameLink}** \`${version}\`${versionDetail}`);
         if (node.dependencies != null) {
             walkTreeList(node.dependencies, licensesByKey, items, depth + 1);
