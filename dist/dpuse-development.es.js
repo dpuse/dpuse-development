@@ -6726,7 +6726,24 @@ async function ui(e, t) {
 	t && await Q("licenses/licenseTree.json");
 	let r = [...(() => {
 		let e = /* @__PURE__ */ new Map();
-		for (let t of n) e.set(t.name, { ...t });
+		for (let [t, r] of Object.entries(n)) {
+			let n = t.lastIndexOf("@"), i = n > 0 ? t.slice(0, n) : t, a = n > 0 ? t.slice(n + 1) : "";
+			e.set(i, {
+				department: "",
+				relatedTo: "",
+				name: i,
+				licensePeriod: "",
+				material: "",
+				licenseType: r.licenses,
+				link: r.repository ?? "",
+				remoteVersion: a,
+				installedVersion: a,
+				definedVersion: a,
+				author: r.publisher ?? "",
+				latestRemoteModified: "",
+				...r.licenseFile != null && { licenseFileLink: r.licenseFile }
+			});
+		}
 		return e.values();
 	})()], i = "|Name|Type|Installed|Latest|Latest Released|Deps|Document|\n|:-|:-|:-:|:-:|:-|-:|:-|\n";
 	for (let e of r) {

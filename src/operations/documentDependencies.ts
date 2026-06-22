@@ -35,6 +35,15 @@ interface License {
     licenseFileLink?: string;
 }
 
+interface ProductionPackageLicense {
+    licenses: string;
+    repository?: string;
+    publisher?: string;
+    email?: string;
+    path?: string;
+    licenseFile?: string;
+}
+
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const START_MARKER = '<!-- DEPENDENCY_LICENSES_START -->';
@@ -126,7 +135,7 @@ export async function documentDependencies(allowedLicenses = '', checkRecursive 
 async function insertLicensesIntoReadme(stepIcon: string, checkRecursive: boolean): Promise<void> {
     logStepHeader(`${stepIcon}  Insert licenses into 'README.md'`);
 
-    const productionPackageLicenses = await readJSONFile<License[]>('licenses/licenses.json');
+    const productionPackageLicenses = await readJSONFile<Record<string, ProductionPackageLicense>>('licenses/licenses.json');
     // const productionDownloadLicenses = await readJSONFile<License[]>('licenses/downloads/licenses.ext.json');
     const productionPackageLicenseTree: License[] = checkRecursive ? await readJSONFile<License[]>('licenses/licenseTree.json') : [];
 
@@ -134,8 +143,25 @@ async function insertLicensesIntoReadme(stepIcon: string, checkRecursive: boolea
         ...((): MapIterator<License> => {
             const byName = new Map<string, License>();
 
-            for (const license of productionPackageLicenses) {
-                byName.set(license.name, { ...license });
+            for (const [key, value] of Object.entries(productionPackageLicenses)) {
+                const lastAt = key.lastIndexOf('@');
+                const name = lastAt > 0 ? key.slice(0, lastAt) : key;
+                const installedVersion = lastAt > 0 ? key.slice(lastAt + 1) : '';
+                byName.set(name, {
+                    department: '',
+                    relatedTo: '',
+                    name,
+                    licensePeriod: '',
+                    material: '',
+                    licenseType: value.licenses,
+                    link: value.repository ?? '',
+                    remoteVersion: installedVersion,
+                    installedVersion,
+                    definedVersion: installedVersion,
+                    author: value.publisher ?? '',
+                    latestRemoteModified: '',
+                    ...(value.licenseFile != null && { licenseFileLink: value.licenseFile }),
+                });
             }
 
             // for (const license of productionDownloadLicenses) {
