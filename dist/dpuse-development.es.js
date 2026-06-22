@@ -6781,7 +6781,7 @@ function _i(e) {
 	if (e == null) return "";
 	let t = e.publishedDate ? vi(e.publishedDate.split("T", 1)[0]) : "";
 	if (!(e.latestVersion !== "" && e.latestVersion !== e.installedVersion)) return t === "" ? "" : ` — ${t}`;
-	let n = e.latestPublishedDate ? vi(e.latestPublishedDate.split("T", 1)[0]) : "", r = n === "" ? `**latest**: ${e.latestVersion} ⚠️` : `**latest**: ${e.latestVersion} — ${n} ⚠️`;
+	let n = e.latestPublishedDate ? vi(e.latestPublishedDate.split("T", 1)[0]) : "", r = n === "" ? `**latest**: ${e.latestVersion} ❗` : `**latest**: ${e.latestVersion} — ${n} ❗`;
 	return t === "" ? ` — → ${r}` : ` — ${t} → ${r}`;
 }
 function vi(e) {
@@ -6789,7 +6789,7 @@ function vi(e) {
 	let t = e.split("T", 1)[0];
 	if (t == null || t === "") return "n/a";
 	let n = new Date(t), r = /* @__PURE__ */ new Date(), i = (r.getFullYear() - n.getFullYear()) * 12 + (r.getMonth() - n.getMonth());
-	return r.getDate() < n.getDate() && --i, i === 0 ? `this month: ${t}` : i === 1 ? `1 month ago: ${t}` : i <= 6 ? `${String(i)} months ago: ${t}` : i <= 12 ? `${String(i)} months ago: ${t} ⚠️` : `${String(i)} months ago: ${t}❗`;
+	return r.getDate() < n.getDate() && --i, i === 0 ? `this month: ${t}` : i === 1 ? `1 month ago: ${t}` : i <= 6 ? `${String(i)} months ago: ${t}` : `${String(i)} months ago: ${t} ⚠️`;
 }
 //#endregion
 //#region src/operations/formatCode.ts
