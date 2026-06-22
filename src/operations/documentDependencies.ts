@@ -84,32 +84,32 @@ export async function documentDependencies(allowedLicenses = 'MIT'): Promise<voi
 async function insertLicensesIntoReadme(stepIcon: string): Promise<void> {
     logStepHeader(`${stepIcon}  Insert licenses into 'README.md'`);
 
-    const [productionPackageLicenses, licenseTree] = await Promise.all([
+    const [licenses, licenseTree] = await Promise.all([
         readJSONFile<Record<string, ProductionPackageLicense>>('licenses/licenses.json'),
         readJSONFile<NpmPackageTree>('licenses/licenseTree.json')
     ]);
 
-    const byKey = new Map<string, License>();
-    for (const [key, value] of Object.entries(productionPackageLicenses)) {
-        byKey.set(key, parseLicenseEntry(key, value));
+    const licensesByKey = new Map<string, License>();
+    for (const [key, value] of Object.entries(licenses)) {
+        licensesByKey.set(key, parseLicenseEntry(key, value));
     }
 
     await Promise.all(
-        byKey.values().map(async (license) => {
+        licensesByKey.values().map(async (license) => {
             const data = await fetchNpmData(license.name, license.installedVersion);
             license.latestVersion = data.latestVersion;
             license.publishedDate = data.publishedDate;
         })
     );
 
-    let licensesContent = '|Name|License|Installed|Document|\n|:-|:-|:-:|:-|\n';
-    for (const license of byKey.values()) {
+    let licensesContent = '|Name|License(s)|Version|Document|\n|:-|:-|:-:|:-|\n';
+    for (const license of licensesByKey.values()) {
         licensesContent += formatLicenseRow(license);
     }
 
     const treeItems: string[] = [];
     if (licenseTree.dependencies != null) {
-        walkTreeList(licenseTree.dependencies, byKey, treeItems, 0);
+        walkTreeList(licenseTree.dependencies, licensesByKey, treeItems, 0);
     }
 
     const originalContent = await readTextFile('./README.md');
@@ -162,16 +162,11 @@ function formatLicenseRow(license: License): string {
     return `|[${license.name}](${license.repository})|${license.licenseTypes}|${license.installedVersion}|${licenseLink}|\n`;
 }
 
-function walkTreeList(
-    deps: Record<string, NpmPackageTree>,
-    byKey: Map<string, License>,
-    items: string[],
-    depth: number
-): void {
+function walkTreeList(deps: Record<string, NpmPackageTree>, licensesByKey: Map<string, License>, items: string[], depth: number): void {
     const indent = '  '.repeat(depth);
     for (const [name, node] of Object.entries(deps)) {
         const version = node.version ?? '';
-        const license = byKey.get(`${name}@${version}`);
+        const license = licensesByKey.get(`${name}@${version}`);
         const nameLink = license == null ? name : `[${name}](${license.repository})`;
         const latest = license?.latestVersion ? `latest: \`${license.latestVersion}\`` : '';
         const published = license?.publishedDate ? determineLatestAge(license.publishedDate.split('T', 1)[0]) : '';
@@ -179,7 +174,7 @@ function walkTreeList(
         const versionDetail = versionSuffix === '' ? '' : ` — ${versionSuffix}`;
         items.push(`${indent}- **${nameLink}** \`${version}\`${versionDetail}`);
         if (node.dependencies != null) {
-            walkTreeList(node.dependencies, byKey, items, depth + 1);
+            walkTreeList(node.dependencies, licensesByKey, items, depth + 1);
         }
     }
 }
