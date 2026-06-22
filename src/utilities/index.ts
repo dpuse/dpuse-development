@@ -86,12 +86,12 @@ export async function execCommand(label: string | undefined, command_: string, a
     if (stderr.trim()) console.error(stderr.trim());
 }
 
-export async function spawnCommand(label: string, command: string, arguments_: string[] = [], ignoreErrors = false, useShell = false): Promise<void> {
+export async function spawnCommand(label: string, command: string, arguments_: string[] = [], isErrorIgnored = false, isShellUsed = false): Promise<void> {
     logStepHeader(`${label} - spawn(${command} ${arguments_.join(' ')})`);
     return new Promise((resolve, reject) => {
-        const child = spawn(command, arguments_, { shell: useShell, stdio: 'inherit' });
+        const child = spawn(command, arguments_, { shell: isShellUsed, stdio: 'inherit' });
         child.on('close', (code) => {
-            if (code === 0 || ignoreErrors) {
+            if (code === 0 || isErrorIgnored) {
                 resolve();
             } else {
                 reject(new Error(`${command} exited with code ${String(code ?? 'unknown')}`));
@@ -100,7 +100,7 @@ export async function spawnCommand(label: string, command: string, arguments_: s
     });
 }
 
-export async function spawnCommandToFile(label: string, command: string, arguments_: string[] = [], outputPath: string, ignoreErrors = false): Promise<void> {
+export async function spawnCommandToFile(label: string, command: string, arguments_: string[] = [], outputPath: string, isErrorIgnored = false): Promise<void> {
     logStepHeader(`${label} - spawn(${command} ${arguments_.join(' ')}) > ${outputPath}`);
     return new Promise((resolve, reject) => {
         const child = spawn(command, arguments_, { shell: false, stdio: ['inherit', 'pipe', 'inherit'] });
@@ -109,7 +109,7 @@ export async function spawnCommandToFile(label: string, command: string, argumen
             output += String(chunk);
         });
         child.on('close', (code) => {
-            if (code === 0 || ignoreErrors) {
+            if (code === 0 || isErrorIgnored) {
                 void (async () => {
                     try {
                         await fs.writeFile(outputPath, output, 'utf8');

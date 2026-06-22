@@ -104,7 +104,7 @@ async function insertLicensesIntoReadme(stepIcon: string): Promise<void> {
         })
     );
 
-    let licensesContent = '|Name|Version|License(s)|Document|\n|:-|:-|:-:|:-|\n';
+    let licensesContent = '|Name|Version|License(s)|Document|\n|-|:-:|:-:|-|\n';
     for (const license of licensesByKey.values()) {
         licensesContent += formatLicenseRow(license);
     }
@@ -198,6 +198,5 @@ function determineLatestAge(momentString?: string): string {
     if (months === 0) return `this month: ${dateString}`;
     if (months === 1) return `1 month ago: ${dateString}`;
     if (months <= 6) return `${String(months)} months ago: ${dateString}`;
-    // if (months <= 12) return `${String(months)} months ago: ${dateString} ⚠️`;
     return `${String(months)} months ago: ${dateString} ⚠️`;
 }
