@@ -6725,9 +6725,10 @@ async function fi(e) {
 	let [t, n] = await Promise.all([Q("licenses/licenses.json"), Q("licenses/licenseTree.json")]), r = /* @__PURE__ */ new Map();
 	for (let [e, n] of Object.entries(t)) r.set(e, pi(e, n));
 	await Promise.all(r.values().map(async (e) => {
-		e.publishedDate = await mi(e.name, e.installedVersion);
+		let t = await mi(e.name, e.installedVersion);
+		e.latestVersion = t.latestVersion, e.publishedDate = t.publishedDate;
 	}));
-	let i = "|Name|License|Version|Published|Document|\n|:-|:-|:-:|:-|:-|\n";
+	let i = "|Name|License|Installed|Latest|Published|Document|\n|:-|:-|:-:|:-:|:-|:-|\n";
 	for (let e of r.values()) i += hi(e);
 	let a = [];
 	n.dependencies != null && gi(n.dependencies, r, a, 0), await kr("README.md", Ir(Ir(await Er("./README.md"), i, si, ci), a.join("\n"), li, ui));
@@ -6736,9 +6737,11 @@ function pi(e, t) {
 	let n = e.lastIndexOf("@"), r = n > 0 ? e.slice(0, n) : e, i = n > 0 ? e.slice(n + 1) : "";
 	return {
 		name: r,
+		repository: t.repository ?? `https://www.npmjs.com/package/${r}`,
 		licenseTypes: t.licenses,
 		installedVersion: i,
 		author: t.publisher ?? "",
+		latestVersion: "",
 		publishedDate: "",
 		...t.licenseFile != null && { licenseFileLink: t.licenseFile }
 	};
@@ -6747,21 +6750,29 @@ async function mi(e, t) {
 	try {
 		let n = await fetch(`https://registry.npmjs.org/${e.replace("/", "%2F")}`);
 		if (n.ok) {
-			let e = await n.json();
-			return new Map(Object.entries(e.time ?? {})).get(t) ?? "";
+			let e = await n.json(), r = new Map(Object.entries(e["dist-tags"] ?? {})), i = new Map(Object.entries(e.time ?? {}));
+			return {
+				latestVersion: r.get("latest") ?? "",
+				publishedDate: i.get(t) ?? ""
+			};
 		}
 	} catch {}
-	return "";
+	return {
+		latestVersion: "",
+		publishedDate: ""
+	};
 }
 function hi(e) {
-	let t = e.publishedDate ? _i(e.publishedDate.split("T", 1)[0]) : "n/a", n;
-	return n = e.licenseFileLink == null || e.licenseFileLink === "" ? "⚠️ No license file" : `[${e.licenseFileLink.slice(Math.max(0, e.licenseFileLink.lastIndexOf("/") + 1))}](${e.licenseFileLink})`, `|${e.name}|${e.licenseTypes}|${e.installedVersion}|${t}|${n}|\n`;
+	let t = e.installedVersion === e.latestVersion ? e.installedVersion : `${e.installedVersion} ⚠️`, n = e.publishedDate ? _i(e.publishedDate.split("T", 1)[0]) : "n/a", r;
+	return r = e.licenseFileLink == null || e.licenseFileLink === "" ? "⚠️ No license file" : `[${e.licenseFileLink.slice(Math.max(0, e.licenseFileLink.lastIndexOf("/") + 1))}](${e.licenseFileLink})`, `|[${e.name}](${e.repository})|${e.licenseTypes}|${t}|${e.latestVersion}|${n}|${r}|\n`;
 }
 function gi(e, t, n, r) {
 	let i = "  ".repeat(r);
 	for (let [a, o] of Object.entries(e)) {
 		let e = o.version ?? "", s = t.get(`${a}@${e}`), c = s?.licenseTypes ?? "n/a", l;
-		l = s?.licenseFileLink == null || s.licenseFileLink === "" ? "⚠️ No license file" : `[${s.licenseFileLink.slice(Math.max(0, s.licenseFileLink.lastIndexOf("/") + 1))}](${s.licenseFileLink})`, n.push(`${i}- **${a}** \`${e}\` ${c} — ${l}`), o.dependencies != null && gi(o.dependencies, t, n, r + 1);
+		l = s?.licenseFileLink == null || s.licenseFileLink === "" ? "⚠️ No license file" : `[${s.licenseFileLink.slice(Math.max(0, s.licenseFileLink.lastIndexOf("/") + 1))}](${s.licenseFileLink})`;
+		let u = s == null ? a : `[${a}](${s.repository})`;
+		n.push(`${i}- **${u}** \`${e}\` ${c} — ${l}`), o.dependencies != null && gi(o.dependencies, t, n, r + 1);
 	}
 }
 function _i(e) {

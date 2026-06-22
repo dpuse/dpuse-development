@@ -16,8 +16,10 @@ import {
 
 interface License {
     name: string;
+    repository: string;
     licenseTypes: string;
     installedVersion: string;
+    latestVersion: string;
     author: string;
     publishedDate: string;
     licenseFileLink?: string;
@@ -94,11 +96,13 @@ async function insertLicensesIntoReadme(stepIcon: string): Promise<void> {
 
     await Promise.all(
         byKey.values().map(async (license) => {
-            license.publishedDate = await fetchPublishDate(license.name, license.installedVersion);
+            const data = await fetchNpmData(license.name, license.installedVersion);
+            license.latestVersion = data.latestVersion;
+            license.publishedDate = data.publishedDate;
         })
     );
 
-    let licensesContent = '|Name|License|Version|Published|Document|\n|:-|:-|:-:|:-|:-|\n';
+    let licensesContent = '|Name|License|Installed|Latest|Published|Document|\n|:-|:-|:-:|:-:|:-|:-|\n';
     for (const license of byKey.values()) {
         licensesContent += formatLicenseRow(license);
     }
@@ -120,29 +124,37 @@ function parseLicenseEntry(key: string, value: ProductionPackageLicense): Licens
     const installedVersion = lastAt > 0 ? key.slice(lastAt + 1) : '';
     return {
         name,
+        repository: value.repository ?? `https://www.npmjs.com/package/${name}`,
         licenseTypes: value.licenses,
         installedVersion,
         author: value.publisher ?? '',
+        latestVersion: '',
         publishedDate: '',
         ...(value.licenseFile != null && { licenseFileLink: value.licenseFile })
     };
 }
 
-async function fetchPublishDate(name: string, version: string): Promise<string> {
+async function fetchNpmData(name: string, version: string): Promise<{ latestVersion: string; publishedDate: string }> {
     try {
         const response = await fetch(`https://registry.npmjs.org/${name.replace('/', '%2F')}`);
         if (response.ok) {
-            const data = (await response.json()) as { time?: Record<string, string> };
+            const data = (await response.json()) as { 'dist-tags'?: Record<string, string>; time?: Record<string, string> };
+            const distributionTags = new Map(Object.entries(data['dist-tags'] ?? {}));
             const timeMap = new Map(Object.entries(data.time ?? {}));
-            return timeMap.get(version) ?? '';
+            const latestVersion = distributionTags.get('latest') ?? '';
+            const publishedDate = timeMap.get(version) ?? '';
+            return { latestVersion, publishedDate };
         }
     } catch {
         // Ignore network errors.
     }
-    return '';
+    return { latestVersion: '', publishedDate: '' };
 }
 
 function formatLicenseRow(license: License): string {
+    const installed = license.installedVersion === license.latestVersion
+        ? license.installedVersion
+        : `${license.installedVersion} ⚠️`;
     const publishedDate = license.publishedDate
         ? determineLatestAge(license.publishedDate.split('T', 1)[0])
         : 'n/a';
@@ -153,7 +165,7 @@ function formatLicenseRow(license: License): string {
         const lastPart = license.licenseFileLink.slice(Math.max(0, license.licenseFileLink.lastIndexOf('/') + 1));
         licenseLink = `[${lastPart}](${license.licenseFileLink})`;
     }
-    return `|${license.name}|${license.licenseTypes}|${license.installedVersion}|${publishedDate}|${licenseLink}|\n`;
+    return `|[${license.name}](${license.repository})|${license.licenseTypes}|${installed}|${license.latestVersion}|${publishedDate}|${licenseLink}|\n`;
 }
 
 function walkTreeList(
@@ -174,7 +186,8 @@ function walkTreeList(
             const lastPart = license.licenseFileLink.slice(Math.max(0, license.licenseFileLink.lastIndexOf('/') + 1));
             documentLink = `[${lastPart}](${license.licenseFileLink})`;
         }
-        items.push(`${indent}- **${name}** \`${version}\` ${licenseType} — ${documentLink}`);
+        const nameLink = license == null ? name : `[${name}](${license.repository})`;
+        items.push(`${indent}- **${nameLink}** \`${version}\` ${licenseType} — ${documentLink}`);
         if (node.dependencies != null) {
             walkTreeList(node.dependencies, byKey, items, depth + 1);
         }
