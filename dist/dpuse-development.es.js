@@ -6729,7 +6729,7 @@ async function fi(e) {
 		let t = await mi(e.name, e.installedVersion);
 		e.latestVersion = t.latestVersion, e.latestPublishedDate = t.latestPublishedDate, e.publishedDate = t.publishedDate;
 	}));
-	let i = "|Name|License(s)|Version|Document|\n|:-|:-|:-:|:-|\n";
+	let i = "|Name|Version|License(s)|Document|\n|:-|:-|:-:|:-|\n";
 	for (let e of r.values()) i += hi(e);
 	let a = [];
 	n.dependencies != null && gi(n.dependencies, r, a, 0), await kr("README.md", Ir(Ir(await Er("./README.md"), i, si, ci), a.join("\n"), li, ui));
@@ -6768,7 +6768,7 @@ async function mi(e, t) {
 }
 function hi(e) {
 	let t = e.licenseFileLink == null || e.licenseFileLink === "" ? "⚠️ No license file" : `[LICENSE](licenses/${e.licenseFileLink})`;
-	return `|[${e.name}](${e.repository})|${e.licenseTypes}|${e.installedVersion}|${t}|\n`;
+	return `|[${e.name}](${e.repository})|${e.installedVersion}|${e.licenseTypes}|${t}|\n`;
 }
 function gi(e, t, n, r) {
 	let i = "  ".repeat(r);

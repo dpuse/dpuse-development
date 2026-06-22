@@ -104,7 +104,7 @@ async function insertLicensesIntoReadme(stepIcon: string): Promise<void> {
         })
     );
 
-    let licensesContent = '|Name|License(s)|Version|Document|\n|:-|:-|:-:|:-|\n';
+    let licensesContent = '|Name|Version|License(s)|Document|\n|:-|:-|:-:|:-|\n';
     for (const license of licensesByKey.values()) {
         licensesContent += formatLicenseRow(license);
     }
@@ -157,7 +157,7 @@ async function fetchNpmData(name: string, version: string): Promise<{ latestVers
 
 function formatLicenseRow(license: License): string {
     const licenseLink = license.licenseFileLink == null || license.licenseFileLink === '' ? '⚠️ No license file' : `[LICENSE](licenses/${license.licenseFileLink})`;
-    return `|[${license.name}](${license.repository})|${license.licenseTypes}|${license.installedVersion}|${licenseLink}|\n`;
+    return `|[${license.name}](${license.repository})|${license.installedVersion}|${license.licenseTypes}|${licenseLink}|\n`;
 }
 
 function walkTreeList(dependencies: Record<string, NpmPackageTree>, licensesByKey: Map<string, License>, items: string[], depth: number): void {
