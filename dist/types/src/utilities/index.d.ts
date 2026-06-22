@@ -10,6 +10,7 @@ export declare function getDirectoryEntries(path: string): Promise<string[]>;
 export declare function getDirectoryEntries(path: string, options: ObjectEncodingOptions): Promise<Dirent[]>;
 export declare function execCommand(label: string | undefined, command_: string, arguments_?: string[], outputFilePath?: string): Promise<void>;
 export declare function spawnCommand(label: string, command: string, arguments_?: string[], ignoreErrors?: boolean, useShell?: boolean): Promise<void>;
+export declare function spawnCommandToFile(label: string, command: string, arguments_: string[] | undefined, outputPath: string, ignoreErrors?: boolean): Promise<void>;
 export declare function readJSONFile<T>(path: string): Promise<T>;
 export declare function readTextFile(path: string): Promise<string>;
 export declare function removeFile(path: string): Promise<void>;

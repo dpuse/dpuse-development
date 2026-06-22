@@ -99,6 +99,31 @@ export async function spawnCommand(label: string, command: string, arguments_: s
     });
 }
 
+export async function spawnCommandToFile(label: string, command: string, arguments_: string[] = [], outputPath: string, ignoreErrors = false): Promise<void> {
+    logStepHeader(`${label} - spawn(${command} ${arguments_.join(' ')}) > ${outputPath}`);
+    return new Promise((resolve, reject) => {
+        const child = spawn(command, arguments_, { shell: false, stdio: ['inherit', 'pipe', 'inherit'] });
+        let output = '';
+        child.stdout.on('data', (chunk) => {
+            output += String(chunk);
+        });
+        child.on('close', (code) => {
+            if (code === 0 || ignoreErrors) {
+                void (async () => {
+                    try {
+                        await fs.writeFile(outputPath, output, 'utf8');
+                        resolve();
+                    } catch (error) {
+                        reject(error instanceof Error ? error : new Error(String(error)));
+                    }
+                })();
+            } else {
+                reject(new Error(`${command} exited with code ${String(code ?? 'unknown')}`));
+            }
+        });
+    });
+}
+
 // Actions - File ──────────────────────────────────────────────────────────────────────────────────────────────────────
 
 export async function readJSONFile<T>(path: string): Promise<T> {

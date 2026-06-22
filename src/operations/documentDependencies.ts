@@ -1,10 +1,22 @@
-// External Dependencies
-import { fileURLToPath, URL } from 'node:url';
+// ── External Dependencies & Registrations
+// import { fileURLToPath, URL } from 'node:url';
 
-// Development Core
-import { clearDirectory, execCommand, logOperationHeader, logOperationSuccess, logStepHeader, readJSONFile, readTextFile, substituteText, writeTextFile } from '@/utilities';
+// ── Local (Development) Framework
+import {
+    clearDirectory,
+    execCommand,
+    logOperationHeader,
+    logOperationSuccess,
+    logStepHeader,
+    readJSONFile,
+    readTextFile,
+    spawnCommandToFile,
+    substituteText,
+    writeTextFile
+} from '@/utilities';
 
-// Interfaces/Types
+// ── Types ────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
 interface License {
     department: string;
     relatedTo: string;
@@ -23,64 +35,76 @@ interface License {
     licenseFileLink?: string;
 }
 
-// Constants ───────────────────────────────────────────────────────────────────────────────────────────────────────────
+// ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const START_MARKER = '<!-- DEPENDENCY_LICENSES_START -->';
 const END_MARKER = '<!-- DEPENDENCY_LICENSES_END -->';
 
-// Actions ─────────────────────────────────────────────────────────────────────────────────────────────────────────────
+// ── Actions ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 export async function documentDependencies(licenses: string[] = [], checkRecursive = true): Promise<void> {
     try {
         logOperationHeader('Document Dependencies');
 
-        const allowedFlags = licenses.flatMap((license) => ['--allowed', `'${license}'`]);
+        // const allowedFlags = licenses.flatMap((license) => ['--allowed', `'${license}'`]);
 
-        // Establish licence report configuration file path.This in combination with exports in 'package.json'
-        // allows us to share local 'licenses/license-report-config.json' file with other projects.
-        // 'licenses/license-report-config.json' is in licenses directory, not top level directory, so it does not confuse GitHub license detection engine.
-        const licenseReportConfigPath = fileURLToPath(new URL(import.meta.resolve('@dpuse/dpuse-development/license-report-config')));
+        // // Establish licence report configuration file path.This in combination with exports in 'package.json'
+        // // allows us to share local 'licenses/license-report-config.json' file with other projects.
+        // // 'licenses/license-report-config.json' is in licenses directory, not top level directory, so it does not confuse GitHub license detection engine.
+        // const licenseReportConfigPath = fileURLToPath(new URL(import.meta.resolve('@dpuse/dpuse-development/license-report-config')));
 
-        await execCommand(
-            "1️⃣  Generate 'licenses.json' file",
-            'license-report',
-            ['--config', `'${licenseReportConfigPath}'`, '--only=prod,peer', '--output=json'],
-            'licenses/licenses.json'
-        );
+        // await execCommand(
+        //     "1️⃣  Generate 'licenses.json' file",
+        //     'license-report',
+        //     ['--config', `'${licenseReportConfigPath}'`, '--only=prod,peer', '--output=json'],
+        //     'licenses/licenses.json'
+        // );
 
-        await execCommand("2️⃣  Check 'licenses.json' file", 'license-report-check', ['--source', 'licenses/licenses.json', '--output=table', ...allowedFlags]);
+        // await execCommand("2️⃣  Check 'licenses.json' file", 'license-report-check', ['--source', 'licenses/licenses.json', '--output=table', ...allowedFlags]);
 
-        if (checkRecursive) {
-            await execCommand(
-                "3️⃣  Generate 'licenseTree.json' file",
-                'license-report-recursive',
-                ['--only=prod,peer', '--output=tree', '--recurse', '--department.value=n/a', '--licensePeriod.value=n/a', '--material.value=n/a', '--relatedTo.value=n/a'],
-                'licenses/licenseTree.json'
-            );
+        // if (checkRecursive) {
+        //     await execCommand(
+        //         "3️⃣  Generate 'licenseTree.json' file",
+        //         'license-report-recursive',
+        //         ['--only=prod,peer', '--output=tree', '--recurse', '--department.value=n/a', '--licensePeriod.value=n/a', '--material.value=n/a', '--relatedTo.value=n/a'],
+        //         'licenses/licenseTree.json'
+        //     );
 
-            await execCommand("4️⃣  Check 'licenseTree.json' file", 'license-report-check', ['--source', 'licenses/licenseTree.json', '--output=table', ...allowedFlags]);
-        } else {
-            logStepHeader("3️⃣  Skip 'licenses/licenseTree.json' file generate");
-            logStepHeader("4️⃣  Skip 'licenses/licenseTree.json' file check");
-        }
+        //     await execCommand("4️⃣  Check 'licenseTree.json' file", 'license-report-check', ['--source', 'licenses/licenseTree.json', '--output=table', ...allowedFlags]);
+        // } else {
+        //     logStepHeader("3️⃣  Skip 'licenses/licenseTree.json' file generate");
+        //     logStepHeader("4️⃣  Skip 'licenses/licenseTree.json' file check");
+        // }
 
-        const githubToken = process.env['GITHUB_TOKEN'];
-        if (githubToken == null || githubToken === '' || githubToken.startsWith('op://')) {
-            throw new Error('GITHUB_TOKEN is not resolved. Run the script via "npm run document" to use 1Password resolution.');
-        }
+        // const githubToken = process.env['GITHUB_TOKEN'];
+        // if (githubToken == null || githubToken === '' || githubToken.startsWith('op://')) {
+        //     throw new Error('GITHUB_TOKEN is not resolved. Run the script via "npm run document" to use 1Password resolution.');
+        // }
+
+        // await clearDirectory('licenses/downloads');
+        // await execCommand('5️⃣  Download license files', 'license-downloader', [
+        //     '--source',
+        //     'licenses/licenses.json',
+        //     '--licDir',
+        //     'licenses/downloads',
+        //     '--githubToken.tokenEnvVar',
+        //     'GITHUB_TOKEN',
+        //     '--download'
+        // ]);
 
         await clearDirectory('licenses/downloads');
-        await execCommand('5️⃣  Download license files', 'license-downloader', [
-            '--source',
-            'licenses/licenses.json',
-            '--licDir',
-            'licenses/downloads',
-            '--githubToken.tokenEnvVar',
-            'GITHUB_TOKEN',
-            '--download'
-        ]);
 
-        await insertLicensesIntoReadme('6️⃣', checkRecursive);
+        // license-checker-rseidelsohn --production --json --files ./licenses/downloads --relativeLicensePath --out licenses.json
+
+        await execCommand(
+            '1️⃣  Generate a production-dependency license report (licenses/licenses.json) and download the corresponding license text files (licenses/downloads).',
+            'license-checker-rseidelsohn',
+            ['--production', '--json', '--files', 'licenses/downloads', '--relativeLicensePath', '--out', 'licenses/licenses.json']
+        );
+
+        await spawnCommandToFile("3️⃣  Check using 'npm audit'", 'npm', ['ls', '--all', '--json', '--omit=dev'], 'licenses/licenseTree.json');
+
+        // await insertLicensesIntoReadme('6️⃣', checkRecursive);
 
         logOperationSuccess('Dependencies documented.');
     } catch (error) {

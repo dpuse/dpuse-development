@@ -68,7 +68,7 @@ export async function auditDependencies(): Promise<void> {
             process.env['SONATYPE_USER_EMAIL'] ?? '',
             '--ossIndexPassword',
             process.env['SONATYPE_USER_TOKEN'] ?? '',
-            '--noupdate'
+            '--noupdate' // TODO: Make this optional.
         ]);
 
         await insertOWASPDependencyCheckBadgeIntoReadme('2️⃣');
