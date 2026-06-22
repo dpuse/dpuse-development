@@ -163,7 +163,7 @@ function formatLicenseRow(license: License): string {
         licenseLink = '⚠️ No license file';
     } else {
         const lastPart = license.licenseFileLink.slice(Math.max(0, license.licenseFileLink.lastIndexOf('/') + 1));
-        licenseLink = `[${lastPart}](${license.licenseFileLink})`;
+        licenseLink = `[${lastPart}](licenses/${license.licenseFileLink})`;
     }
     return `|[${license.name}](${license.repository})|${license.licenseTypes}|${installed}|${license.latestVersion}|${publishedDate}|${licenseLink}|\n`;
 }
@@ -184,7 +184,7 @@ function walkTreeList(
             documentLink = '⚠️ No license file';
         } else {
             const lastPart = license.licenseFileLink.slice(Math.max(0, license.licenseFileLink.lastIndexOf('/') + 1));
-            documentLink = `[${lastPart}](${license.licenseFileLink})`;
+            documentLink = `[${lastPart}](licenses/${license.licenseFileLink})`;
         }
         const nameLink = license == null ? name : `[${name}](${license.repository})`;
         items.push(`${indent}- **${nameLink}** \`${version}\` ${licenseType} — ${documentLink}`);
