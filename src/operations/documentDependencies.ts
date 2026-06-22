@@ -51,7 +51,7 @@ const END_MARKER = '<!-- DEPENDENCY_LICENSES_END -->';
 
 // ── Actions ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-export async function documentDependencies(allowedLicenses = '', checkRecursive = true): Promise<void> {
+export async function documentDependencies(allowedLicenses = '', _checkRecursive = true): Promise<void> {
     try {
         logOperationHeader('Document Dependencies');
 
@@ -120,7 +120,7 @@ export async function documentDependencies(allowedLicenses = '', checkRecursive 
 
         await spawnCommandToFile('2️⃣  Identify transitive dependencies', 'npm', ['ls', '--all', '--json', '--omit=dev'], 'licenses/licenseTree.json');
 
-        await insertLicensesIntoReadme('3️⃣', checkRecursive);
+        await insertLicensesIntoReadme('3️⃣');
 
         logOperationSuccess('Dependencies documented.');
     } catch (error) {
@@ -132,77 +132,86 @@ export async function documentDependencies(allowedLicenses = '', checkRecursive 
 
 // Helpers ─────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-async function insertLicensesIntoReadme(stepIcon: string, checkRecursive: boolean): Promise<void> {
+async function insertLicensesIntoReadme(stepIcon: string): Promise<void> {
     logStepHeader(`${stepIcon}  Insert licenses into 'README.md'`);
 
     const productionPackageLicenses = await readJSONFile<Record<string, ProductionPackageLicense>>('licenses/licenses.json');
-    // const productionDownloadLicenses = await readJSONFile<License[]>('licenses/downloads/licenses.ext.json');
-    const productionPackageLicenseTree: License[] = checkRecursive ? await readJSONFile<License[]>('licenses/licenseTree.json') : [];
 
-    const mergedLicenses = [
-        ...((): MapIterator<License> => {
-            const byName = new Map<string, License>();
-
-            for (const [key, value] of Object.entries(productionPackageLicenses)) {
-                const lastAt = key.lastIndexOf('@');
-                const name = lastAt > 0 ? key.slice(0, lastAt) : key;
-                const installedVersion = lastAt > 0 ? key.slice(lastAt + 1) : '';
-                byName.set(name, {
-                    department: '',
-                    relatedTo: '',
-                    name,
-                    licensePeriod: '',
-                    material: '',
-                    licenseType: value.licenses,
-                    link: value.repository ?? '',
-                    remoteVersion: installedVersion,
-                    installedVersion,
-                    definedVersion: installedVersion,
-                    author: value.publisher ?? '',
-                    latestRemoteModified: '',
-                    ...(value.licenseFile != null && { licenseFileLink: value.licenseFile }),
-                });
-            }
-
-            // for (const license of productionDownloadLicenses) {
-            //     const existing = byName.get(license.name);
-            //     byName.set(license.name, existing ? { ...existing, ...license } : { ...license });
-            // }
-
-            // for (const license of productionPackageLicenseTree) {
-            //     const existing = byName.get(license.name);
-            //     if (existing) byName.set(license.name, { ...existing, dependencyCount: license.requires?.length ?? 0 });
-            // }
-
-            return byName.values();
-        })()
-    ];
-
-    let licensesContent = '|Name|Type|Installed|Latest|Latest Released|Deps|Document|\n|:-|:-|:-:|:-:|:-|-:|:-|\n';
-    for (const license of mergedLicenses) {
-        const installedVersion = license.installedVersion === license.remoteVersion ? license.installedVersion : `${license.installedVersion} ⚠️`;
-
-        const latestUpdate = license.latestRemoteModified ? determineLatestAge(license.latestRemoteModified.split('T', 1)[0]) : 'n/a';
-
-        const dependencyCount = license.dependencyCount != null && license.dependencyCount >= 0 ? license.dependencyCount : 'n/a';
-
-        let licenseLink;
-        if (license.licenseFileLink == null || license.licenseFileLink == '') {
-            licenseLink = '⚠️ No license file';
-        } else {
-            const lastPart = license.licenseFileLink.slice(Math.max(0, license.licenseFileLink.lastIndexOf('/') + 1));
-            licenseLink = `[${lastPart}](${license.licenseFileLink})`;
-        }
-
-        licensesContent += `|${license.name}|${license.licenseType}|${installedVersion}|${license.remoteVersion}|${latestUpdate}|${String(dependencyCount)}|${licenseLink}|\n`;
+    const byName = new Map<string, License>();
+    for (const [key, value] of Object.entries(productionPackageLicenses)) {
+        const [name, license] = parseLicenseEntry(key, value);
+        byName.set(name, license);
     }
 
-    // Insert licenses into README.
+    await Promise.all(byName.values().map(async (license) => {
+        license.latestRemoteModified = await fetchPublishDate(license.name, license.installedVersion);
+    }));
+
+    let licensesContent = '|Name|Type|Installed|Latest|Latest Released|Deps|Document|\n|:-|:-|:-:|:-:|:-|-:|:-|\n';
+    for (const license of byName.values()) {
+        licensesContent += formatLicenseRow(license);
+    }
+
     const originalContent = await readTextFile('./README.md');
     const newContent = substituteText(originalContent, licensesContent, START_MARKER, END_MARKER);
     await writeTextFile('README.md', newContent);
     console.info("OWASP audit badge(s) inserted into 'README.md'");
     await writeTextFile('README.md', newContent);
+}
+
+function parseLicenseEntry(key: string, value: ProductionPackageLicense): [string, License] {
+    const lastAt = key.lastIndexOf('@');
+    const name = lastAt > 0 ? key.slice(0, lastAt) : key;
+    const installedVersion = lastAt > 0 ? key.slice(lastAt + 1) : '';
+    return [name, {
+        department: '',
+        relatedTo: '',
+        name,
+        licensePeriod: '',
+        material: '',
+        licenseType: value.licenses,
+        link: value.repository ?? '',
+        remoteVersion: installedVersion,
+        installedVersion,
+        definedVersion: installedVersion,
+        author: value.publisher ?? '',
+        latestRemoteModified: '',
+        ...(value.licenseFile != null && { licenseFileLink: value.licenseFile }),
+    }];
+}
+
+async function fetchPublishDate(name: string, version: string): Promise<string> {
+    try {
+        const response = await fetch(`https://registry.npmjs.org/${name.replace('/', '%2F')}`);
+        if (response.ok) {
+            const data = await response.json() as { time?: Record<string, string> };
+            const timeMap = new Map(Object.entries(data.time ?? {}));
+            return timeMap.get(version) ?? '';
+        }
+    } catch {
+        // ignore network errors
+    }
+    return '';
+}
+
+function formatLicenseRow(license: License): string {
+    const installedVersion = license.installedVersion === license.remoteVersion
+        ? license.installedVersion
+        : `${license.installedVersion} ⚠️`;
+    const latestUpdate = license.latestRemoteModified
+        ? determineLatestAge(license.latestRemoteModified.split('T', 1)[0])
+        : 'n/a';
+    const dependencyCount = license.dependencyCount != null && license.dependencyCount >= 0
+        ? license.dependencyCount
+        : 'n/a';
+    let licenseLink;
+    if (license.licenseFileLink == null || license.licenseFileLink == '') {
+        licenseLink = '⚠️ No license file';
+    } else {
+        const lastPart = license.licenseFileLink.slice(Math.max(0, license.licenseFileLink.lastIndexOf('/') + 1));
+        licenseLink = `[${lastPart}](${license.licenseFileLink})`;
+    }
+    return `|${license.name}|${license.licenseType}|${installedVersion}|${license.remoteVersion}|${latestUpdate}|${String(dependencyCount)}|${licenseLink}|\n`;
 }
 
 function determineLatestAge(momentString?: string): string {
