@@ -180,7 +180,7 @@ function formatVersionDetail(license: License | undefined): string {
     const isOutdated = license.latestVersion !== '' && license.latestVersion !== license.installedVersion;
     if (!isOutdated) return published === '' ? '' : ` — ${published}`;
     const latestAge = license.latestPublishedDate ? determineLatestAge(license.latestPublishedDate.split('T', 1)[0]) : '';
-    const latestClause = latestAge === '' ? `latest: ${license.latestVersion} ⚠️` : `latest: ${license.latestVersion} · ${latestAge} ⚠️`;
+    const latestClause = latestAge === '' ? `**latest**: ${license.latestVersion} ⚠️` : `**latest**: ${license.latestVersion} — ${latestAge} ⚠️`;
     return published === '' ? ` — → ${latestClause}` : ` — ${published} → ${latestClause}`;
 }
 

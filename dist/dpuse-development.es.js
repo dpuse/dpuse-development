@@ -6781,7 +6781,7 @@ function _i(e) {
 	if (e == null) return "";
 	let t = e.publishedDate ? vi(e.publishedDate.split("T", 1)[0]) : "";
 	if (!(e.latestVersion !== "" && e.latestVersion !== e.installedVersion)) return t === "" ? "" : ` — ${t}`;
-	let n = e.latestPublishedDate ? vi(e.latestPublishedDate.split("T", 1)[0]) : "", r = n === "" ? `latest: ${e.latestVersion} ⚠️` : `latest: ${e.latestVersion} · ${n} ⚠️`;
+	let n = e.latestPublishedDate ? vi(e.latestPublishedDate.split("T", 1)[0]) : "", r = n === "" ? `**latest**: ${e.latestVersion} ⚠️` : `**latest**: ${e.latestVersion} — ${n} ⚠️`;
 	return t === "" ? ` — → ${r}` : ` — ${t} → ${r}`;
 }
 function vi(e) {
