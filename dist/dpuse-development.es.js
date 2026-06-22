@@ -6729,7 +6729,7 @@ async function fi(e) {
 		let t = await mi(e.name, e.installedVersion);
 		e.latestVersion = t.latestVersion, e.latestPublishedDate = t.latestPublishedDate, e.publishedDate = t.publishedDate;
 	}));
-	let i = "|Name|Version|License(s)|Document|\n|-|:-:|:-:|-|\n";
+	let i = "|Name|Version|License(s)|Document|\n|-|:-:|-|-|\n";
 	for (let e of r.values()) i += hi(e);
 	let a = [];
 	n.dependencies != null && gi(n.dependencies, r, a, 0), await kr("README.md", Ir(Ir(await Er("./README.md"), i, si, ci), a.join("\n"), li, ui));
