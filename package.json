@@ -1,6 +1,6 @@
 {
     "name": "@dpuse/dpuse-development",
-    "version": "0.3.534",
+    "version": "0.3.535",
     "description": "Actions for managing DPUse projects.",
     "license": "MIT",
     "author": "Jonathan Terrell <terrell.jm@gmail.com>",
@@ -63,7 +63,6 @@
         "jiti": "^2.7.0",
         "license-checker-rseidelsohn": "^5.0.1",
         "npm-check-updates": "^22.2.7",
-        "owasp-dependency-check": "^1.0.1",
         "prettier": "^3.8.4",
         "rollup-plugin-visualizer": "^7.0.1",
         "sonda": "^0.13.1",

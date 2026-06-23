@@ -6605,86 +6605,16 @@ async function $r(e, t, n = "./") {
 }
 //#endregion
 //#region src/operations/auditDependencies.ts
-var ei = {
-	critical: {
-		color: "D32F2F",
-		label: "critical"
-	},
-	high: {
-		color: "EF6C00",
-		label: "high"
-	},
-	moderate: {
-		color: "FBC02D",
-		label: "moderate"
-	},
-	low: {
-		color: "6D8C31",
-		label: "low"
-	},
-	unknown: {
-		color: "616161",
-		label: "unknown"
-	}
-}, ti = "<!-- OWASP_BADGES_START -->", ni = "<!-- OWASP_BADGES_END -->";
-async function ri() {
+async function ei() {
 	try {
-		Ar("Audit Dependencies");
-		let e = await Q("package.json"), t = [];
-		try {
-			let e = (await Cr("dependency-check-bin")).toSorted((e, t) => e.localeCompare(t)).at(-1);
-			e != null && e !== "" && t.push("--owasp-bin", `dependency-check-bin/${e}/dependency-check/bin/dependency-check.sh`);
-		} catch {}
-		await Z("1️⃣", "owasp-dependency-check", [
-			...t,
-			"--out",
-			"dependency-check-reports",
-			"--project",
-			e.name ?? "unknown",
-			"--enableRetired",
-			"--nodePackageSkipDevDependencies",
-			"--nvdApiKey",
-			process.env.OWASP_NVD_API_KEY ?? "",
-			"--ossIndexUsername",
-			process.env.SONATYPE_USER_EMAIL ?? "",
-			"--ossIndexPassword",
-			process.env.SONATYPE_USER_TOKEN ?? "",
-			"--noupdate"
-		]), await ii("2️⃣"), await Z("3️⃣  Check using 'npm audit'", "npm", ["audit"]), jr("Dependencies audited.");
+		Ar("Audit Dependencies"), await Z("1️⃣  Check using 'npm audit'", "npm", ["audit"]), jr("Dependencies audited.");
 	} catch (e) {
 		console.error("❌ Error auditing dependencies.", e), process.exit(1);
 	}
 }
-async function ii(e) {
-	$(`${e}  Insert OWASP Badge(s) into 'README.md'`);
-	let t = await Q("dependency-check-reports/dependency-check-report.json"), n = {
-		critical: 0,
-		high: 0,
-		moderate: 0,
-		low: 0,
-		unknown: 0
-	};
-	for (let e of t.dependencies) if (e.vulnerabilities != null) for (let t of e.vulnerabilities) {
-		let e = t.severity?.toLowerCase() ?? "unknown";
-		Object.hasOwn(n, e) ? n[e]++ : n.unknown++;
-	}
-	let r = await ai(n);
-	await kr("README.md", Ir(await Er("./README.md"), r.join(" "), ti, ni)), console.info("OWASP audit badge(s) inserted into 'README.md'");
-}
-async function ai(e) {
-	let t = await Q("config.json"), n = [];
-	if (Object.values(e).reduce((e, t) => e + t, 0) === 0) console.info("No vulnerabilities found."), n.push(`[![OWASP](https://img.shields.io/badge/OWASP-passed-4CAF50)](https://dpuse.github.io/${t.id}/dependency-check-reports/dependency-check-report.html)`);
-	else for (let [r, i] of Object.entries(e)) {
-		let e = ei[r];
-		if (console.warn(`⚠️  ${String(i)} ${e.label} vulnerability(ies) found.`), i === 0) continue;
-		let a = `https://img.shields.io/badge/OWASP-${String(i)}%20${e.label}-${e.color}`;
-		n.push(`[![OWASP](${a})](https://dpuse.github.io/${t.id}/dependency-check-reports/dependency-check-report.html)`);
-	}
-	return n;
-}
 //#endregion
 //#region src/operations/checkDependencies.ts
-async function oi() {
+async function ti() {
 	try {
 		Ar("Check Dependencies"), await Z("1️⃣  Check using 'npm outdated'", "npm", ["outdated"], !0), await Z("2️⃣  Check using 'npm-check-updates'", "npm-check-updates", [
 			"-i",
@@ -6697,8 +6627,8 @@ async function oi() {
 }
 //#endregion
 //#region src/operations/documentDependencies.ts
-var si = "<!-- DEPENDENCY_LICENSES_START -->", ci = "<!-- DEPENDENCY_LICENSES_END -->", li = "<!-- DEPENDENCY_TREE_START -->", ui = "<!-- DEPENDENCY_TREE_END -->";
-async function di(e = "MIT") {
+var ni = "<!-- DEPENDENCY_LICENSES_START -->", ri = "<!-- DEPENDENCY_LICENSES_END -->", ii = "<!-- DEPENDENCY_TREE_START -->", ai = "<!-- DEPENDENCY_TREE_END -->";
+async function oi(e = "MIT") {
 	try {
 		Ar("Document Dependencies"), await Sr("1️⃣  Clear downloaded licenses", "licenses/downloads"), await wr("2️⃣  Identify production licenses", "license-checker-rseidelsohn", [
 			"--production",
@@ -6716,25 +6646,29 @@ async function di(e = "MIT") {
 			"--all",
 			"--json",
 			"--omit=dev"
-		], "licenses/licenseTree.json"), await fi("4️⃣"), jr("Dependencies documented.");
+		], "licenses/licenseTree.json"), await si("4️⃣"), jr("Dependencies documented.");
 	} catch (e) {
 		console.error("❌ Error documenting dependencies.", e), process.exit(1);
 	}
 }
-async function fi(e) {
+async function si(e) {
 	$(`${e}  Insert licenses into 'README.md'`);
-	let [t, n] = await Promise.all([Q("licenses/licenses.json"), Q("licenses/licenseTree.json")]), r = /* @__PURE__ */ new Map();
-	for (let [e, n] of Object.entries(t)) r.set(e, pi(e, n));
-	await Promise.all(r.values().map(async (e) => {
-		let t = await mi(e.name, e.installedVersion);
+	let [t, n, r] = await Promise.all([
+		Q("licenses/licenses.json"),
+		Q("licenses/licenseTree.json"),
+		Q("package.json")
+	]), i = `${r.name ?? ""}@${r.version ?? ""}`, a = /* @__PURE__ */ new Map();
+	for (let [e, n] of Object.entries(t)) e !== i && a.set(e, ci(e, n));
+	await Promise.all(a.values().map(async (e) => {
+		let t = await li(e.name, e.installedVersion);
 		e.latestVersion = t.latestVersion, e.latestPublishedDate = t.latestPublishedDate, e.publishedDate = t.publishedDate;
 	}));
-	let i = "|Name|Version|License(s)|Document|\n|-|:-:|-|-|\n";
-	for (let e of r.values()) i += hi(e);
-	let a = [];
-	n.dependencies != null && gi(n.dependencies, r, a, 0), await kr("README.md", Ir(Ir(await Er("./README.md"), i, si, ci), a.join("\n"), li, ui));
+	let o = "|Name|Version|License(s)|Document|\n|-|:-:|-|-|\n";
+	for (let e of a.values()) o += ui(e);
+	let s = [];
+	n.dependencies != null && di(n.dependencies, a, s, 0), await kr("README.md", Ir(Ir(await Er("./README.md"), o, ni, ri), s.join("\n"), ii, ai));
 }
-function pi(e, t) {
+function ci(e, t) {
 	let n = e.lastIndexOf("@"), r = n > 0 ? e.slice(0, n) : e, i = n > 0 ? e.slice(n + 1) : "";
 	return {
 		name: r,
@@ -6748,7 +6682,7 @@ function pi(e, t) {
 		...t.licenseFile != null && { licenseFileLink: t.licenseFile }
 	};
 }
-async function mi(e, t) {
+async function li(e, t) {
 	try {
 		let n = await fetch(`https://registry.npmjs.org/${e.replace("/", "%2F")}`);
 		if (n.ok) {
@@ -6766,25 +6700,25 @@ async function mi(e, t) {
 		publishedDate: ""
 	};
 }
-function hi(e) {
+function ui(e) {
 	let t = e.licenseFileLink == null || e.licenseFileLink === "" ? "⚠️ No license file" : `[LICENSE](licenses/${e.licenseFileLink})`;
 	return `|[${e.name}](${e.repository})|${e.installedVersion}|${e.licenseTypes}|${t}|\n`;
 }
-function gi(e, t, n, r) {
+function di(e, t, n, r) {
 	let i = "  ".repeat(r);
 	for (let [a, o] of Object.entries(e)) {
-		let e = o.version ?? "", s = t.get(`${a}@${e}`), c = s == null ? a : `[${a}](${s.repository})`, l = _i(s);
-		n.push(`${i}- **${c}** ${e}${l}`), o.dependencies != null && gi(o.dependencies, t, n, r + 1);
+		let e = o.version ?? "", s = t.get(`${a}@${e}`), c = s == null ? a : `[${a}](${s.repository})`, l = fi(s);
+		n.push(`${i}- **${c}** ${e}${l}`), o.dependencies != null && di(o.dependencies, t, n, r + 1);
 	}
 }
-function _i(e) {
+function fi(e) {
 	if (e == null) return "";
-	let t = e.publishedDate ? vi(e.publishedDate.split("T", 1)[0]) : "";
+	let t = e.publishedDate ? pi(e.publishedDate.split("T", 1)[0]) : "";
 	if (!(e.latestVersion !== "" && e.latestVersion !== e.installedVersion)) return t === "" ? "" : ` — ${t}`;
-	let n = e.latestPublishedDate ? vi(e.latestPublishedDate.split("T", 1)[0]) : "", r = n === "" ? `**latest**: ${e.latestVersion} ❗` : `**latest**: ${e.latestVersion} — ${n} ❗`;
+	let n = e.latestPublishedDate ? pi(e.latestPublishedDate.split("T", 1)[0]) : "", r = n === "" ? `**latest**: ${e.latestVersion} ❗` : `**latest**: ${e.latestVersion} — ${n} ❗`;
 	return t === "" ? ` — → ${r}` : ` — ${t} → ${r}`;
 }
-function vi(e) {
+function pi(e) {
 	if (e == null || e === "") return "n/a";
 	let t = e.split("T", 1)[0];
 	if (t == null || t === "") return "n/a";
@@ -6793,7 +6727,7 @@ function vi(e) {
 }
 //#endregion
 //#region src/operations/formatCode.ts
-async function yi() {
+async function mi() {
 	try {
 		Ar("Format Code"), await Z("1️⃣  Format", "prettier", [
 			"--write",
@@ -6808,7 +6742,7 @@ async function yi() {
 }
 //#endregion
 //#region src/operations/lintCode.ts
-async function bi() {
+async function hi() {
 	try {
 		Ar("Lint Code"), await Z("1️⃣  Lint", "eslint", ["."]), jr("Code linted.");
 	} catch (e) {
@@ -6817,7 +6751,7 @@ async function bi() {
 }
 //#endregion
 //#region src/operations/updateDPUseDependencies.ts
-var xi = [
+var gi = [
 	"1️⃣",
 	"2️⃣",
 	"3️⃣",
@@ -6828,23 +6762,23 @@ var xi = [
 	"8️⃣",
 	"9️⃣"
 ];
-async function Si(e = []) {
+async function _i(e = []) {
 	try {
 		Ar("Update '@dpuse/dpuse' Dependencies");
 		for (let [t, n] of e.entries()) {
-			let e = xi.at(t) ?? "🔢";
-			n === "eslint" ? await Z(`${e}  Update '${n}'`, "npm", ["install", "@dpuse/eslint-config-dpuse@latest"]) : (await Z(`${e}  Update '${n}'`, "npm", ["install", `@dpuse/dpuse-${n}@latest`]), n === "development" && await Ci(Mr((await Q("config.json")).id)));
+			let e = gi.at(t) ?? "🔢";
+			n === "eslint" ? await Z(`${e}  Update '${n}'`, "npm", ["install", "@dpuse/eslint-config-dpuse@latest"]) : (await Z(`${e}  Update '${n}'`, "npm", ["install", `@dpuse/dpuse-${n}@latest`]), n === "development" && await vi(Mr((await Q("config.json")).id)));
 		}
 		jr("'@dpuse/dpuse' dependencies updated.");
 	} catch (e) {
 		console.error("❌ Error updating '@dpuse/dpuse' dependencies.", e), process.exit(1);
 	}
 }
-async function Ci(e) {
+async function vi(e) {
 	let t = n.dirname(o(import.meta.url));
-	await wi(t, "../", ".editorconfig"), await wi(t, "../", ".gitattributes"), await wi(t, "../", e.isPublished ? ".gitignore_published" : ".gitignore_unpublished", ".gitignore2"), await wi(t, "../", ".markdownlint.json"), await wi(t, "../", "LICENSE"), await wi(t, "../", "tsconfig.json", "tsconfig2.json"), e.typeId === "eslint" || (await wi(t, "../", "eslint.config.ts", "eslint.config2.ts"), await wi(t, "../", "vite.config.ts", "vite.config2.ts"), await wi(t, "../", "vitest.config.ts", "vitest.config2.ts"));
+	await yi(t, "../", ".editorconfig"), await yi(t, "../", ".gitattributes"), await yi(t, "../", e.isPublished ? ".gitignore_published" : ".gitignore_unpublished", ".gitignore2"), await yi(t, "../", ".markdownlint.json"), await yi(t, "../", "LICENSE"), await yi(t, "../", "tsconfig.json", "tsconfig2.json"), e.typeId === "eslint" || (await yi(t, "../", "eslint.config.ts", "eslint.config2.ts"), await yi(t, "../", "vite.config.ts", "vite.config2.ts"), await yi(t, "../", "vitest.config.ts", "vitest.config2.ts"));
 }
-async function wi(e, t, r, i) {
+async function yi(e, t, r, i) {
 	let a = await Er(n.resolve(e, `${t}${r}`)), o = n.resolve(process.cwd(), r.split("_", 1)[0] ?? r), s = n.resolve(process.cwd(), i ?? r), c;
 	try {
 		c = await Er(o);
@@ -6858,6 +6792,6 @@ async function wi(e, t, r, i) {
 	await kr(s, a), console.info(`ℹ️  File '${i ?? r}' synchronised.`);
 }
 //#endregion
-export { ri as auditDependencies, Ur as buildProject, oi as checkDependencies, di as documentDependencies, yi as formatCode, bi as lintCode, Wr as releaseProject, Zr as syncProjectWithGitHub, Qr as testProject, Si as updateDPUseDependencies, Rr as uploadDirectoryToR2 };
+export { ei as auditDependencies, Ur as buildProject, ti as checkDependencies, oi as documentDependencies, mi as formatCode, hi as lintCode, Wr as releaseProject, Zr as syncProjectWithGitHub, Qr as testProject, _i as updateDPUseDependencies, Rr as uploadDirectoryToR2 };
 
 //# sourceMappingURL=dpuse-development.es.js.map
