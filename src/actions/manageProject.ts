@@ -57,11 +57,11 @@ export async function buildProject(): Promise<void> {
     try {
         logOperationHeader('Build Project');
 
-        await spawnCommand('1️⃣ Bundle project', 'vite', ['build']);
+        await spawnCommand('1️⃣  Bundle project', 'vite', ['build']);
 
         logOperationSuccess('Project built.');
     } catch (error) {
-        console.error('❌ Error building project.', error);
+        console.error('❌  Error building project.', error);
         process.exit(1);
     }
 }
@@ -75,43 +75,43 @@ export async function releaseProject(): Promise<void> {
         const packageJSON = await readJSONFile<PackageJson>('package.json');
         let configJSON = await readJSONFile<ModuleConfig>('config.json');
 
-        await bumpPackageVersion('1️⃣', packageJSON);
+        await bumpPackageVersion('1️⃣ ', packageJSON);
 
         const moduleTypeConfig = getModuleConfig(configJSON.id);
 
         switch (moduleTypeConfig.typeId) {
             case 'connector':
-                configJSON = await buildConnectorProjectConfig('2️⃣', packageJSON);
+                configJSON = await buildConnectorProjectConfig('2️⃣ ', packageJSON);
                 break;
             case 'context':
-                configJSON = await buildContextProjectConfig('2️⃣', packageJSON);
+                configJSON = await buildContextProjectConfig('2️⃣ ', packageJSON);
                 break;
             case 'presenter':
-                configJSON = await buildPresenterProjectConfig('2️⃣', packageJSON);
+                configJSON = await buildPresenterProjectConfig('2️⃣ ', packageJSON);
                 break;
             default:
-                configJSON = await buildProjectConfig('2️⃣', packageJSON);
+                configJSON = await buildProjectConfig('2️⃣ ', packageJSON);
         }
 
-        await spawnCommand('3️⃣ Bundle project', 'vite', ['build']);
+        await spawnCommand('3️⃣  Bundle project', 'vite', ['build']);
 
-        await execCommand('4️⃣ Stage changes', 'git', ['add', '.']);
+        await execCommand('4️⃣  Stage changes', 'git', ['add', '.']);
 
-        await execCommand('5️⃣ Commit changes', 'git', ['commit', '-m', `"v${packageJSON.version ?? 'unknown'}"`]);
+        await execCommand('5️⃣  Commit changes', 'git', ['commit', '-m', `"v${packageJSON.version ?? 'unknown'}"`]);
 
-        await execCommand('6️⃣ Push changes', 'git', ['push', 'origin', 'main:main']);
+        await execCommand('6️⃣  Push changes', 'git', ['push', 'origin', 'main:main']);
 
         if (moduleTypeConfig.typeId === 'app') {
-            logStepHeader('7️⃣ Register module');
+            logStepHeader('7️⃣  Register module');
             await putState();
         } else if (moduleTypeConfig.typeId === 'engine') {
-            logStepHeader('7️⃣ Register module');
+            logStepHeader('7️⃣  Register module');
             await uploadModuleToR2(packageJSON, `dpuse-engine-eu/${moduleTypeConfig.uploadGroupName ?? 'unknown'}`);
             await uploadModuleConfigToDO(configJSON); // This MUST follow 'uploadModuleToR2', otherwise the app will receive a message a new engine is available and try to access it before it is uploaded to R2.
         } else if (moduleTypeConfig.uploadGroupName === undefined) {
-            logStepHeader('7️⃣ Registration NOT required.');
+            logStepHeader('7️⃣  Registration NOT required.');
         } else {
-            logStepHeader('7️⃣ Register module');
+            logStepHeader('7️⃣  Register module');
             const moduleTypeName = configJSON.id.split('-').slice(2).join('-');
             await uploadModuleToR2(packageJSON, `dpuse-engine-eu/${moduleTypeConfig.uploadGroupName}/${moduleTypeName}`);
             await uploadModuleConfigToDO(configJSON); // This MUST follow 'uploadModuleToR2', otherwise the app will receive a message a new module is available and try to access it before it is uploaded to R2.
@@ -121,17 +121,17 @@ export async function releaseProject(): Promise<void> {
             const npmrcFileName = '.npmrc';
             try {
                 await writeTextFile(npmrcFileName, `registry=https://registry.npmjs.org/\n//registry.npmjs.org/:_authToken=${process.env['NPM_TOKEN'] ?? ''}`);
-                await spawnCommand('8️⃣ Publish to npm', 'npm', ['publish', '--access', 'public']);
+                await spawnCommand('8️⃣  Publish to npm', 'npm', ['publish', '--access', 'public']);
             } finally {
                 await removeFile(npmrcFileName);
             }
         } else {
-            logStepHeader(`8️⃣ Publishing NOT required for package with type identifier of '${moduleTypeConfig.typeId}'.`);
+            logStepHeader(`8️⃣  Publishing NOT required for package with type identifier of '${moduleTypeConfig.typeId}'.`);
         }
 
         logOperationSuccess(`Project version '${packageJSON.version ?? 'unknown'}' released.`);
     } catch (error) {
-        console.error('❌ Error releasing project.', error);
+        console.error('❌  Error releasing project.', error);
         process.exit(1);
     }
 }
@@ -154,7 +154,7 @@ async function buildConnectorProjectConfig(stepIcon: string, packageJSON: Packag
 
     const response = safeParse(connectorConfigSchema, configJSON);
     if (!response.success) {
-        console.error('❌ Configuration is invalid:');
+        console.error('❌  Configuration is invalid:');
         console.table(response.issues);
         throw new Error('Configuration is invalid.');
     }
@@ -172,7 +172,7 @@ async function buildContextProjectConfig(stepIcon: string, packageJSON: PackageJ
 
     const response = safeParse(contextConfigSchema, configJSON);
     if (!response.success) {
-        console.error('❌ Configuration is invalid:');
+        console.error('❌  Configuration is invalid:');
         console.table(response.issues);
         throw new Error('Configuration is invalid.');
     }
@@ -188,7 +188,7 @@ async function buildPresenterProjectConfig(stepIcon: string, packageJSON: Packag
 
     const response = safeParse(presenterConfigSchema, configJSON);
     if (!response.success) {
-        console.error('❌ Configuration is invalid:');
+        console.error('❌  Configuration is invalid:');
         console.table(response.issues);
         throw new Error('Configuration is invalid.');
     }
@@ -212,12 +212,12 @@ function determineConnectorUsageId(operations: ConnectorOperationName[]): Connec
 
 async function processOperations<T extends OperationConfig>(packageJSON: PackageJson, configJSON: T, operations: string[], usageId?: string): Promise<T> {
     if (operations.length > 0) {
-        console.info(`ℹ️ Implements ${String(operations.length)} operations:`);
+        console.info(`ℹ️  Implements ${String(operations.length)} operations:`);
         console.table(operations);
-    } else console.warn('⚠️  Implements no operations.');
+    } else console.warn('⚠️   Implements no operations.');
 
-    if (usageId === 'unknown') console.warn('⚠️  No usage identified.');
-    else console.info(`ℹ️ Supports '${usageId ?? 'unknown'}' usage.`);
+    if (usageId === 'unknown') console.warn('⚠️   No usage identified.');
+    else console.info(`ℹ️  Supports '${usageId ?? 'unknown'}' usage.`);
 
     if (packageJSON.name != null) configJSON.id = packageJSON.name.replace('@dpuse/', '').replace('@dpuse/', '');
     if (packageJSON.version != null) configJSON.version = packageJSON.version;
@@ -238,33 +238,33 @@ export async function syncProjectWithGitHub(): Promise<void> {
         const packageJSON = await readJSONFile<PackageJson>('package.json');
         const configJSON = await readJSONFile<ModuleConfig>('config.json');
 
-        await bumpPackageVersion('1️⃣', packageJSON);
+        await bumpPackageVersion('1️⃣ ', packageJSON);
 
         const moduleTypeConfig = getModuleConfig(configJSON.id);
 
         switch (moduleTypeConfig.typeId) {
             case 'connector':
-                await buildConnectorProjectConfig('2️⃣', packageJSON);
+                await buildConnectorProjectConfig('2️⃣ ', packageJSON);
                 break;
             case 'context':
-                await buildContextProjectConfig('2️⃣', packageJSON);
+                await buildContextProjectConfig('2️⃣ ', packageJSON);
                 break;
             case 'presenter':
-                await buildPresenterProjectConfig('2️⃣', packageJSON);
+                await buildPresenterProjectConfig('2️⃣ ', packageJSON);
                 break;
             default:
-                await buildProjectConfig('2️⃣', packageJSON);
+                await buildProjectConfig('2️⃣ ', packageJSON);
         }
 
-        await execCommand('3️⃣ Stage changes', 'git', ['add', '.']);
+        await execCommand('3️⃣  Stage changes', 'git', ['add', '.']);
 
-        await execCommand('4️⃣ Commit changes', 'git', ['commit', '-m', `"v${packageJSON.version ?? 'unknown'}"`]);
+        await execCommand('4️⃣  Commit changes', 'git', ['commit', '-m', `"v${packageJSON.version ?? 'unknown'}"`]);
 
-        await execCommand('5️⃣ Push changes', 'git', ['push', 'origin', 'main:main']);
+        await execCommand('5️⃣  Push changes', 'git', ['push', 'origin', 'main:main']);
 
         logOperationSuccess(`Project version '${packageJSON.version ?? 'unknown'}' synchronised with GitHub.`);
     } catch (error) {
-        console.error('❌ Error synchronising project with GitHub.', error);
+        console.error('❌  Error synchronising project with GitHub.', error);
         process.exit(1);
     }
 }
@@ -275,9 +275,9 @@ export function testProject(): void {
     try {
         logOperationHeader('Test Project');
 
-        console.error('\n❌ No tests implemented.\n');
+        console.error('\n❌  No tests implemented.\n');
     } catch (error) {
-        console.error('❌ Error testing project.', error);
+        console.error('❌  Error testing project.', error);
         process.exit(1);
     }
 }
@@ -289,7 +289,7 @@ async function bumpPackageVersion(stepIcon: string, packageJSON: PackageJson, pa
 
     if (packageJSON.version == null) {
         packageJSON.version = '0.0.001';
-        console.warn(`⚠️ Project version initialised to '${packageJSON.version}'.`);
+        console.warn(`⚠️  Project version initialised to '${packageJSON.version}'.`);
     } else {
         const oldVersion = packageJSON.version;
         const versionSegments = packageJSON.version.split('.');

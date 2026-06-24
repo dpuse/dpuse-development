@@ -26,7 +26,7 @@ export async function checkConfigFiles(): Promise<void> {
 
         logOperationSuccess('Configuration files checked..');
     } catch (error) {
-        console.error('❌ Error checking configuration files.', error);
+        console.error('❌  Error checking configuration files.', error);
         process.exit(1);
     }
 }
@@ -47,9 +47,9 @@ async function checkConfigFile(moduleDirectory: string, templateFilePath: string
     }
 
     if (checkFileContent === templateContent) {
-        console.info(`ℹ️ File '${checkFileName.split('_', 1)[0] ?? checkFileName}' is already up to date.`);
+        console.info(`ℹ️  File '${checkFileName.split('_', 1)[0] ?? checkFileName}' is the same`);
         return;
     }
 
-    console.info(`⚠️ File '${checkFileName.split('_', 1)[0] ?? checkFileName}' is not the same.`);
+    console.info(`⚠️  File '${checkFileName.split('_', 1)[0] ?? checkFileName}' is NOT the same.`);
 }

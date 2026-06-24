@@ -1,5 +1,7 @@
 /* eslint-disable security/detect-non-literal-fs-filename -- All paths come from package.json scripts, not user input. */
 
+// 'ℹ️|⚠️|❌|1️⃣|2️⃣|3️⃣|4️⃣|5️⃣|6️⃣|7️⃣|8️⃣|✅|▶️' icon search regex.
+
 // ── External Dependencies & Registrations
 import acornTypeScript from 'acorn-typescript';
 import { promises as fs } from 'node:fs';
@@ -164,7 +166,7 @@ export function logOperationHeader(text: string): void {
 }
 
 export function logOperationSuccess(message: string): void {
-    console.info(`\n✅ ${message}\n`);
+    console.info(`\n✅  ${message}\n`);
 }
 
 export function logStepHeader(text: string): void {

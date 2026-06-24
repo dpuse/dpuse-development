@@ -5806,7 +5806,7 @@ function G(e) {
 	console.info(`\n[36m${t}`), console.info(`▶️  ${e}`), console.info(`${t}[0m`);
 }
 function K(e) {
-	console.info(`\n✅ ${e}\n`);
+	console.info(`\n✅  ${e}\n`);
 }
 function q(e) {
 	console.info(`\n${e}\n`);
@@ -5860,9 +5860,9 @@ function Un(e, t, n, r) {
 //#region src/actions/auditDependencies.ts
 async function Wn() {
 	try {
-		G("Audit Dependencies"), await Nn("1️⃣ Check using 'npm audit'", "npm", ["audit"]), K("Dependencies audited.");
+		G("Audit Dependencies"), await Nn("1️⃣  Check using 'npm audit'", "npm", ["audit"]), K("Dependencies audited.");
 	} catch (e) {
-		console.error("❌ Error auditing dependencies.", e), process.exit(1);
+		console.error("❌  Error auditing dependencies.", e), process.exit(1);
 	}
 }
 //#endregion
@@ -5873,7 +5873,7 @@ async function Gn() {
 		let e = zn((await W("config.json")).id), t = n.dirname(o(import.meta.url));
 		await Kn(t, "../", ".editorconfig"), await Kn(t, "../", ".gitattributes"), await Kn(t, "../", e.isPublished ? ".gitignore_published" : ".gitignore_unpublished"), await Kn(t, "../", ".markdownlint.json"), await Kn(t, "../", "LICENSE"), K("Configuration files checked..");
 	} catch (e) {
-		console.error("❌ Error checking configuration files.", e), process.exit(1);
+		console.error("❌  Error checking configuration files.", e), process.exit(1);
 	}
 }
 async function Kn(e, t, r) {
@@ -5884,22 +5884,22 @@ async function Kn(e, t, r) {
 		if (e.code !== "ENOENT") throw e;
 	}
 	if (o === i) {
-		console.info(`ℹ️ File '${r.split("_", 1)[0] ?? r}' is already up to date.`);
+		console.info(`ℹ️  File '${r.split("_", 1)[0] ?? r}' is the same`);
 		return;
 	}
-	console.info(`⚠️ File '${r.split("_", 1)[0] ?? r}' is not the same.`);
+	console.info(`⚠️  File '${r.split("_", 1)[0] ?? r}' is NOT the same.`);
 }
 //#endregion
 //#region src/actions/checkDependencies.ts
 async function qn() {
 	try {
-		G("Check Dependencies"), await Nn("1️⃣ Check using 'npm outdated'", "npm", ["outdated"], !0), await Nn("2️⃣ Check using 'npm-check-updates'", "npm-check-updates", [
+		G("Check Dependencies"), await Nn("1️⃣  Check using 'npm outdated'", "npm", ["outdated"], !0), await Nn("2️⃣  Check using 'npm-check-updates'", "npm-check-updates", [
 			"-i",
 			"--dep",
 			"dev,prod,peer,optional"
 		]), K("Dependencies checked.");
 	} catch (e) {
-		console.error("❌ Error checking dependencies.", e), process.exit(1);
+		console.error("❌  Error checking dependencies.", e), process.exit(1);
 	}
 }
 //#endregion
@@ -5907,9 +5907,9 @@ async function qn() {
 var Jn = "<!-- DEPENDENCY_LICENSES_START -->", Yn = "<!-- DEPENDENCY_LICENSES_END -->", Xn = "<!-- DEPENDENCY_TREE_START -->", Zn = "<!-- DEPENDENCY_TREE_END -->";
 async function Qn(e = "MIT") {
 	try {
-		G("Document Dependencies"), await An("1️⃣ Clear downloaded licenses", "licenses/downloads");
+		G("Document Dependencies"), await An("1️⃣  Clear downloaded licenses", "licenses/downloads");
 		let t = await W("package.json"), n = `${t.name ?? ""}@${t.version ?? ""}`;
-		await Mn("2️⃣ Identify production licenses", "license-checker-rseidelsohn", [
+		await Mn("2️⃣  Identify production licenses", "license-checker-rseidelsohn", [
 			"--production",
 			"--json",
 			"--files",
@@ -5922,14 +5922,14 @@ async function Qn(e = "MIT") {
 			`"${n}"`,
 			"--out",
 			"licenses/licenses.json"
-		]), await Pn("3️⃣ Identify transitive dependencies", "npm", [
+		]), await Pn("3️⃣  Identify transitive dependencies", "npm", [
 			"ls",
 			"--all",
 			"--json",
 			"--omit=dev"
-		], "licenses/licenseTree.json"), await $n("4️⃣"), K("Dependencies documented.");
+		], "licenses/licenseTree.json"), await $n("4️⃣ "), K("Dependencies documented.");
 	} catch (e) {
-		console.error("❌ Error documenting dependencies.", e), process.exit(1);
+		console.error("❌  Error documenting dependencies.", e), process.exit(1);
 	}
 }
 async function $n(e) {
@@ -5978,7 +5978,7 @@ async function tr(e, t) {
 	};
 }
 function nr(e) {
-	let t = e.licenseFileLink == null || e.licenseFileLink === "" ? "⚠️ No license file" : `[LICENSE](licenses/${e.licenseFileLink})`;
+	let t = e.licenseFileLink == null || e.licenseFileLink === "" ? "⚠️  No license file" : `[LICENSE](licenses/${e.licenseFileLink})`;
 	return `|[${e.name}](${e.repository})|${e.installedVersion}|${e.licenseTypes}|${t}|\n`;
 }
 function rr(e, t, n, r) {
@@ -6000,7 +6000,7 @@ function ar(e) {
 	let t = e.split("T", 1)[0];
 	if (t == null || t === "") return "n/a";
 	let n = new Date(t), r = /* @__PURE__ */ new Date(), i = (r.getFullYear() - n.getFullYear()) * 12 + (r.getMonth() - n.getMonth());
-	return r.getDate() < n.getDate() && --i, i === 0 ? `this month: ${t}` : i === 1 ? `1 month ago: ${t}` : i <= 6 ? `${String(i)} months ago: ${t}` : `${String(i)} months ago: ${t} ⚠️`;
+	return r.getDate() < n.getDate() && --i, i === 0 ? `this month: ${t}` : i === 1 ? `1 month ago: ${t}` : i <= 6 ? `${String(i)} months ago: ${t}` : `${String(i)} months ago: ${t} ⚠️ `;
 }
 //#endregion
 //#region node_modules/@dpuse/dpuse-shared/dist/componentConfig.schema-DTtYL9IP.js
@@ -6542,18 +6542,18 @@ function Wr(e) {
 var Gr = "<!-- CONNECTOR_OPERATIONS_START -->", Kr = "<!-- CONNECTOR_OPERATIONS_END -->";
 async function qr() {
 	try {
-		G("Document Operations"), q("1️⃣ Insert operations table into 'README.md'");
+		G("Document Operations"), q("1️⃣  Insert operations table into 'README.md'");
 		let e = Wr((await W("config.json")).operations ?? []);
 		await Rn("README.md", Un(await Fn("./README.md"), e, Gr, Kr)), K("Operations documented.");
 	} catch (e) {
-		console.error("❌ Error documenting operations.", e), process.exit(1);
+		console.error("❌  Error documenting operations.", e), process.exit(1);
 	}
 }
 //#endregion
 //#region src/actions/formatCode.ts
 async function Jr() {
 	try {
-		G("Format Code"), await Nn("1️⃣ Format", "prettier", [
+		G("Format Code"), await Nn("1️⃣  Format", "prettier", [
 			"--write",
 			"*.json",
 			"*.md",
@@ -6561,16 +6561,16 @@ async function Jr() {
 			...["app", "src"].filter((t) => e(t)).map((e) => `${e}/**`)
 		]), K("Code formatted.");
 	} catch (e) {
-		console.error("❌ Error formatting code.", e), process.exit(1);
+		console.error("❌  Error formatting code.", e), process.exit(1);
 	}
 }
 //#endregion
 //#region src/actions/lintCode.ts
 async function Yr() {
 	try {
-		G("Lint Code"), await Nn("1️⃣ Lint", "eslint", ["."]), K("Code linted.");
+		G("Lint Code"), await Nn("1️⃣  Lint", "eslint", ["."]), K("Code linted.");
 	} catch (e) {
-		console.error("❌ Error linting code.", e), process.exit(1);
+		console.error("❌  Error linting code.", e), process.exit(1);
 	}
 }
 //#endregion
@@ -6678,49 +6678,49 @@ var ii = /* @__PURE__ */ Q({
 ]);
 async function di() {
 	try {
-		G("Build Project"), await Nn("1️⃣ Bundle project", "vite", ["build"]), K("Project built.");
+		G("Build Project"), await Nn("1️⃣  Bundle project", "vite", ["build"]), K("Project built.");
 	} catch (e) {
-		console.error("❌ Error building project.", e), process.exit(1);
+		console.error("❌  Error building project.", e), process.exit(1);
 	}
 }
 async function fi() {
 	try {
 		G("Release Project");
 		let e = await W("package.json"), t = await W("config.json");
-		await xi("1️⃣", e);
+		await xi("1️⃣ ", e);
 		let n = zn(t.id);
 		switch (n.typeId) {
 			case "connector":
-				t = await mi("2️⃣", e);
+				t = await mi("2️⃣ ", e);
 				break;
 			case "context":
-				t = await hi("2️⃣", e);
+				t = await hi("2️⃣ ", e);
 				break;
 			case "presenter":
-				t = await gi("2️⃣", e);
+				t = await gi("2️⃣ ", e);
 				break;
-			default: t = await pi("2️⃣", e);
+			default: t = await pi("2️⃣ ", e);
 		}
-		if (await Nn("3️⃣ Bundle project", "vite", ["build"]), await Mn("4️⃣ Stage changes", "git", ["add", "."]), await Mn("5️⃣ Commit changes", "git", [
+		if (await Nn("3️⃣  Bundle project", "vite", ["build"]), await Mn("4️⃣  Stage changes", "git", ["add", "."]), await Mn("5️⃣  Commit changes", "git", [
 			"commit",
 			"-m",
 			`"v${e.version ?? "unknown"}"`
-		]), await Mn("6️⃣ Push changes", "git", [
+		]), await Mn("6️⃣  Push changes", "git", [
 			"push",
 			"origin",
 			"main:main"
-		]), n.typeId === "app") q("7️⃣ Register module"), await Xr();
-		else if (n.typeId === "engine") q("7️⃣ Register module"), await $r(e, `dpuse-engine-eu/${n.uploadGroupName ?? "unknown"}`), await Qr(t);
-		else if (n.uploadGroupName === void 0) q("7️⃣ Registration NOT required.");
+		]), n.typeId === "app") q("7️⃣  Register module"), await Xr();
+		else if (n.typeId === "engine") q("7️⃣  Register module"), await $r(e, `dpuse-engine-eu/${n.uploadGroupName ?? "unknown"}`), await Qr(t);
+		else if (n.uploadGroupName === void 0) q("7️⃣  Registration NOT required.");
 		else {
-			q("7️⃣ Register module");
+			q("7️⃣  Register module");
 			let r = t.id.split("-").slice(2).join("-");
 			await $r(e, `dpuse-engine-eu/${n.uploadGroupName}/${r}`), await Qr(t);
 		}
 		if (n.isPublished) {
 			let e = ".npmrc";
 			try {
-				await Rn(e, `registry=https://registry.npmjs.org/\n//registry.npmjs.org/:_authToken=${process.env.NPM_TOKEN ?? ""}`), await Nn("8️⃣ Publish to npm", "npm", [
+				await Rn(e, `registry=https://registry.npmjs.org/\n//registry.npmjs.org/:_authToken=${process.env.NPM_TOKEN ?? ""}`), await Nn("8️⃣  Publish to npm", "npm", [
 					"publish",
 					"--access",
 					"public"
@@ -6728,10 +6728,10 @@ async function fi() {
 			} finally {
 				await In(e);
 			}
-		} else q(`8️⃣ Publishing NOT required for package with type identifier of '${n.typeId}'.`);
+		} else q(`8️⃣  Publishing NOT required for package with type identifier of '${n.typeId}'.`);
 		K(`Project version '${e.version ?? "unknown"}' released.`);
 	} catch (e) {
-		console.error("❌ Error releasing project.", e), process.exit(1);
+		console.error("❌  Error releasing project.", e), process.exit(1);
 	}
 }
 async function pi(e, t) {
@@ -6742,20 +6742,20 @@ async function pi(e, t) {
 async function mi(e, t) {
 	q(`${e} Build connector project configuration`);
 	let [n, r] = await Promise.all([W("config.json"), Fn("src/index.ts")]), i = /* @__PURE__ */ ri(Hr, n);
-	if (!i.success) throw console.error("❌ Configuration is invalid:"), console.table(i.issues), Error("Configuration is invalid.");
+	if (!i.success) throw console.error("❌  Configuration is invalid:"), console.table(i.issues), Error("Configuration is invalid.");
 	let a = Vn(r);
 	return await vi(t, n, a, _i(a));
 }
 async function hi(e, t) {
 	q(`${e} Build context project configuration`);
 	let [n, r] = await Promise.all([W("config.json"), Fn("src/index.ts")]), i = /* @__PURE__ */ ri(oi, n);
-	if (!i.success) throw console.error("❌ Configuration is invalid:"), console.table(i.issues), Error("Configuration is invalid.");
+	if (!i.success) throw console.error("❌  Configuration is invalid:"), console.table(i.issues), Error("Configuration is invalid.");
 	return await vi(t, n, Vn(r));
 }
 async function gi(e, t) {
 	q(`${e} Build presenter project configuration`);
 	let [n, r] = await Promise.all([W("config.json"), Fn("src/index.ts")]), i = /* @__PURE__ */ ri(ci, n);
-	if (!i.success) throw console.error("❌ Configuration is invalid:"), console.table(i.issues), Error("Configuration is invalid.");
+	if (!i.success) throw console.error("❌  Configuration is invalid:"), console.table(i.issues), Error("Configuration is invalid.");
 	return await vi(t, n, Vn(r));
 }
 function _i(e) {
@@ -6764,46 +6764,46 @@ function _i(e) {
 	return t && n ? "bidirectional" : t ? "source" : n ? "destination" : "unknown";
 }
 async function vi(e, t, n, r) {
-	return n.length > 0 ? (console.info(`ℹ️ Implements ${String(n.length)} operations:`), console.table(n)) : console.warn("⚠️  Implements no operations."), r === "unknown" ? console.warn("⚠️  No usage identified.") : console.info(`ℹ️ Supports '${r ?? "unknown"}' usage.`), e.name != null && (t.id = e.name.replace("@dpuse/", "").replace("@dpuse/", "")), e.version != null && (t.version = e.version), t.operations = n, t.usageId = r ?? "unknown", await Ln("config.json", t), t;
+	return n.length > 0 ? (console.info(`ℹ️  Implements ${String(n.length)} operations:`), console.table(n)) : console.warn("⚠️   Implements no operations."), r === "unknown" ? console.warn("⚠️   No usage identified.") : console.info(`ℹ️  Supports '${r ?? "unknown"}' usage.`), e.name != null && (t.id = e.name.replace("@dpuse/", "").replace("@dpuse/", "")), e.version != null && (t.version = e.version), t.operations = n, t.usageId = r ?? "unknown", await Ln("config.json", t), t;
 }
 async function yi() {
 	try {
 		G("Synchronise Project with GitHub");
 		let e = await W("package.json"), t = await W("config.json");
-		switch (await xi("1️⃣", e), zn(t.id).typeId) {
+		switch (await xi("1️⃣ ", e), zn(t.id).typeId) {
 			case "connector":
-				await mi("2️⃣", e);
+				await mi("2️⃣ ", e);
 				break;
 			case "context":
-				await hi("2️⃣", e);
+				await hi("2️⃣ ", e);
 				break;
 			case "presenter":
-				await gi("2️⃣", e);
+				await gi("2️⃣ ", e);
 				break;
-			default: await pi("2️⃣", e);
+			default: await pi("2️⃣ ", e);
 		}
-		await Mn("3️⃣ Stage changes", "git", ["add", "."]), await Mn("4️⃣ Commit changes", "git", [
+		await Mn("3️⃣  Stage changes", "git", ["add", "."]), await Mn("4️⃣  Commit changes", "git", [
 			"commit",
 			"-m",
 			`"v${e.version ?? "unknown"}"`
-		]), await Mn("5️⃣ Push changes", "git", [
+		]), await Mn("5️⃣  Push changes", "git", [
 			"push",
 			"origin",
 			"main:main"
 		]), K(`Project version '${e.version ?? "unknown"}' synchronised with GitHub.`);
 	} catch (e) {
-		console.error("❌ Error synchronising project with GitHub.", e), process.exit(1);
+		console.error("❌  Error synchronising project with GitHub.", e), process.exit(1);
 	}
 }
 function bi() {
 	try {
-		G("Test Project"), console.error("\n❌ No tests implemented.\n");
+		G("Test Project"), console.error("\n❌  No tests implemented.\n");
 	} catch (e) {
-		console.error("❌ Error testing project.", e), process.exit(1);
+		console.error("❌  Error testing project.", e), process.exit(1);
 	}
 }
 async function xi(e, t, n = "./") {
-	if (q(`${e} Bump project version`), t.version == null) t.version = "0.0.001", console.warn(`⚠️ Project version initialised to '${t.version}'.`);
+	if (q(`${e} Bump project version`), t.version == null) t.version = "0.0.001", console.warn(`⚠️  Project version initialised to '${t.version}'.`);
 	else {
 		let e = t.version, n = t.version.split(".");
 		t.version = `${n[0] ?? "unknown"}.${n[1] ?? "unknown"}.${String(Number(n[2]) + 1)}`, console.info(`Project version bumped from '${e}' to '${t.version}'.`);

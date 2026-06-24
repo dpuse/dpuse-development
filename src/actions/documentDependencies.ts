@@ -53,12 +53,12 @@ export async function documentDependencies(allowedLicenses = 'MIT'): Promise<voi
     try {
         logOperationHeader('Document Dependencies');
 
-        await clearDirectory('1️⃣ Clear downloaded licenses', 'licenses/downloads');
+        await clearDirectory('1️⃣  Clear downloaded licenses', 'licenses/downloads');
 
         const rootPackage = await readJSONFile<{ name?: string; version?: string }>('package.json');
         const rootKey = `${rootPackage.name ?? ''}@${rootPackage.version ?? ''}`;
 
-        await execCommand('2️⃣ Identify production licenses', 'license-checker-rseidelsohn', [
+        await execCommand('2️⃣  Identify production licenses', 'license-checker-rseidelsohn', [
             '--production',
             '--json',
             '--files',
@@ -73,13 +73,13 @@ export async function documentDependencies(allowedLicenses = 'MIT'): Promise<voi
             'licenses/licenses.json'
         ]);
 
-        await spawnCommandToFile('3️⃣ Identify transitive dependencies', 'npm', ['ls', '--all', '--json', '--omit=dev'], 'licenses/licenseTree.json');
+        await spawnCommandToFile('3️⃣  Identify transitive dependencies', 'npm', ['ls', '--all', '--json', '--omit=dev'], 'licenses/licenseTree.json');
 
-        await insertLicensesIntoReadme('4️⃣');
+        await insertLicensesIntoReadme('4️⃣ ');
 
         logOperationSuccess('Dependencies documented.');
     } catch (error) {
-        console.error('❌ Error documenting dependencies.', error);
+        console.error('❌  Error documenting dependencies.', error);
         process.exit(1);
     }
 }
@@ -160,7 +160,7 @@ async function fetchNpmData(name: string, version: string): Promise<{ latestVers
 }
 
 function formatLicenseRow(license: License): string {
-    const licenseLink = license.licenseFileLink == null || license.licenseFileLink === '' ? '⚠️ No license file' : `[LICENSE](licenses/${license.licenseFileLink})`;
+    const licenseLink = license.licenseFileLink == null || license.licenseFileLink === '' ? '⚠️  No license file' : `[LICENSE](licenses/${license.licenseFileLink})`;
     return `|[${license.name}](${license.repository})|${license.installedVersion}|${license.licenseTypes}|${licenseLink}|\n`;
 }
 
@@ -202,5 +202,5 @@ function determineLatestAge(momentString?: string): string {
     if (months === 0) return `this month: ${dateString}`;
     if (months === 1) return `1 month ago: ${dateString}`;
     if (months <= 6) return `${String(months)} months ago: ${dateString}`;
-    return `${String(months)} months ago: ${dateString} ⚠️`;
+    return `${String(months)} months ago: ${dateString} ⚠️ `;
 }
