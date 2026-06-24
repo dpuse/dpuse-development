@@ -5867,17 +5867,13 @@ async function Wn() {
 }
 //#endregion
 //#region src/actions/checkConfigFiles.ts
-async function Gn(e = []) {
+async function Gn() {
 	try {
-		G("Update '@dpuse/dpuse' Dependencies");
-		for (let t of e) {
-			if (t === "development") continue;
-			let e = zn((await W("config.json")).id), r = n.dirname(o(import.meta.url));
-			await Kn(r, "../", ".editorconfig"), await Kn(r, "../", ".gitattributes"), await Kn(r, "../", e.isPublished ? ".gitignore_published" : ".gitignore_unpublished"), await Kn(r, "../", ".markdownlint.json"), await Kn(r, "../", "LICENSE");
-		}
-		K("'@dpuse/dpuse' dependencies updated.");
+		G("Check configuration files.");
+		let e = zn((await W("config.json")).id), t = n.dirname(o(import.meta.url));
+		await Kn(t, "../", ".editorconfig"), await Kn(t, "../", ".gitattributes"), await Kn(t, "../", e.isPublished ? ".gitignore_published" : ".gitignore_unpublished"), await Kn(t, "../", ".markdownlint.json"), await Kn(t, "../", "LICENSE"), K("Configuration files checked..");
 	} catch (e) {
-		console.error("❌ Error updating '@dpuse/dpuse' dependencies.", e), process.exit(1);
+		console.error("❌ Error checking configuration files.", e), process.exit(1);
 	}
 }
 async function Kn(e, t, r) {

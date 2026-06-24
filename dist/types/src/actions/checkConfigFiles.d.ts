@@ -1,1 +1,1 @@
-export declare function checkConfigFiles(dependencies?: string[]): Promise<void>;
+export declare function checkConfigFiles(): Promise<void>;

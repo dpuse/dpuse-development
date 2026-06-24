@@ -10,27 +10,23 @@ import { getModuleConfig, logOperationHeader, logOperationSuccess, readJSONFile,
 
 // ── Actions ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-export async function checkConfigFiles(dependencies: string[] = []): Promise<void> {
+export async function checkConfigFiles(): Promise<void> {
     try {
-        logOperationHeader("Update '@dpuse/dpuse' Dependencies");
+        logOperationHeader('Check configuration files.');
 
-        for (const dependency of dependencies) {
-            if (dependency === 'development') continue;
+        const configJSON = await readJSONFile<ModuleConfig>('config.json');
+        const moduleTypeConfig = getModuleConfig(configJSON.id);
 
-            const configJSON = await readJSONFile<ModuleConfig>('config.json');
-            const moduleTypeConfig = getModuleConfig(configJSON.id);
+        const moduleDirectory = path.dirname(fileURLToPath(import.meta.url));
+        await checkConfigFile(moduleDirectory, '../', '.editorconfig');
+        await checkConfigFile(moduleDirectory, '../', '.gitattributes');
+        await checkConfigFile(moduleDirectory, '../', moduleTypeConfig.isPublished ? '.gitignore_published' : '.gitignore_unpublished');
+        await checkConfigFile(moduleDirectory, '../', '.markdownlint.json');
+        await checkConfigFile(moduleDirectory, '../', 'LICENSE');
 
-            const moduleDirectory = path.dirname(fileURLToPath(import.meta.url));
-            await checkConfigFile(moduleDirectory, '../', '.editorconfig');
-            await checkConfigFile(moduleDirectory, '../', '.gitattributes');
-            await checkConfigFile(moduleDirectory, '../', moduleTypeConfig.isPublished ? '.gitignore_published' : '.gitignore_unpublished');
-            await checkConfigFile(moduleDirectory, '../', '.markdownlint.json');
-            await checkConfigFile(moduleDirectory, '../', 'LICENSE');
-        }
-
-        logOperationSuccess("'@dpuse/dpuse' dependencies updated.");
+        logOperationSuccess('Configuration files checked..');
     } catch (error) {
-        console.error("❌ Error updating '@dpuse/dpuse' dependencies.", error);
+        console.error('❌ Error checking configuration files.', error);
         process.exit(1);
     }
 }
