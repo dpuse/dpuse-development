@@ -66,6 +66,7 @@ export default defineConfig(
 
             'unicorn/filename-case': ['error', { cases: { camelCase: true, pascalCase: true }, ignore: ['updateDPUseDependencies'] }],
             'unicorn/no-null': 'off',
+            'unicorn/no-process-exit': 'off', // This package only contains scripts that are run as package.json scripts.
             'unicorn/switch-case-braces': ['warn', 'avoid']
         }
     }

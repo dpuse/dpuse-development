@@ -75,7 +75,6 @@ export async function documentDependencies(allowedLicenses = 'MIT'): Promise<voi
         logOperationSuccess('Dependencies documented.');
     } catch (error) {
         console.error('❌ Error documenting dependencies.', error);
-        // eslint-disable-next-line unicorn/no-process-exit -- This only runs from package script.
         process.exit(1);
     }
 }

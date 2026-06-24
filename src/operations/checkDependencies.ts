@@ -14,7 +14,6 @@ export async function checkDependencies(): Promise<void> {
         logOperationSuccess('Dependencies checked.');
     } catch (error) {
         console.error('❌ Error checking dependencies.', error);
-        // eslint-disable-next-line unicorn/no-process-exit -- This only runs from package script.
         process.exit(1);
     }
 }

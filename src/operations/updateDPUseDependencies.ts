@@ -37,7 +37,6 @@ export async function updateDPUseDependencies(dependencies: string[] = []): Prom
         logOperationSuccess("'@dpuse/dpuse' dependencies updated.");
     } catch (error) {
         console.error("❌ Error updating '@dpuse/dpuse' dependencies.", error);
-        // eslint-disable-next-line unicorn/no-process-exit -- This only runs from package script.
         process.exit(1);
     }
 }
@@ -48,12 +47,7 @@ async function syncProjectConfigFiles(moduleTypeConfig: ModuleTypeConfig): Promi
     const moduleDirectory = path.dirname(fileURLToPath(import.meta.url));
     await syncConfigFile(moduleDirectory, '../', '.editorconfig');
     await syncConfigFile(moduleDirectory, '../', '.gitattributes');
-    await syncConfigFile(
-        moduleDirectory,
-        '../',
-        moduleTypeConfig.isPublished ? '.gitignore_published' : '.gitignore_unpublished',
-        '.gitignore2'
-    );
+    await syncConfigFile(moduleDirectory, '../', moduleTypeConfig.isPublished ? '.gitignore_published' : '.gitignore_unpublished', '.gitignore2');
     await syncConfigFile(moduleDirectory, '../', '.markdownlint.json');
     await syncConfigFile(moduleDirectory, '../', 'LICENSE');
     await syncConfigFile(moduleDirectory, '../', 'tsconfig.json', 'tsconfig2.json');

@@ -1,5 +1,3 @@
-/* eslint-disable security/detect-non-literal-fs-filename */
-
 // External Dependencies
 import acornTypeScript from 'acorn-typescript';
 import { promises as fs } from 'node:fs';

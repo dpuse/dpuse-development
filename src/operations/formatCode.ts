@@ -11,7 +11,7 @@ export async function formatCode(): Promise<void> {
         logOperationHeader('Format Code');
 
         const optionalDirectories = ['app', 'src'];
-        // eslint-disable-next-line security/detect-non-literal-fs-filename
+        // eslint-disable-next-line security/detect-non-literal-fs-filename -- path passed to existsSync comes from optionalDirectories, no user input.
         const optionalGlobs = optionalDirectories.filter((directory) => existsSync(directory)).map((directory) => `${directory}/**`);
         const formatTargets = ['--write', '*.json', '*.md', '*.ts', ...optionalGlobs];
         await spawnCommand('1️⃣  Format', 'prettier', formatTargets);
@@ -19,7 +19,6 @@ export async function formatCode(): Promise<void> {
         logOperationSuccess('Code formatted.');
     } catch (error) {
         console.error('❌ Error formatting code.', error);
-        // eslint-disable-next-line unicorn/no-process-exit -- This only runs from package script.
         process.exit(1);
     }
 }

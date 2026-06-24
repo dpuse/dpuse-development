@@ -12,7 +12,6 @@ export async function lintCode(): Promise<void> {
         logOperationSuccess('Code linted.');
     } catch (error) {
         console.error('❌ Error linting code.', error);
-        // eslint-disable-next-line unicorn/no-process-exit -- This only runs from package script.
         process.exit(1);
     }
 }

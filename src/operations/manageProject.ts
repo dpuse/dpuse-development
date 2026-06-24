@@ -5,7 +5,7 @@ import { safeParse } from 'valibot';
 // DPUse Framework
 import { connectorConfigSchema } from '@dpuse/dpuse-shared/component/module/connector';
 import type { ModuleConfig } from '@dpuse/dpuse-shared/component/module';
-import type { ConnectorConfig, ConnectorOperationName, ConnectorUsageId } from '@dpuse/dpuse-shared/component/module/connector';
+import type { ConnectorConfig, ConnectorOperationName } from '@dpuse/dpuse-shared/component/module/connector';
 import { type ContextConfig, contextConfigSchema, type ContextOperationName } from '@dpuse/dpuse-shared/component/module/context';
 import { type PresenterConfig, presenterConfigSchema, type PresenterOperationName } from '@dpuse/dpuse-shared/component/module/presenter';
 
@@ -34,6 +34,8 @@ interface OperationConfig {
     usageId?: string;
 }
 
+type ConnectorUsageId = 'bidirectional' | 'destination' | 'source' | 'unknown';
+
 // Constants ───────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const CONNECTOR_DESTINATION_OPERATIONS = new Set(['createObject', 'dropObject', 'removeRecords', 'upsertRecords']);
@@ -59,7 +61,6 @@ export async function buildProject(): Promise<void> {
         logOperationSuccess('Project built.');
     } catch (error) {
         console.error('❌ Error building project.', error);
-        // eslint-disable-next-line unicorn/no-process-exit -- This only runs from package script.
         process.exit(1);
     }
 }
@@ -130,7 +131,6 @@ export async function releaseProject(): Promise<void> {
         logOperationSuccess(`Project version '${packageJSON.version ?? 'unknown'}' released.`);
     } catch (error) {
         console.error('❌ Error releasing project.', error);
-        // eslint-disable-next-line unicorn/no-process-exit -- This only runs from package script.
         process.exit(1);
     }
 }
@@ -197,15 +197,15 @@ async function buildPresenterProjectConfig(stepIcon: string, packageJSON: Packag
 }
 
 function determineConnectorUsageId(operations: ConnectorOperationName[]): ConnectorUsageId {
-    let sourceOps = false;
-    let destinationOps = false;
+    let isSourceOperation = false;
+    let isDestinationOperation = false;
     for (const operation of operations) {
-        if (CONNECTOR_SOURCE_OPERATIONS.has(operation)) sourceOps = true;
-        if (CONNECTOR_DESTINATION_OPERATIONS.has(operation)) destinationOps = true;
+        if (CONNECTOR_SOURCE_OPERATIONS.has(operation)) isSourceOperation = true;
+        if (CONNECTOR_DESTINATION_OPERATIONS.has(operation)) isDestinationOperation = true;
     }
-    if (sourceOps && destinationOps) return 'bidirectional';
-    if (sourceOps) return 'source';
-    if (destinationOps) return 'destination';
+    if (isSourceOperation && isDestinationOperation) return 'bidirectional';
+    if (isSourceOperation) return 'source';
+    if (isDestinationOperation) return 'destination';
     return 'unknown';
 }
 
@@ -265,7 +265,6 @@ export async function syncProjectWithGitHub(): Promise<void> {
         logOperationSuccess(`Project version '${packageJSON.version ?? 'unknown'}' synchronised with GitHub.`);
     } catch (error) {
         console.error('❌ Error synchronising project with GitHub.', error);
-        // eslint-disable-next-line unicorn/no-process-exit -- This only runs from package script.
         process.exit(1);
     }
 }
@@ -279,7 +278,6 @@ export function testProject(): void {
         console.error('\n❌ No tests implemented.\n');
     } catch (error) {
         console.error('❌ Error testing project.', error);
-        // eslint-disable-next-line unicorn/no-process-exit -- This only runs from package script.
         process.exit(1);
     }
 }
@@ -292,12 +290,11 @@ async function bumpPackageVersion(stepIcon: string, packageJSON: PackageJson, pa
     if (packageJSON.version == null) {
         packageJSON.version = '0.0.001';
         console.warn(`⚠️ Project version initialised to '${packageJSON.version}'.`);
-        await writeJSONFile(`${path}package.json`, packageJSON);
     } else {
         const oldVersion = packageJSON.version;
         const versionSegments = packageJSON.version.split('.');
         packageJSON.version = `${versionSegments[0] ?? 'unknown'}.${versionSegments[1] ?? 'unknown'}.${String(Number(versionSegments[2]) + 1)}`;
         console.info(`Project version bumped from '${oldVersion}' to '${packageJSON.version}'.`);
-        await writeJSONFile(`${path}package.json`, packageJSON);
     }
+    await writeJSONFile(`${path}package.json`, packageJSON);
 }

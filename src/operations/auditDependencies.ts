@@ -12,7 +12,6 @@ export async function auditDependencies(): Promise<void> {
         logOperationSuccess('Dependencies audited.');
     } catch (error) {
         console.error('❌ Error auditing dependencies.', error);
-        // eslint-disable-next-line unicorn/no-process-exit -- This only runs from package script.
         process.exit(1);
     }
 }
