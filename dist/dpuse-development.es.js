@@ -6454,7 +6454,7 @@ async function Br(e, t) {
 	await r("dist");
 }
 //#endregion
-//#region src/operations/manageProject.ts
+//#region src/actions/manageProject.ts
 var Vr = /* @__PURE__ */ new Set([
 	"createObject",
 	"dropObject",
@@ -6605,7 +6605,7 @@ async function $r(e, t, n = "./") {
 	await Or(`${n}package.json`, t);
 }
 //#endregion
-//#region src/operations/auditDependencies.ts
+//#region src/actions/auditDependencies.ts
 async function ei() {
 	try {
 		Ar("Audit Dependencies"), await Z("1️⃣  Check using 'npm audit'", "npm", ["audit"]), jr("Dependencies audited.");
@@ -6614,7 +6614,7 @@ async function ei() {
 	}
 }
 //#endregion
-//#region src/operations/checkDependencies.ts
+//#region src/actions/checkDependencies.ts
 async function ti() {
 	try {
 		Ar("Check Dependencies"), await Z("1️⃣  Check using 'npm outdated'", "npm", ["outdated"], !0), await Z("2️⃣  Check using 'npm-check-updates'", "npm-check-updates", [
@@ -6627,7 +6627,7 @@ async function ti() {
 	}
 }
 //#endregion
-//#region src/operations/documentDependencies.ts
+//#region src/actions/documentDependencies.ts
 var ni = "<!-- DEPENDENCY_LICENSES_START -->", ri = "<!-- DEPENDENCY_LICENSES_END -->", ii = "<!-- DEPENDENCY_TREE_START -->", ai = "<!-- DEPENDENCY_TREE_END -->";
 async function oi(e = "MIT") {
 	try {
@@ -6727,7 +6727,7 @@ function pi(e) {
 	return r.getDate() < n.getDate() && --i, i === 0 ? `this month: ${t}` : i === 1 ? `1 month ago: ${t}` : i <= 6 ? `${String(i)} months ago: ${t}` : `${String(i)} months ago: ${t} ⚠️`;
 }
 //#endregion
-//#region src/operations/formatCode.ts
+//#region src/actions/formatCode.ts
 async function mi() {
 	try {
 		Ar("Format Code"), await Z("1️⃣  Format", "prettier", [
@@ -6742,7 +6742,7 @@ async function mi() {
 	}
 }
 //#endregion
-//#region src/operations/lintCode.ts
+//#region src/actions/lintCode.ts
 async function hi() {
 	try {
 		Ar("Lint Code"), await Z("1️⃣  Lint", "eslint", ["."]), jr("Code linted.");
@@ -6751,7 +6751,7 @@ async function hi() {
 	}
 }
 //#endregion
-//#region src/operations/updateDPUseDependencies.ts
+//#region src/actions/updateDPUseDependencies.ts
 var gi = [
 	"1️⃣",
 	"2️⃣",

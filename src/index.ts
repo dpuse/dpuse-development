@@ -1,15 +1,15 @@
-export { buildProject, releaseProject, syncProjectWithGitHub, testProject } from '@/operations/manageProject';
+export { buildProject, releaseProject, syncProjectWithGitHub, testProject } from '@/actions/manageProject';
 
-export { auditDependencies } from '@/operations/auditDependencies';
+export { auditDependencies } from '@/actions/auditDependencies';
 
-export { checkDependencies } from '@/operations/checkDependencies';
+export { checkDependencies } from '@/actions/checkDependencies';
 
-export { documentDependencies } from '@/operations/documentDependencies';
+export { documentDependencies } from '@/actions/documentDependencies';
 
-export { formatCode } from '@/operations/formatCode';
+export { formatCode } from '@/actions/formatCode';
 
-export { lintCode } from '@/operations/lintCode';
+export { lintCode } from '@/actions/lintCode';
 
-export { updateDPUseDependencies } from '@/operations/updateDPUseDependencies';
+export { updateDPUseDependencies } from '@/actions/updateDPUseDependencies';
 
 export { uploadDirectoryToR2 } from '@/utilities/cloudflare';
