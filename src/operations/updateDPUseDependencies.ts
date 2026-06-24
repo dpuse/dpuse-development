@@ -53,7 +53,7 @@ async function syncProjectConfigFiles(moduleTypeConfig: ModuleTypeConfig): Promi
     await syncConfigFile(moduleDirectory, '../', 'tsconfig.json', 'tsconfig2.json');
 
     if (moduleTypeConfig.typeId === 'eslint') {
-        // TODO
+        // TODO: We need to remove the eslint package references.
     } else {
         await syncConfigFile(moduleDirectory, '../', 'eslint.config.ts', 'eslint.config2.ts');
         await syncConfigFile(moduleDirectory, '../', 'vite.config.ts', 'vite.config2.ts');

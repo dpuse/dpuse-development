@@ -139,7 +139,7 @@ async function buildProjectConfig(stepIcon: string, packageJSON: PackageJson): P
     logStepHeader(`${stepIcon}  Build project configuration`);
 
     const configJSON = await readJSONFile<ModuleConfig>('config.json');
-    if (packageJSON.name != null) configJSON.id = packageJSON.name.replace('@dpuse/', '').replace('@dpuse/', ''); // TODO: REMOVE SECOND DPUSE
+    if (packageJSON.name != null) configJSON.id = packageJSON.name.replace('@dpuse/', '');
     if (packageJSON.version != null) configJSON.version = packageJSON.version;
     await writeJSONFile('config.json', configJSON);
 
@@ -237,7 +237,6 @@ export async function syncProjectWithGitHub(): Promise<void> {
         const packageJSON = await readJSONFile<PackageJson>('package.json');
         const configJSON = await readJSONFile<ModuleConfig>('config.json');
 
-        // logStepHeader('Bump project version');
         await bumpPackageVersion('1️⃣', packageJSON);
 
         const moduleTypeConfig = getModuleConfig(configJSON.id);

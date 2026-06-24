@@ -55,6 +55,9 @@ export async function documentDependencies(allowedLicenses = 'MIT'): Promise<voi
 
         await clearDirectory('1️⃣  Clear downloaded licenses', 'licenses/downloads');
 
+        const rootPackage = await readJSONFile<{ name?: string; version?: string }>('package.json');
+        const rootKey = `${rootPackage.name ?? ''}@${rootPackage.version ?? ''}`;
+
         await execCommand('2️⃣  Identify production licenses', 'license-checker-rseidelsohn', [
             '--production',
             '--json',
@@ -64,6 +67,8 @@ export async function documentDependencies(allowedLicenses = 'MIT'): Promise<voi
             '--relativeLicensePath',
             '--onlyAllow',
             `"${allowedLicenses}"`,
+            '--excludePackages',
+            `"${rootKey}"`,
             '--out',
             'licenses/licenses.json'
         ]);
@@ -84,16 +89,13 @@ export async function documentDependencies(allowedLicenses = 'MIT'): Promise<voi
 async function insertLicensesIntoReadme(stepIcon: string): Promise<void> {
     logStepHeader(`${stepIcon}  Insert licenses into 'README.md'`);
 
-    const [licenses, licenseTree, rootPackage] = await Promise.all([
+    const [licenses, licenseTree] = await Promise.all([
         readJSONFile<Record<string, ProductionPackageLicense>>('licenses/licenses.json'),
-        readJSONFile<NpmPackageTree>('licenses/licenseTree.json'),
-        readJSONFile<{ name?: string; version?: string }>('package.json')
+        readJSONFile<NpmPackageTree>('licenses/licenseTree.json')
     ]);
 
-    const rootKey = `${rootPackage.name ?? ''}@${rootPackage.version ?? ''}`;
     const licensesByKey = new Map<string, License>();
     for (const [key, value] of Object.entries(licenses)) {
-        if (key === rootKey) continue;
         licensesByKey.set(key, parseLicenseEntry(key, value));
     }
 

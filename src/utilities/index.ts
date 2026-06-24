@@ -1,3 +1,5 @@
+/* eslint-disable security/detect-non-literal-fs-filename -- All paths come from package.json scripts, not user input. */
+
 // External Dependencies
 import acornTypeScript from 'acorn-typescript';
 import { promises as fs } from 'node:fs';
@@ -232,4 +234,4 @@ export function substituteText(originalText: string, substituteText: string, sta
     return `${originalText.slice(0, Math.max(0, startIndex + startMarker.length))}\n${substituteText}\n${originalText.slice(Math.max(0, endIndex))}`;
 }
 
-/* eslint-enable security/detect-non-literal-fs-filename */
+/* eslint-enable security/detect-non-literal-fs-filename -- All paths come from package.json scripts, not user input. */
