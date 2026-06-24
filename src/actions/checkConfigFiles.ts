@@ -15,7 +15,7 @@ export async function checkConfigFiles(dependencies: string[] = []): Promise<voi
         logOperationHeader("Update '@dpuse/dpuse' Dependencies");
 
         for (const dependency of dependencies) {
-            if (dependency !== 'development') continue;
+            if (dependency === 'development') continue;
 
             const configJSON = await readJSONFile<ModuleConfig>('config.json');
             const moduleTypeConfig = getModuleConfig(configJSON.id);

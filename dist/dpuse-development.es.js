@@ -5871,7 +5871,7 @@ async function Gn(e = []) {
 	try {
 		G("Update '@dpuse/dpuse' Dependencies");
 		for (let t of e) {
-			if (t !== "development") continue;
+			if (t === "development") continue;
 			let e = zn((await W("config.json")).id), r = n.dirname(o(import.meta.url));
 			await Kn(r, "../", ".editorconfig"), await Kn(r, "../", ".gitattributes"), await Kn(r, "../", e.isPublished ? ".gitignore_published" : ".gitignore_unpublished"), await Kn(r, "../", ".markdownlint.json"), await Kn(r, "../", "LICENSE");
 		}
