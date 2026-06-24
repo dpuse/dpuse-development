@@ -6455,12 +6455,12 @@ async function Br(e, t) {
 }
 //#endregion
 //#region src/operations/manageProject.ts
-var Vr = new Set([
+var Vr = /* @__PURE__ */ new Set([
 	"createObject",
 	"dropObject",
 	"removeRecords",
 	"upsertRecords"
-]), Hr = new Set([
+]), Hr = /* @__PURE__ */ new Set([
 	"auditObjectContent",
 	"findObjectFolderPath",
 	"getReadableStream",
@@ -6531,7 +6531,7 @@ async function Wr() {
 async function Gr(e, t) {
 	$(`${e}  Build project configuration`);
 	let n = await Q("config.json");
-	return t.name != null && (n.id = t.name.replace("@dpuse/", "").replace("@dpuse/", "")), t.version != null && (n.version = t.version), await Or("config.json", n), n;
+	return t.name != null && (n.id = t.name.replace("@dpuse/", "")), t.version != null && (n.version = t.version), await Or("config.json", n), n;
 }
 async function Kr(e, t) {
 	$(`${e}  Build connector project configuration`);
@@ -6597,11 +6597,12 @@ function Qr() {
 	}
 }
 async function $r(e, t, n = "./") {
-	if ($(`${e}  Bump project version`), t.version == null) t.version = "0.0.001", console.warn(`⚠️ Project version initialised to '${t.version}'.`), await Or(`${n}package.json`, t);
+	if ($(`${e}  Bump project version`), t.version == null) t.version = "0.0.001", console.warn(`⚠️ Project version initialised to '${t.version}'.`);
 	else {
-		let e = t.version, r = t.version.split(".");
-		t.version = `${r[0] ?? "unknown"}.${r[1] ?? "unknown"}.${String(Number(r[2]) + 1)}`, console.info(`Project version bumped from '${e}' to '${t.version}'.`), await Or(`${n}package.json`, t);
+		let e = t.version, n = t.version.split(".");
+		t.version = `${n[0] ?? "unknown"}.${n[1] ?? "unknown"}.${String(Number(n[2]) + 1)}`, console.info(`Project version bumped from '${e}' to '${t.version}'.`);
 	}
+	await Or(`${n}package.json`, t);
 }
 //#endregion
 //#region src/operations/auditDependencies.ts
@@ -6630,7 +6631,9 @@ async function ti() {
 var ni = "<!-- DEPENDENCY_LICENSES_START -->", ri = "<!-- DEPENDENCY_LICENSES_END -->", ii = "<!-- DEPENDENCY_TREE_START -->", ai = "<!-- DEPENDENCY_TREE_END -->";
 async function oi(e = "MIT") {
 	try {
-		Ar("Document Dependencies"), await Sr("1️⃣  Clear downloaded licenses", "licenses/downloads"), await wr("2️⃣  Identify production licenses", "license-checker-rseidelsohn", [
+		Ar("Document Dependencies"), await Sr("1️⃣  Clear downloaded licenses", "licenses/downloads");
+		let t = await Q("package.json"), n = `${t.name ?? ""}@${t.version ?? ""}`;
+		await wr("2️⃣  Identify production licenses", "license-checker-rseidelsohn", [
 			"--production",
 			"--json",
 			"--files",
@@ -6639,6 +6642,8 @@ async function oi(e = "MIT") {
 			"--relativeLicensePath",
 			"--onlyAllow",
 			`"${e}"`,
+			"--excludePackages",
+			`"${n}"`,
 			"--out",
 			"licenses/licenses.json"
 		]), await Tr("3️⃣  Identify transitive dependencies", "npm", [
@@ -6653,20 +6658,16 @@ async function oi(e = "MIT") {
 }
 async function si(e) {
 	$(`${e}  Insert licenses into 'README.md'`);
-	let [t, n, r] = await Promise.all([
-		Q("licenses/licenses.json"),
-		Q("licenses/licenseTree.json"),
-		Q("package.json")
-	]), i = `${r.name ?? ""}@${r.version ?? ""}`, a = /* @__PURE__ */ new Map();
-	for (let [e, n] of Object.entries(t)) e !== i && a.set(e, ci(e, n));
-	await Promise.all(a.values().map(async (e) => {
+	let [t, n] = await Promise.all([Q("licenses/licenses.json"), Q("licenses/licenseTree.json")]), r = /* @__PURE__ */ new Map();
+	for (let [e, n] of Object.entries(t)) r.set(e, ci(e, n));
+	await Promise.all(r.values().map(async (e) => {
 		let t = await li(e.name, e.installedVersion);
 		e.latestVersion = t.latestVersion, e.latestPublishedDate = t.latestPublishedDate, e.publishedDate = t.publishedDate;
 	}));
-	let o = "|Name|Version|License(s)|Document|\n|-|:-:|-|-|\n";
-	for (let e of a.values()) o += ui(e);
-	let s = [];
-	n.dependencies != null && di(n.dependencies, a, s, 0), await kr("README.md", Ir(Ir(await Er("./README.md"), o, ni, ri), s.join("\n"), ii, ai));
+	let i = "|Name|Version|License(s)|Document|\n|-|:-:|-|-|\n";
+	for (let e of r.values()) i += ui(e);
+	let a = [];
+	n.dependencies != null && di(n.dependencies, r, a, 0), await kr("README.md", Ir(Ir(await Er("./README.md"), i, ni, ri), a.join("\n"), ii, ai));
 }
 function ci(e, t) {
 	let n = e.lastIndexOf("@"), r = n > 0 ? e.slice(0, n) : e, i = n > 0 ? e.slice(n + 1) : "";

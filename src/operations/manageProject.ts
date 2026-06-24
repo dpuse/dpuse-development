@@ -1,15 +1,15 @@
-// External Dependencies
+// ── External Dependencies & Registrations
 import type { PackageJson } from 'type-fest';
 import { safeParse } from 'valibot';
 
-// DPUse Framework
+// ── DPUse Framework
 import { connectorConfigSchema } from '@dpuse/dpuse-shared/component/module/connector';
 import type { ModuleConfig } from '@dpuse/dpuse-shared/component/module';
 import type { ConnectorConfig, ConnectorOperationName } from '@dpuse/dpuse-shared/component/module/connector';
 import { type ContextConfig, contextConfigSchema, type ContextOperationName } from '@dpuse/dpuse-shared/component/module/context';
 import { type PresenterConfig, presenterConfigSchema, type PresenterOperationName } from '@dpuse/dpuse-shared/component/module/presenter';
 
-// Development Core
+// ── Local (Development) Framework
 import {
     execCommand,
     extractOperationsFromSource,
@@ -26,7 +26,10 @@ import {
 } from '@/utilities';
 import { putState, uploadModuleConfigToDO, uploadModuleToR2 } from '@/utilities/cloudflare';
 
-// Interfaces/Types
+// ── Types ────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+type ConnectorUsageId = 'bidirectional' | 'destination' | 'source' | 'unknown';
+
 interface OperationConfig {
     id?: string;
     version?: string;
@@ -34,9 +37,7 @@ interface OperationConfig {
     usageId?: string;
 }
 
-type ConnectorUsageId = 'bidirectional' | 'destination' | 'source' | 'unknown';
-
-// Constants ───────────────────────────────────────────────────────────────────────────────────────────────────────────
+// ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const CONNECTOR_DESTINATION_OPERATIONS = new Set(['createObject', 'dropObject', 'removeRecords', 'upsertRecords']);
 const CONNECTOR_SOURCE_OPERATIONS = new Set([
@@ -50,7 +51,7 @@ const CONNECTOR_SOURCE_OPERATIONS = new Set([
     'retrieveRecords'
 ]);
 
-// Actions - Build ─────────────────────────────────────────────────────────────────────────────────────────────────────
+// ── Actions - Build ──────────────────────────────────────────────────────────────────────────────────────────────────
 
 export async function buildProject(): Promise<void> {
     try {
@@ -65,7 +66,7 @@ export async function buildProject(): Promise<void> {
     }
 }
 
-// Actions - Release ───────────────────────────────────────────────────────────────────────────────────────────────────
+// ── Actions - Release ────────────────────────────────────────────────────────────────────────────────────────────────
 
 export async function releaseProject(): Promise<void> {
     try {
@@ -228,7 +229,7 @@ async function processOperations<T extends OperationConfig>(packageJSON: Package
     return configJSON;
 }
 
-// Actions - Sync ──────────────────────────────────────────────────────────────────────────────────────────────────────
+// ── Actions - Sync ───────────────────────────────────────────────────────────────────────────────────────────────────
 
 export async function syncProjectWithGitHub(): Promise<void> {
     try {
@@ -268,7 +269,7 @@ export async function syncProjectWithGitHub(): Promise<void> {
     }
 }
 
-// Actions - Test ──────────────────────────────────────────────────────────────────────────────────────────────────────
+// ── Actions - Test ───────────────────────────────────────────────────────────────────────────────────────────────────
 
 export function testProject(): void {
     try {
@@ -281,7 +282,7 @@ export function testProject(): void {
     }
 }
 
-// Helpers ─────────────────────────────────────────────────────────────────────────────────────────────────────────────
+// ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 async function bumpPackageVersion(stepIcon: string, packageJSON: PackageJson, path = './'): Promise<void> {
     logStepHeader(`${stepIcon}  Bump project version`);

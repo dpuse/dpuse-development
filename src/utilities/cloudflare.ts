@@ -1,14 +1,14 @@
-// External Dependencies
+// ── External Dependencies & Registrations
 import type { ObjectEncodingOptions } from 'node:fs';
 import type { PackageJson } from 'type-fest';
 
-// DPUse Framework
+// ── DPUse Framework
 import type { ModuleConfig } from '@dpuse/dpuse-shared/component/module';
 
-// Development Core
+// ── Local (Development) Framework
 import { execCommand, getDirectoryEntries, getStatsForPath, readJSONFile } from '@/utilities';
 
-// Actions ─────────────────────────────────────────────────────────────────────────────────────────────────────────────
+// ── Actions ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 export async function putState(): Promise<void> {
     const configJSON = await readJSONFile<ModuleConfig>('config.json');

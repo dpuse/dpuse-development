@@ -1,7 +1,7 @@
-// Development Core
+// ── Local (Development) Framework
 import { logOperationHeader, logOperationSuccess, spawnCommand } from '@/utilities';
 
-// Actions ─────────────────────────────────────────────────────────────────────────────────────────────────────────────
+// ── Actions ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 export async function lintCode(): Promise<void> {
     try {

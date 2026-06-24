@@ -1,6 +1,6 @@
 /* eslint-disable security/detect-non-literal-fs-filename -- All paths come from package.json scripts, not user input. */
 
-// External Dependencies
+// ── External Dependencies & Registrations
 import acornTypeScript from 'acorn-typescript';
 import { promises as fs } from 'node:fs';
 import { Parser } from 'acorn';
@@ -10,7 +10,8 @@ import type { Dirent, ObjectEncodingOptions, Stats } from 'node:fs';
 import { exec, spawn } from 'node:child_process';
 import type { MethodDefinition, Node } from 'acorn';
 
-// Interfaces/Types
+// ── Types ────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
 export interface ModuleTypeConfig {
     idPrefix: string;
     typeId: 'app' | 'api' | 'connector' | 'context' | 'development' | 'engine' | 'eslint' | 'kb' | 'presenter' | 'resources' | 'shared' | 'tool';
@@ -18,7 +19,7 @@ export interface ModuleTypeConfig {
     uploadGroupName: 'connectors' | 'contexts' | 'engine' | 'presenters' | 'tools' | undefined;
 }
 
-// Constants ───────────────────────────────────────────────────────────────────────────────────────────────────────────
+// ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const MODULE_TYPE_CONFIGS: ModuleTypeConfig[] = [
     { idPrefix: 'dpuse-app', typeId: 'app', isPublished: false, uploadGroupName: undefined },
@@ -35,11 +36,11 @@ const MODULE_TYPE_CONFIGS: ModuleTypeConfig[] = [
     { idPrefix: 'eslint-config-dpuse', typeId: 'eslint', isPublished: true, uploadGroupName: undefined }
 ];
 
-// Initialisation ──────────────────────────────────────────────────────────────────────────────────────────────────────
+// ── Initialisation ───────────────────────────────────────────────────────────────────────────────────────────────────
 
 const asyncExec = promisify(exec);
 
-// Actions - Directory ─────────────────────────────────────────────────────────────────────────────────────────────────
+// ── Actions - Directory ──────────────────────────────────────────────────────────────────────────────────────────────
 
 export async function clearDirectory(label: string | undefined, directoryPath: string): Promise<void> {
     if (label !== undefined) logStepHeader(`${label} - clear(${directoryPath})`);
@@ -72,7 +73,7 @@ export async function getDirectoryEntries(path: string, options?: ObjectEncoding
     return fs.readdir(path, options);
 }
 
-// Actions - Command ───────────────────────────────────────────────────────────────────────────────────────────────────
+// ── Actions - Command ────────────────────────────────────────────────────────────────────────────────────────────────
 
 export async function execCommand(label: string | undefined, command_: string, arguments_: string[] = [], outputFilePath?: string): Promise<void> {
     const command = `${command_} ${arguments_.join(' ')}`;
@@ -125,7 +126,7 @@ export async function spawnCommandToFile(label: string, command: string, argumen
     });
 }
 
-// Actions - File ──────────────────────────────────────────────────────────────────────────────────────────────────────
+// ── Actions - File ───────────────────────────────────────────────────────────────────────────────────────────────────
 
 export async function readJSONFile<T>(path: string): Promise<T> {
     return JSON.parse(await fs.readFile(path, 'utf8')) as T;
@@ -151,7 +152,7 @@ export async function writeTextFile(path: string, data: string): Promise<void> {
     await fs.writeFile(path, data, 'utf8');
 }
 
-// Actions - Log ───────────────────────────────────────────────────────────────────────────────────────────────────────
+// ── Actions - Log ────────────────────────────────────────────────────────────────────────────────────────────────────
 
 export function logOperationHeader(text: string): void {
     const cyan = '\u{1B}[36m';
@@ -170,7 +171,7 @@ export function logStepHeader(text: string): void {
     console.info(`\n${text}\n`);
 }
 
-// Actions - Module ────────────────────────────────────────────────────────────────────────────────────────────────────
+// ── Actions - Module ─────────────────────────────────────────────────────────────────────────────────────────────────
 
 export function getModuleConfig(configId: string): ModuleTypeConfig {
     const moduleTypeConfig = MODULE_TYPE_CONFIGS.find((config) => configId.startsWith(config.idPrefix));
@@ -178,13 +179,13 @@ export function getModuleConfig(configId: string): ModuleTypeConfig {
     return moduleTypeConfig;
 }
 
-// Actions - Path ──────────────────────────────────────────────────────────────────────────────────────────────────────
+// ── Actions - Path ───────────────────────────────────────────────────────────────────────────────────────────────────
 
 export async function getStatsForPath(path: string): Promise<Stats> {
     return await fs.stat(path);
 }
 
-// Actions - Source ────────────────────────────────────────────────────────────────────────────────────────────────────
+// ── Actions - Source ─────────────────────────────────────────────────────────────────────────────────────────────────
 
 export function extractOperationsFromSource<T>(source: string): T[] {
     // @ts-expect-error - acorn-typescript runtime mismatch is fine.
@@ -225,7 +226,7 @@ function traverseAST(node: Node, doIt: (node: Node) => void): void {
     }
 }
 
-// Actions - Text ──────────────────────────────────────────────────────────────────────────────────────────────────────
+// ── Actions - Text ───────────────────────────────────────────────────────────────────────────────────────────────────
 
 export function substituteText(originalText: string, substituteText: string, startMarker: string, endMarker: string): string {
     const startIndex = originalText.indexOf(startMarker);

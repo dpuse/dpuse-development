@@ -1,7 +1,7 @@
-// Development Core
+// ── Local (Development) Framework
 import { logOperationHeader, logOperationSuccess, spawnCommand } from '@/utilities';
 
-// Actions ─────────────────────────────────────────────────────────────────────────────────────────────────────────────
+// ── Actions ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 export async function checkDependencies(): Promise<void> {
     try {
@@ -9,7 +9,7 @@ export async function checkDependencies(): Promise<void> {
 
         await spawnCommand("1️⃣  Check using 'npm outdated'", 'npm', ['outdated'], true);
 
-        await spawnCommand("2️⃣  Check using 'npm-check-updates'", 'npm-check-updates', ['-i', '--dep', 'dev,prod,peer,optional']);
+        await spawnCommand("2️⃣  Check using 'npm-check-updates'", 'npm-check-updates', ['-i', '--dep', 'dev,prod,peer,optional']); // Interactive mode and check all dependencies.
 
         logOperationSuccess('Dependencies checked.');
     } catch (error) {

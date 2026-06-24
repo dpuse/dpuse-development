@@ -22,6 +22,10 @@ export default defineConfig({
         },
         rollupOptions: {
             external: ['node:child_process', 'node:fs', 'node:path', 'node:readline', 'node:url', 'node:util'], // Keep runtime dependencies out of bundle.
+            onwarn(warning, warn) {
+                if (warning.code === 'INVALID_ANNOTATION' && warning.id?.includes('acorn-typescript')) return;
+                warn(warning);
+            },
             plugins: [
                 Sonda({
                     filename: 'index', // Output file name.
