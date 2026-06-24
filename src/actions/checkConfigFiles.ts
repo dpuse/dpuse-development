@@ -21,11 +21,11 @@ export async function checkConfigFiles(dependencies: string[] = []): Promise<voi
             const moduleTypeConfig = getModuleConfig(configJSON.id);
 
             const moduleDirectory = path.dirname(fileURLToPath(import.meta.url));
-            await syncConfigFile(moduleDirectory, '../', '.editorconfig');
-            await syncConfigFile(moduleDirectory, '../', '.gitattributes');
-            await syncConfigFile(moduleDirectory, '../', moduleTypeConfig.isPublished ? '.gitignore_published' : '.gitignore_unpublished', '.gitignore2');
-            await syncConfigFile(moduleDirectory, '../', '.markdownlint.json');
-            await syncConfigFile(moduleDirectory, '../', 'LICENSE');
+            await checkConfigFile(moduleDirectory, '../', '.editorconfig');
+            await checkConfigFile(moduleDirectory, '../', '.gitattributes');
+            await checkConfigFile(moduleDirectory, '../', moduleTypeConfig.isPublished ? '.gitignore_published' : '.gitignore_unpublished');
+            await checkConfigFile(moduleDirectory, '../', '.markdownlint.json');
+            await checkConfigFile(moduleDirectory, '../', 'LICENSE');
         }
 
         logOperationSuccess("'@dpuse/dpuse' dependencies updated.");
@@ -37,23 +37,23 @@ export async function checkConfigFiles(dependencies: string[] = []): Promise<voi
 
 // ── Helpers ─────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-async function syncConfigFile(moduleDirectory: string, templateFilePath: string, fileName: string, destinationFileName?: string): Promise<void> {
-    const templatePath = path.resolve(moduleDirectory, `${templateFilePath}${fileName}`);
+async function checkConfigFile(moduleDirectory: string, templateFilePath: string, checkFileName: string): Promise<void> {
+    const templatePath = path.resolve(moduleDirectory, `${templateFilePath}${checkFileName}`);
     const templateContent = await readTextFile(templatePath);
 
-    const destinationPath = path.resolve(process.cwd(), fileName.split('_', 1)[0] ?? fileName);
+    const checkFilePath = path.resolve(process.cwd(), checkFileName.split('_', 1)[0] ?? checkFileName);
 
-    let destinationContent;
+    let checkFileContent;
     try {
-        destinationContent = await readTextFile(destinationPath);
+        checkFileContent = await readTextFile(checkFilePath);
     } catch (error) {
         if ((error as NodeJS.ErrnoException).code !== 'ENOENT') throw error;
     }
 
-    if (destinationContent === templateContent) {
-        console.info(`ℹ️ File '${fileName.split('_', 1)[0] ?? fileName}' is already up to date.`);
+    if (checkFileContent === templateContent) {
+        console.info(`ℹ️ File '${checkFileName.split('_', 1)[0] ?? checkFileName}' is already up to date.`);
         return;
     }
 
-    console.info(`⚠️ File '${destinationFileName ?? fileName}' is not the same.`);
+    console.info(`⚠️ File '${checkFileName.split('_', 1)[0] ?? checkFileName}' is not the same.`);
 }

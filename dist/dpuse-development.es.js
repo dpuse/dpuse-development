@@ -5860,7 +5860,7 @@ function Wn(e, t, n, r) {
 //#region src/actions/auditDependencies.ts
 async function Gn() {
 	try {
-		G("Audit Dependencies"), await Nn("1️⃣  Check using 'npm audit'", "npm", ["audit"]), zn("Dependencies audited.");
+		G("Audit Dependencies"), await Nn("1️⃣ Check using 'npm audit'", "npm", ["audit"]), zn("Dependencies audited.");
 	} catch (e) {
 		console.error("❌ Error auditing dependencies.", e), process.exit(1);
 	}
@@ -5873,31 +5873,31 @@ async function Kn(e = []) {
 		for (let t of e) {
 			if (t !== "development") continue;
 			let e = Bn((await W("config.json")).id), r = n.dirname(o(import.meta.url));
-			await qn(r, "../", ".editorconfig"), await qn(r, "../", ".gitattributes"), await qn(r, "../", e.isPublished ? ".gitignore_published" : ".gitignore_unpublished", ".gitignore2"), await qn(r, "../", ".markdownlint.json"), await qn(r, "../", "LICENSE");
+			await qn(r, "../", ".editorconfig"), await qn(r, "../", ".gitattributes"), await qn(r, "../", e.isPublished ? ".gitignore_published" : ".gitignore_unpublished"), await qn(r, "../", ".markdownlint.json"), await qn(r, "../", "LICENSE");
 		}
 		zn("'@dpuse/dpuse' dependencies updated.");
 	} catch (e) {
 		console.error("❌ Error updating '@dpuse/dpuse' dependencies.", e), process.exit(1);
 	}
 }
-async function qn(e, t, r, i) {
-	let a = await Fn(n.resolve(e, `${t}${r}`)), o = n.resolve(process.cwd(), r.split("_", 1)[0] ?? r), s = n.resolve(process.cwd(), i ?? r), c;
+async function qn(e, t, r) {
+	let i = await Fn(n.resolve(e, `${t}${r}`)), a = n.resolve(process.cwd(), r.split("_", 1)[0] ?? r), o;
 	try {
-		c = await Fn(o);
+		o = await Fn(a);
 	} catch (e) {
 		if (e.code !== "ENOENT") throw e;
 	}
-	if (c === a) {
-		console.info(`ℹ️  File '${r.split("_", 1)[0] ?? r}' is already up to date.`);
+	if (o === i) {
+		console.info(`ℹ️ File '${r.split("_", 1)[0] ?? r}' is already up to date.`);
 		return;
 	}
-	await Rn(s, a), console.info(`ℹ️  File '${i ?? r}' synchronised.`);
+	console.info(`⚠️ File '${r.split("_", 1)[0] ?? r}' is not the same.`);
 }
 //#endregion
 //#region src/actions/checkDependencies.ts
 async function Jn() {
 	try {
-		G("Check Dependencies"), await Nn("1️⃣  Check using 'npm outdated'", "npm", ["outdated"], !0), await Nn("2️⃣  Check using 'npm-check-updates'", "npm-check-updates", [
+		G("Check Dependencies"), await Nn("1️⃣ Check using 'npm outdated'", "npm", ["outdated"], !0), await Nn("2️⃣ Check using 'npm-check-updates'", "npm-check-updates", [
 			"-i",
 			"--dep",
 			"dev,prod,peer,optional"
@@ -5911,9 +5911,9 @@ async function Jn() {
 var Yn = "<!-- DEPENDENCY_LICENSES_START -->", Xn = "<!-- DEPENDENCY_LICENSES_END -->", Zn = "<!-- DEPENDENCY_TREE_START -->", Qn = "<!-- DEPENDENCY_TREE_END -->";
 async function $n(e = "MIT") {
 	try {
-		G("Document Dependencies"), await An("1️⃣  Clear downloaded licenses", "licenses/downloads");
+		G("Document Dependencies"), await An("1️⃣ Clear downloaded licenses", "licenses/downloads");
 		let t = await W("package.json"), n = `${t.name ?? ""}@${t.version ?? ""}`;
-		await Mn("2️⃣  Identify production licenses", "license-checker-rseidelsohn", [
+		await Mn("2️⃣ Identify production licenses", "license-checker-rseidelsohn", [
 			"--production",
 			"--json",
 			"--files",
@@ -5926,7 +5926,7 @@ async function $n(e = "MIT") {
 			`"${n}"`,
 			"--out",
 			"licenses/licenses.json"
-		]), await Pn("3️⃣  Identify transitive dependencies", "npm", [
+		]), await Pn("3️⃣ Identify transitive dependencies", "npm", [
 			"ls",
 			"--all",
 			"--json",
@@ -5937,7 +5937,7 @@ async function $n(e = "MIT") {
 	}
 }
 async function er(e) {
-	K(`${e}  Insert licenses into 'README.md'`);
+	K(`${e} Insert licenses into 'README.md'`);
 	let [t, n] = await Promise.all([W("licenses/licenses.json"), W("licenses/licenseTree.json")]), r = /* @__PURE__ */ new Map();
 	for (let [e, n] of Object.entries(t)) r.set(e, tr(e, n));
 	await Promise.all(r.values().map(async (e) => {
@@ -6010,7 +6010,7 @@ function or(e) {
 //#region src/actions/formatCode.ts
 async function sr() {
 	try {
-		G("Format Code"), await Nn("1️⃣  Format", "prettier", [
+		G("Format Code"), await Nn("1️⃣ Format", "prettier", [
 			"--write",
 			"*.json",
 			"*.md",
@@ -6025,7 +6025,7 @@ async function sr() {
 //#region src/actions/lintCode.ts
 async function cr() {
 	try {
-		G("Lint Code"), await Nn("1️⃣  Lint", "eslint", ["."]), zn("Code linted.");
+		G("Lint Code"), await Nn("1️⃣ Lint", "eslint", ["."]), zn("Code linted.");
 	} catch (e) {
 		console.error("❌ Error linting code.", e), process.exit(1);
 	}
@@ -6646,7 +6646,7 @@ var Jr = Rr([
 ]);
 async function oi() {
 	try {
-		G("Build Project"), await Nn("1️⃣  Bundle project", "vite", ["build"]), zn("Project built.");
+		G("Build Project"), await Nn("1️⃣ Bundle project", "vite", ["build"]), zn("Project built.");
 	} catch (e) {
 		console.error("❌ Error building project.", e), process.exit(1);
 	}
@@ -6669,26 +6669,26 @@ async function si() {
 				break;
 			default: t = await ci("2️⃣", e);
 		}
-		if (await Nn("3️⃣  Bundle project", "vite", ["build"]), await Mn("4️⃣  Stage changes", "git", ["add", "."]), await Mn("5️⃣  Commit changes", "git", [
+		if (await Nn("3️⃣ Bundle project", "vite", ["build"]), await Mn("4️⃣ Stage changes", "git", ["add", "."]), await Mn("5️⃣ Commit changes", "git", [
 			"commit",
 			"-m",
 			`"v${e.version ?? "unknown"}"`
-		]), await Mn("6️⃣  Push changes", "git", [
+		]), await Mn("6️⃣ Push changes", "git", [
 			"push",
 			"origin",
 			"main:main"
-		]), n.typeId === "app") K("7️⃣  Register module"), await lr();
-		else if (n.typeId === "engine") K("7️⃣  Register module"), await fr(e, `dpuse-engine-eu/${n.uploadGroupName ?? "unknown"}`), await dr(t);
-		else if (n.uploadGroupName === void 0) K("7️⃣  Registration NOT required.");
+		]), n.typeId === "app") K("7️⃣ Register module"), await lr();
+		else if (n.typeId === "engine") K("7️⃣ Register module"), await fr(e, `dpuse-engine-eu/${n.uploadGroupName ?? "unknown"}`), await dr(t);
+		else if (n.uploadGroupName === void 0) K("7️⃣ Registration NOT required.");
 		else {
-			K("7️⃣  Register module");
+			K("7️⃣ Register module");
 			let r = t.id.split("-").slice(2).join("-");
 			await fr(e, `dpuse-engine-eu/${n.uploadGroupName}/${r}`), await dr(t);
 		}
 		if (n.isPublished) {
 			let e = ".npmrc";
 			try {
-				await Rn(e, `registry=https://registry.npmjs.org/\n//registry.npmjs.org/:_authToken=${process.env.NPM_TOKEN ?? ""}`), await Nn("8️⃣  Publish to npm", "npm", [
+				await Rn(e, `registry=https://registry.npmjs.org/\n//registry.npmjs.org/:_authToken=${process.env.NPM_TOKEN ?? ""}`), await Nn("8️⃣ Publish to npm", "npm", [
 					"publish",
 					"--access",
 					"public"
@@ -6696,32 +6696,32 @@ async function si() {
 			} finally {
 				await In(e);
 			}
-		} else K(`8️⃣  Publishing NOT required for package with type identifier of '${n.typeId}'.`);
+		} else K(`8️⃣ Publishing NOT required for package with type identifier of '${n.typeId}'.`);
 		zn(`Project version '${e.version ?? "unknown"}' released.`);
 	} catch (e) {
 		console.error("❌ Error releasing project.", e), process.exit(1);
 	}
 }
 async function ci(e, t) {
-	K(`${e}  Build project configuration`);
+	K(`${e} Build project configuration`);
 	let n = await W("config.json");
 	return t.name != null && (n.id = t.name.replace("@dpuse/", "")), t.version != null && (n.version = t.version), await Ln("config.json", n), n;
 }
 async function li(e, t) {
-	K(`${e}  Build connector project configuration`);
+	K(`${e} Build connector project configuration`);
 	let [n, r] = await Promise.all([W("config.json"), Fn("src/index.ts")]), i = /* @__PURE__ */ gr(Qr, n);
 	if (!i.success) throw console.error("❌ Configuration is invalid:"), console.table(i.issues), Error("Configuration is invalid.");
 	let a = Hn(r);
 	return await pi(t, n, a, fi(a));
 }
 async function ui(e, t) {
-	K(`${e}  Build context project configuration`);
+	K(`${e} Build context project configuration`);
 	let [n, r] = await Promise.all([W("config.json"), Fn("src/index.ts")]), i = /* @__PURE__ */ gr(ti, n);
 	if (!i.success) throw console.error("❌ Configuration is invalid:"), console.table(i.issues), Error("Configuration is invalid.");
 	return await pi(t, n, Hn(r));
 }
 async function di(e, t) {
-	K(`${e}  Build presenter project configuration`);
+	K(`${e} Build presenter project configuration`);
 	let [n, r] = await Promise.all([W("config.json"), Fn("src/index.ts")]), i = /* @__PURE__ */ gr(ri, n);
 	if (!i.success) throw console.error("❌ Configuration is invalid:"), console.table(i.issues), Error("Configuration is invalid.");
 	return await pi(t, n, Hn(r));
@@ -6732,7 +6732,7 @@ function fi(e) {
 	return t && n ? "bidirectional" : t ? "source" : n ? "destination" : "unknown";
 }
 async function pi(e, t, n, r) {
-	return n.length > 0 ? (console.info(`ℹ️  Implements ${String(n.length)} operations:`), console.table(n)) : console.warn("⚠️  Implements no operations."), r === "unknown" ? console.warn("⚠️  No usage identified.") : console.info(`ℹ️  Supports '${r ?? "unknown"}' usage.`), e.name != null && (t.id = e.name.replace("@dpuse/", "").replace("@dpuse/", "")), e.version != null && (t.version = e.version), t.operations = n, t.usageId = r ?? "unknown", await Ln("config.json", t), t;
+	return n.length > 0 ? (console.info(`ℹ️ Implements ${String(n.length)} operations:`), console.table(n)) : console.warn("⚠️  Implements no operations."), r === "unknown" ? console.warn("⚠️  No usage identified.") : console.info(`ℹ️ Supports '${r ?? "unknown"}' usage.`), e.name != null && (t.id = e.name.replace("@dpuse/", "").replace("@dpuse/", "")), e.version != null && (t.version = e.version), t.operations = n, t.usageId = r ?? "unknown", await Ln("config.json", t), t;
 }
 async function mi() {
 	try {
@@ -6750,11 +6750,11 @@ async function mi() {
 				break;
 			default: await ci("2️⃣", e);
 		}
-		await Mn("3️⃣  Stage changes", "git", ["add", "."]), await Mn("4️⃣  Commit changes", "git", [
+		await Mn("3️⃣ Stage changes", "git", ["add", "."]), await Mn("4️⃣ Commit changes", "git", [
 			"commit",
 			"-m",
 			`"v${e.version ?? "unknown"}"`
-		]), await Mn("5️⃣  Push changes", "git", [
+		]), await Mn("5️⃣ Push changes", "git", [
 			"push",
 			"origin",
 			"main:main"
@@ -6771,7 +6771,7 @@ function hi() {
 	}
 }
 async function gi(e, t, n = "./") {
-	if (K(`${e}  Bump project version`), t.version == null) t.version = "0.0.001", console.warn(`⚠️ Project version initialised to '${t.version}'.`);
+	if (K(`${e} Bump project version`), t.version == null) t.version = "0.0.001", console.warn(`⚠️ Project version initialised to '${t.version}'.`);
 	else {
 		let e = t.version, n = t.version.split(".");
 		t.version = `${n[0] ?? "unknown"}.${n[1] ?? "unknown"}.${String(Number(n[2]) + 1)}`, console.info(`Project version bumped from '${e}' to '${t.version}'.`);
