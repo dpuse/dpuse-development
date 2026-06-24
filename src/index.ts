@@ -6,6 +6,8 @@ export { checkDependencies } from '@/actions/checkDependencies';
 
 export { documentDependencies } from '@/actions/documentDependencies';
 
+export { documentOperations } from '@/actions/documentOperations';
+
 export { formatCode } from '@/actions/formatCode';
 
 export { lintCode } from '@/actions/lintCode';

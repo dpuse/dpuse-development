@@ -97,31 +97,29 @@ The following table lists the top-level production and peer dependencies. All of
 We use the `npm` packages [license-report](https://www.npmjs.com/package/license-report), [license-report-check](https://www.npmjs.com/package/license-report-check), [license-report-recursive](https://www.npmjs.com/package/license-report-recursive) and [license-downloader](https://www.npmjs.com/package/license-downloader) to identify all dependency licenses and include copies of them. We do not use any unlicensed dependencies in either production or development.
 
 <!-- DEPENDENCY_LICENSES_START -->
-
-| Name                                                                    | Version | License(s) | Document                                                              |
-| ----------------------------------------------------------------------- | :-----: | ---------- | --------------------------------------------------------------------- |
-| [@dpuse/dpuse-shared](https://github.com/data-positioning/dpuse-shared) | 0.3.675 | MIT        | [LICENSE](licenses/downloads/@dpuse/dpuse-shared@0.3.675-LICENSE.txt) |
-| [acorn-typescript](https://github.com/TyrealHu/acorn-typescript)        | 1.4.13  | MIT        | [LICENSE](licenses/downloads/acorn-typescript@1.4.13-LICENSE.txt)     |
-| [acorn-walk](https://github.com/acornjs/acorn)                          |  8.3.5  | MIT        | [LICENSE](licenses/downloads/acorn-walk@8.3.5-LICENSE.txt)            |
-| [acorn](https://github.com/acornjs/acorn)                               | 8.17.0  | MIT        | [LICENSE](licenses/downloads/acorn@8.17.0-LICENSE.txt)                |
-| [nanoid](https://github.com/ai/nanoid)                                  | 5.1.15  | MIT        | [LICENSE](licenses/downloads/nanoid@5.1.15-LICENSE.txt)               |
-| [typescript](https://github.com/microsoft/TypeScript)                   |  6.0.3  | Apache-2.0 | [LICENSE](licenses/downloads/typescript@6.0.3-LICENSE.txt)            |
-| [valibot](https://github.com/open-circle/valibot)                       |  1.4.1  | MIT        | [LICENSE](licenses/downloads/valibot@1.4.1-LICENSE.txt)               |
+|Name|Version|License(s)|Document|
+|-|:-:|-|-|
+|[@dpuse/dpuse-shared](https://github.com/data-positioning/dpuse-shared)|0.3.675|MIT|[LICENSE](licenses/downloads/@dpuse/dpuse-shared@0.3.675-LICENSE.txt)|
+|[acorn-typescript](https://github.com/TyrealHu/acorn-typescript)|1.4.13|MIT|[LICENSE](licenses/downloads/acorn-typescript@1.4.13-LICENSE.txt)|
+|[acorn-walk](https://github.com/acornjs/acorn)|8.3.5|MIT|[LICENSE](licenses/downloads/acorn-walk@8.3.5-LICENSE.txt)|
+|[acorn](https://github.com/acornjs/acorn)|8.17.0|MIT|[LICENSE](licenses/downloads/acorn@8.17.0-LICENSE.txt)|
+|[nanoid](https://github.com/ai/nanoid)|5.1.15|MIT|[LICENSE](licenses/downloads/nanoid@5.1.15-LICENSE.txt)|
+|[typescript](https://github.com/microsoft/TypeScript)|6.0.3|Apache-2.0|[LICENSE](licenses/downloads/typescript@6.0.3-LICENSE.txt)|
+|[valibot](https://github.com/open-circle/valibot)|1.4.1|MIT|[LICENSE](licenses/downloads/valibot@1.4.1-LICENSE.txt)|
 
 <!-- DEPENDENCY_LICENSES_END -->
 
 <!-- DEPENDENCY_TREE_START -->
-
 - **[@dpuse/dpuse-shared](https://github.com/data-positioning/dpuse-shared)** 0.3.675 — this month: 2026-06-23
 - **[acorn-typescript](https://github.com/TyrealHu/acorn-typescript)** 1.4.13 — 29 months ago: 2024-01-03 ⚠️
-    - **[acorn](https://github.com/acornjs/acorn)** 8.17.0 — this month: 2026-06-11
+  - **[acorn](https://github.com/acornjs/acorn)** 8.17.0 — this month: 2026-06-11
 - **[acorn-walk](https://github.com/acornjs/acorn)** 8.3.5 — 4 months ago: 2026-02-19
-    - **[acorn](https://github.com/acornjs/acorn)** 8.17.0 — this month: 2026-06-11
+  - **[acorn](https://github.com/acornjs/acorn)** 8.17.0 — this month: 2026-06-11
 - **[acorn](https://github.com/acornjs/acorn)** 8.17.0 — this month: 2026-06-11
 - **[nanoid](https://github.com/ai/nanoid)** 5.1.15 — this month: 2026-06-20
 - **[valibot](https://github.com/open-circle/valibot)** 1.4.1 — 1 month ago: 2026-05-24
-    - **[typescript](https://github.com/microsoft/TypeScript)** 6.0.3 — 2 months ago: 2026-04-16
-        <!-- DEPENDENCY_TREE_END -->
+  - **[typescript](https://github.com/microsoft/TypeScript)** 6.0.3 — 2 months ago: 2026-04-16
+<!-- DEPENDENCY_TREE_END -->
 
 Insert link to other document for detailed explanation. Only show messages if issues arise.
 

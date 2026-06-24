@@ -1,12 +1,4 @@
 {
-    "@dpuse/dpuse-development@0.3.538": {
-        "licenses": "MIT",
-        "repository": "https://github.com/dpuse/dpuse-development",
-        "publisher": "Jonathan Terrell",
-        "email": "terrell.jm@gmail.com",
-        "path": "",
-        "licenseFile": "downloads/@dpuse/dpuse-development@0.3.538-LICENSE.txt"
-    },
     "@dpuse/dpuse-shared@0.3.675": {
         "licenses": "MIT",
         "repository": "https://github.com/data-positioning/dpuse-shared",
