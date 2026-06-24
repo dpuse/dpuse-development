@@ -16,9 +16,9 @@ import type { MethodDefinition, Node } from 'acorn';
 
 interface ModuleTypeConfig {
     idPrefix: string;
-    typeId: 'app' | 'api' | 'connector' | 'context' | 'development' | 'engine' | 'eslint' | 'kb' | 'presenter' | 'resources' | 'shared' | 'tool';
+    typeId: 'app' | 'api' | 'connector' | 'context' | 'development' | 'engine' | 'eslint' | 'kb' | 'presenter' | 'recipe' | 'resources' | 'shared' | 'tool';
     isPublished: boolean;
-    uploadGroupName: 'connectors' | 'contexts' | 'engine' | 'presenters' | 'tools' | undefined;
+    uploadGroupName: 'connectors' | 'contexts' | 'engine' | 'presenters' | 'recipes' | 'tools' | undefined;
 }
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -26,16 +26,16 @@ interface ModuleTypeConfig {
 const MODULE_TYPE_CONFIGS: ModuleTypeConfig[] = [
     { idPrefix: 'dpuse-app', typeId: 'app', isPublished: false, uploadGroupName: undefined },
     { idPrefix: 'dpuse-api', typeId: 'api', isPublished: false, uploadGroupName: undefined },
-    { idPrefix: 'dpuse-connector', typeId: 'connector', isPublished: true, uploadGroupName: 'connectors' },
-    { idPrefix: 'dpuse-context', typeId: 'context', isPublished: true, uploadGroupName: 'contexts' },
+    { idPrefix: 'dpuse-connector', typeId: 'connector', isPublished: false, uploadGroupName: 'connectors' },
+    { idPrefix: 'dpuse-context', typeId: 'context', isPublished: false, uploadGroupName: 'contexts' },
     { idPrefix: 'dpuse-development', typeId: 'development', isPublished: true, uploadGroupName: undefined },
     { idPrefix: 'dpuse-engine', typeId: 'engine', isPublished: false, uploadGroupName: 'engine' },
     { idPrefix: 'dpuse-kb', typeId: 'kb', isPublished: false, uploadGroupName: undefined },
-    { idPrefix: 'dpuse-presenter', typeId: 'presenter', isPublished: true, uploadGroupName: 'presenters' },
+    { idPrefix: 'dpuse-presenter', typeId: 'presenter', isPublished: false, uploadGroupName: 'presenters' },
+    { idPrefix: 'dpuse-recipe', typeId: 'recipe', isPublished: false, uploadGroupName: 'recipes' },
     { idPrefix: 'dpuse-resources', typeId: 'resources', isPublished: false, uploadGroupName: undefined },
     { idPrefix: 'dpuse-shared', typeId: 'shared', isPublished: true, uploadGroupName: undefined },
-    { idPrefix: 'dpuse-tool', typeId: 'tool', isPublished: true, uploadGroupName: 'tools' },
-    { idPrefix: 'eslint-config-dpuse', typeId: 'eslint', isPublished: true, uploadGroupName: undefined }
+    { idPrefix: 'dpuse-tool', typeId: 'tool', isPublished: true, uploadGroupName: 'tools' }
 ];
 
 // ── Initialisation ───────────────────────────────────────────────────────────────────────────────────────────────────

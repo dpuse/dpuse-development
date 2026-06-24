@@ -5661,13 +5661,13 @@ var On = [
 	{
 		idPrefix: "dpuse-connector",
 		typeId: "connector",
-		isPublished: !0,
+		isPublished: !1,
 		uploadGroupName: "connectors"
 	},
 	{
 		idPrefix: "dpuse-context",
 		typeId: "context",
-		isPublished: !0,
+		isPublished: !1,
 		uploadGroupName: "contexts"
 	},
 	{
@@ -5691,8 +5691,14 @@ var On = [
 	{
 		idPrefix: "dpuse-presenter",
 		typeId: "presenter",
-		isPublished: !0,
+		isPublished: !1,
 		uploadGroupName: "presenters"
+	},
+	{
+		idPrefix: "dpuse-recipe",
+		typeId: "recipe",
+		isPublished: !1,
+		uploadGroupName: "recipes"
 	},
 	{
 		idPrefix: "dpuse-resources",
@@ -5711,12 +5717,6 @@ var On = [
 		typeId: "tool",
 		isPublished: !0,
 		uploadGroupName: "tools"
-	},
-	{
-		idPrefix: "eslint-config-dpuse",
-		typeId: "eslint",
-		isPublished: !0,
-		uploadGroupName: void 0
 	}
 ], kn = r(i);
 async function An(e, r) {
