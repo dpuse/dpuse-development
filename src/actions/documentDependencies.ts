@@ -53,12 +53,12 @@ export async function documentDependencies(allowedLicenses = 'MIT'): Promise<voi
     try {
         logOperationHeader('Document Dependencies');
 
-        await clearDirectory('1️⃣  Clear downloaded licenses', 'licenses/downloads');
+        await clearDirectory('1️⃣ Clear downloaded licenses', 'licenses/downloads');
 
         const rootPackage = await readJSONFile<{ name?: string; version?: string }>('package.json');
         const rootKey = `${rootPackage.name ?? ''}@${rootPackage.version ?? ''}`;
 
-        await execCommand('2️⃣  Identify production licenses', 'license-checker-rseidelsohn', [
+        await execCommand('2️⃣ Identify production licenses', 'license-checker-rseidelsohn', [
             '--production',
             '--json',
             '--files',
@@ -73,7 +73,7 @@ export async function documentDependencies(allowedLicenses = 'MIT'): Promise<voi
             'licenses/licenses.json'
         ]);
 
-        await spawnCommandToFile('3️⃣  Identify transitive dependencies', 'npm', ['ls', '--all', '--json', '--omit=dev'], 'licenses/licenseTree.json');
+        await spawnCommandToFile('3️⃣ Identify transitive dependencies', 'npm', ['ls', '--all', '--json', '--omit=dev'], 'licenses/licenseTree.json');
 
         await insertLicensesIntoReadme('4️⃣');
 
@@ -87,7 +87,7 @@ export async function documentDependencies(allowedLicenses = 'MIT'): Promise<voi
 // ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 async function insertLicensesIntoReadme(stepIcon: string): Promise<void> {
-    logStepHeader(`${stepIcon}  Insert licenses into 'README.md'`);
+    logStepHeader(`${stepIcon} Insert licenses into 'README.md'`);
 
     const [licenses, licenseTree] = await Promise.all([
         readJSONFile<Record<string, ProductionPackageLicense>>('licenses/licenses.json'),

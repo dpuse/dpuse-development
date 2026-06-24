@@ -1,5 +1,5 @@
 import { Dirent, ObjectEncodingOptions, Stats } from 'node:fs';
-export interface ModuleTypeConfig {
+interface ModuleTypeConfig {
     idPrefix: string;
     typeId: 'app' | 'api' | 'connector' | 'context' | 'development' | 'engine' | 'eslint' | 'kb' | 'presenter' | 'resources' | 'shared' | 'tool';
     isPublished: boolean;
@@ -23,3 +23,4 @@ export declare function getModuleConfig(configId: string): ModuleTypeConfig;
 export declare function getStatsForPath(path: string): Promise<Stats>;
 export declare function extractOperationsFromSource<T>(source: string): T[];
 export declare function substituteText(originalText: string, substituteText: string, startMarker: string, endMarker: string): string;
+export {};

@@ -7,7 +7,7 @@ export async function lintCode(): Promise<void> {
     try {
         logOperationHeader('Lint Code');
 
-        await spawnCommand('1️⃣  Lint', 'eslint', ['.']);
+        await spawnCommand('1️⃣ Lint', 'eslint', ['.']);
 
         logOperationSuccess('Code linted.');
     } catch (error) {

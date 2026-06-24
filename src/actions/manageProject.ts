@@ -57,7 +57,7 @@ export async function buildProject(): Promise<void> {
     try {
         logOperationHeader('Build Project');
 
-        await spawnCommand('1️⃣  Bundle project', 'vite', ['build']);
+        await spawnCommand('1️⃣ Bundle project', 'vite', ['build']);
 
         logOperationSuccess('Project built.');
     } catch (error) {
@@ -93,25 +93,25 @@ export async function releaseProject(): Promise<void> {
                 configJSON = await buildProjectConfig('2️⃣', packageJSON);
         }
 
-        await spawnCommand('3️⃣  Bundle project', 'vite', ['build']);
+        await spawnCommand('3️⃣ Bundle project', 'vite', ['build']);
 
-        await execCommand('4️⃣  Stage changes', 'git', ['add', '.']);
+        await execCommand('4️⃣ Stage changes', 'git', ['add', '.']);
 
-        await execCommand('5️⃣  Commit changes', 'git', ['commit', '-m', `"v${packageJSON.version ?? 'unknown'}"`]);
+        await execCommand('5️⃣ Commit changes', 'git', ['commit', '-m', `"v${packageJSON.version ?? 'unknown'}"`]);
 
-        await execCommand('6️⃣  Push changes', 'git', ['push', 'origin', 'main:main']);
+        await execCommand('6️⃣ Push changes', 'git', ['push', 'origin', 'main:main']);
 
         if (moduleTypeConfig.typeId === 'app') {
-            logStepHeader('7️⃣  Register module');
+            logStepHeader('7️⃣ Register module');
             await putState();
         } else if (moduleTypeConfig.typeId === 'engine') {
-            logStepHeader('7️⃣  Register module');
+            logStepHeader('7️⃣ Register module');
             await uploadModuleToR2(packageJSON, `dpuse-engine-eu/${moduleTypeConfig.uploadGroupName ?? 'unknown'}`);
             await uploadModuleConfigToDO(configJSON); // This MUST follow 'uploadModuleToR2', otherwise the app will receive a message a new engine is available and try to access it before it is uploaded to R2.
         } else if (moduleTypeConfig.uploadGroupName === undefined) {
-            logStepHeader('7️⃣  Registration NOT required.');
+            logStepHeader('7️⃣ Registration NOT required.');
         } else {
-            logStepHeader('7️⃣  Register module');
+            logStepHeader('7️⃣ Register module');
             const moduleTypeName = configJSON.id.split('-').slice(2).join('-');
             await uploadModuleToR2(packageJSON, `dpuse-engine-eu/${moduleTypeConfig.uploadGroupName}/${moduleTypeName}`);
             await uploadModuleConfigToDO(configJSON); // This MUST follow 'uploadModuleToR2', otherwise the app will receive a message a new module is available and try to access it before it is uploaded to R2.
@@ -121,12 +121,12 @@ export async function releaseProject(): Promise<void> {
             const npmrcFileName = '.npmrc';
             try {
                 await writeTextFile(npmrcFileName, `registry=https://registry.npmjs.org/\n//registry.npmjs.org/:_authToken=${process.env['NPM_TOKEN'] ?? ''}`);
-                await spawnCommand('8️⃣  Publish to npm', 'npm', ['publish', '--access', 'public']);
+                await spawnCommand('8️⃣ Publish to npm', 'npm', ['publish', '--access', 'public']);
             } finally {
                 await removeFile(npmrcFileName);
             }
         } else {
-            logStepHeader(`8️⃣  Publishing NOT required for package with type identifier of '${moduleTypeConfig.typeId}'.`);
+            logStepHeader(`8️⃣ Publishing NOT required for package with type identifier of '${moduleTypeConfig.typeId}'.`);
         }
 
         logOperationSuccess(`Project version '${packageJSON.version ?? 'unknown'}' released.`);
@@ -137,7 +137,7 @@ export async function releaseProject(): Promise<void> {
 }
 
 async function buildProjectConfig(stepIcon: string, packageJSON: PackageJson): Promise<ModuleConfig> {
-    logStepHeader(`${stepIcon}  Build project configuration`);
+    logStepHeader(`${stepIcon} Build project configuration`);
 
     const configJSON = await readJSONFile<ModuleConfig>('config.json');
     if (packageJSON.name != null) configJSON.id = packageJSON.name.replace('@dpuse/', '');
@@ -148,7 +148,7 @@ async function buildProjectConfig(stepIcon: string, packageJSON: PackageJson): P
 }
 
 async function buildConnectorProjectConfig(stepIcon: string, packageJSON: PackageJson): Promise<ConnectorConfig> {
-    logStepHeader(`${stepIcon}  Build connector project configuration`);
+    logStepHeader(`${stepIcon} Build connector project configuration`);
 
     const [configJSON, indexCode] = await Promise.all([readJSONFile<ConnectorConfig>('config.json'), readTextFile('src/index.ts')]);
 
@@ -166,7 +166,7 @@ async function buildConnectorProjectConfig(stepIcon: string, packageJSON: Packag
 }
 
 async function buildContextProjectConfig(stepIcon: string, packageJSON: PackageJson): Promise<ContextConfig> {
-    logStepHeader(`${stepIcon}  Build context project configuration`);
+    logStepHeader(`${stepIcon} Build context project configuration`);
 
     const [configJSON, indexCode] = await Promise.all([readJSONFile<ContextConfig>('config.json'), readTextFile('src/index.ts')]);
 
@@ -182,7 +182,7 @@ async function buildContextProjectConfig(stepIcon: string, packageJSON: PackageJ
 }
 
 async function buildPresenterProjectConfig(stepIcon: string, packageJSON: PackageJson): Promise<PresenterConfig> {
-    logStepHeader(`${stepIcon}  Build presenter project configuration`);
+    logStepHeader(`${stepIcon} Build presenter project configuration`);
 
     const [configJSON, indexCode] = await Promise.all([readJSONFile<PresenterConfig>('config.json'), readTextFile('src/index.ts')]);
 
@@ -212,12 +212,12 @@ function determineConnectorUsageId(operations: ConnectorOperationName[]): Connec
 
 async function processOperations<T extends OperationConfig>(packageJSON: PackageJson, configJSON: T, operations: string[], usageId?: string): Promise<T> {
     if (operations.length > 0) {
-        console.info(`ℹ️  Implements ${String(operations.length)} operations:`);
+        console.info(`ℹ️ Implements ${String(operations.length)} operations:`);
         console.table(operations);
     } else console.warn('⚠️  Implements no operations.');
 
     if (usageId === 'unknown') console.warn('⚠️  No usage identified.');
-    else console.info(`ℹ️  Supports '${usageId ?? 'unknown'}' usage.`);
+    else console.info(`ℹ️ Supports '${usageId ?? 'unknown'}' usage.`);
 
     if (packageJSON.name != null) configJSON.id = packageJSON.name.replace('@dpuse/', '').replace('@dpuse/', '');
     if (packageJSON.version != null) configJSON.version = packageJSON.version;
@@ -256,11 +256,11 @@ export async function syncProjectWithGitHub(): Promise<void> {
                 await buildProjectConfig('2️⃣', packageJSON);
         }
 
-        await execCommand('3️⃣  Stage changes', 'git', ['add', '.']);
+        await execCommand('3️⃣ Stage changes', 'git', ['add', '.']);
 
-        await execCommand('4️⃣  Commit changes', 'git', ['commit', '-m', `"v${packageJSON.version ?? 'unknown'}"`]);
+        await execCommand('4️⃣ Commit changes', 'git', ['commit', '-m', `"v${packageJSON.version ?? 'unknown'}"`]);
 
-        await execCommand('5️⃣  Push changes', 'git', ['push', 'origin', 'main:main']);
+        await execCommand('5️⃣ Push changes', 'git', ['push', 'origin', 'main:main']);
 
         logOperationSuccess(`Project version '${packageJSON.version ?? 'unknown'}' synchronised with GitHub.`);
     } catch (error) {
@@ -285,7 +285,7 @@ export function testProject(): void {
 // ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 async function bumpPackageVersion(stepIcon: string, packageJSON: PackageJson, path = './'): Promise<void> {
-    logStepHeader(`${stepIcon}  Bump project version`);
+    logStepHeader(`${stepIcon} Bump project version`);
 
     if (packageJSON.version == null) {
         packageJSON.version = '0.0.001';

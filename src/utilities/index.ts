@@ -12,7 +12,7 @@ import type { MethodDefinition, Node } from 'acorn';
 
 // ── Types ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-export interface ModuleTypeConfig {
+interface ModuleTypeConfig {
     idPrefix: string;
     typeId: 'app' | 'api' | 'connector' | 'context' | 'development' | 'engine' | 'eslint' | 'kb' | 'presenter' | 'resources' | 'shared' | 'tool';
     isPublished: boolean;

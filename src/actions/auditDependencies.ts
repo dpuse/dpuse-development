@@ -7,7 +7,7 @@ export async function auditDependencies(): Promise<void> {
     try {
         logOperationHeader('Audit Dependencies');
 
-        await spawnCommand("1️⃣  Check using 'npm audit'", 'npm', ['audit']);
+        await spawnCommand("1️⃣ Check using 'npm audit'", 'npm', ['audit']);
 
         logOperationSuccess('Dependencies audited.');
     } catch (error) {
