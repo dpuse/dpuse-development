@@ -14,4 +14,4 @@ export { lintCode } from '@/actions/lintCode';
 
 export { uploadDirectoryToR2 } from '@/utilities/cloudflare';
 
-export { buildProject, releaseProject, syncProjectWithGitHub, testProject } from '@/actions/manageProject';
+export { buildProject, publishProject, releaseProject, syncProjectWithGitHub, testProject } from '@/actions/manageProject';

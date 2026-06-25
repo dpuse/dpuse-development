@@ -5649,73 +5649,73 @@ var On = [
 	{
 		idPrefix: "dpuse-app",
 		typeId: "app",
-		isPublished: !1,
+		publishedTo: void 0,
 		uploadGroupName: void 0
 	},
 	{
 		idPrefix: "dpuse-api",
 		typeId: "api",
-		isPublished: !1,
+		publishedTo: void 0,
 		uploadGroupName: void 0
 	},
 	{
 		idPrefix: "dpuse-connector",
 		typeId: "connector",
-		isPublished: !1,
+		publishedTo: "dpuse",
 		uploadGroupName: "connectors"
 	},
 	{
 		idPrefix: "dpuse-context",
 		typeId: "context",
-		isPublished: !1,
+		publishedTo: "dpuse",
 		uploadGroupName: "contexts"
 	},
 	{
 		idPrefix: "dpuse-development",
 		typeId: "development",
-		isPublished: !0,
+		publishedTo: "npm",
 		uploadGroupName: void 0
 	},
 	{
 		idPrefix: "dpuse-engine",
 		typeId: "engine",
-		isPublished: !1,
+		publishedTo: "dpuse",
 		uploadGroupName: "engine"
 	},
 	{
 		idPrefix: "dpuse-kb",
 		typeId: "kb",
-		isPublished: !1,
+		publishedTo: void 0,
 		uploadGroupName: void 0
 	},
 	{
 		idPrefix: "dpuse-presenter",
 		typeId: "presenter",
-		isPublished: !1,
+		publishedTo: "dpuse",
 		uploadGroupName: "presenters"
 	},
 	{
-		idPrefix: "dpuse-recipe",
-		typeId: "recipe",
-		isPublished: !1,
-		uploadGroupName: "recipes"
+		idPrefix: "dpuse-cookbook",
+		typeId: "cookbook",
+		publishedTo: "dpuse",
+		uploadGroupName: "cookbooks"
 	},
 	{
 		idPrefix: "dpuse-resources",
 		typeId: "resources",
-		isPublished: !1,
+		publishedTo: void 0,
 		uploadGroupName: void 0
 	},
 	{
 		idPrefix: "dpuse-shared",
 		typeId: "shared",
-		isPublished: !0,
+		publishedTo: "npm",
 		uploadGroupName: void 0
 	},
 	{
 		idPrefix: "dpuse-tool",
 		typeId: "tool",
-		isPublished: !0,
+		publishedTo: "npm",
 		uploadGroupName: "tools"
 	}
 ], kn = r(i);
@@ -5871,7 +5871,7 @@ async function Gn() {
 	try {
 		G("Check configuration files.");
 		let e = zn((await W("config.json")).id), t = n.dirname(o(import.meta.url));
-		await Kn(t, "../", ".editorconfig"), await Kn(t, "../", ".gitattributes"), await Kn(t, "../", e.isPublished ? ".gitignore_published" : ".gitignore_unpublished"), await Kn(t, "../", ".markdownlint.json"), await Kn(t, "../", "LICENSE"), K("Configuration files checked..");
+		await Kn(t, "../", ".editorconfig"), await Kn(t, "../", ".gitattributes"), await Kn(t, "../", e.publishedTo === "npm" ? ".gitignore_published" : ".gitignore_unpublished"), await Kn(t, "../", ".markdownlint.json"), await Kn(t, "../", "LICENSE"), K("Configuration files checked..");
 	} catch (e) {
 		console.error("❌  Error checking configuration files.", e), process.exit(1);
 	}
@@ -6687,7 +6687,7 @@ async function fi() {
 	try {
 		G("Release Project");
 		let e = await W("package.json"), t = await W("config.json");
-		await xi("1️⃣ ", e);
+		await Si("1️⃣ ", e);
 		let n = zn(t.id);
 		switch (n.typeId) {
 			case "connector":
@@ -6717,7 +6717,7 @@ async function fi() {
 			let r = t.id.split("-").slice(2).join("-");
 			await $r(e, `dpuse-engine-eu/${n.uploadGroupName}/${r}`), await Qr(t);
 		}
-		if (n.isPublished) {
+		if (n.publishedTo === "npm") {
 			let e = ".npmrc";
 			try {
 				await Rn(e, `registry=https://registry.npmjs.org/\n//registry.npmjs.org/:_authToken=${process.env.NPM_TOKEN ?? ""}`), await Nn("8️⃣  Publish to npm", "npm", [
@@ -6768,9 +6768,26 @@ async function vi(e, t, n, r) {
 }
 async function yi() {
 	try {
+		G("Publish Project");
+		let e = await W("package.json"), t = await W("config.json"), n = zn(t.id);
+		if (n.typeId === "app") q("1️⃣  Register module"), await Xr();
+		else if (n.typeId === "engine") q("1️⃣  Register module"), await $r(e, `dpuse-engine-eu/${n.uploadGroupName ?? "unknown"}`), await Qr(t);
+		else if (n.uploadGroupName === void 0) q("1️⃣  Publishing NOT required.");
+		else {
+			q("1️⃣  Register module");
+			let r = t.id.split("-").slice(2).join("-");
+			await $r(e, `dpuse-engine-eu/${n.uploadGroupName}/${r}`), await Qr(t);
+		}
+		K(`Project version '${e.version ?? "unknown"}' published.`);
+	} catch (e) {
+		console.error("❌  Error publishing project.", e), process.exit(1);
+	}
+}
+async function bi() {
+	try {
 		G("Synchronise Project with GitHub");
 		let e = await W("package.json"), t = await W("config.json");
-		switch (await xi("1️⃣ ", e), zn(t.id).typeId) {
+		switch (await Si("1️⃣ ", e), zn(t.id).typeId) {
 			case "connector":
 				await mi("2️⃣ ", e);
 				break;
@@ -6795,14 +6812,14 @@ async function yi() {
 		console.error("❌  Error synchronising project with GitHub.", e), process.exit(1);
 	}
 }
-function bi() {
+function xi() {
 	try {
 		G("Test Project"), console.error("\n❌  No tests implemented.\n");
 	} catch (e) {
 		console.error("❌  Error testing project.", e), process.exit(1);
 	}
 }
-async function xi(e, t, n = "./") {
+async function Si(e, t, n = "./") {
 	if (q(`${e} Bump project version`), t.version == null) t.version = "0.0.001", console.warn(`⚠️  Project version initialised to '${t.version}'.`);
 	else {
 		let e = t.version, n = t.version.split(".");
@@ -6811,6 +6828,6 @@ async function xi(e, t, n = "./") {
 	await Ln(`${n}package.json`, t);
 }
 //#endregion
-export { Wn as auditDependencies, di as buildProject, Gn as checkConfigFiles, qn as checkDependencies, Qn as documentDependencies, qr as documentOperations, Jr as formatCode, Yr as lintCode, fi as releaseProject, yi as syncProjectWithGitHub, bi as testProject, Zr as uploadDirectoryToR2 };
+export { Wn as auditDependencies, di as buildProject, Gn as checkConfigFiles, qn as checkDependencies, Qn as documentDependencies, qr as documentOperations, Jr as formatCode, Yr as lintCode, yi as publishProject, fi as releaseProject, bi as syncProjectWithGitHub, xi as testProject, Zr as uploadDirectoryToR2 };
 
 //# sourceMappingURL=dpuse-development.es.js.map

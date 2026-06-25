@@ -16,26 +16,26 @@ import type { MethodDefinition, Node } from 'acorn';
 
 interface ModuleTypeConfig {
     idPrefix: string;
-    typeId: 'app' | 'api' | 'connector' | 'context' | 'development' | 'engine' | 'eslint' | 'kb' | 'presenter' | 'recipe' | 'resources' | 'shared' | 'tool';
-    isPublished: boolean;
-    uploadGroupName: 'connectors' | 'contexts' | 'engine' | 'presenters' | 'recipes' | 'tools' | undefined;
+    typeId: 'app' | 'api' | 'connector' | 'context' | 'cookbook' | 'development' | 'engine' | 'eslint' | 'kb' | 'presenter' | 'resources' | 'shared' | 'tool';
+    publishedTo: 'dpuse' | 'npm' | undefined;
+    uploadGroupName: 'connectors' | 'contexts' | 'cookbooks' | 'engine' | 'presenters' | 'tools' | undefined;
 }
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const MODULE_TYPE_CONFIGS: ModuleTypeConfig[] = [
-    { idPrefix: 'dpuse-app', typeId: 'app', isPublished: false, uploadGroupName: undefined },
-    { idPrefix: 'dpuse-api', typeId: 'api', isPublished: false, uploadGroupName: undefined },
-    { idPrefix: 'dpuse-connector', typeId: 'connector', isPublished: false, uploadGroupName: 'connectors' },
-    { idPrefix: 'dpuse-context', typeId: 'context', isPublished: false, uploadGroupName: 'contexts' },
-    { idPrefix: 'dpuse-development', typeId: 'development', isPublished: true, uploadGroupName: undefined },
-    { idPrefix: 'dpuse-engine', typeId: 'engine', isPublished: false, uploadGroupName: 'engine' },
-    { idPrefix: 'dpuse-kb', typeId: 'kb', isPublished: false, uploadGroupName: undefined },
-    { idPrefix: 'dpuse-presenter', typeId: 'presenter', isPublished: false, uploadGroupName: 'presenters' },
-    { idPrefix: 'dpuse-recipe', typeId: 'recipe', isPublished: false, uploadGroupName: 'recipes' },
-    { idPrefix: 'dpuse-resources', typeId: 'resources', isPublished: false, uploadGroupName: undefined },
-    { idPrefix: 'dpuse-shared', typeId: 'shared', isPublished: true, uploadGroupName: undefined },
-    { idPrefix: 'dpuse-tool', typeId: 'tool', isPublished: true, uploadGroupName: 'tools' }
+    { idPrefix: 'dpuse-app', typeId: 'app', publishedTo: undefined, uploadGroupName: undefined },
+    { idPrefix: 'dpuse-api', typeId: 'api', publishedTo: undefined, uploadGroupName: undefined },
+    { idPrefix: 'dpuse-connector', typeId: 'connector', publishedTo: 'dpuse', uploadGroupName: 'connectors' },
+    { idPrefix: 'dpuse-context', typeId: 'context', publishedTo: 'dpuse', uploadGroupName: 'contexts' },
+    { idPrefix: 'dpuse-development', typeId: 'development', publishedTo: 'npm', uploadGroupName: undefined },
+    { idPrefix: 'dpuse-engine', typeId: 'engine', publishedTo: 'dpuse', uploadGroupName: 'engine' },
+    { idPrefix: 'dpuse-kb', typeId: 'kb', publishedTo: undefined, uploadGroupName: undefined },
+    { idPrefix: 'dpuse-presenter', typeId: 'presenter', publishedTo: 'dpuse', uploadGroupName: 'presenters' },
+    { idPrefix: 'dpuse-cookbook', typeId: 'cookbook', publishedTo: 'dpuse', uploadGroupName: 'cookbooks' },
+    { idPrefix: 'dpuse-resources', typeId: 'resources', publishedTo: undefined, uploadGroupName: undefined },
+    { idPrefix: 'dpuse-shared', typeId: 'shared', publishedTo: 'npm', uploadGroupName: undefined },
+    { idPrefix: 'dpuse-tool', typeId: 'tool', publishedTo: 'npm', uploadGroupName: 'tools' }
 ];
 
 // ── Initialisation ───────────────────────────────────────────────────────────────────────────────────────────────────
