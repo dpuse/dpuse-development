@@ -178,7 +178,7 @@ Insert link to other document for detailed explanation. Only show messages if is
 
 ### SonarCloud
 
-[SonarCloud](https://sonarcloud.io/summary/new_code?id=dpuse_development) performs continuous code quality and security analysis on every push, detecting bugs, code smells, and security vulnerabilities in the TypeScript source.
+[SonarCloud](https://sonarcloud.io/summary/new_code?id=dpuse_dpuse_development) performs continuous code quality and security analysis on every push, detecting bugs, code smells, and security vulnerabilities in the TypeScript source.
 
 ### Vulnerability Scanning
 
