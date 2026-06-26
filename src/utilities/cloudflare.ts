@@ -32,8 +32,7 @@ export async function uploadDirectoryToR2(sourceDirectory: string, uploadDirecto
                 await listDirectoryEntriesRecursively(sourceItemPath, destinationItemPath, nextLevelChildren);
             } else {
                 console.info(`⚙️ Uploading '${currentSourceDirectory}/${name}'...`);
-                const command = `wrangler r2 object put "dpuse-sample-data-eu/${currentDestinationDirectory}/${name}" --file="${currentSourceDirectory}/${name}" --jurisdiction=eu --remote`;
-                await execCommand(undefined, command);
+                await execCommand(undefined, 'wrangler', ['r2', 'object', 'put', `dpuse-sample-data-eu/${currentDestinationDirectory}/${name}`, `--file=${currentSourceDirectory}/${name}`, '--jurisdiction=eu', '--remote']);
             }
         }
     }
@@ -64,7 +63,7 @@ export async function uploadModuleToR2(packageJSON: PackageJson, uploadDirectory
             const nonJavaScripContentType = entry.name.endsWith('.css') ? 'text/css' : 'application/octet-stream';
             const contentType = entry.name.endsWith('.js') ? 'application/javascript' : nonJavaScripContentType;
             console.info(`⚙️ Uploading '${relativePath}' → '${r2Path}'...`);
-            await execCommand(undefined, `wrangler r2 object put "${r2Path}" --file="${fullPath}" --content-type ${contentType} --jurisdiction=eu --remote`);
+            await execCommand(undefined, 'wrangler', ['r2', 'object', 'put', r2Path, `--file=${fullPath}`, '--content-type', contentType, '--jurisdiction=eu', '--remote']);
         }
     }
     await uploadDirectory('dist');

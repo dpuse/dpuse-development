@@ -1,7 +1,7 @@
 import { existsSync as e, promises as t } from "node:fs";
 import n from "node:path";
 import { promisify as r } from "node:util";
-import { exec as i, spawn as a } from "node:child_process";
+import { execFile as i, spawn as a } from "node:child_process";
 import { fileURLToPath as o } from "node:url";
 //#region \0rolldown/runtime.js
 var s = Object.defineProperty, c = /* @__PURE__ */ ((e, t) => {
@@ -5744,10 +5744,9 @@ async function jn(e, n) {
 	return t.readdir(e, n);
 }
 async function Mn(e, n, r = [], i) {
-	let a = `${n} ${r.join(" ")}`;
-	e !== void 0 && q(`${e} - exec(${a})`);
-	let { stdout: o, stderr: s } = await kn(a);
-	i === void 0 ? o.trim() && console.log(o.trim()) : await t.writeFile(i, o.trim(), "utf8"), s.trim() && console.error(s.trim());
+	e !== void 0 && q(`${e} - exec(${n} ${r.join(" ")})`);
+	let { stdout: a, stderr: o } = await kn(n, r);
+	i === void 0 ? a.trim() && console.log(a.trim()) : await t.writeFile(i, a.trim(), "utf8"), o.trim() && console.error(o.trim());
 }
 async function Nn(e, t, n = [], r = !1, i = !1) {
 	return q(`${e} - spawn(${t} ${n.join(" ")})`), new Promise((e, o) => {
@@ -5961,7 +5960,7 @@ function er(e, t) {
 }
 async function tr(e, t) {
 	try {
-		let n = await fetch(`https://registry.npmjs.org/${e.replace("/", "%2F")}`);
+		let n = await fetch(`https://registry.npmjs.org/${encodeURIComponent(e)}`);
 		if (n.ok) {
 			let e = await n.json(), r = new Map(Object.entries(e["dist-tags"] ?? {})), i = new Map(Object.entries(e.time ?? {})), a = r.get("latest") ?? "", o = i.get(t) ?? "";
 			return {
@@ -6003,7 +6002,7 @@ function ar(e) {
 	return r.getDate() < n.getDate() && --i, i === 0 ? `this month: ${t}` : i === 1 ? `1 month ago: ${t}` : i <= 6 ? `${String(i)} months ago: ${t}` : `${String(i)} months ago: ${t} ⚠️ `;
 }
 //#endregion
-//#region node_modules/@dpuse/dpuse-shared/dist/componentConfig.schema-DTtYL9IP.js
+//#region node_modules/@dpuse/dpuse-shared/dist/componentConfig.schema-C75xefrQ.js
 var or, sr = {
 	lang: void 0,
 	message: void 0,
@@ -6464,7 +6463,7 @@ var Mr = Or([
 	"tool"
 ]);
 //#endregion
-//#region node_modules/@dpuse/dpuse-shared/dist/moduleConfig.schema-CMPetJQa.js
+//#region node_modules/@dpuse/dpuse-shared/dist/moduleConfig.schema-DGEZc-oy.js
 var Lr = {
 	...Ir,
 	version: /* @__PURE__ */ $()
@@ -6587,7 +6586,15 @@ async function Zr(e, t) {
 	async function n(e, t, r) {
 		for (let i of r) {
 			let r = `${e}/${i}`, a = `${t}/${i}`;
-			(await Bn(r)).isDirectory() ? await n(r, a, await jn(r)) : (console.info(`⚙️ Uploading '${e}/${i}'...`), await Mn(void 0, `wrangler r2 object put "dpuse-sample-data-eu/${t}/${i}" --file="${e}/${i}" --jurisdiction=eu --remote`));
+			(await Bn(r)).isDirectory() ? await n(r, a, await jn(r)) : (console.info(`⚙️ Uploading '${e}/${i}'...`), await Mn(void 0, "wrangler", [
+				"r2",
+				"object",
+				"put",
+				`dpuse-sample-data-eu/${t}/${i}`,
+				`--file=${e}/${i}`,
+				"--jurisdiction=eu",
+				"--remote"
+			]));
 		}
 	}
 	let r = await jn(`${e}/${t}/`);
@@ -6608,7 +6615,17 @@ async function $r(e, t) {
 		for (let a of i) {
 			if (a.isDirectory()) continue;
 			let i = `${e}/${a.name}`, o = r ? `${r}/${a.name}` : a.name, s = `${t}_${n}/${o}`.replaceAll("\\", "/"), c = a.name.endsWith(".css") ? "text/css" : "application/octet-stream", l = a.name.endsWith(".js") ? "application/javascript" : c;
-			console.info(`⚙️ Uploading '${o}' → '${s}'...`), await Mn(void 0, `wrangler r2 object put "${s}" --file="${i}" --content-type ${l} --jurisdiction=eu --remote`);
+			console.info(`⚙️ Uploading '${o}' → '${s}'...`), await Mn(void 0, "wrangler", [
+				"r2",
+				"object",
+				"put",
+				s,
+				`--file=${i}`,
+				"--content-type",
+				l,
+				"--jurisdiction=eu",
+				"--remote"
+			]);
 		}
 	}
 	await r("dist");

@@ -9,7 +9,7 @@ import { Parser } from 'acorn';
 import path from 'node:path';
 import { promisify } from 'node:util';
 import type { Dirent, ObjectEncodingOptions, Stats } from 'node:fs';
-import { exec, spawn } from 'node:child_process';
+import { execFile, spawn } from 'node:child_process';
 import type { MethodDefinition, Node } from 'acorn';
 
 // ── Types ────────────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -40,7 +40,7 @@ const MODULE_TYPE_CONFIGS: ModuleTypeConfig[] = [
 
 // ── Initialisation ───────────────────────────────────────────────────────────────────────────────────────────────────
 
-const asyncExec = promisify(exec);
+const asyncExecFile = promisify(execFile);
 
 // ── Actions - Directory ──────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -78,9 +78,8 @@ export async function getDirectoryEntries(path: string, options?: ObjectEncoding
 // ── Actions - Command ────────────────────────────────────────────────────────────────────────────────────────────────
 
 export async function execCommand(label: string | undefined, command_: string, arguments_: string[] = [], outputFilePath?: string): Promise<void> {
-    const command = `${command_} ${arguments_.join(' ')}`;
-    if (label !== undefined) logStepHeader(`${label} - exec(${command})`);
-    const { stdout, stderr } = await asyncExec(command);
+    if (label !== undefined) logStepHeader(`${label} - exec(${command_} ${arguments_.join(' ')})`);
+    const { stdout, stderr } = await asyncExecFile(command_, arguments_);
     if (outputFilePath === undefined) {
         if (stdout.trim()) console.log(stdout.trim());
     } else {
