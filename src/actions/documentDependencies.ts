@@ -143,7 +143,7 @@ function parseLicenseEntry(key: string, value: ProductionPackageLicense): Licens
 
 async function fetchNpmData(name: string, version: string): Promise<{ latestVersion: string; latestPublishedDate: string; publishedDate: string }> {
     try {
-        const response = await fetch(`https://registry.npmjs.org/${name.replace('/', '%2F')}`);
+        const response = await fetch(`https://registry.npmjs.org/${encodeURIComponent(name)}`);
         if (response.ok) {
             const data = (await response.json()) as { 'dist-tags'?: Record<string, string>; time?: Record<string, string> };
             const distributionTags = new Map(Object.entries(data['dist-tags'] ?? {}));
