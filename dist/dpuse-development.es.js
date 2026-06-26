@@ -5907,7 +5907,7 @@ var Jn = "<!-- DEPENDENCY_LICENSES_START -->", Yn = "<!-- DEPENDENCY_LICENSES_EN
 async function Qn(e = "MIT") {
 	try {
 		G("Document Dependencies"), await An("1️⃣  Clear downloaded licenses", "licenses/downloads");
-		let t = await W("package.json"), n = `${t.name ?? ""}@${t.version ?? ""}`;
+		let t = await W("package.json");
 		await Mn("2️⃣  Identify production licenses", "license-checker-rseidelsohn", [
 			"--production",
 			"--json",
@@ -5918,7 +5918,7 @@ async function Qn(e = "MIT") {
 			"--onlyAllow",
 			`"${e}"`,
 			"--excludePackages",
-			`"${n}"`,
+			`"${t.name ?? ""}"`,
 			"--out",
 			"licenses/licenses.json"
 		]), await Pn("3️⃣  Identify transitive dependencies", "npm", [

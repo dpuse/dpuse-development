@@ -106,25 +106,9 @@ Common resources (files) used across Data Positioning projects.
 | Markdown lint rules                           | [.markdownlint.json](.markdownlint.json)                             |
 | VS Code key bindings                          | [resources/vsCodeKeyBindings.json](resources/vsCodeKeyBindings.json) |
 
-## Bundle Analysis Reports
-
-The Bundle Analysis Report provides a detailed breakdown of the bundle’s composition and module sizes, helping identify which modules contribute most to the final build. It is generated automatically on each release using the `npm` package [rollup-plugin-visualizer](https://www.npmjs.com/package/rollup-plugin-visualizer).
-
-[View the Bundle Analysis Report](https://dpuse.github.io/dpuse-development/bundle-analysis-reports/rollup-visualiser/index.html) created by the **rollup visualiser** plugin.
-
-[View the Bundle Analysis Report](https://dpuse.github.io/dpuse-development/bundle-analysis-reports/sonda/index.html) created by the **sonda** plugin.
-
-## Dependency Check Report
-
-The OWASP Dependency Check Report identifies known vulnerabilities in project dependencies. It is generated automatically on each release using the `npm` package [owasp-dependency-check](https://dependency-check.github.io/DependencyCheck/index.html).
-
-[View the OWASP Dependency Check Report](https://dpuse.github.io/dpuse-development/dependency-check-reports/dependency-check-report.html)
-
 ## Dependency Licenses
 
-The following table lists the top-level production and peer dependencies. All of these dependencies—along with their transitive dependencies—have been recursively verified to use one of the following commercially friendly licenses: **BSD-2-Clause**, **CC0-1.0**, or **MIT**. Developers cloning this repository should independently verify all **development** and **optional** dependencies. This project supports development activities only. It is not used in production or distributed in any other form.
-
-We use the `npm` packages [license-report](https://www.npmjs.com/package/license-report), [license-report-check](https://www.npmjs.com/package/license-report-check), [license-report-recursive](https://www.npmjs.com/package/license-report-recursive) and [license-downloader](https://www.npmjs.com/package/license-downloader) to identify all dependency licenses and include copies of them. We do not use any unlicensed dependencies in either production or development.
+License data is collected automatically on each release using [license-checker](https://github.com/RSeidelsohn/license-checker-rseidelsohn). The following table lists all production dependencies. These dependencies (including transitive ones) have been checked and confirmed to use Apache-2.0, BSD-3-Clause, CC0-1.0, or MIT — all permissive, commercially-friendly licenses. Developers cloning this repository should independently verify development dependencies; users of the uploaded library are covered by these checks.
 
 <!-- DEPENDENCY_LICENSES_START -->
 
@@ -140,6 +124,8 @@ We use the `npm` packages [license-report](https://www.npmjs.com/package/license
 
 <!-- DEPENDENCY_LICENSES_END -->
 
+The dependency tree below lists every package in this project — direct and transitive — along with its installed version, release date, and update status. Packages flagged ❗ have a newer version available; ⚠️ indicates a package that hasn't been updated in the last 6 months or longer. Neither flag necessarily indicates a problem: we let new releases stabilise before upgrading, and some packages are simply mature and stable, requiring no active development.
+
 <!-- DEPENDENCY_TREE_START -->
 
 - **[@dpuse/dpuse-shared](https://github.com/data-positioning/dpuse-shared)** 0.3.675 — this month: 2026-06-23
@@ -153,23 +139,16 @@ We use the `npm` packages [license-report](https://www.npmjs.com/package/license
 
 <!-- DEPENDENCY_TREE_END -->
 
-Insert link to other document for detailed explanation. Only show messages if issues arise.
+## Bundle Analysis
 
-1. **Installed** column:
+The Bundle Analysis Reports provide detailed breakdowns of the bundle's composition and module sizes, helping to identify which modules contribute most to the final build. Two complementary reports are generated automatically on each release:
 
-    The ⚠️ symbol indicates that the installed version does not match the latest available version.”.
+- **[rollup-plugin-visualizer](https://github.com/btd/rollup-plugin-visualizer/tree/master)** — generates a static treemap/sunburst view based on pre-build module estimates, useful for a quick visual scan of overall bundle composition, including CSS assets.
+- **[Sonda](https://sonda.dev/)** — analyses final source maps to capture the effects of tree-shaking and minification, rather than relying on pre-build estimates. This gives a more accurate picture of what's actually shipped, traces module-level dependencies, and shows the size of each module after tree-shaking and minification for more precise insight into what's driving bundle size. Note: Sonda's Vite reports currently exclude CSS files, since Vite does not generate source maps for CSS.
 
-1. **Latest Release** column:
+[View the rollup-plugin-visualizer Report](https://dpuse.github.io/dpuse-connector-file-store-emulator/bundle-analysis-reports/rollup-visualiser/index.html).
 
-    The ⚠️ symbol indicates that the dependency has gone **more than 6 months** without an update but **no more than 12 months**.
-
-    The ❗ symbol indicates a dependency that has gone **more than 12 months** without an update.
-
-    If a dependency has no, or only a small number of, transitive dependencies, then it may not require frequent updates. The **Deps** column shows the number of transitive dependencies. Full details for these dependencies can be found in [licenses/licenseTree.json](licenses/licenseTree.json).
-
-1. **Document** column:
-
-    The “⚠️ No license file” message indicates a dependency that does not include a license file.
+[View the Sonda Report](https://dpuse.github.io/dpuse-connector-file-store-emulator/bundle-analysis-reports/sonda/index.html).
 
 ## Security & Quality
 

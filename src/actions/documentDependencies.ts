@@ -56,7 +56,6 @@ export async function documentDependencies(allowedLicenses = 'MIT'): Promise<voi
         await clearDirectory('1️⃣  Clear downloaded licenses', 'licenses/downloads');
 
         const rootPackage = await readJSONFile<{ name?: string; version?: string }>('package.json');
-        const rootKey = `${rootPackage.name ?? ''}@${rootPackage.version ?? ''}`;
 
         await execCommand('2️⃣  Identify production licenses', 'license-checker-rseidelsohn', [
             '--production',
@@ -68,7 +67,7 @@ export async function documentDependencies(allowedLicenses = 'MIT'): Promise<voi
             '--onlyAllow',
             `"${allowedLicenses}"`,
             '--excludePackages',
-            `"${rootKey}"`,
+            `"${rootPackage.name ?? ''}"`,
             '--out',
             'licenses/licenses.json'
         ]);
