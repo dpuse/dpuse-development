@@ -1,28 +1,97 @@
 {
-    "name": "@datapos/datapos-development",
-    "license": "MIT",
+    "name": "@dpuse/dpuse-development",
+    "version": "0.3.552",
     "private": false,
+    "description": "Actions for managing DPUse projects.",
+    "license": "MIT",
+    "author": "Jonathan Terrell <terrell.jm@gmail.com>",
     "type": "module",
-    "main": "index.js",
-    "version": "0.3.19",
-    "devDependencies": {
-        "eslint": "^9.28.0",
-        "nanoid": "^5.1.5",
-        "prettier": "^3.5.3",
-        "run": "^1.5.0"
+    "sideEffects": false,
+    "homepage": "https://www.dpuse.app",
+    "bugs": {
+        "url": "https://github.com/dpuse/dpuse-development/issues"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/dpuse/dpuse-development.git"
+    },
+    "module": "./dist/dpuse-development.es.js",
+    "types": "./dist/types/src/index.d.ts",
+    "exports": {
+        ".": {
+            "import": "./dist/dpuse-development.es.js",
+            "types": "./dist/types/src/index.d.ts"
+        },
+        "./prettierrc": "./.prettierrc.json",
+        "./license-report-config": "./licenses/license-report-config.json"
+    },
+    "files": [
+        ".editorconfig",
+        ".gitattributes",
+        ".gitignore_published",
+        ".gitignore_unpublished",
+        ".markdownlint.json",
+        ".prettierrc.json",
+        "dist",
+        "eslint.config.ts",
+        "LICENSE",
+        "licenses/license-report-config.json",
+        "tsconfig.json",
+        "tsconfig.vite.json",
+        "vite.config.ts",
+        "vitest.config.ts"
+    ],
+    "engines": {
+        "node": ">=22",
+        "npm": ">=11"
+    },
+    "allowScripts": {
+        "fsevents@2.3.3": true,
+        "unrs-resolver@1.11.1": true
     },
     "scripts": {
-        "audit": "npm audit",
-        "build": "echo \"***** BUILD SCRIPT NOT IMPLEMENTED. *****\"",
-        "bumpVersion": "node -e \"import('./index.js').then(m => m.bumpVersion())\"",
-        "check": "npx npm-check-updates && npm outdated",
-        "document": "npx npm-license-crawler --onlyDirectDependencies --production --relativeLicensePath --json LICENSES.json",
-        "format": "prettier --write *.js",
-        "lint": "npx eslint *.js",
-        "publishToNPM": "npm publish --access public",
-        "release": "npm run syncWithGitHub && npm run publishToNPM",
-        "syncWithGitHub": "npm run bumpVersion && node -e \"import('./index.js').then(m => m.syncWithGitHub())\"",
-        "test": "echo \"***** TEST SCRIPT NOT IMPLEMENTED. *****\"",
-        "updateDependencies": "echo \"***** UPDATE DEPENDENCIES SCRIPT NOT IMPLEMENTED. *****\""
+        "audit": "node -e \"import('./dist/dpuse-development.es.js').then(m => m.auditDependencies())\"",
+        "build": "vite build",
+        "check": "node -e \"import('./dist/dpuse-development.es.js').then(m => m.checkDependencies())\"",
+        "document": "node -e \"import('./dist/dpuse-development.es.js').then(m => m.documentDependencies(['Apache-2.0;MIT']))\"",
+        "format": "node -e \"import('./dist/dpuse-development.es.js').then(m => m.formatCode())\"",
+        "lint": "node -e \"import('./dist/dpuse-development.es.js').then(m => m.lintCode())\"",
+        "release": "npm run sync && gh release create \"v$(npm pkg get version | tr -d '\"')\" --generate-notes --latest",
+        "sync": "node -e \"import('./dist/dpuse-development.es.js').then(m => m.syncProjectWithGitHub())\"",
+        "test": "node -e \"import('./dist/dpuse-development.es.js').then(m => m.testProject())\"",
+        "update": "node -e \"import('./dist/dpuse-development.es.js').then(m => m.updateDPUseDependencies(['eslint', 'shared']))\""
+    },
+    "dependencies": {
+        "@dpuse/dpuse-shared": "^0.3.689",
+        "acorn": "^8.17.0",
+        "acorn-typescript": "^1.4.13",
+        "acorn-walk": "^8.3.5",
+        "nanoid": "^5.1.16",
+        "valibot": "^1.4.1"
+    },
+    "devDependencies": {
+        "@eslint-community/eslint-plugin-eslint-comments": "^4.7.2",
+        "@types/eslint-plugin-security": "^3.0.1",
+        "@types/node": "^26.0.1",
+        "eslint": "^10.5.0",
+        "eslint-config-prettier": "^10.1.8",
+        "eslint-import-resolver-typescript": "^4.4.5",
+        "eslint-plugin-import-x": "^4.17.0",
+        "eslint-plugin-regexp": "^3.1.1",
+        "eslint-plugin-security": "^4.0.1",
+        "eslint-plugin-sonarjs": "^4.1.0",
+        "eslint-plugin-unicorn": "^69.0.0",
+        "jiti": "^2.7.0",
+        "license-checker-rseidelsohn": "^5.0.1",
+        "npm-check-updates": "^22.2.7",
+        "prettier": "^3.8.4",
+        "rollup-plugin-visualizer": "^7.0.1",
+        "sonda": "^0.13.1",
+        "type-fest": "^5.7.0",
+        "typescript": "^6.0.3",
+        "typescript-eslint": "^8.62.0",
+        "vite": "^8.1.0",
+        "vite-plugin-dts": "^5.0.3",
+        "vitest": "^4.1.9"
     }
 }

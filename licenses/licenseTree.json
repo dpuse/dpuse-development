@@ -1,0 +1,53 @@
+{
+  "version": "0.3.547",
+  "name": "@dpuse/dpuse-development",
+  "dependencies": {
+    "@dpuse/dpuse-shared": {
+      "version": "0.3.675",
+      "resolved": "https://registry.npmjs.org/@dpuse/dpuse-shared/-/dpuse-shared-0.3.675.tgz",
+      "overridden": false
+    },
+    "acorn-typescript": {
+      "version": "1.4.13",
+      "resolved": "https://registry.npmjs.org/acorn-typescript/-/acorn-typescript-1.4.13.tgz",
+      "overridden": false,
+      "dependencies": {
+        "acorn": {
+          "version": "8.17.0"
+        }
+      }
+    },
+    "acorn-walk": {
+      "version": "8.3.5",
+      "resolved": "https://registry.npmjs.org/acorn-walk/-/acorn-walk-8.3.5.tgz",
+      "overridden": false,
+      "dependencies": {
+        "acorn": {
+          "version": "8.17.0"
+        }
+      }
+    },
+    "acorn": {
+      "version": "8.17.0",
+      "resolved": "https://registry.npmjs.org/acorn/-/acorn-8.17.0.tgz",
+      "overridden": false
+    },
+    "nanoid": {
+      "version": "5.1.15",
+      "resolved": "https://registry.npmjs.org/nanoid/-/nanoid-5.1.15.tgz",
+      "overridden": false
+    },
+    "valibot": {
+      "version": "1.4.1",
+      "resolved": "https://registry.npmjs.org/valibot/-/valibot-1.4.1.tgz",
+      "overridden": false,
+      "dependencies": {
+        "typescript": {
+          "version": "6.0.3",
+          "resolved": "https://registry.npmjs.org/typescript/-/typescript-6.0.3.tgz",
+          "overridden": false
+        }
+      }
+    }
+  }
+}

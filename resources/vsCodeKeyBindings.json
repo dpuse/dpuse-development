@@ -1,0 +1,156 @@
+[
+    {
+        "command": "runCommands",
+        "key": "ctrl+shift+alt+a",
+        "args": {
+            "commands": [
+                "workbench.action.terminal.focus",
+                "workbench.action.files.saveAll",
+                {
+                    "command": "workbench.action.terminal.sendSequence",
+                    "args": { "text": "npm run audit\r" }
+                }
+            ]
+        }
+    },
+    {
+        "command": "runCommands",
+        "key": "ctrl+shift+alt+b",
+        "args": {
+            "commands": [
+                "workbench.action.terminal.focus",
+                "workbench.action.files.saveAll",
+                {
+                    "command": "workbench.action.terminal.sendSequence",
+                    "args": { "text": "npm run build\r" }
+                }
+            ]
+        }
+    },
+    {
+        "command": "runCommands",
+        "key": "ctrl+shift+alt+c",
+        "args": {
+            "commands": [
+                "workbench.action.terminal.focus",
+                "workbench.action.files.saveAll",
+                {
+                    "command": "workbench.action.terminal.sendSequence",
+                    "args": { "text": "npm run check\r" }
+                }
+            ]
+        }
+    },
+    {
+        "command": "runCommands",
+        "key": "ctrl+shift+alt+d",
+        "args": {
+            "commands": [
+                "workbench.action.terminal.focus",
+                "workbench.action.files.saveAll",
+                {
+                    "command": "workbench.action.terminal.sendSequence",
+                    "args": { "text": "npm run document\r" }
+                }
+            ]
+        }
+    },
+    {
+        "command": "runCommands",
+        "key": "ctrl+shift+alt+f",
+        "args": {
+            "commands": [
+                "workbench.action.terminal.focus",
+                "workbench.action.files.saveAll",
+                {
+                    "command": "workbench.action.terminal.sendSequence",
+                    "args": { "text": "npm run format\r" }
+                }
+            ]
+        }
+    },
+    {
+        "command": "runCommands",
+        "key": "ctrl+shift+alt+l",
+        "args": {
+            "commands": [
+                "workbench.action.terminal.focus",
+                "workbench.action.files.saveAll",
+                {
+                    "command": "workbench.action.terminal.sendSequence",
+                    "args": { "text": "npm run lint\r" }
+                }
+            ]
+        }
+    },
+    {
+        "command": "runCommands",
+        "key": "ctrl+shift+alt+r",
+        "args": {
+            "commands": [
+                "workbench.action.terminal.focus",
+                "workbench.action.files.saveAll",
+                {
+                    "command": "workbench.action.terminal.sendSequence",
+                    "args": { "text": "npm run release\r" }
+                }
+            ]
+        }
+    },
+    {
+        "command": "runCommands",
+        "key": "ctrl+shift+alt+s",
+        "args": {
+            "commands": [
+                "workbench.action.terminal.focus",
+                "workbench.action.files.saveAll",
+                {
+                    "command": "workbench.action.terminal.sendSequence",
+                    "args": { "text": "npm run sync\r" }
+                }
+            ]
+        }
+    },
+    {
+        "command": "runCommands",
+        "key": "ctrl+shift+alt+t",
+        "args": {
+            "commands": [
+                "workbench.action.terminal.focus",
+                "workbench.action.files.saveAll",
+                {
+                    "command": "workbench.action.terminal.sendSequence",
+                    "args": { "text": "npm run test:unit\r" }
+                }
+            ]
+        }
+    },
+    {
+        "command": "runCommands",
+        "key": "ctrl+shift+alt+e",
+        "args": {
+            "commands": [
+                "workbench.action.terminal.focus",
+                "workbench.action.files.saveAll",
+                {
+                    "command": "workbench.action.terminal.sendSequence",
+                    "args": { "text": "npm run test:e2e\r" }
+                }
+            ]
+        }
+    },
+    {
+        "command": "runCommands",
+        "key": "ctrl+shift+alt+u",
+        "args": {
+            "commands": [
+                "workbench.action.terminal.focus",
+                "workbench.action.files.saveAll",
+                {
+                    "command": "workbench.action.terminal.sendSequence",
+                    "args": { "text": "npm run update\r" }
+                }
+            ]
+        }
+    }
+]

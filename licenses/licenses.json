@@ -1,0 +1,51 @@
+{
+    "@dpuse/dpuse-shared@0.3.675": {
+        "licenses": "MIT",
+        "repository": "https://github.com/data-positioning/dpuse-shared",
+        "publisher": "Jonathan Terrell",
+        "email": "terrell.jm@gmail.com",
+        "path": "node_modules/@dpuse/dpuse-shared",
+        "licenseFile": "downloads/@dpuse/dpuse-shared@0.3.675-LICENSE.txt"
+    },
+    "acorn-typescript@1.4.13": {
+        "licenses": "MIT",
+        "repository": "https://github.com/TyrealHu/acorn-typescript",
+        "publisher": "tyrealhu",
+        "path": "node_modules/acorn-typescript",
+        "licenseFile": "downloads/acorn-typescript@1.4.13-LICENSE.txt"
+    },
+    "acorn-walk@8.3.5": {
+        "licenses": "MIT",
+        "repository": "https://github.com/acornjs/acorn",
+        "path": "node_modules/acorn-walk",
+        "licenseFile": "downloads/acorn-walk@8.3.5-LICENSE.txt"
+    },
+    "acorn@8.17.0": {
+        "licenses": "MIT",
+        "repository": "https://github.com/acornjs/acorn",
+        "path": "node_modules/acorn",
+        "licenseFile": "downloads/acorn@8.17.0-LICENSE.txt"
+    },
+    "nanoid@5.1.15": {
+        "licenses": "MIT",
+        "repository": "https://github.com/ai/nanoid",
+        "publisher": "Andrey Sitnik",
+        "email": "andrey@sitnik.es",
+        "path": "node_modules/nanoid",
+        "licenseFile": "downloads/nanoid@5.1.15-LICENSE.txt"
+    },
+    "typescript@6.0.3": {
+        "licenses": "Apache-2.0",
+        "repository": "https://github.com/microsoft/TypeScript",
+        "publisher": "Microsoft Corp.",
+        "path": "node_modules/typescript",
+        "licenseFile": "downloads/typescript@6.0.3-LICENSE.txt"
+    },
+    "valibot@1.4.1": {
+        "licenses": "MIT",
+        "repository": "https://github.com/open-circle/valibot",
+        "publisher": "Fabian Hiller",
+        "path": "node_modules/valibot",
+        "licenseFile": "downloads/valibot@1.4.1-LICENSE.txt"
+    }
+}
