@@ -1,6 +1,6 @@
 {
     "name": "@dpuse/dpuse-development",
-    "version": "0.3.550",
+    "version": "0.3.551",
     "private": false,
     "description": "Actions for managing DPUse projects.",
     "license": "MIT",
@@ -56,7 +56,7 @@
         "document": "node -e \"import('./dist/dpuse-development.es.js').then(m => m.documentDependencies(['Apache-2.0;MIT']))\"",
         "format": "node -e \"import('./dist/dpuse-development.es.js').then(m => m.formatCode())\"",
         "lint": "node -e \"import('./dist/dpuse-development.es.js').then(m => m.lintCode())\"",
-        "release": "op run --env-file=.env -- node -e \"import('./dist/dpuse-development.es.js').then(m => m.releaseProject())\"",
+        "release": "npm run sync && gh release create \"v$(npm pkg get version | tr -d '\"')\" --generate-notes --latest",
         "sync": "node -e \"import('./dist/dpuse-development.es.js').then(m => m.syncProjectWithGitHub())\"",
         "test": "node -e \"import('./dist/dpuse-development.es.js').then(m => m.testProject())\"",
         "update": "node -e \"import('./dist/dpuse-development.es.js').then(m => m.updateDPUseDependencies(['eslint', 'shared']))\""
