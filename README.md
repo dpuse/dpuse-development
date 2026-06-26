@@ -1,6 +1,3 @@
-# Data Positioning Development Library
-[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fdata-positioning%2Fdatapos-development.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2Fdata-positioning%2Fdatapos-development?ref=badge_shield)
-
 # DPUse Development
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](./LICENSE)
@@ -153,7 +150,7 @@ We use the `npm` packages [license-report](https://www.npmjs.com/package/license
 - **[nanoid](https://github.com/ai/nanoid)** 5.1.15 — this month: 2026-06-20
 - **[valibot](https://github.com/open-circle/valibot)** 1.4.1 — 1 month ago: 2026-05-24
     - **[typescript](https://github.com/microsoft/TypeScript)** 6.0.3 — 2 months ago: 2026-04-16
-          <!-- DEPENDENCY_TREE_END -->
+      <!-- DEPENDENCY_TREE_END -->
 
 Insert link to other document for detailed explanation. Only show messages if issues arise.
 
