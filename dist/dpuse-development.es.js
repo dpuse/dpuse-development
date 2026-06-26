@@ -5906,9 +5906,7 @@ async function qn() {
 var Jn = "<!-- DEPENDENCY_LICENSES_START -->", Yn = "<!-- DEPENDENCY_LICENSES_END -->", Xn = "<!-- DEPENDENCY_TREE_START -->", Zn = "<!-- DEPENDENCY_TREE_END -->";
 async function Qn(e = "MIT") {
 	try {
-		G("Document Dependencies"), await An("1️⃣  Clear downloaded licenses", "licenses/downloads");
-		let t = await W("package.json");
-		await Mn("2️⃣  Identify production licenses", "license-checker-rseidelsohn", [
+		G("Document Dependencies"), await An("1️⃣  Clear downloaded licenses", "licenses/downloads"), await Mn("2️⃣  Identify production licenses", "license-checker-rseidelsohn", [
 			"--production",
 			"--json",
 			"--files",
@@ -5916,9 +5914,9 @@ async function Qn(e = "MIT") {
 			"--relativeModulePath",
 			"--relativeLicensePath",
 			"--onlyAllow",
-			`"${e}"`,
+			e,
 			"--excludePackages",
-			`"${t.name ?? ""}"`,
+			(await W("package.json")).name ?? "",
 			"--out",
 			"licenses/licenses.json"
 		]), await Pn("3️⃣  Identify transitive dependencies", "npm", [

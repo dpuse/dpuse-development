@@ -65,9 +65,9 @@ export async function documentDependencies(allowedLicenses = 'MIT'): Promise<voi
             '--relativeModulePath',
             '--relativeLicensePath',
             '--onlyAllow',
-            `"${allowedLicenses}"`,
+            allowedLicenses,
             '--excludePackages',
-            `"${rootPackage.name ?? ''}"`,
+            rootPackage.name ?? '',
             '--out',
             'licenses/licenses.json'
         ]);

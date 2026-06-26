@@ -1,7 +1,11 @@
-# Common Git ignore rules for PUBLISHED Data Positioning repositories.
-dependency-check-bin
-dist-scripts
-node_modules
+# Common git ignore configuration for PUBLISHED DPUse projects.
 .env
 .npmrc
+.wrangler
+dist-scripts
+node_modules
+rust/*/pkg
+rust/*/target
+rust/target
+wrangler.jsonc
 **/.DS_Store
