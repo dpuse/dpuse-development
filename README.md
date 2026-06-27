@@ -5,6 +5,8 @@
 [![CodeQL](https://github.com/dpuse/dpuse-development/actions/workflows/codeql.yml/badge.svg)](https://github.com/dpuse/dpuse-development/actions/workflows/codeql.yml)[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=dpuse_dpuse-development&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=dpuse_dpuse-development)
 [![CI](https://github.com/dpuse/dpuse-development/actions/workflows/ci.yml/badge.svg)](https://github.com/dpuse/dpuse-development/actions/workflows/ci.yml)
 
+## Introduction
+
 <!-- SUMMARY_START -->
 
 Actions for managing DPUse projects.
@@ -124,6 +126,8 @@ License data is collected automatically on each release using [license-checker](
 
 <!-- DEPENDENCY_LICENSES_END -->
 
+### Dependency Tree
+
 The dependency tree below lists every package in this project — direct and transitive — along with its installed version, release date, and update status. Packages flagged ❗ have a newer version available; ⚠️ indicates a package that hasn't been updated in the last 6 months or longer. Neither flag necessarily indicates a problem: we let new releases stabilise before upgrading, and some packages are simply mature and stable, requiring no active development.
 
 <!-- DEPENDENCY_TREE_START -->
@@ -137,7 +141,7 @@ The dependency tree below lists every package in this project — direct and tra
 - **[nanoid](https://github.com/ai/nanoid)** 5.1.16 — this month: 2026-06-24
 - **[valibot](https://github.com/open-circle/valibot)** 1.4.1 — 1 month ago: 2026-05-24
     - **[typescript](https://github.com/microsoft/TypeScript)** 6.0.3 — 2 months ago: 2026-04-16
-        <!-- DEPENDENCY_TREE_END -->
+          <!-- DEPENDENCY_TREE_END -->
 
 ## Bundle Analysis
 
@@ -179,7 +183,7 @@ Please do not open public GitHub issues for security vulnerabilities. Use [GitHu
 
 [![OpenSSF Scorecard](https://api.scorecard.dev/projects/github.com/dpuse/dpuse-development/badge)](https://scorecard.dev/viewer/?uri=github.com/dpuse/dpuse-development)
 
-This project is working towards the [OpenSSF Best Practices](https://www.bestpractices.dev) Passing badge, a self-certification covering security policy, vulnerability reporting, build processes, code quality, and more. The [OpenSSF Scorecard](https://scorecard.dev/viewer/?uri=github.com/dpuse/dpuse-shared) provides an independent automated assessment of the project's security practices and is an ongoing area of improvement.
+This project is working towards the [OpenSSF Best Practices](https://www.bestpractices.dev) Passing badge, a self-certification covering security policy, vulnerability reporting, build processes, code quality, and more. The [OpenSSF Scorecard](development) provides an independent automated assessment of the project's security practices and is an ongoing area of improvement.
 
 ## Contributing
 

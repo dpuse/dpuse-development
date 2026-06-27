@@ -5,9 +5,9 @@ import { safeParse } from 'valibot';
 // ── DPUse Framework
 import { connectorConfigSchema } from '@dpuse/dpuse-shared/component/module/connector';
 import type { ModuleConfig } from '@dpuse/dpuse-shared/component/module';
-import type { ConnectorConfig, ConnectorOperationName } from '@dpuse/dpuse-shared/component/module/connector';
+import type { ConnectorConfig, ConnectorActionName } from '@dpuse/dpuse-shared/component/module/connector';
 import { type ContextConfig, contextConfigSchema, type ContextOperationName } from '@dpuse/dpuse-shared/component/module/context';
-import { type PresenterConfig, presenterConfigSchema, type PresenterOperationName } from '@dpuse/dpuse-shared/component/module/presenter';
+import { type PresenterConfig, presenterConfigSchema, type PresenterActionName } from '@dpuse/dpuse-shared/component/module/presenter';
 
 // ── Local (Development) Framework
 import {
@@ -159,7 +159,7 @@ async function buildConnectorProjectConfig(stepIcon: string, packageJSON: Packag
         throw new Error('Configuration is invalid.');
     }
 
-    const operations = extractOperationsFromSource<ConnectorOperationName>(indexCode);
+    const operations = extractOperationsFromSource<ConnectorActionName>(indexCode);
     const usageId = determineConnectorUsageId(operations);
 
     return await processOperations<ConnectorConfig>(packageJSON, configJSON, operations, usageId);
@@ -193,11 +193,11 @@ async function buildPresenterProjectConfig(stepIcon: string, packageJSON: Packag
         throw new Error('Configuration is invalid.');
     }
 
-    const operations = extractOperationsFromSource<PresenterOperationName>(indexCode);
+    const operations = extractOperationsFromSource<PresenterActionName>(indexCode);
     return await processOperations<PresenterConfig>(packageJSON, configJSON, operations);
 }
 
-function determineConnectorUsageId(operations: ConnectorOperationName[]): ConnectorUsageId {
+function determineConnectorUsageId(operations: ConnectorActionName[]): ConnectorUsageId {
     let isSourceOperation = false;
     let isDestinationOperation = false;
     for (const operation of operations) {

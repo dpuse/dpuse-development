@@ -1,6 +1,6 @@
 // ── DPUse Framework
-import type { ConnectorOperationName } from '@dpuse/dpuse-shared/component/module/connector';
-import { generateConnectorOperationsTable } from '@dpuse/dpuse-shared/component/module/connector';
+import type { ConnectorActionName } from '@dpuse/dpuse-shared/component/module/connector';
+import { getConnectorActionsTable } from '@dpuse/dpuse-shared/component/module/connector';
 
 // ── Local (Development) Framework
 import { logOperationHeader, logOperationSuccess, logStepHeader, readJSONFile, readTextFile, substituteText, writeTextFile } from '@/utilities';
@@ -19,7 +19,7 @@ export async function documentOperations(): Promise<void> {
         logStepHeader("1️⃣  Insert operations table into 'README.md'");
 
         const config = await readJSONFile<{ operations?: string[] }>('config.json');
-        const table = generateConnectorOperationsTable((config.operations ?? []) as ConnectorOperationName[]);
+        const table = getConnectorActionsTable((config.operations ?? []) as ConnectorActionName[]);
 
         const originalContent = await readTextFile('./README.md');
         const updatedContent = substituteText(originalContent, table, START_MARKER, END_MARKER);
