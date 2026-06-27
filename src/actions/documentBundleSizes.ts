@@ -85,7 +85,7 @@ async function buildBundleTable(json: VisualizerJson): Promise<string> {
             const sortedFiles = [...files.entries()].sort((a, b) => b[1].rendered - a[1].rendered);
             for (const [fileName, fileSizes] of sortedFiles) {
                 const filePct = groupSizes.rendered > 0 ? (fileSizes.rendered / groupSizes.rendered) * 100 : 0;
-                lines.push(`| ${INDENT}${INDENT}${fileName} | ${bar(filePct)} |`);
+                lines.push(`| ${INDENT}${INDENT}${fileName} | ${bar(filePct, '▒')} |`);
             }
         }
     }
@@ -127,10 +127,10 @@ function buildSourceGroups(json: VisualizerJson): Map<string, { sizes: Sizes; fi
     return groups;
 }
 
-function bar(pct: number): string {
-    const filled = Math.round((pct / 100) * BAR_WIDTH);
-    const empty = BAR_WIDTH - filled;
-    return `${'█'.repeat(filled)}${'░'.repeat(empty)} ${pct.toFixed(1)}%`;
+function bar(pct: number, filled = '█'): string {
+    const count = Math.round((pct / 100) * BAR_WIDTH);
+    const empty = BAR_WIDTH - count;
+    return `${filled.repeat(count)}${'░'.repeat(empty)} ${pct.toFixed(1)}%`;
 }
 
 function sourceGroupName(id: string): string {
