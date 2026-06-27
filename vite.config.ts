@@ -21,7 +21,8 @@ export default defineConfig({
             formats: ['es'] // Only emit native ES modules.
         },
         rollupOptions: {
-            external: ['node:child_process', 'node:fs', 'node:path', 'node:readline', 'node:url', 'node:util'], // Keep runtime dependencies out of bundle.
+            // external: ['node:child_process', 'node:fs', 'node:path', 'node:readline', 'node:url', 'node:util'],
+            external: ['node:child_process', 'node:fs', 'node:path', 'node:readline', 'node:url', 'node:util', 'node:zlib'], // Keep runtime dependencies out of bundle.
             onwarn(warning, warn) {
                 if (warning.code === 'INVALID_ANNOTATION' && warning.id?.includes('acorn-typescript')) return;
                 warn(warning);
