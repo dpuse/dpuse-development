@@ -1,4 +1,10 @@
+import { brotliCompress, gzip } from 'node:zlib';
+import { promises as fs } from 'node:fs';
+import { promisify } from 'node:util';
 import { logOperationHeader, logOperationSuccess, logStepHeader, readJSONFile, readTextFile, substituteText, writeTextFile } from '@/utilities';
+
+const gzipAsync = promisify(gzip);
+const brotliAsync = promisify(brotliCompress);
 
 // ── Types ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -26,6 +32,8 @@ interface VisualizerJson {
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
+const ACTUAL_START_MARKER = '<!-- BUNDLE_ACTUAL_START -->';
+const ACTUAL_END_MARKER = '<!-- BUNDLE_ACTUAL_END -->';
 const CHUNKS_START_MARKER = '<!-- BUNDLE_CHUNKS_START -->';
 const CHUNKS_END_MARKER = '<!-- BUNDLE_CHUNKS_END -->';
 const SIZES_START_MARKER = '<!-- BUNDLE_SIZES_START -->';
@@ -42,11 +50,15 @@ export async function documentBundleSizes(): Promise<void> {
         const json = await readJSONFile<VisualizerJson>('./bundle-analysis-reports/rollup-visualiser/index.json');
 
         logStepHeader(`2️⃣  Insert tables into 'README.md'`);
-        const chunkTable = buildChunkTable(json);
-        const sourceTable = buildSourceTable(json);
+        const [chunkTable, sourceTable, actualTable] = await Promise.all([
+            Promise.resolve(buildChunkTable(json)),
+            Promise.resolve(buildSourceTable(json)),
+            buildActualTable()
+        ]);
 
         const readme = await readTextFile('./README.md');
-        const withChunks = substituteText(readme, `\n${chunkTable}\n`, CHUNKS_START_MARKER, CHUNKS_END_MARKER);
+        const withActual = substituteText(readme, `\n${actualTable}\n`, ACTUAL_START_MARKER, ACTUAL_END_MARKER);
+        const withChunks = substituteText(withActual, `\n${chunkTable}\n`, CHUNKS_START_MARKER, CHUNKS_END_MARKER);
         const withSizes = substituteText(withChunks, `\n${sourceTable}\n`, SIZES_START_MARKER, SIZES_END_MARKER);
         await writeTextFile('README.md', withSizes);
 
@@ -58,6 +70,30 @@ export async function documentBundleSizes(): Promise<void> {
 }
 
 // ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+async function buildActualTable(): Promise<string> {
+    const entries = await fs.readdir('./dist');
+    const jsFiles = entries.filter((f) => f.endsWith('.js') && !f.endsWith('.map'));
+
+    const rows = await Promise.all(
+        jsFiles.map(async (file) => {
+            const buf = await fs.readFile(`./dist/${file}`);
+            const [gzipped, brotlied] = await Promise.all([gzipAsync(buf), brotliAsync(buf)]);
+            return [file, { rendered: buf.length, gzip: gzipped.length, brotli: brotlied.length }] as [string, Sizes];
+        })
+    );
+
+    rows.sort((a, b) => b[1].rendered - a[1].rendered);
+    const total = rows.reduce((acc, [, v]) => { addTo(acc, v); return acc; }, zero());
+
+    const lines = [
+        '| File | Size | Gzip | Brotli |',
+        '| ---- | ---: | ---: | -----: |',
+        ...rows.map(([file, s]) => `| \`${file}\` | ${formatBytes(s.rendered)} | ${formatBytes(s.gzip)} | ${formatBytes(s.brotli)} |`),
+        `| **Total** | **${formatBytes(total.rendered)}** | **${formatBytes(total.gzip)}** | **${formatBytes(total.brotli)}** |`
+    ];
+    return lines.join('\n');
+}
 
 function buildChunkTable(json: VisualizerJson): string {
     // chunk → source group → sizes
