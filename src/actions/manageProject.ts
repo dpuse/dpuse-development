@@ -6,7 +6,7 @@ import { safeParse } from 'valibot';
 import { connectorConfigSchema } from '@dpuse/dpuse-shared/component/module/connector';
 import type { ModuleConfig } from '@dpuse/dpuse-shared/component/module';
 import type { ConnectorConfig, ConnectorActionName } from '@dpuse/dpuse-shared/component/module/connector';
-import { type ContextConfig, contextConfigSchema, type ContextOperationName } from '@dpuse/dpuse-shared/component/module/context';
+import { type ContextConfig, contextConfigSchema, type ContextActionName } from '@dpuse/dpuse-shared/component/module/context';
 import { type PresenterConfig, presenterConfigSchema, type PresenterActionName } from '@dpuse/dpuse-shared/component/module/presenter';
 
 // ── Local (Development) Framework
@@ -97,7 +97,7 @@ export async function releaseProject(): Promise<void> {
 
         await execCommand('4️⃣  Stage changes', 'git', ['add', '.']);
 
-        await execCommand('5️⃣  Commit changes', 'git', ['commit', '-m', `"v${packageJSON.version ?? 'unknown'}"`]);
+        await execCommand('5️⃣  Commit changes', 'git', ['commit', '-m', `v${packageJSON.version ?? 'unknown'}`]);
 
         await execCommand('6️⃣  Push changes', 'git', ['push', 'origin', 'main:main']);
 
@@ -177,7 +177,7 @@ async function buildContextProjectConfig(stepIcon: string, packageJSON: PackageJ
         throw new Error('Configuration is invalid.');
     }
 
-    const operations = extractOperationsFromSource<ContextOperationName>(indexCode);
+    const operations = extractOperationsFromSource<ContextActionName>(indexCode);
     return await processOperations<ContextConfig>(packageJSON, configJSON, operations);
 }
 
@@ -291,7 +291,7 @@ export async function syncProjectWithGitHub(): Promise<void> {
 
         await execCommand('3️⃣  Stage changes', 'git', ['add', '.']);
 
-        await execCommand('4️⃣  Commit changes', 'git', ['commit', '-m', `"v${packageJSON.version ?? 'unknown'}"`]);
+        await execCommand('4️⃣  Commit changes', 'git', ['commit', '-m', `v${packageJSON.version ?? 'unknown'}`]);
 
         await execCommand('5️⃣  Push changes', 'git', ['push', 'origin', 'main:main']);
 
