@@ -129,8 +129,11 @@ function buildSourceGroups(json: VisualizerJson): Map<string, { sizes: Sizes; fi
 
 function bar(pct: number, grey = false): string {
     const count = Math.round((pct / 100) * BAR_WIDTH);
-    const chars = `${'█'.repeat(count)}${'░'.repeat(BAR_WIDTH - count)} ${pct.toFixed(1)}%`;
-    return grey ? `<font color="gray">${chars}</font>` : chars;
+    const empty = BAR_WIDTH - count;
+    const filledColor = grey ? 'gray' : 'black';
+    const filled = count > 0 ? `<font color="${filledColor}">${'█'.repeat(count)}</font>` : '';
+    const track = empty > 0 ? `<font color="lightgray">${'█'.repeat(empty)}</font>` : '';
+    return `${filled}${track} ${pct.toFixed(1)}%`;
 }
 
 function sourceGroupName(id: string): string {
