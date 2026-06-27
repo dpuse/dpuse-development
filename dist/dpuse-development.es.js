@@ -6000,7 +6000,7 @@ function ar(e) {
 	return r.getDate() < n.getDate() && --i, i === 0 ? `this month: ${t}` : i === 1 ? `1 month ago: ${t}` : i <= 6 ? `${String(i)} months ago: ${t}` : `${String(i)} months ago: ${t} ⚠️ `;
 }
 //#endregion
-//#region node_modules/@dpuse/dpuse-shared/dist/componentConfig.schema-C75xefrQ.js
+//#region node_modules/@dpuse/dpuse-shared/dist/componentConfig.schema-B7kVKqVP.js
 var or, sr = {
 	lang: void 0,
 	message: void 0,
@@ -6382,11 +6382,11 @@ var Or = (e) => /* @__PURE__ */ Dr(e.map((e) => /* @__PURE__ */ Sr(e))), kr = /*
 	en: /* @__PURE__ */ $(),
 	es: /* @__PURE__ */ $()
 }), Ar = /* @__PURE__ */ Q({
-	en: /* @__PURE__ */ wr(/* @__PURE__ */ $()),
-	es: /* @__PURE__ */ wr(/* @__PURE__ */ $())
-}), jr = /* @__PURE__ */ Q({
 	en: /* @__PURE__ */ wr(/* @__PURE__ */ X(/* @__PURE__ */ $())),
 	es: /* @__PURE__ */ wr(/* @__PURE__ */ X(/* @__PURE__ */ $()))
+}), jr = /* @__PURE__ */ Q({
+	en: /* @__PURE__ */ wr(/* @__PURE__ */ $()),
+	es: /* @__PURE__ */ wr(/* @__PURE__ */ $())
 });
 Or([
 	"app",
@@ -6433,8 +6433,8 @@ var Mr = Or([
 	label: /* @__PURE__ */ $()
 }), Fr = /* @__PURE__ */ Q({
 	id: /* @__PURE__ */ $(),
-	label: Ar,
-	description: jr,
+	label: jr,
+	description: Ar,
 	icon: /* @__PURE__ */ Z(/* @__PURE__ */ $()),
 	iconDark: /* @__PURE__ */ Z(/* @__PURE__ */ $()),
 	iconNeutral: /* @__PURE__ */ Z(/* @__PURE__ */ $()),
@@ -6442,8 +6442,8 @@ var Mr = Or([
 	path: /* @__PURE__ */ $()
 }), Ir = {
 	id: /* @__PURE__ */ $(),
-	label: Ar,
-	description: jr,
+	label: jr,
+	description: Ar,
 	firstCreatedAt: /* @__PURE__ */ Z(/* @__PURE__ */ Cr()),
 	icon: /* @__PURE__ */ Z(/* @__PURE__ */ $()),
 	iconDark: /* @__PURE__ */ Z(/* @__PURE__ */ $()),
@@ -6461,7 +6461,7 @@ var Mr = Or([
 	"tool"
 ]);
 //#endregion
-//#region node_modules/@dpuse/dpuse-shared/dist/moduleConfig.schema-DGEZc-oy.js
+//#region node_modules/@dpuse/dpuse-shared/dist/moduleConfig.schema-Cvc9QRvr.js
 var Lr = {
 	...Ir,
 	version: /* @__PURE__ */ $()
@@ -6503,12 +6503,12 @@ var Rr = Or([
 	"retrieveRecords",
 	"upsertRecords"
 ]), Hr = /* @__PURE__ */ Q({
-	...Lr,
 	typeId: /* @__PURE__ */ Sr("connector"),
+	...Lr,
+	actionNames: /* @__PURE__ */ X(Vr),
 	category: /* @__PURE__ */ Z(zr),
 	categoryId: Rr,
 	implementations: /* @__PURE__ */ Tr(/* @__PURE__ */ $(), Br),
-	operations: /* @__PURE__ */ X(Vr),
 	vendorAccountURL: /* @__PURE__ */ Z(/* @__PURE__ */ $()),
 	vendorDocumentationURL: /* @__PURE__ */ Z(/* @__PURE__ */ $()),
 	vendorHomeURL: /* @__PURE__ */ Z(/* @__PURE__ */ $())
@@ -6529,8 +6529,8 @@ var Rr = Or([
 	upsertRecords: "Upsert Records"
 };
 function Wr(e) {
-	let t = new Set(e), n = "| Operation | Supported |\n";
-	n += "| --------- | --------- |\n";
+	let t = new Set(e), n = "| Name | Supported |\n";
+	n += "| ---- | :-------: |\n";
 	for (let e of Object.keys(Ur)) n += `| ${Ur[e]} | ${t.has(e) ? "✓" : ""} |\n`;
 	return n;
 }
@@ -6672,10 +6672,10 @@ var ii = /* @__PURE__ */ Q({
 	"render",
 	"setColorMode"
 ]), ci = /* @__PURE__ */ Q({
-	...Lr,
 	typeId: /* @__PURE__ */ Sr("presenter"),
-	presentations: /* @__PURE__ */ X(Fr),
-	operations: /* @__PURE__ */ X(si)
+	...Lr,
+	actionNames: /* @__PURE__ */ X(si),
+	presentations: /* @__PURE__ */ X(Fr)
 }), li = /* @__PURE__ */ new Set([
 	"createObject",
 	"dropObject",

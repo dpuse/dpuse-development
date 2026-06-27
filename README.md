@@ -2,7 +2,8 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](./LICENSE)
 [![npm version](https://img.shields.io/npm/v/@dpuse/dpuse-development.svg)](https://www.npmjs.com/package/@dpuse/dpuse-development)
-[![CodeQL](https://github.com/dpuse/dpuse-development/actions/workflows/codeql.yml/badge.svg)](https://github.com/dpuse/dpuse-development/actions/workflows/codeql.yml)[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=dpuse_dpuse-development&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=dpuse_dpuse-development)
+[![CodeQL](https://github.com/dpuse/dpuse-development/actions/workflows/codeql.yml/badge.svg)](https://github.com/dpuse/dpuse-development/actions/workflows/codeql.yml)
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=dpuse_dpuse-development&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=dpuse_dpuse-development)
 [![CI](https://github.com/dpuse/dpuse-development/actions/workflows/ci.yml/badge.svg)](https://github.com/dpuse/dpuse-development/actions/workflows/ci.yml)
 
 ## Introduction
@@ -141,7 +142,7 @@ The dependency tree below lists every package in this project — direct and tra
 - **[nanoid](https://github.com/ai/nanoid)** 5.1.16 — this month: 2026-06-24
 - **[valibot](https://github.com/open-circle/valibot)** 1.4.1 — 1 month ago: 2026-05-24
     - **[typescript](https://github.com/microsoft/TypeScript)** 6.0.3 — 2 months ago: 2026-04-16
-          <!-- DEPENDENCY_TREE_END -->
+      <!-- DEPENDENCY_TREE_END -->
 
 ## Bundle Analysis
 
