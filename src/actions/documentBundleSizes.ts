@@ -129,7 +129,7 @@ function buildSourceGroups(json: VisualizerJson): Map<string, { sizes: Sizes; fi
 
 function bar(pct: number): string {
     const count = Math.round((pct / 100) * BAR_WIDTH);
-    return `${'█'.repeat(count)}${'░'.repeat(BAR_WIDTH - count)} ${pct.toFixed(1)}%`;
+    return `\`${'█'.repeat(count)}${'░'.repeat(BAR_WIDTH - count)}\` ${pct.toFixed(1)}%`;
 }
 
 function sourceGroupName(id: string): string {
