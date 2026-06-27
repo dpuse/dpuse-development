@@ -2,6 +2,12 @@ import { logOperationHeader, logOperationSuccess, logStepHeader, readJSONFile, r
 
 // ── Types ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
+interface Sizes {
+    rendered: number;
+    gzip: number;
+    brotli: number;
+}
+
 interface NodePart {
     renderedLength: number;
     gzipLength: number;
@@ -24,6 +30,7 @@ const CHUNKS_START_MARKER = '<!-- BUNDLE_CHUNKS_START -->';
 const CHUNKS_END_MARKER = '<!-- BUNDLE_CHUNKS_END -->';
 const SIZES_START_MARKER = '<!-- BUNDLE_SIZES_START -->';
 const SIZES_END_MARKER = '<!-- BUNDLE_SIZES_END -->';
+const INDENT = '&nbsp;&nbsp;&nbsp;&nbsp;';
 
 // ── Actions ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -53,42 +60,80 @@ export async function documentBundleSizes(): Promise<void> {
 // ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 function buildChunkTable(json: VisualizerJson): string {
-    const chunks = new Map<string, { rendered: number; gzip: number; brotli: number }>();
+    // chunk → source group → sizes
+    const chunks = new Map<string, { sizes: Sizes; groups: Map<string, Sizes> }>();
 
     for (const meta of Object.values(json.nodeMetas)) {
+        const group = sourceGroupName(meta.id);
         for (const [chunkName, partUid] of Object.entries(meta.moduleParts)) {
             const part = json.nodeParts[partUid];
             if (!part) continue;
-            const prev = chunks.get(chunkName) ?? { rendered: 0, gzip: 0, brotli: 0 };
-            chunks.set(chunkName, {
-                rendered: prev.rendered + part.renderedLength,
-                gzip: prev.gzip + part.gzipLength,
-                brotli: prev.brotli + part.brotliLength
-            });
+            const s = partSizes(part);
+
+            const chunk = chunks.get(chunkName) ?? { sizes: zero(), groups: new Map() };
+            addTo(chunk.sizes, s);
+            addTo(chunk.groups.get(group) ?? (() => { const g = zero(); chunk.groups.set(group, g); return g; })(), s);
+            chunks.set(chunkName, chunk);
         }
     }
 
-    return buildTable([...chunks.entries()].sort((a, b) => b[1].rendered - a[1].rendered));
+    const sorted = [...chunks.entries()].sort((a, b) => b[1].sizes.rendered - a[1].sizes.rendered);
+    const total = sorted.reduce((acc, [, v]) => { addTo(acc, v.sizes); return acc; }, zero());
+
+    const lines = [
+        '| Module | Rendered | Gzip | Brotli |',
+        '| ------ | -------: | ---: | -----: |'
+    ];
+
+    for (const [chunkName, { sizes, groups }] of sorted) {
+        lines.push(row(`\`${chunkName}\``, sizes));
+        const sortedGroups = [...groups.entries()].sort((a, b) => b[1].rendered - a[1].rendered);
+        for (const [groupName, groupSizes] of sortedGroups) {
+            lines.push(row(`${INDENT}\`${groupName}\``, groupSizes));
+        }
+    }
+
+    lines.push(row('Total', total, true));
+    return lines.join('\n');
 }
 
 function buildSourceTable(json: VisualizerJson): string {
-    const groups = new Map<string, { rendered: number; gzip: number; brotli: number }>();
+    // source group → individual file → sizes
+    const groups = new Map<string, { sizes: Sizes; files: Map<string, Sizes> }>();
 
     for (const meta of Object.values(json.nodeMetas)) {
+        const groupName = sourceGroupName(meta.id);
+        const fileName = shortModuleName(meta.id);
         for (const partUid of Object.values(meta.moduleParts)) {
             const part = json.nodeParts[partUid];
             if (!part) continue;
-            const name = sourceGroupName(meta.id);
-            const prev = groups.get(name) ?? { rendered: 0, gzip: 0, brotli: 0 };
-            groups.set(name, {
-                rendered: prev.rendered + part.renderedLength,
-                gzip: prev.gzip + part.gzipLength,
-                brotli: prev.brotli + part.brotliLength
-            });
+            const s = partSizes(part);
+
+            const group = groups.get(groupName) ?? { sizes: zero(), files: new Map() };
+            addTo(group.sizes, s);
+            addTo(group.files.get(fileName) ?? (() => { const f = zero(); group.files.set(fileName, f); return f; })(), s);
+            groups.set(groupName, group);
         }
     }
 
-    return buildTable([...groups.entries()].sort((a, b) => b[1].rendered - a[1].rendered));
+    const sorted = [...groups.entries()].sort((a, b) => b[1].sizes.rendered - a[1].sizes.rendered);
+    const total = sorted.reduce((acc, [, v]) => { addTo(acc, v.sizes); return acc; }, zero());
+
+    const lines = [
+        '| Module | Rendered | Gzip | Brotli |',
+        '| ------ | -------: | ---: | -----: |'
+    ];
+
+    for (const [groupName, { sizes, files }] of sorted) {
+        lines.push(row(`\`${groupName}\``, sizes));
+        const sortedFiles = [...files.entries()].sort((a, b) => b[1].rendered - a[1].rendered);
+        for (const [fileName, fileSizes] of sortedFiles) {
+            lines.push(row(`${INDENT}\`${fileName}\``, fileSizes));
+        }
+    }
+
+    lines.push(row('Total', total, true));
+    return lines.join('\n');
 }
 
 function sourceGroupName(id: string): string {
@@ -106,18 +151,34 @@ function sourceGroupName(id: string): string {
     return 'src';
 }
 
-function buildTable(rows: [string, { rendered: number; gzip: number; brotli: number }][]): string {
-    const total = rows.reduce(
-        (acc, [, v]) => ({ rendered: acc.rendered + v.rendered, gzip: acc.gzip + v.gzip, brotli: acc.brotli + v.brotli }),
-        { rendered: 0, gzip: 0, brotli: 0 }
-    );
+function shortModuleName(id: string): string {
+    const path = id.startsWith('/') ? id.slice(1) : id;
+    if (path.startsWith('\x00')) return path.slice(1);
+    if (path.startsWith('node_modules/')) {
+        const rest = path.slice('node_modules/'.length);
+        const parts = rest.startsWith('@') ? rest.split('/').slice(2) : rest.split('/').slice(1);
+        return parts.join('/') || (rest.split('/').at(-1) ?? rest);
+    }
+    return path.split('/').at(-1) ?? path;
+}
 
-    return [
-        '| Module | Rendered | Gzip | Brotli |',
-        '| ------ | -------: | ---: | -----: |',
-        ...rows.map(([name, s]) => `| \`${name}\` | ${formatBytes(s.rendered)} | ${formatBytes(s.gzip)} | ${formatBytes(s.brotli)} |`),
-        `| **Total** | **${formatBytes(total.rendered)}** | **${formatBytes(total.gzip)}** | **${formatBytes(total.brotli)}** |`
-    ].join('\n');
+function partSizes(part: NodePart): Sizes {
+    return { rendered: part.renderedLength, gzip: part.gzipLength, brotli: part.brotliLength };
+}
+
+function zero(): Sizes {
+    return { rendered: 0, gzip: 0, brotli: 0 };
+}
+
+function addTo(target: Sizes, source: Sizes): void {
+    target.rendered += source.rendered;
+    target.gzip += source.gzip;
+    target.brotli += source.brotli;
+}
+
+function row(name: string, s: Sizes, bold = false): string {
+    const fmt = (v: string) => bold ? `**${v}**` : v;
+    return `| ${fmt(name)} | ${fmt(formatBytes(s.rendered))} | ${fmt(formatBytes(s.gzip))} | ${fmt(formatBytes(s.brotli))} |`;
 }
 
 function formatBytes(bytes: number): string {
