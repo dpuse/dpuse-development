@@ -155,6 +155,9 @@ The Bundle Analysis Reports provide detailed breakdowns of the bundle's composit
 
 [View the Sonda Report](https://dpuse.github.io/dpuse-connector-file-store-emulator/bundle-analysis-reports/sonda/index.html).
 
+<!-- BUNDLE_START -->
+<!-- BUNDLE_END -->
+
 ## Security & Quality
 
 ### CodeQL
