@@ -4,6 +4,8 @@ export { checkConfigFiles } from '@/actions/checkConfigFiles';
 
 export { checkDependencies } from '@/actions/checkDependencies';
 
+export { documentBundleSizes } from '@/actions/documentBundleSizes';
+
 export { documentDependencies } from '@/actions/documentDependencies';
 
 export { documentOperations } from '@/actions/documentOperations';
