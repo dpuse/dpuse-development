@@ -41,7 +41,8 @@ export default defineConfig({
                     open: false, // Do not auto-open browser post-build.
                     gzipSize: true, // Include gzip sizes.
                     brotliSize: true // Include brotli sizes.
-                })
+                }),
+                visualizer({ filename: './bundle-analysis-reports/rollup-visualiser/index.json', template: 'raw-data', gzipSize: true, brotliSize: true })
             ]
         },
         sourcemap: true,

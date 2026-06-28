@@ -1,10 +1,10 @@
 {
-  "version": "0.3.563",
+  "version": "0.3.595",
   "name": "@dpuse/dpuse-development",
   "dependencies": {
     "@dpuse/dpuse-shared": {
-      "version": "0.3.689",
-      "resolved": "https://registry.npmjs.org/@dpuse/dpuse-shared/-/dpuse-shared-0.3.689.tgz",
+      "version": "0.3.711",
+      "resolved": "https://registry.npmjs.org/@dpuse/dpuse-shared/-/dpuse-shared-0.3.711.tgz",
       "overridden": false
     },
     "acorn-typescript": {

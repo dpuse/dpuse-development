@@ -5896,8 +5896,10 @@ async function Yn() {
 		G("Check Dependencies"), await Fn("1️⃣  Check using 'npm outdated'", "npm", ["outdated"], !0), await Fn("2️⃣  Check using 'npm-check-updates'", "npm-check-updates", [
 			"-i",
 			"--dep",
-			"dev,prod,peer,optional"
-		]), K("Dependencies checked.");
+			"dev,prod,peer,optional",
+			"--install",
+			"never"
+		]), await Fn("3️⃣  Install updated dependencies", "npm", ["install", "--prefer-online"]), K("Dependencies checked.");
 	} catch (e) {
 		console.error("❌  Error checking dependencies.", e), process.exit(1);
 	}
@@ -5917,18 +5919,19 @@ async function nr() {
 	}
 }
 async function rr(e) {
-	let t = ar(e), n = [...t.values()].flatMap((e) => [...e.values()]).reduce((e, t) => e + t.sizes.rendered, 0), r = await ir();
+	let t = or(e), n = t.values().flatMap((e) => e.values().toArray()).reduce((e, t) => e + t.sizes.rendered, 0), r = await ir();
 	r.sort((e, t) => t[1].rendered - e[1].rendered);
-	let i = ["| Module | Composition |", "| ------ | ----------- |"];
+	let i = ["|Chunk/Module/File|Composition|", "|:------ |:-----------|"];
 	for (let [e, a] of r) {
-		i.push(`| ${e} | ${fr(a.rendered)} · gz ${fr(a.gzip)} · br ${fr(a.brotli)} |`);
-		let r = t.get(e) ?? /* @__PURE__ */ new Map();
-		for (let [e, { sizes: t, files: a }] of [...r.entries()].sort((e, t) => t[1].sizes.rendered - e[1].sizes.rendered)) {
+		i.push(`| ${e} | ${pr(a.rendered)} · gz ${pr(a.gzip)} · br ${pr(a.brotli)} |`);
+		let r = [...t.get(e) ?? /* @__PURE__ */ new Map()].toSorted((e, t) => t[1].sizes.rendered - e[1].sizes.rendered);
+		for (let [e, { sizes: t, files: a }] of r) {
 			let r = n > 0 ? t.rendered / n * 100 : 0;
-			i.push(`| ${er}${e} | ${or(r)} |`);
-			for (let [e, t] of [...a.entries()].sort((e, t) => t[1].rendered - e[1].rendered)) {
+			i.push(`| ${er}${e} | ${sr(r)} |`);
+			let o = [...a].toSorted((e, t) => t[1].rendered - e[1].rendered);
+			for (let [e, t] of o) {
 				let r = n > 0 ? t.rendered / n * 100 : 0;
-				i.push(`| ${er}${er}${e} | ${or(r)} |`);
+				i.push(`| ${er}${er}${e} | ${sr(r)} |`);
 			}
 		}
 	}
@@ -5945,44 +5948,45 @@ async function ir() {
 		}];
 	}));
 }
-function ar(e) {
+function ar(e, t, n, r, i, a) {
+	let o = t.nodeParts[a];
+	if (!o) return;
+	let s = ur(o), c = e.get(i);
+	c === void 0 && (c = /* @__PURE__ */ new Map(), e.set(i, c));
+	let l = c.get(n);
+	l === void 0 && (l = {
+		sizes: dr(),
+		files: /* @__PURE__ */ new Map()
+	}, c.set(n, l)), fr(l.sizes, s);
+	let u = l.files.get(r);
+	u === void 0 && (u = dr(), l.files.set(r, u)), fr(u, s);
+}
+function or(e) {
 	let t = /* @__PURE__ */ new Map();
 	for (let n of Object.values(e.nodeMetas)) {
-		let r = sr(n.id), i = cr(n.id);
-		for (let [a, o] of Object.entries(n.moduleParts)) {
-			let n = e.nodeParts[o];
-			if (!n) continue;
-			let s = lr(n), c = t.get(a);
-			c === void 0 && (c = /* @__PURE__ */ new Map(), t.set(a, c));
-			let l = c.get(r);
-			l === void 0 && (l = {
-				sizes: ur(),
-				files: /* @__PURE__ */ new Map()
-			}, c.set(r, l)), dr(l.sizes, s);
-			let u = l.files.get(i);
-			u === void 0 && (u = ur(), l.files.set(i, u)), dr(u, s);
-		}
+		let r = cr(n.id), i = lr(n.id);
+		for (let [a, o] of Object.entries(n.moduleParts)) ar(t, e, r, i, a, o);
 	}
 	return t;
 }
-function or(e) {
+function sr(e) {
 	let t = Math.round(e / 100 * tr);
 	return `\`${"█".repeat(t)}${"░".repeat(tr - t)}\` ${e.toFixed(1)}%`;
 }
-function sr(e) {
+function cr(e) {
 	let t = e.startsWith("/") ? e.slice(1) : e;
 	if (t.startsWith("\0")) return "(runtime)";
 	if (t.startsWith("node_modules/")) {
 		let e = t.slice(13);
 		if (e.startsWith("@")) {
 			let t = e.split("/");
-			return `${t[0]}/${t[1]}`;
+			return `${String(t[0])}/${String(t[1])}`;
 		}
-		return e.split("/")[0] ?? e;
+		return e.split("/", 1)[0] ?? e;
 	}
 	return t.startsWith("rust/") || t.startsWith("__vite-plugin-wasm") ? "wasm" : "src";
 }
-function cr(e) {
+function lr(e) {
 	let t = e.startsWith("/") ? e.slice(1) : e;
 	if (t.startsWith("\0")) return t.slice(1);
 	if (t.startsWith("node_modules/")) {
@@ -5991,30 +5995,30 @@ function cr(e) {
 	}
 	return t.split("/").at(-1) ?? t;
 }
-function lr(e) {
+function ur(e) {
 	return {
 		rendered: e.renderedLength,
 		gzip: e.gzipLength,
 		brotli: e.brotliLength
 	};
 }
-function ur() {
+function dr() {
 	return {
 		rendered: 0,
 		gzip: 0,
 		brotli: 0
 	};
 }
-function dr(e, t) {
+function fr(e, t) {
 	e.rendered += t.rendered, e.gzip += t.gzip, e.brotli += t.brotli;
 }
-function fr(e) {
-	return e < 1024 ? `${e} B` : `${(e / 1024).toFixed(1)} kB`;
+function pr(e) {
+	return e < 1024 ? `${String(e)} B` : `${(e / 1024).toFixed(1)} kB`;
 }
 //#endregion
 //#region src/actions/documentDependencies.ts
-var pr = "<!-- DEPENDENCY_LICENSES_START -->", mr = "<!-- DEPENDENCY_LICENSES_END -->", hr = "<!-- DEPENDENCY_TREE_START -->", gr = "<!-- DEPENDENCY_TREE_END -->";
-async function _r(e = "MIT") {
+var mr = "<!-- DEPENDENCY_LICENSES_START -->", hr = "<!-- DEPENDENCY_LICENSES_END -->", gr = "<!-- DEPENDENCY_TREE_START -->", _r = "<!-- DEPENDENCY_TREE_END -->";
+async function vr(e = "MIT") {
 	try {
 		G("Document Dependencies"), await Mn("1️⃣  Clear downloaded licenses", "licenses/downloads"), await Pn("2️⃣  Identify production licenses", "license-checker-rseidelsohn", [
 			"--production",
@@ -6034,25 +6038,25 @@ async function _r(e = "MIT") {
 			"--all",
 			"--json",
 			"--omit=dev"
-		], "licenses/licenseTree.json"), await vr("4️⃣ "), K("Dependencies documented.");
+		], "licenses/licenseTree.json"), await yr("4️⃣ "), K("Dependencies documented.");
 	} catch (e) {
 		console.error("❌  Error documenting dependencies.", e), process.exit(1);
 	}
 }
-async function vr(e) {
+async function yr(e) {
 	q(`${e} Insert licenses into 'README.md'`);
 	let [t, n] = await Promise.all([W("licenses/licenses.json"), W("licenses/licenseTree.json")]), r = /* @__PURE__ */ new Map();
-	for (let [e, n] of Object.entries(t)) r.set(e, yr(e, n));
+	for (let [e, n] of Object.entries(t)) r.set(e, br(e, n));
 	await Promise.all(r.values().map(async (e) => {
-		let t = await br(e.name, e.installedVersion);
+		let t = await xr(e.name, e.installedVersion);
 		e.latestVersion = t.latestVersion, e.latestPublishedDate = t.latestPublishedDate, e.publishedDate = t.publishedDate;
 	}));
-	let i = "|Name|Version|License(s)|Document|\n|-|:-:|-|-|\n";
-	for (let e of r.values()) i += xr(e);
+	let i = "|Dependency|Version|License(s)|Document|\n|:-|:-:|:-|:-|\n";
+	for (let e of r.values()) i += Sr(e);
 	let a = [];
-	n.dependencies != null && Sr(n.dependencies, r, a, 0), await Bn("README.md", Gn(Gn(await Ln("./README.md"), i, pr, mr), a.join("\n"), hr, gr));
+	n.dependencies != null && Cr(n.dependencies, r, a, 0), await Bn("README.md", Gn(Gn(await Ln("./README.md"), i, mr, hr), a.join("\n"), gr, _r));
 }
-function yr(e, t) {
+function br(e, t) {
 	let n = e.lastIndexOf("@"), r = n > 0 ? e.slice(0, n) : e, i = n > 0 ? e.slice(n + 1) : "";
 	return {
 		name: r,
@@ -6066,7 +6070,7 @@ function yr(e, t) {
 		...t.licenseFile != null && { licenseFileLink: t.licenseFile }
 	};
 }
-async function br(e, t) {
+async function xr(e, t) {
 	try {
 		let n = await fetch(`https://registry.npmjs.org/${encodeURIComponent(e)}`);
 		if (n.ok) {
@@ -6084,25 +6088,25 @@ async function br(e, t) {
 		publishedDate: ""
 	};
 }
-function xr(e) {
+function Sr(e) {
 	let t = e.licenseFileLink == null || e.licenseFileLink === "" ? "⚠️  No license file" : `[LICENSE](licenses/${e.licenseFileLink})`;
 	return `|[${e.name}](${e.repository})|${e.installedVersion}|${e.licenseTypes}|${t}|\n`;
 }
-function Sr(e, t, n, r) {
+function Cr(e, t, n, r) {
 	let i = "  ".repeat(r);
 	for (let [a, o] of Object.entries(e)) {
-		let e = o.version ?? "", s = t.get(`${a}@${e}`), c = s == null ? a : `[${a}](${s.repository})`, l = Cr(s);
-		n.push(`${i}- **${c}** ${e}${l}`), o.dependencies != null && Sr(o.dependencies, t, n, r + 1);
+		let e = o.version ?? "", s = t.get(`${a}@${e}`), c = s == null ? a : `[${a}](${s.repository})`, l = wr(s);
+		n.push(`${i}- **${c}** ${e}${l}`), o.dependencies != null && Cr(o.dependencies, t, n, r + 1);
 	}
 }
-function Cr(e) {
+function wr(e) {
 	if (e == null) return "";
-	let t = e.publishedDate ? wr(e.publishedDate.split("T", 1)[0]) : "";
+	let t = e.publishedDate ? Tr(e.publishedDate.split("T", 1)[0]) : "";
 	if (!(e.latestVersion !== "" && e.latestVersion !== e.installedVersion)) return t === "" ? "" : ` — ${t}`;
-	let n = e.latestPublishedDate ? wr(e.latestPublishedDate.split("T", 1)[0]) : "", r = n === "" ? `**latest**: ${e.latestVersion} ❗` : `**latest**: ${e.latestVersion} — ${n} ❗`;
+	let n = e.latestPublishedDate ? Tr(e.latestPublishedDate.split("T", 1)[0]) : "", r = n === "" ? `**latest**: ${e.latestVersion} ❗` : `**latest**: ${e.latestVersion} — ${n} ❗`;
 	return t === "" ? ` — → ${r}` : ` — ${t} → ${r}`;
 }
-function wr(e) {
+function Tr(e) {
 	if (e == null || e === "") return "n/a";
 	let t = e.split("T", 1)[0];
 	if (t == null || t === "") return "n/a";
@@ -6111,43 +6115,43 @@ function wr(e) {
 }
 //#endregion
 //#region node_modules/@dpuse/dpuse-shared/dist/componentConfig.schema-B7kVKqVP.js
-var Tr, Er = {
+var Er, Dr = {
 	lang: void 0,
 	message: void 0,
 	abortEarly: void 0,
 	abortPipeEarly: void 0
 };
 /* @__NO_SIDE_EFFECTS__ */
-function Dr(e) {
-	return !e && !Tr ? Er : {
-		lang: e?.lang ?? Tr?.lang,
+function Or(e) {
+	return !e && !Er ? Dr : {
+		lang: e?.lang ?? Er?.lang,
 		message: e?.message,
-		abortEarly: e?.abortEarly ?? Tr?.abortEarly,
-		abortPipeEarly: e?.abortPipeEarly ?? Tr?.abortPipeEarly
+		abortEarly: e?.abortEarly ?? Er?.abortEarly,
+		abortPipeEarly: e?.abortPipeEarly ?? Er?.abortPipeEarly
 	};
 }
-var Or;
+var kr;
 /* @__NO_SIDE_EFFECTS__ */
-function kr(e) {
-	return Or?.get(e);
+function Ar(e) {
+	return kr?.get(e);
 }
-var Ar;
+var jr;
 /* @__NO_SIDE_EFFECTS__ */
-function jr(e) {
-	return Ar?.get(e);
+function Mr(e) {
+	return jr?.get(e);
 }
-var Mr;
+var Nr;
 /* @__NO_SIDE_EFFECTS__ */
-function Nr(e, t) {
-	return Mr?.get(e)?.get(t);
+function Pr(e, t) {
+	return Nr?.get(e)?.get(t);
 }
 /* @__NO_SIDE_EFFECTS__ */
-function Pr(e) {
+function Fr(e) {
 	let t = typeof e;
 	return t === "string" ? `"${e}"` : t === "number" || t === "bigint" || t === "boolean" ? `${e}` : t === "object" || t === "function" ? (e && Object.getPrototypeOf(e)?.constructor?.name) ?? "null" : t;
 }
 function J(e, t, n, r, i) {
-	let a = i && "input" in i ? i.input : n.value, o = i?.expected ?? e.expects ?? null, s = i?.received ?? /* @__PURE__ */ Pr(a), c = {
+	let a = i && "input" in i ? i.input : n.value, o = i?.expected ?? e.expects ?? null, s = i?.received ?? /* @__PURE__ */ Fr(a), c = {
 		kind: e.kind,
 		type: e.type,
 		input: a,
@@ -6160,44 +6164,44 @@ function J(e, t, n, r, i) {
 		lang: r.lang,
 		abortEarly: r.abortEarly,
 		abortPipeEarly: r.abortPipeEarly
-	}, l = e.kind === "schema", u = i?.message ?? e.message ?? /* @__PURE__ */ Nr(e.reference, c.lang) ?? (l ? /* @__PURE__ */ jr(c.lang) : null) ?? r.message ?? /* @__PURE__ */ kr(c.lang);
+	}, l = e.kind === "schema", u = i?.message ?? e.message ?? /* @__PURE__ */ Pr(e.reference, c.lang) ?? (l ? /* @__PURE__ */ Mr(c.lang) : null) ?? r.message ?? /* @__PURE__ */ Ar(c.lang);
 	u !== void 0 && (c.message = typeof u == "function" ? u(c) : u), l && (n.typed = !1), n.issues ? n.issues.push(c) : n.issues = [c];
 }
-var Fr = /* @__PURE__ */ new WeakMap();
+var Ir = /* @__PURE__ */ new WeakMap();
 /* @__NO_SIDE_EFFECTS__ */
 function Y(e) {
-	let t = Fr.get(e);
+	let t = Ir.get(e);
 	return t || (t = {
 		version: 1,
 		vendor: "valibot",
 		validate(t) {
-			return e["~run"]({ value: t }, /* @__PURE__ */ Dr());
+			return e["~run"]({ value: t }, /* @__PURE__ */ Or());
 		}
-	}, Fr.set(e, t)), t;
-}
-/* @__NO_SIDE_EFFECTS__ */
-function Ir(e, t) {
-	return Object.prototype.hasOwnProperty.call(e, t) && t !== "__proto__" && t !== "prototype" && t !== "constructor";
+	}, Ir.set(e, t)), t;
 }
 /* @__NO_SIDE_EFFECTS__ */
 function Lr(e, t) {
+	return Object.prototype.hasOwnProperty.call(e, t) && t !== "__proto__" && t !== "prototype" && t !== "constructor";
+}
+/* @__NO_SIDE_EFFECTS__ */
+function Rr(e, t) {
 	let n = [...new Set(e)];
 	return n.length > 1 ? `(${n.join(` ${t} `)})` : n[0] ?? "never";
 }
 /* @__NO_SIDE_EFFECTS__ */
-function Rr(e, t, n) {
+function zr(e, t, n) {
 	return typeof e.fallback == "function" ? e.fallback(t, n) : e.fallback;
 }
 /* @__NO_SIDE_EFFECTS__ */
-function zr(e, t, n) {
+function Br(e, t, n) {
 	return typeof e.default == "function" ? e.default(t, n) : e.default;
 }
 /* @__NO_SIDE_EFFECTS__ */
-function Br(e, t) {
+function X(e, t) {
 	return {
 		kind: "schema",
 		type: "array",
-		reference: Br,
+		reference: X,
 		expects: "Array",
 		async: !1,
 		item: e,
@@ -6255,7 +6259,7 @@ function Hr(e, t) {
 		kind: "schema",
 		type: "literal",
 		reference: Hr,
-		expects: /* @__PURE__ */ Pr(e),
+		expects: /* @__PURE__ */ Fr(e),
 		async: !1,
 		literal: e,
 		message: t,
@@ -6268,11 +6272,11 @@ function Hr(e, t) {
 	};
 }
 /* @__NO_SIDE_EFFECTS__ */
-function X(e, t) {
+function Z(e, t) {
 	return {
 		kind: "schema",
 		type: "nullable",
-		reference: X,
+		reference: Z,
 		expects: `(${e.expects} | null)`,
 		async: !1,
 		wrapped: e,
@@ -6281,7 +6285,7 @@ function X(e, t) {
 			return /* @__PURE__ */ Y(this);
 		},
 		"~run"(e, t) {
-			return e.value === null && (this.default !== void 0 && (e.value = /* @__PURE__ */ zr(this, e, t)), e.value === null) ? (e.typed = !0, e) : this.wrapped["~run"](e, t);
+			return e.value === null && (this.default !== void 0 && (e.value = /* @__PURE__ */ Br(this, e, t)), e.value === null) ? (e.typed = !0, e) : this.wrapped["~run"](e, t);
 		}
 	};
 }
@@ -6303,11 +6307,11 @@ function Ur(e) {
 	};
 }
 /* @__NO_SIDE_EFFECTS__ */
-function Z(e, t) {
+function Q(e, t) {
 	return {
 		kind: "schema",
 		type: "object",
-		reference: Z,
+		reference: Q,
 		expects: "Object",
 		async: !1,
 		entries: e,
@@ -6322,7 +6326,7 @@ function Z(e, t) {
 				for (let r in this.entries) {
 					let i = this.entries[r];
 					if (r in n || (i.type === "exact_optional" || i.type === "optional" || i.type === "nullish") && i.default !== void 0) {
-						let a = r in n ? n[r] : /* @__PURE__ */ zr(i), o = i["~run"]({ value: a }, t);
+						let a = r in n ? n[r] : /* @__PURE__ */ Br(i), o = i["~run"]({ value: a }, t);
 						if (o.issues) {
 							let i = {
 								type: "object",
@@ -6338,7 +6342,7 @@ function Z(e, t) {
 							}
 						}
 						o.typed || (e.typed = !1), e.value[r] = o.value;
-					} else if (i.fallback !== void 0) e.value[r] = /* @__PURE__ */ Rr(i);
+					} else if (i.fallback !== void 0) e.value[r] = /* @__PURE__ */ zr(i);
 					else if (i.type !== "exact_optional" && i.type !== "optional" && i.type !== "nullish" && (J(this, "key", e, t, {
 						input: void 0,
 						expected: `"${r}"`,
@@ -6357,11 +6361,11 @@ function Z(e, t) {
 	};
 }
 /* @__NO_SIDE_EFFECTS__ */
-function Q(e, t) {
+function Wr(e, t) {
 	return {
 		kind: "schema",
 		type: "optional",
-		reference: Q,
+		reference: Wr,
 		expects: `(${e.expects} | undefined)`,
 		async: !1,
 		wrapped: e,
@@ -6370,16 +6374,16 @@ function Q(e, t) {
 			return /* @__PURE__ */ Y(this);
 		},
 		"~run"(e, t) {
-			return e.value === void 0 && (this.default !== void 0 && (e.value = /* @__PURE__ */ zr(this, e, t)), e.value === void 0) ? (e.typed = !0, e) : this.wrapped["~run"](e, t);
+			return e.value === void 0 && (this.default !== void 0 && (e.value = /* @__PURE__ */ Br(this, e, t)), e.value === void 0) ? (e.typed = !0, e) : this.wrapped["~run"](e, t);
 		}
 	};
 }
 /* @__NO_SIDE_EFFECTS__ */
-function Wr(e, t, n) {
+function Gr(e, t, n) {
 	return {
 		kind: "schema",
 		type: "record",
-		reference: Wr,
+		reference: Gr,
 		expects: "Object",
 		async: !1,
 		key: e,
@@ -6392,7 +6396,7 @@ function Wr(e, t, n) {
 			let n = e.value;
 			if (n && typeof n == "object") {
 				e.typed = !0, e.value = {};
-				for (let r in n) if (/* @__PURE__ */ Ir(n, r)) {
+				for (let r in n) if (/* @__PURE__ */ Lr(n, r)) {
 					let i = n[r], a = this.key["~run"]({ value: r }, t);
 					if (a.issues) {
 						let o = {
@@ -6448,19 +6452,19 @@ function $(e) {
 	};
 }
 /* @__NO_SIDE_EFFECTS__ */
-function Gr(e) {
+function Kr(e) {
 	let t;
 	if (e) for (let n of e) if (t) for (let e of n.issues) t.push(e);
 	else t = n.issues;
 	return t;
 }
 /* @__NO_SIDE_EFFECTS__ */
-function Kr(e, t) {
+function qr(e, t) {
 	return {
 		kind: "schema",
 		type: "union",
-		reference: Kr,
-		expects: /* @__PURE__ */ Lr(e.map((e) => e.expects), "|"),
+		reference: qr,
+		expects: /* @__PURE__ */ Rr(e.map((e) => e.expects), "|"),
 		async: !1,
 		options: e,
 		message: t,
@@ -6481,24 +6485,24 @@ function Kr(e, t) {
 			if (n) return n;
 			if (r) {
 				if (r.length === 1) return r[0];
-				J(this, "type", e, t, { issues: /* @__PURE__ */ Gr(r) }), e.typed = !0;
+				J(this, "type", e, t, { issues: /* @__PURE__ */ Kr(r) }), e.typed = !0;
 			} else if (i?.length === 1) return i[0];
-			else J(this, "type", e, t, { issues: /* @__PURE__ */ Gr(i) });
+			else J(this, "type", e, t, { issues: /* @__PURE__ */ Kr(i) });
 			return e;
 		}
 	};
 }
-var qr = (e) => /* @__PURE__ */ Kr(e.map((e) => /* @__PURE__ */ Hr(e))), Jr = /* @__PURE__ */ Z({
+var Jr = (e) => /* @__PURE__ */ qr(e.map((e) => /* @__PURE__ */ Hr(e))), Yr = /* @__PURE__ */ Q({
 	en: /* @__PURE__ */ $(),
 	es: /* @__PURE__ */ $()
-}), Yr = /* @__PURE__ */ Z({
-	en: /* @__PURE__ */ Q(/* @__PURE__ */ Br(/* @__PURE__ */ $())),
-	es: /* @__PURE__ */ Q(/* @__PURE__ */ Br(/* @__PURE__ */ $()))
-}), Xr = /* @__PURE__ */ Z({
-	en: /* @__PURE__ */ Q(/* @__PURE__ */ $()),
-	es: /* @__PURE__ */ Q(/* @__PURE__ */ $())
+}), Xr = /* @__PURE__ */ Q({
+	en: /* @__PURE__ */ Wr(/* @__PURE__ */ X(/* @__PURE__ */ $())),
+	es: /* @__PURE__ */ Wr(/* @__PURE__ */ X(/* @__PURE__ */ $()))
+}), Zr = /* @__PURE__ */ Q({
+	en: /* @__PURE__ */ Wr(/* @__PURE__ */ $()),
+	es: /* @__PURE__ */ Wr(/* @__PURE__ */ $())
 });
-qr([
+Jr([
 	"app",
 	"connector",
 	"connectorConnection",
@@ -6523,12 +6527,12 @@ qr([
 	"presenterPresentation",
 	"tool"
 ]);
-var Zr = qr([
+var Qr = Jr([
 	"amber",
 	"green",
 	"red",
 	"other"
-]), Qr = qr([
+]), $r = Jr([
 	"alpha",
 	"beta",
 	"generalAvailability",
@@ -6538,31 +6542,31 @@ var Zr = qr([
 	"releaseCandidate",
 	"unavailable",
 	"underReview"
-]), $r = /* @__PURE__ */ Z({
-	color: Zr,
+]), ei = /* @__PURE__ */ Q({
+	color: Qr,
 	label: /* @__PURE__ */ $()
-}), ei = /* @__PURE__ */ Z({
+}), ti = /* @__PURE__ */ Q({
 	id: /* @__PURE__ */ $(),
-	label: Xr,
-	description: Yr,
-	icon: /* @__PURE__ */ X(/* @__PURE__ */ $()),
-	iconDark: /* @__PURE__ */ X(/* @__PURE__ */ $()),
-	iconNeutral: /* @__PURE__ */ X(/* @__PURE__ */ $()),
+	label: Zr,
+	description: Xr,
+	icon: /* @__PURE__ */ Z(/* @__PURE__ */ $()),
+	iconDark: /* @__PURE__ */ Z(/* @__PURE__ */ $()),
+	iconNeutral: /* @__PURE__ */ Z(/* @__PURE__ */ $()),
 	order: /* @__PURE__ */ Ur(),
 	path: /* @__PURE__ */ $()
-}), ti = {
+}), ni = {
 	id: /* @__PURE__ */ $(),
-	label: Xr,
-	description: Yr,
-	firstCreatedAt: /* @__PURE__ */ X(/* @__PURE__ */ Ur()),
-	icon: /* @__PURE__ */ X(/* @__PURE__ */ $()),
-	iconDark: /* @__PURE__ */ X(/* @__PURE__ */ $()),
-	iconNeutral: /* @__PURE__ */ X(/* @__PURE__ */ $()),
-	lastUpdatedAt: /* @__PURE__ */ X(/* @__PURE__ */ Ur()),
-	status: /* @__PURE__ */ X($r),
-	statusId: /* @__PURE__ */ X(Qr)
+	label: Zr,
+	description: Xr,
+	firstCreatedAt: /* @__PURE__ */ Z(/* @__PURE__ */ Ur()),
+	icon: /* @__PURE__ */ Z(/* @__PURE__ */ $()),
+	iconDark: /* @__PURE__ */ Z(/* @__PURE__ */ $()),
+	iconNeutral: /* @__PURE__ */ Z(/* @__PURE__ */ $()),
+	lastUpdatedAt: /* @__PURE__ */ Z(/* @__PURE__ */ Ur()),
+	status: /* @__PURE__ */ Z(ei),
+	statusId: /* @__PURE__ */ Z($r)
 };
-({ ...ti }), qr([
+({ ...ni }), Jr([
 	"app",
 	"engine",
 	"connector",
@@ -6572,14 +6576,14 @@ var Zr = qr([
 ]);
 //#endregion
 //#region node_modules/@dpuse/dpuse-shared/dist/moduleConfig.schema-Cvc9QRvr.js
-var ni = {
-	...ti,
+var ri = {
+	...ni,
 	version: /* @__PURE__ */ $()
 };
-({ ...ni });
+({ ...ri });
 //#endregion
 //#region node_modules/@dpuse/dpuse-shared/dist/dpuse-shared-componentModuleConnector.es.js
-var ri = qr([
+var ii = Jr([
 	"abortOperation",
 	"auditObjectContent",
 	"createObject",
@@ -6594,35 +6598,35 @@ var ri = qr([
 	"retrieveChunks",
 	"retrieveRecords",
 	"upsertRecords"
-]), ii = qr([
+]), ai = Jr([
 	"application",
 	"curatedDataset",
 	"database",
 	"fileStore"
-]), ai = /* @__PURE__ */ Z({ label: Jr }), oi = /* @__PURE__ */ Z({
-	authMethodId: qr([
+]), oi = /* @__PURE__ */ Q({ label: Yr }), si = /* @__PURE__ */ Q({
+	authMethodId: Jr([
 		"apiKey",
 		"disabled",
 		"oAuth2",
 		"none"
 	]),
-	activeConnectionCount: /* @__PURE__ */ Q(/* @__PURE__ */ Ur()),
-	canDescribe: /* @__PURE__ */ Q(/* @__PURE__ */ Vr()),
-	id: /* @__PURE__ */ Q(/* @__PURE__ */ $()),
-	label: /* @__PURE__ */ Q(Jr),
-	maxConnectionCount: /* @__PURE__ */ X(/* @__PURE__ */ Ur()),
-	params: /* @__PURE__ */ Q(/* @__PURE__ */ Br(/* @__PURE__ */ Wr(/* @__PURE__ */ $(), /* @__PURE__ */ $())))
-}), si = /* @__PURE__ */ Z({
+	activeConnectionCount: /* @__PURE__ */ Wr(/* @__PURE__ */ Ur()),
+	canDescribe: /* @__PURE__ */ Wr(/* @__PURE__ */ Vr()),
+	id: /* @__PURE__ */ Wr(/* @__PURE__ */ $()),
+	label: /* @__PURE__ */ Wr(Yr),
+	maxConnectionCount: /* @__PURE__ */ Z(/* @__PURE__ */ Ur()),
+	params: /* @__PURE__ */ Wr(/* @__PURE__ */ X(/* @__PURE__ */ Gr(/* @__PURE__ */ $(), /* @__PURE__ */ $())))
+}), ci = /* @__PURE__ */ Q({
 	typeId: /* @__PURE__ */ Hr("connector"),
-	...ni,
-	actionNames: /* @__PURE__ */ Br(ri),
-	category: /* @__PURE__ */ X(ai),
-	categoryId: ii,
-	implementations: /* @__PURE__ */ Wr(/* @__PURE__ */ $(), oi),
-	vendorAccountURL: /* @__PURE__ */ X(/* @__PURE__ */ $()),
-	vendorDocumentationURL: /* @__PURE__ */ X(/* @__PURE__ */ $()),
-	vendorHomeURL: /* @__PURE__ */ X(/* @__PURE__ */ $())
-}), ci = {
+	...ri,
+	actionNames: /* @__PURE__ */ X(ii),
+	category: /* @__PURE__ */ Z(oi),
+	categoryId: ai,
+	implementations: /* @__PURE__ */ Gr(/* @__PURE__ */ $(), si),
+	vendorAccountURL: /* @__PURE__ */ Z(/* @__PURE__ */ $()),
+	vendorDocumentationURL: /* @__PURE__ */ Z(/* @__PURE__ */ $()),
+	vendorHomeURL: /* @__PURE__ */ Z(/* @__PURE__ */ $())
+}), li = {
 	abortOperation: "Abort Operation",
 	auditObjectContent: "Audit Object Content",
 	createObject: "Create Object",
@@ -6638,27 +6642,27 @@ var ri = qr([
 	retrieveRecords: "Retrieve Records",
 	upsertRecords: "Upsert Records"
 };
-function li(e) {
-	let t = new Set(e), n = "| Name | Supported |\n";
-	n += "| ---- | :-------: |\n";
-	for (let e of Object.keys(ci)) n += `| ${ci[e]} | ${t.has(e) ? "✓" : ""} |\n`;
+function ui(e) {
+	let t = new Set(e), n = "|Action|Supported|\n";
+	n += "|:----|:-------:|\n";
+	for (let e of Object.keys(li)) n += `| ${li[e]} | ${t.has(e) ? "✓" : ""} |\n`;
 	return n;
 }
 //#endregion
-//#region src/actions/documentOperations.ts
-var ui = "<!-- CONNECTOR_OPERATIONS_START -->", di = "<!-- CONNECTOR_OPERATIONS_END -->";
-async function fi() {
+//#region src/actions/documentActions.ts
+var di = "<!-- CONNECTOR_ACTIONS_START -->", fi = "<!-- CONNECTOR_ACTIONS_END -->";
+async function pi() {
 	try {
-		G("Document Operations"), q("1️⃣  Insert operations table into 'README.md'");
-		let e = li((await W("config.json")).operations ?? []);
-		await Bn("README.md", Gn(await Ln("./README.md"), e, ui, di)), K("Operations documented.");
+		G("Document Actions"), q("1️⃣  Insert actions table into 'README.md'");
+		let e = ui((await W("config.json")).actionNames ?? []);
+		await Bn("README.md", Gn(await Ln("./README.md"), e, di, fi)), K("Actions documented.");
 	} catch (e) {
-		console.error("❌  Error documenting operations.", e), process.exit(1);
+		console.error("❌  Error documenting actions.", e), process.exit(1);
 	}
 }
 //#endregion
 //#region src/actions/formatCode.ts
-async function pi() {
+async function mi() {
 	try {
 		G("Format Code"), await Fn("1️⃣  Format", "prettier", [
 			"--write",
@@ -6673,7 +6677,7 @@ async function pi() {
 }
 //#endregion
 //#region src/actions/lintCode.ts
-async function mi() {
+async function hi() {
 	try {
 		G("Lint Code"), await Fn("1️⃣  Lint", "eslint", ["."]), K("Code linted.");
 	} catch (e) {
@@ -6682,7 +6686,7 @@ async function mi() {
 }
 //#endregion
 //#region src/utilities/cloudflare.ts
-async function hi() {
+async function gi() {
 	let e = await W("config.json"), t = {
 		body: JSON.stringify(e),
 		headers: { "Content-Type": "application/json" },
@@ -6690,7 +6694,7 @@ async function hi() {
 	}, n = await fetch(`https://api.dpuse.app/configs/${e.id}`, t);
 	if (!n.ok) throw Error(await n.text());
 }
-async function gi(e, t) {
+async function _i(e, t) {
 	async function n(e, t, r) {
 		for (let i of r) {
 			let r = `${e}/${i}`, a = `${t}/${i}`;
@@ -6708,7 +6712,7 @@ async function gi(e, t) {
 	let r = await Nn(`${e}/${t}/`);
 	await n(`${e}/${t}`, t, r);
 }
-async function _i(e) {
+async function vi(e) {
 	let t = e.id, n = {
 		body: JSON.stringify(e),
 		headers: { "Content-Type": "application/json" },
@@ -6716,7 +6720,7 @@ async function _i(e) {
 	}, r = await fetch(`https://api.dpuse.app/configs/${t}`, n);
 	if (!r.ok) throw Error(await r.text());
 }
-async function vi(e, t) {
+async function yi(e, t) {
 	let n = `v${e.version ?? "unknown"}`;
 	async function r(e, r = "") {
 		let i = await Nn(e, { withFileTypes: !0 });
@@ -6740,24 +6744,24 @@ async function vi(e, t) {
 }
 //#endregion
 //#region node_modules/valibot/dist/index.mjs
-var yi, bi = {
+var bi, xi = {
 	lang: void 0,
 	message: void 0,
 	abortEarly: void 0,
 	abortPipeEarly: void 0
 };
 /* @__NO_SIDE_EFFECTS__ */
-function xi(e) {
-	return !e && !yi ? bi : {
-		lang: e?.lang ?? yi?.lang,
+function Si(e) {
+	return !e && !bi ? xi : {
+		lang: e?.lang ?? bi?.lang,
 		message: e?.message,
-		abortEarly: e?.abortEarly ?? yi?.abortEarly,
-		abortPipeEarly: e?.abortPipeEarly ?? yi?.abortPipeEarly
+		abortEarly: e?.abortEarly ?? bi?.abortEarly,
+		abortPipeEarly: e?.abortPipeEarly ?? bi?.abortPipeEarly
 	};
 }
 /* @__NO_SIDE_EFFECTS__ */
-function Si(e, t, n) {
-	let r = e["~run"]({ value: t }, /* @__PURE__ */ xi(n));
+function Ci(e, t, n) {
+	let r = e["~run"]({ value: t }, /* @__PURE__ */ Si(n));
 	return {
 		typed: r.typed,
 		success: !r.issues,
@@ -6767,31 +6771,31 @@ function Si(e, t, n) {
 }
 //#endregion
 //#region node_modules/@dpuse/dpuse-shared/dist/dpuse-shared-componentModuleContext.es.js
-var Ci = /* @__PURE__ */ Z({
+var wi = /* @__PURE__ */ Q({
 	typeId: /* @__PURE__ */ Hr("contextModelGroup"),
-	...ti,
-	modelRefs: /* @__PURE__ */ Br(ei),
-	order: /* @__PURE__ */ Ur()
-}), wi = qr(["listContextFocuses"]), Ti = /* @__PURE__ */ Z({
-	typeId: /* @__PURE__ */ Hr("context"),
 	...ni,
-	actionNames: /* @__PURE__ */ Br(wi),
-	models: /* @__PURE__ */ Br(Ci)
-}), Ei = qr([
+	modelRefs: /* @__PURE__ */ X(ti),
+	order: /* @__PURE__ */ Ur()
+}), Ti = Jr(["listContextFocuses"]), Ei = /* @__PURE__ */ Q({
+	typeId: /* @__PURE__ */ Hr("context"),
+	...ri,
+	actionNames: /* @__PURE__ */ X(Ti),
+	models: /* @__PURE__ */ X(wi)
+}), Di = Jr([
 	"list",
 	"render",
 	"setColorMode"
-]), Di = /* @__PURE__ */ Z({
+]), Oi = /* @__PURE__ */ Q({
 	typeId: /* @__PURE__ */ Hr("presenter"),
-	...ni,
-	actionNames: /* @__PURE__ */ Br(Ei),
-	presentations: /* @__PURE__ */ Br(ei)
-}), Oi = /* @__PURE__ */ new Set([
+	...ri,
+	actionNames: /* @__PURE__ */ X(Di),
+	presentations: /* @__PURE__ */ X(ti)
+}), ki = /* @__PURE__ */ new Set([
 	"createObject",
 	"dropObject",
 	"removeRecords",
 	"upsertRecords"
-]), ki = /* @__PURE__ */ new Set([
+]), Ai = /* @__PURE__ */ new Set([
 	"auditObjectContent",
 	"findObjectFolderPath",
 	"getReadableStream",
@@ -6801,30 +6805,30 @@ var Ci = /* @__PURE__ */ Z({
 	"retrieveChunks",
 	"retrieveRecords"
 ]);
-async function Ai() {
+async function ji() {
 	try {
 		G("Build Project"), await Fn("1️⃣  Bundle project", "vite", ["build"]), K("Project built.");
 	} catch (e) {
 		console.error("❌  Error building project.", e), process.exit(1);
 	}
 }
-async function ji() {
+async function Mi() {
 	try {
 		G("Release Project");
 		let e = await W("package.json"), t = await W("config.json");
-		await Vi("1️⃣ ", e);
+		await Hi("1️⃣ ", e);
 		let n = Vn(t.id);
 		switch (n.typeId) {
 			case "connector":
-				t = await Ni("2️⃣ ", e);
-				break;
-			case "context":
 				t = await Pi("2️⃣ ", e);
 				break;
-			case "presenter":
+			case "context":
 				t = await Fi("2️⃣ ", e);
 				break;
-			default: t = await Mi("2️⃣ ", e);
+			case "presenter":
+				t = await Ii("2️⃣ ", e);
+				break;
+			default: t = await Ni("2️⃣ ", e);
 		}
 		if (await Fn("3️⃣  Bundle project", "vite", ["build"]), await Pn("4️⃣  Stage changes", "git", ["add", "."]), await Pn("5️⃣  Commit changes", "git", [
 			"commit",
@@ -6834,13 +6838,13 @@ async function ji() {
 			"push",
 			"origin",
 			"main:main"
-		]), n.typeId === "app") q("7️⃣  Register module"), await hi();
-		else if (n.typeId === "engine") q("7️⃣  Register module"), await vi(e, `dpuse-engine-eu/${n.uploadGroupName ?? "unknown"}`), await _i(t);
+		]), n.typeId === "app") q("7️⃣  Register module"), await gi();
+		else if (n.typeId === "engine") q("7️⃣  Register module"), await yi(e, `dpuse-engine-eu/${n.uploadGroupName ?? "unknown"}`), await vi(t);
 		else if (n.uploadGroupName === void 0) q("7️⃣  Registration NOT required.");
 		else {
 			q("7️⃣  Register module");
 			let r = t.id.split("-").slice(2).join("-");
-			await vi(e, `dpuse-engine-eu/${n.uploadGroupName}/${r}`), await _i(t);
+			await yi(e, `dpuse-engine-eu/${n.uploadGroupName}/${r}`), await vi(t);
 		}
 		if (n.publishedTo === "npm") {
 			let e = ".npmrc";
@@ -6859,70 +6863,70 @@ async function ji() {
 		console.error("❌  Error releasing project.", e), process.exit(1);
 	}
 }
-async function Mi(e, t) {
+async function Ni(e, t) {
 	q(`${e} Build project configuration`);
 	let n = await W("config.json");
 	return t.name != null && (n.id = t.name.replace("@dpuse/", "")), t.version != null && (n.version = t.version), await zn("config.json", n), n;
 }
-async function Ni(e, t) {
+async function Pi(e, t) {
 	q(`${e} Build connector project configuration`);
-	let [n, r] = await Promise.all([W("config.json"), Ln("src/index.ts")]), i = /* @__PURE__ */ Si(si, n);
+	let [n, r] = await Promise.all([W("config.json"), Ln("src/index.ts")]), i = /* @__PURE__ */ Ci(ci, n);
 	if (!i.success) throw console.error("❌  Configuration is invalid:"), console.table(i.issues), Error("Configuration is invalid.");
 	let a = Un(r);
-	return await Li(t, n, a, Ii(a));
-}
-async function Pi(e, t) {
-	q(`${e} Build context project configuration`);
-	let [n, r] = await Promise.all([W("config.json"), Ln("src/index.ts")]), i = /* @__PURE__ */ Si(Ti, n);
-	if (!i.success) throw console.error("❌  Configuration is invalid:"), console.table(i.issues), Error("Configuration is invalid.");
-	return await Li(t, n, Un(r));
+	return await Ri(t, n, a, Li(a));
 }
 async function Fi(e, t) {
-	q(`${e} Build presenter project configuration`);
-	let [n, r] = await Promise.all([W("config.json"), Ln("src/index.ts")]), i = /* @__PURE__ */ Si(Di, n);
+	q(`${e} Build context project configuration`);
+	let [n, r] = await Promise.all([W("config.json"), Ln("src/index.ts")]), i = /* @__PURE__ */ Ci(Ei, n);
 	if (!i.success) throw console.error("❌  Configuration is invalid:"), console.table(i.issues), Error("Configuration is invalid.");
-	return await Li(t, n, Un(r));
+	return await Ri(t, n, Un(r));
 }
-function Ii(e) {
+async function Ii(e, t) {
+	q(`${e} Build presenter project configuration`);
+	let [n, r] = await Promise.all([W("config.json"), Ln("src/index.ts")]), i = /* @__PURE__ */ Ci(Oi, n);
+	if (!i.success) throw console.error("❌  Configuration is invalid:"), console.table(i.issues), Error("Configuration is invalid.");
+	return await Ri(t, n, Un(r));
+}
+function Li(e) {
 	let t = !1, n = !1;
-	for (let r of e) ki.has(r) && (t = !0), Oi.has(r) && (n = !0);
+	for (let r of e) Ai.has(r) && (t = !0), ki.has(r) && (n = !0);
 	return t && n ? "bidirectional" : t ? "source" : n ? "destination" : "unknown";
 }
-async function Li(e, t, n, r) {
+async function Ri(e, t, n, r) {
 	return n.length > 0 ? (console.info(`ℹ️  Implements ${String(n.length)} operations:`), console.table(n)) : console.warn("⚠️   Implements no operations."), r === "unknown" ? console.warn("⚠️   No usage identified.") : console.info(`ℹ️  Supports '${r ?? "unknown"}' usage.`), e.name != null && (t.id = e.name.replace("@dpuse/", "").replace("@dpuse/", "")), e.version != null && (t.version = e.version), t.operations = n, t.usageId = r ?? "unknown", await zn("config.json", t), t;
 }
-async function Ri() {
+async function zi() {
 	try {
 		G("Publish Project");
 		let e = await W("package.json"), t = await W("config.json"), n = Vn(t.id);
-		if (n.typeId === "app") q("1️⃣  Register module"), await hi();
-		else if (n.typeId === "engine") q("1️⃣  Register module"), await vi(e, `dpuse-engine-eu/${n.uploadGroupName ?? "unknown"}`), await _i(t);
+		if (n.typeId === "app") q("1️⃣  Register module"), await gi();
+		else if (n.typeId === "engine") q("1️⃣  Register module"), await yi(e, `dpuse-engine-eu/${n.uploadGroupName ?? "unknown"}`), await vi(t);
 		else if (n.uploadGroupName === void 0) q("1️⃣  Publishing NOT required.");
 		else {
 			q("1️⃣  Register module");
 			let r = t.id.split("-").slice(2).join("-");
-			await vi(e, `dpuse-engine-eu/${n.uploadGroupName}/${r}`), await _i(t);
+			await yi(e, `dpuse-engine-eu/${n.uploadGroupName}/${r}`), await vi(t);
 		}
 		K(`Project version '${e.version ?? "unknown"}' published.`);
 	} catch (e) {
 		console.error("❌  Error publishing project.", e), process.exit(1);
 	}
 }
-async function zi() {
+async function Bi() {
 	try {
 		G("Synchronise Project with GitHub");
 		let e = await W("package.json"), t = await W("config.json");
-		switch (await Vi("1️⃣ ", e), Vn(t.id).typeId) {
+		switch (await Hi("1️⃣ ", e), Vn(t.id).typeId) {
 			case "connector":
-				await Ni("2️⃣ ", e);
-				break;
-			case "context":
 				await Pi("2️⃣ ", e);
 				break;
-			case "presenter":
+			case "context":
 				await Fi("2️⃣ ", e);
 				break;
-			default: await Mi("2️⃣ ", e);
+			case "presenter":
+				await Ii("2️⃣ ", e);
+				break;
+			default: await Ni("2️⃣ ", e);
 		}
 		await Pn("3️⃣  Stage changes", "git", ["add", "."]), await Pn("4️⃣  Commit changes", "git", [
 			"commit",
@@ -6937,14 +6941,14 @@ async function zi() {
 		console.error("❌  Error synchronising project with GitHub.", e), process.exit(1);
 	}
 }
-function Bi() {
+function Vi() {
 	try {
 		G("Test Project"), console.error("\n❌  No tests implemented.\n");
 	} catch (e) {
 		console.error("❌  Error testing project.", e), process.exit(1);
 	}
 }
-async function Vi(e, t, n = "./") {
+async function Hi(e, t, n = "./") {
 	if (q(`${e} Bump project version`), t.version == null) t.version = "0.0.001", console.warn(`⚠️  Project version initialised to '${t.version}'.`);
 	else {
 		let e = t.version, n = t.version.split(".");
@@ -6953,6 +6957,6 @@ async function Vi(e, t, n = "./") {
 	await zn(`${n}package.json`, t);
 }
 //#endregion
-export { Kn as auditDependencies, Ai as buildProject, qn as checkConfigFiles, Yn as checkDependencies, nr as documentBundleSizes, _r as documentDependencies, fi as documentOperations, pi as formatCode, mi as lintCode, Ri as publishProject, ji as releaseProject, zi as syncProjectWithGitHub, Bi as testProject, gi as uploadDirectoryToR2 };
+export { Kn as auditDependencies, ji as buildProject, qn as checkConfigFiles, Yn as checkDependencies, pi as documentActions, nr as documentBundleSizes, vr as documentDependencies, mi as formatCode, hi as lintCode, zi as publishProject, Mi as releaseProject, Bi as syncProjectWithGitHub, Vi as testProject, _i as uploadDirectoryToR2 };
 
 //# sourceMappingURL=dpuse-development.es.js.map

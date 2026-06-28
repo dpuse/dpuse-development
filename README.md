@@ -115,9 +115,9 @@ License data is collected automatically on each release using [license-checker](
 
 <!-- DEPENDENCY_LICENSES_START -->
 
-| Name                                                             | Version | License(s) | Document                                                              |
-| ---------------------------------------------------------------- | :-----: | ---------- | --------------------------------------------------------------------- |
-| [@dpuse/dpuse-shared](https://github.com/dpuse/dpuse-shared)     | 0.3.689 | MIT        | [LICENSE](licenses/downloads/@dpuse/dpuse-shared@0.3.689-LICENSE.txt) |
+| Dependency                                                       | Version | License(s) | Document                                                              |
+| :--------------------------------------------------------------- | :-----: | :--------- | :-------------------------------------------------------------------- |
+| [@dpuse/dpuse-shared](https://github.com/dpuse/dpuse-shared)     | 0.3.711 | MIT        | [LICENSE](licenses/downloads/@dpuse/dpuse-shared@0.3.711-LICENSE.txt) |
 | [acorn-typescript](https://github.com/TyrealHu/acorn-typescript) | 1.4.13  | MIT        | [LICENSE](licenses/downloads/acorn-typescript@1.4.13-LICENSE.txt)     |
 | [acorn-walk](https://github.com/acornjs/acorn)                   |  8.3.5  | MIT        | [LICENSE](licenses/downloads/acorn-walk@8.3.5-LICENSE.txt)            |
 | [acorn](https://github.com/acornjs/acorn)                        | 8.17.0  | MIT        | [LICENSE](licenses/downloads/acorn@8.17.0-LICENSE.txt)                |
@@ -133,7 +133,7 @@ The dependency tree below lists every package in this project — direct and tra
 
 <!-- DEPENDENCY_TREE_START -->
 
-- **[@dpuse/dpuse-shared](https://github.com/dpuse/dpuse-shared)** 0.3.689 — this month: 2026-06-26
+- **[@dpuse/dpuse-shared](https://github.com/dpuse/dpuse-shared)** 0.3.711 — this month: 2026-06-28
 - **[acorn-typescript](https://github.com/TyrealHu/acorn-typescript)** 1.4.13 — 29 months ago: 2024-01-03 ⚠️
     - **[acorn](https://github.com/acornjs/acorn)** 8.17.0 — this month: 2026-06-11
 - **[acorn-walk](https://github.com/acornjs/acorn)** 8.3.5 — 4 months ago: 2026-02-19
@@ -142,7 +142,8 @@ The dependency tree below lists every package in this project — direct and tra
 - **[nanoid](https://github.com/ai/nanoid)** 5.1.16 — this month: 2026-06-24
 - **[valibot](https://github.com/open-circle/valibot)** 1.4.1 — 1 month ago: 2026-05-24
     - **[typescript](https://github.com/microsoft/TypeScript)** 6.0.3 — 2 months ago: 2026-04-16
-      <!-- DEPENDENCY_TREE_END -->
+
+<!-- DEPENDENCY_TREE_END -->
 
 ## Bundle Analysis
 
@@ -156,6 +157,38 @@ The Bundle Analysis Reports provide detailed breakdowns of the bundle's composit
 [View the Sonda Report](https://dpuse.github.io/dpuse-connector-file-store-emulator/bundle-analysis-reports/sonda/index.html).
 
 <!-- BUNDLE_START -->
+
+| Chunk/Module/File                                                                                | Composition                        |
+| :----------------------------------------------------------------------------------------------- | :--------------------------------- |
+| dpuse-development.es.js                                                                          | 297.2 kB · gz 74.1 kB · br 59.0 kB |
+| &nbsp;&nbsp;&nbsp;&nbsp;acorn                                                                    | `██████████░░░░░░░░░░` 49.9%       |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;dist/acorn.mjs                                   | `██████████░░░░░░░░░░` 49.9%       |
+| &nbsp;&nbsp;&nbsp;&nbsp;acorn-typescript                                                         | `███████░░░░░░░░░░░░░` 35.8%       |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;lib/index.mjs                                    | `███████░░░░░░░░░░░░░` 35.8%       |
+| &nbsp;&nbsp;&nbsp;&nbsp;src                                                                      | `██░░░░░░░░░░░░░░░░░░` 9.8%        |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;manageProject.ts                                 | `█░░░░░░░░░░░░░░░░░░░` 2.8%        |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;index.ts                                         | `░░░░░░░░░░░░░░░░░░░░` 1.9%        |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;documentDependencies.ts                          | `░░░░░░░░░░░░░░░░░░░░` 1.7%        |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;documentBundleSizes.ts                           | `░░░░░░░░░░░░░░░░░░░░` 1.5%        |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;cloudflare.ts                                    | `░░░░░░░░░░░░░░░░░░░░` 0.8%        |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;checkConfigFiles.ts                              | `░░░░░░░░░░░░░░░░░░░░` 0.4%        |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;checkDependencies.ts                             | `░░░░░░░░░░░░░░░░░░░░` 0.2%        |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;documentActions.ts                               | `░░░░░░░░░░░░░░░░░░░░` 0.2%        |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;formatCode.ts                                    | `░░░░░░░░░░░░░░░░░░░░` 0.1%        |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;auditDependencies.ts                             | `░░░░░░░░░░░░░░░░░░░░` 0.1%        |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;lintCode.ts                                      | `░░░░░░░░░░░░░░░░░░░░` 0.1%        |
+| &nbsp;&nbsp;&nbsp;&nbsp;@dpuse/dpuse-shared                                                      | `█░░░░░░░░░░░░░░░░░░░` 4.1%        |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;dist/componentConfig.schema-B7kVKqVP.js          | `█░░░░░░░░░░░░░░░░░░░` 3.2%        |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;dist/dpuse-shared-componentModuleConnector.es.js | `░░░░░░░░░░░░░░░░░░░░` 0.6%        |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;dist/dpuse-shared-componentModuleContext.es.js   | `░░░░░░░░░░░░░░░░░░░░` 0.1%        |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;dist/dpuse-shared-locale.es.js                   | `░░░░░░░░░░░░░░░░░░░░` 0.1%        |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;dist/dpuse-shared-componentModulePresenter.es.js | `░░░░░░░░░░░░░░░░░░░░` 0.1%        |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;dist/moduleConfig.schema-Cvc9QRvr.js             | `░░░░░░░░░░░░░░░░░░░░` 0.1%        |
+| &nbsp;&nbsp;&nbsp;&nbsp;valibot                                                                  | `░░░░░░░░░░░░░░░░░░░░` 0.2%        |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;dist/index.mjs                                   | `░░░░░░░░░░░░░░░░░░░░` 0.2%        |
+| &nbsp;&nbsp;&nbsp;&nbsp;(runtime)                                                                | `░░░░░░░░░░░░░░░░░░░░` 0.1%        |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;rolldown/runtime.js                              | `░░░░░░░░░░░░░░░░░░░░` 0.1%        |
+
 <!-- BUNDLE_END -->
 
 ## Security & Quality

@@ -1,6 +1,6 @@
 {
     "name": "@dpuse/dpuse-development",
-    "version": "0.3.595",
+    "version": "0.3.596",
     "private": false,
     "description": "Actions for managing DPUse projects.",
     "license": "MIT",
@@ -45,7 +45,7 @@
     },
     "scripts": {
         "audit": "node -e \"import('./dist/dpuse-development.es.js').then(m => m.auditDependencies())\"",
-        "build": "vite build",
+        "build": "vite build && node -e \"import('@dpuse/dpuse-development').then(m => m.documentBundleSizes())\"",
         "check": "node -e \"import('@dpuse/dpuse-development').then(m => m.checkConfigFiles())\" && node -e \"import('./dist/dpuse-development.es.js').then(m => m.checkDependencies())\"",
         "document": "node -e \"import('./dist/dpuse-development.es.js').then(m => m.documentDependencies(['Apache-2.0;MIT']))\"",
         "format": "node -e \"import('./dist/dpuse-development.es.js').then(m => m.formatCode())\"",

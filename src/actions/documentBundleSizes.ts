@@ -52,7 +52,8 @@ export async function documentBundleSizes(): Promise<void> {
         const json = await readJSONFile<VisualizerJson>('./bundle-analysis-reports/rollup-visualiser/index.json');
 
         logStepHeader(`2️⃣  Insert table into 'README.md'`);
-        const bundleTable = await buildBundleTable(json);
+        const distDir = await detectDistDir();
+        const bundleTable = await buildBundleTable(json, distDir);
 
         const readme = await readTextFile('./README.md');
         const updated = substituteText(readme, `\n${bundleTable}\n`, BUNDLE_START_MARKER, BUNDLE_END_MARKER);
@@ -67,14 +68,23 @@ export async function documentBundleSizes(): Promise<void> {
 
 // ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-async function buildBundleTable(json: VisualizerJson): Promise<string> {
+async function detectDistDir(): Promise<string> {
+    try {
+        await fs.access('./dist/client/assets');
+        return './dist/client/assets';
+    } catch {
+        return './dist';
+    }
+}
+
+async function buildBundleTable(json: VisualizerJson, distDir: string): Promise<string> {
     const chunkGroups = buildChunkGroups(json);
     const bundlerTotal = chunkGroups
         .values()
         .flatMap((g) => g.values().toArray())
         .reduce((sum, g) => sum + g.sizes.rendered, 0);
 
-    const distributionFiles = await readDistributionFileSizes();
+    const distributionFiles = await readDistributionFileSizes(distDir);
     distributionFiles.sort((a, b) => b[1].rendered - a[1].rendered);
 
     const lines = ['|Chunk/Module/File|Composition|', '|:------ |:-----------|'];
@@ -99,14 +109,14 @@ async function buildBundleTable(json: VisualizerJson): Promise<string> {
     return lines.join('\n');
 }
 
-async function readDistributionFileSizes(): Promise<[string, Sizes][]> {
-    const entries = await fs.readdir('./dist');
+async function readDistributionFileSizes(distDir: string): Promise<[string, Sizes][]> {
+    const entries = await fs.readdir(distDir);
     const jsFiles = entries.filter((f) => f.endsWith('.js') && !f.endsWith('.map'));
 
     return Promise.all(
         jsFiles.map(async (file) => {
             // eslint-disable-next-line security/detect-non-literal-fs-filename -- file comes from fs.readdir, not user input.
-            const buffer = await fs.readFile(`./dist/${file}`);
+            const buffer = await fs.readFile(`${distDir}/${file}`);
             const [gzipped, brotlied] = await Promise.all([gzipAsync(buffer), brotliAsync(buffer)]);
             return [file, { rendered: buffer.length, gzip: gzipped.length, brotli: brotlied.length }] as [string, Sizes];
         })
@@ -155,7 +165,8 @@ function buildChunkGroups(json: VisualizerJson): Map<string, Map<string, { sizes
         const fileName = shortModuleName(meta.id);
 
         for (const [chunkName, partUid] of Object.entries(meta.moduleParts)) {
-            accumulateChunkPart(chunks, json, groupName, fileName, chunkName, partUid);
+            const chunkBaseName = chunkName.split('/').at(-1) ?? chunkName;
+            accumulateChunkPart(chunks, json, groupName, fileName, chunkBaseName, partUid);
         }
     }
 
