@@ -89,26 +89,47 @@ async function buildBundleTable(json: VisualizerJson, distDir: string, moduleLev
 
     const lines = ['|Chunk/Module/File|Composition|', '|:------ |:-----------|'];
 
-    for (const [file, sizes] of distributionFiles) {
-        lines.push(`| ${file} | ${formatBytes(sizes.rendered)} · gz ${formatBytes(sizes.gzip)} · br ${formatBytes(sizes.brotli)} |`);
+    const chunkSizes = (sizes: Sizes) =>
+        `${formatBytes(sizes.rendered)} · gz ${formatBytes(sizes.gzip)} · br ${formatBytes(sizes.brotli)}`;
 
+    for (const [file, sizes] of distributionFiles) {
         const groups = chunkGroups.get(file) ?? new Map<string, { sizes: Sizes; files: Map<string, Sizes> }>();
         const sortedGroups = [...groups].toSorted((a, b) => b[1].sizes.rendered - a[1].sizes.rendered);
-        for (const [groupName, { sizes: groupSizes, files }] of sortedGroups) {
+
+        if (sortedGroups.length === 1) {
+            const [groupName, { sizes: groupSizes, files }] = sortedGroups[0];
             const groupPct = bundlerTotal > 0 ? (groupSizes.rendered / bundlerTotal) * 100 : 0;
 
             if (files.size === 1) {
                 const [fileName] = files.keys();
-                lines.push(`| ${INDENT}${groupName} → ${fileName} | ${bar(groupPct)} |`);
+                lines.push(`| ${file} → ${groupName} → ${fileName} | ${chunkSizes(sizes)} · ${bar(groupPct)} |`);
             } else if (moduleLevel) {
-                lines.push(`| ${INDENT}${groupName} | ${bar(groupPct)} |`);
+                lines.push(`| ${file} → ${groupName} | ${chunkSizes(sizes)} · ${bar(groupPct)} |`);
             } else {
-                lines.push(`| ${INDENT}${groupName} | ${bar(groupPct)} |`);
-
+                lines.push(`| ${file} → ${groupName} | ${chunkSizes(sizes)} · ${bar(groupPct)} |`);
                 const sortedFiles = [...files].toSorted((a, b) => b[1].rendered - a[1].rendered);
                 for (const [fileName, fileSizes] of sortedFiles) {
                     const filePct = bundlerTotal > 0 ? (fileSizes.rendered / bundlerTotal) * 100 : 0;
-                    lines.push(`| ${INDENT}${INDENT}${fileName} | ${bar(filePct)} |`);
+                    lines.push(`| ${INDENT}${fileName} | ${bar(filePct)} |`);
+                }
+            }
+        } else {
+            lines.push(`| ${file} | ${chunkSizes(sizes)} |`);
+            for (const [groupName, { sizes: groupSizes, files }] of sortedGroups) {
+                const groupPct = bundlerTotal > 0 ? (groupSizes.rendered / bundlerTotal) * 100 : 0;
+
+                if (files.size === 1) {
+                    const [fileName] = files.keys();
+                    lines.push(`| ${INDENT}${groupName} → ${fileName} | ${bar(groupPct)} |`);
+                } else if (moduleLevel) {
+                    lines.push(`| ${INDENT}${groupName} | ${bar(groupPct)} |`);
+                } else {
+                    lines.push(`| ${INDENT}${groupName} | ${bar(groupPct)} |`);
+                    const sortedFiles = [...files].toSorted((a, b) => b[1].rendered - a[1].rendered);
+                    for (const [fileName, fileSizes] of sortedFiles) {
+                        const filePct = bundlerTotal > 0 ? (fileSizes.rendered / bundlerTotal) * 100 : 0;
+                        lines.push(`| ${INDENT}${INDENT}${fileName} | ${bar(filePct)} |`);
+                    }
                 }
             }
         }
