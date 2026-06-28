@@ -77,17 +77,19 @@ async function buildBundleTable(json: VisualizerJson): Promise<string> {
     const distributionFiles = await readDistributionFileSizes();
     distributionFiles.sort((a, b) => b[1].rendered - a[1].rendered);
 
-    const lines = ['|:Chunk/Module/File|Composition|', '|:------ |:-----------|'];
+    const lines = ['|Chunk/Module/File|Composition|', '|:------ |:-----------|'];
 
     for (const [file, sizes] of distributionFiles) {
         lines.push(`| ${file} | ${formatBytes(sizes.rendered)} · gz ${formatBytes(sizes.gzip)} · br ${formatBytes(sizes.brotli)} |`);
 
         const groups = chunkGroups.get(file) ?? new Map<string, { sizes: Sizes; files: Map<string, Sizes> }>();
-        for (const [groupName, { sizes: groupSizes, files }] of [...groups].sort((a, b) => b[1].sizes.rendered - a[1].sizes.rendered)) {
+        const sortedGroups = [...groups].toSorted((a, b) => b[1].sizes.rendered - a[1].sizes.rendered);
+        for (const [groupName, { sizes: groupSizes, files }] of sortedGroups) {
             const groupPct = bundlerTotal > 0 ? (groupSizes.rendered / bundlerTotal) * 100 : 0;
             lines.push(`| ${INDENT}${groupName} | ${bar(groupPct)} |`);
 
-            for (const [fileName, fileSizes] of [...files].sort((a, b) => b[1].rendered - a[1].rendered)) {
+            const sortedFiles = [...files].toSorted((a, b) => b[1].rendered - a[1].rendered);
+            for (const [fileName, fileSizes] of sortedFiles) {
                 const filePct = bundlerTotal > 0 ? (fileSizes.rendered / bundlerTotal) * 100 : 0;
                 lines.push(`| ${INDENT}${INDENT}${fileName} | ${bar(filePct)} |`);
             }
@@ -103,11 +105,46 @@ async function readDistributionFileSizes(): Promise<[string, Sizes][]> {
 
     return Promise.all(
         jsFiles.map(async (file) => {
+            // eslint-disable-next-line security/detect-non-literal-fs-filename -- file comes from fs.readdir, not user input.
             const buffer = await fs.readFile(`./dist/${file}`);
             const [gzipped, brotlied] = await Promise.all([gzipAsync(buffer), brotliAsync(buffer)]);
             return [file, { rendered: buffer.length, gzip: gzipped.length, brotli: brotlied.length }] as [string, Sizes];
         })
     );
+}
+
+function accumulateChunkPart(
+    chunks: Map<string, Map<string, { sizes: Sizes; files: Map<string, Sizes> }>>,
+    json: VisualizerJson,
+    groupName: string,
+    fileName: string,
+    chunkName: string,
+    partUid: string
+): void {
+    const part = json.nodeParts[partUid];
+    if (!part) return;
+    const s = partSizes(part);
+
+    let chunkGroups = chunks.get(chunkName);
+    if (chunkGroups === undefined) {
+        chunkGroups = new Map();
+        chunks.set(chunkName, chunkGroups);
+    }
+
+    let group = chunkGroups.get(groupName);
+    if (group === undefined) {
+        group = { sizes: zero(), files: new Map<string, Sizes>() };
+        chunkGroups.set(groupName, group);
+    }
+
+    addTo(group.sizes, s);
+
+    let fileSizes = group.files.get(fileName);
+    if (fileSizes === undefined) {
+        fileSizes = zero();
+        group.files.set(fileName, fileSizes);
+    }
+    addTo(fileSizes, s);
 }
 
 function buildChunkGroups(json: VisualizerJson): Map<string, Map<string, { sizes: Sizes; files: Map<string, Sizes> }>> {
@@ -118,30 +155,7 @@ function buildChunkGroups(json: VisualizerJson): Map<string, Map<string, { sizes
         const fileName = shortModuleName(meta.id);
 
         for (const [chunkName, partUid] of Object.entries(meta.moduleParts)) {
-            const part = json.nodeParts[partUid];
-            if (!part) continue;
-            const s = partSizes(part);
-
-            let chunkGroups = chunks.get(chunkName);
-            if (chunkGroups === undefined) {
-                chunkGroups = new Map();
-                chunks.set(chunkName, chunkGroups);
-            }
-
-            let group = chunkGroups.get(groupName);
-            if (group === undefined) {
-                group = { sizes: zero(), files: new Map<string, Sizes>() };
-                chunkGroups.set(groupName, group);
-            }
-
-            addTo(group.sizes, s);
-
-            let fileSizes = group.files.get(fileName);
-            if (fileSizes === undefined) {
-                fileSizes = zero();
-                group.files.set(fileName, fileSizes);
-            }
-            addTo(fileSizes, s);
+            accumulateChunkPart(chunks, json, groupName, fileName, chunkName, partUid);
         }
     }
 
