@@ -1,7 +1,12 @@
-import { brotliCompress, gzip } from 'node:zlib';
+// ── External Dependencies & Registrations
 import { promises as fs } from 'node:fs';
 import { promisify } from 'node:util';
+import { brotliCompress, gzip } from 'node:zlib';
+
+// ── Local (Development) Framework
 import { logOperationHeader, logOperationSuccess, logStepHeader, readJSONFile, readTextFile, substituteText, writeTextFile } from '@/utilities';
+
+// ── Initialisation ───────────────────────────────────────────────────────────────────────────────────────────────────
 
 const gzipAsync = promisify(gzip);
 const brotliAsync = promisify(brotliCompress);
@@ -64,17 +69,17 @@ export async function documentBundleSizes(): Promise<void> {
 
 async function buildBundleTable(json: VisualizerJson): Promise<string> {
     const chunkGroups = buildChunkGroups(json);
-    const bundlerTotal = [...chunkGroups.values()].flatMap((g) => [...g.values()]).reduce((sum, g) => sum + g.sizes.rendered, 0);
+    const bundlerTotal = chunkGroups
+        .values()
+        .flatMap((g) => g.values().toArray())
+        .reduce((sum, g) => sum + g.sizes.rendered, 0);
 
-    const distFiles = await readDistFileSizes();
-    distFiles.sort((a, b) => b[1].rendered - a[1].rendered);
+    const distributionFiles = await readDistributionFileSizes();
+    distributionFiles.sort((a, b) => b[1].rendered - a[1].rendered);
 
-    const lines = [
-        '| Module | Composition |',
-        '| ------ | ----------- |'
-    ];
+    const lines = ['| Module | Composition |', '| ------ | ----------- |'];
 
-    for (const [file, sizes] of distFiles) {
+    for (const [file, sizes] of distributionFiles) {
         lines.push(`| ${file} | ${formatBytes(sizes.rendered)} · gz ${formatBytes(sizes.gzip)} · br ${formatBytes(sizes.brotli)} |`);
 
         const groups = chunkGroups.get(file) ?? new Map<string, { sizes: Sizes; files: Map<string, Sizes> }>();
@@ -92,15 +97,15 @@ async function buildBundleTable(json: VisualizerJson): Promise<string> {
     return lines.join('\n');
 }
 
-async function readDistFileSizes(): Promise<[string, Sizes][]> {
+async function readDistributionFileSizes(): Promise<[string, Sizes][]> {
     const entries = await fs.readdir('./dist');
     const jsFiles = entries.filter((f) => f.endsWith('.js') && !f.endsWith('.map'));
 
     return Promise.all(
         jsFiles.map(async (file) => {
-            const buf = await fs.readFile(`./dist/${file}`);
-            const [gzipped, brotlied] = await Promise.all([gzipAsync(buf), brotliAsync(buf)]);
-            return [file, { rendered: buf.length, gzip: gzipped.length, brotli: brotlied.length }] as [string, Sizes];
+            const buffer = await fs.readFile(`./dist/${file}`);
+            const [gzipped, brotlied] = await Promise.all([gzipAsync(buffer), brotliAsync(buffer)]);
+            return [file, { rendered: buffer.length, gzip: gzipped.length, brotli: brotlied.length }] as [string, Sizes];
         })
     );
 }
@@ -150,14 +155,14 @@ function bar(pct: number): string {
 
 function sourceGroupName(id: string): string {
     const path = id.startsWith('/') ? id.slice(1) : id;
-    if (path.startsWith('\x00')) return '(runtime)';
+    if (path.startsWith('\u{0}')) return '(runtime)';
     if (path.startsWith('node_modules/')) {
         const rest = path.slice('node_modules/'.length);
         if (rest.startsWith('@')) {
             const parts = rest.split('/');
-            return `${parts[0]}/${parts[1]}`;
+            return `${String(parts[0])}/${String(parts[1])}`;
         }
-        return rest.split('/')[0] ?? rest;
+        return rest.split('/', 1)[0] ?? rest;
     }
     if (path.startsWith('rust/') || path.startsWith('__vite-plugin-wasm')) return 'wasm';
     return 'src';
@@ -165,7 +170,7 @@ function sourceGroupName(id: string): string {
 
 function shortModuleName(id: string): string {
     const path = id.startsWith('/') ? id.slice(1) : id;
-    if (path.startsWith('\x00')) return path.slice(1);
+    if (path.startsWith('\u{0}')) return path.slice(1);
     if (path.startsWith('node_modules/')) {
         const rest = path.slice('node_modules/'.length);
         const parts = rest.startsWith('@') ? rest.split('/').slice(2) : rest.split('/').slice(1);
@@ -189,6 +194,6 @@ function addTo(target: Sizes, source: Sizes): void {
 }
 
 function formatBytes(bytes: number): string {
-    if (bytes < 1024) return `${bytes} B`;
+    if (bytes < 1024) return `${String(bytes)} B`;
     return `${(bytes / 1024).toFixed(1)} kB`;
 }

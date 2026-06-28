@@ -107,7 +107,7 @@ async function insertLicensesIntoReadme(stepIcon: string): Promise<void> {
         })
     );
 
-    let licensesContent = '|Name|Version|License(s)|Document|\n|-|:-:|-|-|\n';
+    let licensesContent = '|Dependency|Version|License(s)|Document|\n|:-|:-:|:-|:-|\n';
     for (const license of licensesByKey.values()) {
         licensesContent += formatLicenseRow(license);
     }
