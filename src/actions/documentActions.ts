@@ -18,8 +18,8 @@ export async function documentActions(): Promise<void> {
 
         logStepHeader("1️⃣  Insert actions table into 'README.md'");
 
-        const config = await readJSONFile<{ actions?: string[] }>('config.json');
-        const table = getConnectorActionsTable((config.actions ?? []) as ConnectorActionName[]);
+        const config = await readJSONFile<{ actionNames?: string[] }>('config.json');
+        const table = getConnectorActionsTable((config.actionNames ?? []) as ConnectorActionName[]);
 
         const originalContent = await readTextFile('./README.md');
         const updatedContent = substituteText(originalContent, table, START_MARKER, END_MARKER);
