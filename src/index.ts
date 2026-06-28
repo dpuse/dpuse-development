@@ -8,7 +8,7 @@ export { documentBundleSizes } from '@/actions/documentBundleSizes';
 
 export { documentDependencies } from '@/actions/documentDependencies';
 
-export { documentOperations } from '@/actions/documentOperations';
+export { documentActions } from '~/src/actions/documentActions';
 
 export { formatCode } from '@/actions/formatCode';
 

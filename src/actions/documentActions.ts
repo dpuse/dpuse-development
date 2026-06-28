@@ -7,27 +7,27 @@ import { logOperationHeader, logOperationSuccess, logStepHeader, readJSONFile, r
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-const START_MARKER = '<!-- CONNECTOR_OPERATIONS_START -->';
-const END_MARKER = '<!-- CONNECTOR_OPERATIONS_END -->';
+const START_MARKER = '<!-- CONNECTOR_ACTIONS_START -->';
+const END_MARKER = '<!-- CONNECTOR_ACTIONS_END -->';
 
 // ── Actions ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-export async function documentOperations(): Promise<void> {
+export async function documentActions(): Promise<void> {
     try {
-        logOperationHeader('Document Operations');
+        logOperationHeader('Document Actions');
 
-        logStepHeader("1️⃣  Insert operations table into 'README.md'");
+        logStepHeader("1️⃣  Insert actions table into 'README.md'");
 
-        const config = await readJSONFile<{ operations?: string[] }>('config.json');
-        const table = getConnectorActionsTable((config.operations ?? []) as ConnectorActionName[]);
+        const config = await readJSONFile<{ actions?: string[] }>('config.json');
+        const table = getConnectorActionsTable((config.actions ?? []) as ConnectorActionName[]);
 
         const originalContent = await readTextFile('./README.md');
         const updatedContent = substituteText(originalContent, table, START_MARKER, END_MARKER);
         await writeTextFile('README.md', updatedContent);
 
-        logOperationSuccess('Operations documented.');
+        logOperationSuccess('Actions documented.');
     } catch (error) {
-        console.error('❌  Error documenting operations.', error);
+        console.error('❌  Error documenting actions.', error);
         process.exit(1);
     }
 }
