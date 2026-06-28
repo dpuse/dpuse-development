@@ -77,17 +77,17 @@ async function buildBundleTable(json: VisualizerJson): Promise<string> {
     const distributionFiles = await readDistributionFileSizes();
     distributionFiles.sort((a, b) => b[1].rendered - a[1].rendered);
 
-    const lines = ['| Module | Composition |', '| ------ | ----------- |'];
+    const lines = ['|:Chunk/Module/File|Composition|', '|:------ |:-----------|'];
 
     for (const [file, sizes] of distributionFiles) {
         lines.push(`| ${file} | ${formatBytes(sizes.rendered)} · gz ${formatBytes(sizes.gzip)} · br ${formatBytes(sizes.brotli)} |`);
 
         const groups = chunkGroups.get(file) ?? new Map<string, { sizes: Sizes; files: Map<string, Sizes> }>();
-        for (const [groupName, { sizes: groupSizes, files }] of [...groups.entries()].sort((a, b) => b[1].sizes.rendered - a[1].sizes.rendered)) {
+        for (const [groupName, { sizes: groupSizes, files }] of [...groups].sort((a, b) => b[1].sizes.rendered - a[1].sizes.rendered)) {
             const groupPct = bundlerTotal > 0 ? (groupSizes.rendered / bundlerTotal) * 100 : 0;
             lines.push(`| ${INDENT}${groupName} | ${bar(groupPct)} |`);
 
-            for (const [fileName, fileSizes] of [...files.entries()].sort((a, b) => b[1].rendered - a[1].rendered)) {
+            for (const [fileName, fileSizes] of [...files].sort((a, b) => b[1].rendered - a[1].rendered)) {
                 const filePct = bundlerTotal > 0 ? (fileSizes.rendered / bundlerTotal) * 100 : 0;
                 lines.push(`| ${INDENT}${INDENT}${fileName} | ${bar(filePct)} |`);
             }
