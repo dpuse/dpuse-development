@@ -63,8 +63,8 @@ export async function documentBundleSizes(): Promise<void> {
 // ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 async function buildBundleTable(json: VisualizerJson): Promise<string> {
-    const groups = buildSourceGroups(json);
-    const bundlerTotal = [...groups.values()].reduce((sum, g) => sum + g.sizes.rendered, 0);
+    const chunkGroups = buildChunkGroups(json);
+    const bundlerTotal = [...chunkGroups.values()].flatMap((g) => [...g.values()]).reduce((sum, g) => sum + g.sizes.rendered, 0);
 
     const distFiles = await readDistFileSizes();
     distFiles.sort((a, b) => b[1].rendered - a[1].rendered);
@@ -77,13 +77,12 @@ async function buildBundleTable(json: VisualizerJson): Promise<string> {
     for (const [file, sizes] of distFiles) {
         lines.push(`| ${file} | ${formatBytes(sizes.rendered)} · gz ${formatBytes(sizes.gzip)} · br ${formatBytes(sizes.brotli)} |`);
 
-        const sortedGroups = [...groups.entries()].sort((a, b) => b[1].sizes.rendered - a[1].sizes.rendered);
-        for (const [groupName, { sizes: groupSizes, files }] of sortedGroups) {
+        const groups = chunkGroups.get(file) ?? new Map<string, { sizes: Sizes; files: Map<string, Sizes> }>();
+        for (const [groupName, { sizes: groupSizes, files }] of [...groups.entries()].sort((a, b) => b[1].sizes.rendered - a[1].sizes.rendered)) {
             const groupPct = bundlerTotal > 0 ? (groupSizes.rendered / bundlerTotal) * 100 : 0;
             lines.push(`| ${INDENT}${groupName} | ${bar(groupPct)} |`);
 
-            const sortedFiles = [...files.entries()].sort((a, b) => b[1].rendered - a[1].rendered);
-            for (const [fileName, fileSizes] of sortedFiles) {
+            for (const [fileName, fileSizes] of [...files.entries()].sort((a, b) => b[1].rendered - a[1].rendered)) {
                 const filePct = bundlerTotal > 0 ? (fileSizes.rendered / bundlerTotal) * 100 : 0;
                 lines.push(`| ${INDENT}${INDENT}${fileName} | ${bar(filePct)} |`);
             }
@@ -106,25 +105,42 @@ async function readDistFileSizes(): Promise<[string, Sizes][]> {
     );
 }
 
-function buildSourceGroups(json: VisualizerJson): Map<string, { sizes: Sizes; files: Map<string, Sizes> }> {
-    const groups = new Map<string, { sizes: Sizes; files: Map<string, Sizes> }>();
+function buildChunkGroups(json: VisualizerJson): Map<string, Map<string, { sizes: Sizes; files: Map<string, Sizes> }>> {
+    const chunks = new Map<string, Map<string, { sizes: Sizes; files: Map<string, Sizes> }>>();
 
     for (const meta of Object.values(json.nodeMetas)) {
         const groupName = sourceGroupName(meta.id);
         const fileName = shortModuleName(meta.id);
-        for (const partUid of Object.values(meta.moduleParts)) {
+
+        for (const [chunkName, partUid] of Object.entries(meta.moduleParts)) {
             const part = json.nodeParts[partUid];
             if (!part) continue;
             const s = partSizes(part);
 
-            const group = groups.get(groupName) ?? { sizes: zero(), files: new Map() };
+            let chunkGroups = chunks.get(chunkName);
+            if (chunkGroups === undefined) {
+                chunkGroups = new Map();
+                chunks.set(chunkName, chunkGroups);
+            }
+
+            let group = chunkGroups.get(groupName);
+            if (group === undefined) {
+                group = { sizes: zero(), files: new Map<string, Sizes>() };
+                chunkGroups.set(groupName, group);
+            }
+
             addTo(group.sizes, s);
-            addTo(group.files.get(fileName) ?? (() => { const f = zero(); group.files.set(fileName, f); return f; })(), s);
-            groups.set(groupName, group);
+
+            let fileSizes = group.files.get(fileName);
+            if (fileSizes === undefined) {
+                fileSizes = zero();
+                group.files.set(fileName, fileSizes);
+            }
+            addTo(fileSizes, s);
         }
     }
 
-    return groups;
+    return chunks;
 }
 
 function bar(pct: number): string {

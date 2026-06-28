@@ -5917,17 +5917,16 @@ async function nr() {
 	}
 }
 async function rr(e) {
-	let t = ar(e), n = [...t.values()].reduce((e, t) => e + t.sizes.rendered, 0), r = await ir();
+	let t = ar(e), n = [...t.values()].flatMap((e) => [...e.values()]).reduce((e, t) => e + t.sizes.rendered, 0), r = await ir();
 	r.sort((e, t) => t[1].rendered - e[1].rendered);
 	let i = ["| Module | Composition |", "| ------ | ----------- |"];
 	for (let [e, a] of r) {
 		i.push(`| ${e} | ${fr(a.rendered)} · gz ${fr(a.gzip)} · br ${fr(a.brotli)} |`);
-		let r = [...t.entries()].sort((e, t) => t[1].sizes.rendered - e[1].sizes.rendered);
-		for (let [e, { sizes: t, files: a }] of r) {
+		let r = t.get(e) ?? /* @__PURE__ */ new Map();
+		for (let [e, { sizes: t, files: a }] of [...r.entries()].sort((e, t) => t[1].sizes.rendered - e[1].sizes.rendered)) {
 			let r = n > 0 ? t.rendered / n * 100 : 0;
 			i.push(`| ${er}${e} | ${or(r)} |`);
-			let o = [...a.entries()].sort((e, t) => t[1].rendered - e[1].rendered);
-			for (let [e, t] of o) {
+			for (let [e, t] of [...a.entries()].sort((e, t) => t[1].rendered - e[1].rendered)) {
 				let r = n > 0 ? t.rendered / n * 100 : 0;
 				i.push(`| ${er}${er}${e} | ${or(r)} |`);
 			}
@@ -5950,17 +5949,18 @@ function ar(e) {
 	let t = /* @__PURE__ */ new Map();
 	for (let n of Object.values(e.nodeMetas)) {
 		let r = sr(n.id), i = cr(n.id);
-		for (let a of Object.values(n.moduleParts)) {
-			let n = e.nodeParts[a];
+		for (let [a, o] of Object.entries(n.moduleParts)) {
+			let n = e.nodeParts[o];
 			if (!n) continue;
-			let o = lr(n), s = t.get(r) ?? {
+			let s = lr(n), c = t.get(a);
+			c === void 0 && (c = /* @__PURE__ */ new Map(), t.set(a, c));
+			let l = c.get(r);
+			l === void 0 && (l = {
 				sizes: ur(),
 				files: /* @__PURE__ */ new Map()
-			};
-			dr(s.sizes, o), dr(s.files.get(i) ?? (() => {
-				let e = ur();
-				return s.files.set(i, e), e;
-			})(), o), t.set(r, s);
+			}, c.set(r, l)), dr(l.sizes, s);
+			let u = l.files.get(i);
+			u === void 0 && (u = ur(), l.files.set(i, u)), dr(u, s);
 		}
 	}
 	return t;
