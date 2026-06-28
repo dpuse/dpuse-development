@@ -44,7 +44,7 @@ const BAR_WIDTH = 20;
 
 // ── Actions ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-export async function documentBundleSizes(): Promise<void> {
+export async function documentBundleSizes(options?: { moduleLevel?: boolean }): Promise<void> {
     try {
         logOperationHeader('Document Bundle Sizes');
 
@@ -53,7 +53,7 @@ export async function documentBundleSizes(): Promise<void> {
 
         logStepHeader(`2️⃣  Insert table into 'README.md'`);
         const distDir = await detectDistDir();
-        const bundleTable = await buildBundleTable(json, distDir);
+        const bundleTable = await buildBundleTable(json, distDir, options?.moduleLevel ?? false);
 
         const readme = await readTextFile('./README.md');
         const updated = substituteText(readme, `\n${bundleTable}\n`, BUNDLE_START_MARKER, BUNDLE_END_MARKER);
@@ -77,7 +77,7 @@ async function detectDistDir(): Promise<string> {
     }
 }
 
-async function buildBundleTable(json: VisualizerJson, distDir: string): Promise<string> {
+async function buildBundleTable(json: VisualizerJson, distDir: string, moduleLevel: boolean): Promise<string> {
     const chunkGroups = buildChunkGroups(json);
     const bundlerTotal = chunkGroups
         .values()
@@ -98,8 +98,10 @@ async function buildBundleTable(json: VisualizerJson, distDir: string): Promise<
             const groupPct = bundlerTotal > 0 ? (groupSizes.rendered / bundlerTotal) * 100 : 0;
 
             if (files.size === 1) {
-                const [[fileName]] = [...files];
-                lines.push(`| ${INDENT}${groupName}/${fileName} | ${bar(groupPct)} |`);
+                const [fileName] = files.keys();
+                lines.push(`| ${INDENT}${groupName} → ${fileName} | ${bar(groupPct)} |`);
+            } else if (moduleLevel) {
+                lines.push(`| ${INDENT}${groupName} | ${bar(groupPct)} |`);
             } else {
                 lines.push(`| ${INDENT}${groupName} | ${bar(groupPct)} |`);
 
