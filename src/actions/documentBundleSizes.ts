@@ -96,12 +96,18 @@ async function buildBundleTable(json: VisualizerJson, distDir: string): Promise<
         const sortedGroups = [...groups].toSorted((a, b) => b[1].sizes.rendered - a[1].sizes.rendered);
         for (const [groupName, { sizes: groupSizes, files }] of sortedGroups) {
             const groupPct = bundlerTotal > 0 ? (groupSizes.rendered / bundlerTotal) * 100 : 0;
-            lines.push(`| ${INDENT}${groupName} | ${bar(groupPct)} |`);
 
-            const sortedFiles = [...files].toSorted((a, b) => b[1].rendered - a[1].rendered);
-            for (const [fileName, fileSizes] of sortedFiles) {
-                const filePct = bundlerTotal > 0 ? (fileSizes.rendered / bundlerTotal) * 100 : 0;
-                lines.push(`| ${INDENT}${INDENT}${fileName} | ${bar(filePct)} |`);
+            if (files.size === 1) {
+                const [[fileName]] = [...files];
+                lines.push(`| ${INDENT}${groupName}/${fileName} | ${bar(groupPct)} |`);
+            } else {
+                lines.push(`| ${INDENT}${groupName} | ${bar(groupPct)} |`);
+
+                const sortedFiles = [...files].toSorted((a, b) => b[1].rendered - a[1].rendered);
+                for (const [fileName, fileSizes] of sortedFiles) {
+                    const filePct = bundlerTotal > 0 ? (fileSizes.rendered / bundlerTotal) * 100 : 0;
+                    lines.push(`| ${INDENT}${INDENT}${fileName} | ${bar(filePct)} |`);
+                }
             }
         }
     }
