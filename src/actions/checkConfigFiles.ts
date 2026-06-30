@@ -25,6 +25,7 @@ export async function checkConfigFiles(): Promise<void> {
         await checkConfigFile(moduleDirectory, '../', '.ncurc.json');
         await checkConfigFile(moduleDirectory, '../', 'LICENSE');
         await checkConfigFile(moduleDirectory, '../', 'tsconfig.scripts.json');
+        await checkConfigFile(moduleDirectory, '../', 'vite.config.ts');
         await checkConfigFile(moduleDirectory, '../', 'vitest.config.ts');
 
         logOperationSuccess('Configuration files checked..');
@@ -41,6 +42,8 @@ async function checkConfigFile(moduleDirectory: string, templateFilePath: string
     const templateContent = await readTextFile(templatePath);
 
     const checkFilePath = path.resolve(process.cwd(), checkFileName.split('_', 1)[0] ?? checkFileName);
+
+    console.log(111, templatePath, checkFilePath);
 
     let checkFileContent;
     try {

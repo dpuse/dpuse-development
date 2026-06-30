@@ -6,12 +6,11 @@ import { visualizer } from 'rollup-plugin-visualizer';
 import { fileURLToPath, URL } from 'node:url';
 
 // ── Data
-import config from './config.json' with { type: 'json' };
+import config from './config.json';
 
 // ──  Vite Configuration ──────────────────────────────────────────────────────────────────────────────────────────────
 
 export default defineConfig({
-    base: '',
     build: {
         lib: {
             entry: fileURLToPath(new URL('src/index.ts', import.meta.url)),
@@ -19,11 +18,6 @@ export default defineConfig({
             formats: ['es']
         },
         rollupOptions: {
-            external: ['node:child_process', 'node:fs', 'node:path', 'node:readline', 'node:url', 'node:util', 'node:zlib', 'license-checker-rseidelsohn'],
-            onwarn(warning, warn) {
-                if (warning.code === 'INVALID_ANNOTATION' && warning.id?.includes('acorn-typescript')) return;
-                warn(warning);
-            },
             plugins: [
                 Sonda({ filename: 'index', format: 'html', gzip: true, brotli: true, open: false, outputDir: './bundle-analysis-reports/sonda' }),
                 visualizer({ filename: './bundle-analysis-reports/rollup-visualiser/index.html', open: false, gzipSize: true, brotliSize: true }),
