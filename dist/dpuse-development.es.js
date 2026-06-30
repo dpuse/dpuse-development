@@ -5872,7 +5872,7 @@ async function Jn() {
 	try {
 		G("Check configuration files.");
 		let e = Hn((await W("config.json")).id), t = n.dirname(o(import.meta.url));
-		await Yn(t, "../", ".editorconfig"), await Yn(t, "../", ".gitattributes"), await Yn(t, "../", e.publishedTo === "npm" ? ".gitignore_published" : ".gitignore_unpublished"), await Yn(t, "../", ".markdownlint.json"), await Yn(t, "../", "LICENSE"), K("Configuration files checked..");
+		await Yn(t, "../", ".editorconfig"), await Yn(t, "../", ".gitattributes"), await Yn(t, "../", e.publishedTo === "npm" ? ".gitignore_published" : ".gitignore_unpublished"), await Yn(t, "../", ".markdownlint.json"), await Yn(t, "../", ".ncurc.json"), await Yn(t, "../", "LICENSE"), await Yn(t, "../", "tsconfig.scripts.json"), await Yn(t, "../", "vitest.config.ts"), K("Configuration files checked..");
 	} catch (e) {
 		console.error("❌  Error checking configuration files.", e), process.exit(1);
 	}
@@ -6166,7 +6166,7 @@ function Ar(e) {
 	return r.getDate() < n.getDate() && --i, i === 0 ? `this month: ${t}` : i === 1 ? `1 month ago: ${t}` : i <= 6 ? `${String(i)} months ago: ${t}` : `${String(i)} months ago: ${t} ⚠️ `;
 }
 //#endregion
-//#region node_modules/@dpuse/dpuse-shared/dist/componentConfig.schema-B7kVKqVP.js
+//#region node_modules/@dpuse/dpuse-shared/dist/componentConfig.schema-dBVLwQIt.js
 var jr, Mr = {
 	lang: void 0,
 	message: void 0,
@@ -6556,21 +6556,21 @@ var $r = (e) => /* @__PURE__ */ Qr(e.map((e) => /* @__PURE__ */ qr(e))), ei = /*
 });
 $r([
 	"app",
+	"connection",
 	"connector",
 	"connectorConnection",
 	"context",
-	"contextModelGroup",
+	"contextArea",
 	"contextModel",
-	"contextModelDimensionGroup",
 	"contextModelDimension",
 	"contextModelDimensionHierarchy",
-	"contextModelEntityGroup",
 	"contextModelEntity",
 	"contextModelEntityDataItem",
 	"contextModelEntityEvent",
 	"contextModelEntityPrimaryMeasure",
-	"contextModelSecondaryMeasureGroup",
 	"contextModelSecondaryMeasure",
+	"cookbook",
+	"cookbookRecipe",
 	"dataView",
 	"dimension",
 	"engine",
@@ -6623,11 +6623,12 @@ var ri = $r([
 	"engine",
 	"connector",
 	"context",
+	"cookbook",
 	"presenter",
 	"tool"
 ]);
 //#endregion
-//#region node_modules/@dpuse/dpuse-shared/dist/moduleConfig.schema-Cvc9QRvr.js
+//#region node_modules/@dpuse/dpuse-shared/dist/moduleConfig.schema-CUHmgYLu.js
 var ci = {
 	...si,
 	version: /* @__PURE__ */ $()
@@ -6824,7 +6825,7 @@ function Oi(e, t, n) {
 //#endregion
 //#region node_modules/@dpuse/dpuse-shared/dist/dpuse-shared-componentModuleContext.es.js
 var ki = /* @__PURE__ */ Q({
-	typeId: /* @__PURE__ */ qr("contextModelGroup"),
+	typeId: /* @__PURE__ */ qr("contextArea"),
 	...si,
 	modelRefs: /* @__PURE__ */ X(oi),
 	order: /* @__PURE__ */ Jr()
