@@ -20,12 +20,12 @@ export async function checkConfigFiles(): Promise<void> {
         const moduleDirectory = path.dirname(fileURLToPath(import.meta.url));
         await checkConfigFile(moduleDirectory, '../', '.editorconfig');
         await checkConfigFile(moduleDirectory, '../', '.gitattributes');
-        await checkConfigFile(moduleDirectory, '../', moduleTypeConfig.publishedTo === 'npm' ? '.gitignore_published' : '.gitignore_unpublished');
+        await checkConfigFile(moduleDirectory, '../', '.gitignore', moduleTypeConfig.publishedTo === 'npm' ? '.gitignore_published' : '.gitignore_unpublished');
         await checkConfigFile(moduleDirectory, '../', '.markdownlint.json');
         await checkConfigFile(moduleDirectory, '../', '.ncurc.json');
         await checkConfigFile(moduleDirectory, '../', 'LICENSE');
         await checkConfigFile(moduleDirectory, '../', 'tsconfig.scripts.json');
-        await checkConfigFile(moduleDirectory, '../', 'vite.config.ts');
+        await checkConfigFile(moduleDirectory, '../', 'vite.config.ts', 'vite.config.default.ts');
         await checkConfigFile(moduleDirectory, '../', 'vitest.config.ts');
 
         logOperationSuccess('Configuration files checked..');
@@ -37,13 +37,13 @@ export async function checkConfigFiles(): Promise<void> {
 
 // ── Helpers ─────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-async function checkConfigFile(moduleDirectory: string, templateFilePath: string, checkFileName: string): Promise<void> {
-    const templatePath = path.resolve(moduleDirectory, `${templateFilePath}${checkFileName}`);
-    const templateContent = await readTextFile(templatePath);
+async function checkConfigFile(moduleDirectory: string, templateFilePath: string, checkFileName: string, templateFileName?: string): Promise<void> {
+    // const checkFilePath = path.resolve(process.cwd(), checkFileName.split('_', 1)[0] ?? checkFileName);
+    const checkFilePath = path.resolve(process.cwd(), checkFileName);
 
-    const checkFilePath = path.resolve(process.cwd(), checkFileName.split('_', 1)[0] ?? checkFileName);
+    const templatePath = path.resolve(moduleDirectory, `'../'${templateFileName ?? checkFileName}`);
 
-    console.log(111, templatePath, checkFilePath);
+    console.log(111, checkFilePath, templatePath);
 
     let checkFileContent;
     try {
@@ -51,6 +51,8 @@ async function checkConfigFile(moduleDirectory: string, templateFilePath: string
     } catch (error) {
         if ((error as NodeJS.ErrnoException).code !== 'ENOENT') throw error;
     }
+
+    const templateContent = await readTextFile(templatePath);
 
     if (checkFileContent === templateContent) {
         console.info(`ℹ️  File '${checkFileName.split('_', 1)[0] ?? checkFileName}' is the same`);
