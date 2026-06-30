@@ -41,7 +41,7 @@ async function checkConfigFile(moduleDirectory: string, templateFilePath: string
     // const checkFilePath = path.resolve(process.cwd(), checkFileName.split('_', 1)[0] ?? checkFileName);
     const checkFilePath = path.resolve(process.cwd(), checkFileName);
 
-    const templatePath = path.resolve(moduleDirectory, `'../'${templateFileName ?? checkFileName}`);
+    const templatePath = path.resolve(moduleDirectory, `../${templateFileName ?? checkFileName}`);
 
     console.log(111, checkFilePath, templatePath);
 
