@@ -1,7 +1,10 @@
+// ── External
+import { init as initLicenseChecker } from 'license-checker-rseidelsohn';
+import type { InitOpts } from 'license-checker-rseidelsohn';
+
 // ── Local (Development) Framework
 import {
     clearDirectory,
-    execCommand,
     logOperationHeader,
     logOperationSuccess,
     logStepHeader,
@@ -57,20 +60,26 @@ export async function documentDependencies(allowedLicenses = 'MIT'): Promise<voi
 
         const rootPackage = await readJSONFile<{ name?: string; version?: string }>('package.json');
 
-        await execCommand('2️⃣  Identify production licenses', 'license-checker-rseidelsohn', [
-            '--production',
-            '--json',
-            '--files',
-            'licenses/downloads',
-            '--relativeModulePath',
-            '--relativeLicensePath',
-            '--onlyAllow',
-            allowedLicenses,
-            '--excludePackages',
-            rootPackage.name ?? '',
-            '--out',
-            'licenses/licenses.json'
-        ]);
+        logStepHeader('2️⃣  Identify production licenses');
+        await new Promise<void>((resolve, reject) => {
+            const options: InitOpts & { files: string; relativeModulePath: boolean } = {
+                start: process.cwd(),
+                production: true,
+                files: 'licenses/downloads',
+                relativeModulePath: true,
+                relativeLicensePath: true,
+                onlyAllow: allowedLicenses,
+                excludePackages: rootPackage.name ?? '',
+                out: 'licenses/licenses.json'
+            };
+            initLicenseChecker(options, (error: Error | undefined) => {
+                if (error == null) {
+                    resolve();
+                } else {
+                    reject(error);
+                }
+            });
+        });
 
         await spawnCommandToFile('3️⃣  Identify transitive dependencies', 'npm', ['ls', '--all', '--json', '--omit=dev'], 'licenses/licenseTree.json');
 

@@ -1,6 +1,6 @@
 {
     "name": "@dpuse/dpuse-development",
-    "version": "0.3.600",
+    "version": "0.3.601",
     "private": false,
     "description": "Actions for managing DPUse projects.",
     "license": "MIT",
@@ -60,6 +60,7 @@
         "acorn": "^8.17.0",
         "acorn-typescript": "^1.4.13",
         "acorn-walk": "^8.3.5",
+        "license-checker-rseidelsohn": "^5.0.1",
         "nanoid": "^5.1.16",
         "valibot": "^1.4.1"
     },
@@ -76,7 +77,6 @@
         "eslint-plugin-sonarjs": "^4.1.0",
         "eslint-plugin-unicorn": "^69.0.0",
         "jiti": "^2.7.0",
-        "license-checker-rseidelsohn": "^5.0.1",
         "npm-check-updates": "^22.2.8",
         "prettier": "^3.9.1",
         "rollup-plugin-visualizer": "^7.0.1",

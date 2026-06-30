@@ -52,8 +52,8 @@ export async function documentBundleSizes(options?: { moduleLevel?: boolean }): 
         const json = await readJSONFile<VisualizerJson>('./bundle-analysis-reports/rollup-visualiser/index.json');
 
         logStepHeader(`2️⃣  Insert table into 'README.md'`);
-        const distDir = await detectDistDir();
-        const bundleTable = await buildBundleTable(json, distDir, options?.moduleLevel ?? false);
+        const distributionDirection = await detectDistributionDirection();
+        const bundleTable = await buildBundleTable(json, distributionDirection, options?.moduleLevel ?? false);
 
         const readme = await readTextFile('./README.md');
         const updated = substituteText(readme, `\n${bundleTable}\n`, BUNDLE_START_MARKER, BUNDLE_END_MARKER);
@@ -68,7 +68,7 @@ export async function documentBundleSizes(options?: { moduleLevel?: boolean }): 
 
 // ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-async function detectDistDir(): Promise<string> {
+async function detectDistributionDirection(): Promise<string> {
     try {
         await fs.access('./dist/client/assets');
         return './dist/client/assets';
@@ -77,33 +77,32 @@ async function detectDistDir(): Promise<string> {
     }
 }
 
-async function buildBundleTable(json: VisualizerJson, distDir: string, moduleLevel: boolean): Promise<string> {
+async function buildBundleTable(json: VisualizerJson, distributionDirection: string, isModuleLevel: boolean): Promise<string> {
     const chunkGroups = buildChunkGroups(json);
     const bundlerTotal = chunkGroups
         .values()
         .flatMap((g) => g.values().toArray())
         .reduce((sum, g) => sum + g.sizes.rendered, 0);
 
-    const distributionFiles = await readDistributionFileSizes(distDir);
+    const distributionFiles = await readDistributionFileSizes(distributionDirection);
     distributionFiles.sort((a, b) => b[1].rendered - a[1].rendered);
 
     const lines = ['|Chunk/Module/File|Composition|', '|:------ |:-----------|'];
 
-    const chunkSizes = (sizes: Sizes) =>
-        `${formatBytes(sizes.rendered)} · gz ${formatBytes(sizes.gzip)} · br ${formatBytes(sizes.brotli)}`;
+    const chunkSizes = (sizes: Sizes): string => `${formatBytes(sizes.rendered)} · gz ${formatBytes(sizes.gzip)} · br ${formatBytes(sizes.brotli)}`;
 
     for (const [file, sizes] of distributionFiles) {
         const groups = chunkGroups.get(file) ?? new Map<string, { sizes: Sizes; files: Map<string, Sizes> }>();
         const sortedGroups = [...groups].toSorted((a, b) => b[1].sizes.rendered - a[1].sizes.rendered);
 
         if (sortedGroups.length === 1) {
-            const [groupName, { sizes: groupSizes, files }] = sortedGroups[0];
+            const [groupName, { sizes: groupSizes, files }] = getSoleEntry(sortedGroups);
             const groupPct = bundlerTotal > 0 ? (groupSizes.rendered / bundlerTotal) * 100 : 0;
 
             if (files.size === 1) {
-                const [fileName] = files.keys();
+                const fileName = getSoleFileName(files);
                 lines.push(`| ${file} → ${groupName} → ${fileName} | ${chunkSizes(sizes)} · ${bar(groupPct)} |`);
-            } else if (moduleLevel) {
+            } else if (isModuleLevel) {
                 lines.push(`| ${file} → ${groupName} | ${chunkSizes(sizes)} · ${bar(groupPct)} |`);
             } else {
                 lines.push(`| ${file} → ${groupName} | ${chunkSizes(sizes)} · ${bar(groupPct)} |`);
@@ -119,9 +118,9 @@ async function buildBundleTable(json: VisualizerJson, distDir: string, moduleLev
                 const groupPct = bundlerTotal > 0 ? (groupSizes.rendered / bundlerTotal) * 100 : 0;
 
                 if (files.size === 1) {
-                    const [fileName] = files.keys();
+                    const fileName = getSoleFileName(files);
                     lines.push(`| ${INDENT}${groupName} → ${fileName} | ${bar(groupPct)} |`);
-                } else if (moduleLevel) {
+                } else if (isModuleLevel) {
                     lines.push(`| ${INDENT}${groupName} | ${bar(groupPct)} |`);
                 } else {
                     lines.push(`| ${INDENT}${groupName} | ${bar(groupPct)} |`);
@@ -138,14 +137,27 @@ async function buildBundleTable(json: VisualizerJson, distDir: string, moduleLev
     return lines.join('\n');
 }
 
-async function readDistributionFileSizes(distDir: string): Promise<[string, Sizes][]> {
-    const entries = await fs.readdir(distDir);
+function getSoleEntry<T>(entries: T[]): T {
+    const [entry] = entries;
+    if (entry === undefined) throw new Error('Expected exactly one entry.');
+    return entry;
+}
+
+function getSoleFileName(files: Map<string, Sizes>): string {
+    const [fileName] = files.keys();
+    if (fileName === undefined) throw new Error('Expected exactly one file.');
+    return fileName;
+}
+
+async function readDistributionFileSizes(distributionDirection: string): Promise<[string, Sizes][]> {
+    // eslint-disable-next-line security/detect-non-literal-fs-filename -- distributionDirection is a build output path, not user input.
+    const entries = await fs.readdir(distributionDirection);
     const jsFiles = entries.filter((f) => f.endsWith('.js') && !f.endsWith('.map'));
 
     return Promise.all(
         jsFiles.map(async (file) => {
             // eslint-disable-next-line security/detect-non-literal-fs-filename -- file comes from fs.readdir, not user input.
-            const buffer = await fs.readFile(`${distDir}/${file}`);
+            const buffer = await fs.readFile(`${distributionDirection}/${file}`);
             const [gzipped, brotlied] = await Promise.all([gzipAsync(buffer), brotliAsync(buffer)]);
             return [file, { rendered: buffer.length, gzip: gzipped.length, brotli: brotlied.length }] as [string, Sizes];
         })

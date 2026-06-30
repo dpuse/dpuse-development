@@ -1,1 +1,3 @@
-export declare function documentBundleSizes(): Promise<void>;
+export declare function documentBundleSizes(options?: {
+    moduleLevel?: boolean;
+}): Promise<void>;
