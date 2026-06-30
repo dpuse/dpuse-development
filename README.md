@@ -114,17 +114,7 @@ Common resources (files) used across Data Positioning projects.
 License data is collected automatically on each release using [license-checker](https://github.com/RSeidelsohn/license-checker-rseidelsohn). The following table lists all production dependencies. These dependencies (including transitive ones) have been checked and confirmed to use Apache-2.0, BSD-3-Clause, CC0-1.0, or MIT — all permissive, commercially-friendly licenses. Developers cloning this repository should independently verify development dependencies; users of the uploaded library are covered by these checks.
 
 <!-- DEPENDENCY_LICENSES_START -->
-
-| Dependency                                                       | Version | License(s) | Document                                                              |
-| :--------------------------------------------------------------- | :-----: | :--------- | :-------------------------------------------------------------------- |
-| [@dpuse/dpuse-shared](https://github.com/dpuse/dpuse-shared)     | 0.3.711 | MIT        | [LICENSE](licenses/downloads/@dpuse/dpuse-shared@0.3.711-LICENSE.txt) |
-| [acorn-typescript](https://github.com/TyrealHu/acorn-typescript) | 1.4.13  | MIT        | [LICENSE](licenses/downloads/acorn-typescript@1.4.13-LICENSE.txt)     |
-| [acorn-walk](https://github.com/acornjs/acorn)                   |  8.3.5  | MIT        | [LICENSE](licenses/downloads/acorn-walk@8.3.5-LICENSE.txt)            |
-| [acorn](https://github.com/acornjs/acorn)                        | 8.17.0  | MIT        | [LICENSE](licenses/downloads/acorn@8.17.0-LICENSE.txt)                |
-| [nanoid](https://github.com/ai/nanoid)                           | 5.1.16  | MIT        | [LICENSE](licenses/downloads/nanoid@5.1.16-LICENSE.txt)               |
-| [typescript](https://github.com/microsoft/TypeScript)            |  6.0.3  | Apache-2.0 | [LICENSE](licenses/downloads/typescript@6.0.3-LICENSE.txt)            |
-| [valibot](https://github.com/open-circle/valibot)                |  1.4.1  | MIT        | [LICENSE](licenses/downloads/valibot@1.4.1-LICENSE.txt)               |
-
+⚠️  Dependency licenses are not documented here: @dpuse/dpuse-development is a development-only tool and is never part of a production release.
 <!-- DEPENDENCY_LICENSES_END -->
 
 ### Dependency Tree
@@ -132,17 +122,7 @@ License data is collected automatically on each release using [license-checker](
 The dependency tree below lists every package in this project — direct and transitive — along with its installed version, release date, and update status. Packages flagged ❗ have a newer version available; ⚠️ indicates a package that hasn't been updated in the last 6 months or longer. Neither flag necessarily indicates a problem: we let new releases stabilise before upgrading, and some packages are simply mature and stable, requiring no active development.
 
 <!-- DEPENDENCY_TREE_START -->
-
-- **[@dpuse/dpuse-shared](https://github.com/dpuse/dpuse-shared)** 0.3.711 — this month: 2026-06-28
-- **[acorn-typescript](https://github.com/TyrealHu/acorn-typescript)** 1.4.13 — 29 months ago: 2024-01-03 ⚠️
-    - **[acorn](https://github.com/acornjs/acorn)** 8.17.0 — this month: 2026-06-11
-- **[acorn-walk](https://github.com/acornjs/acorn)** 8.3.5 — 4 months ago: 2026-02-19
-    - **[acorn](https://github.com/acornjs/acorn)** 8.17.0 — this month: 2026-06-11
-- **[acorn](https://github.com/acornjs/acorn)** 8.17.0 — this month: 2026-06-11
-- **[nanoid](https://github.com/ai/nanoid)** 5.1.16 — this month: 2026-06-24
-- **[valibot](https://github.com/open-circle/valibot)** 1.4.1 — 1 month ago: 2026-05-24
-    - **[typescript](https://github.com/microsoft/TypeScript)** 6.0.3 — 2 months ago: 2026-04-16
-
+⚠️  Dependency licenses are not documented here: @dpuse/dpuse-development is a development-only tool and is never part of a production release.
 <!-- DEPENDENCY_TREE_END -->
 
 ## Bundle Analysis
@@ -160,14 +140,14 @@ The Bundle Analysis Reports provide detailed breakdowns of the bundle's composit
 
 |Chunk/Module/File|Composition|
 |:------ |:-----------|
-| dpuse-development.es.js | 298.4 kB · gz 74.4 kB · br 59.3 kB |
-| &nbsp;&nbsp;&nbsp;&nbsp;acorn → dist/acorn.mjs | `██████████░░░░░░░░░░` 49.6% |
+| dpuse-development.es.js | 298.9 kB · gz 74.5 kB · br 59.5 kB |
+| &nbsp;&nbsp;&nbsp;&nbsp;acorn → dist/acorn.mjs | `██████████░░░░░░░░░░` 49.5% |
 | &nbsp;&nbsp;&nbsp;&nbsp;acorn-typescript → lib/index.mjs | `███████░░░░░░░░░░░░░` 35.6% |
-| &nbsp;&nbsp;&nbsp;&nbsp;src | `██░░░░░░░░░░░░░░░░░░` 10.4% |
+| &nbsp;&nbsp;&nbsp;&nbsp;src | `██░░░░░░░░░░░░░░░░░░` 10.5% |
 | &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;manageProject.ts | `█░░░░░░░░░░░░░░░░░░░` 2.8% |
 | &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;documentBundleSizes.ts | `░░░░░░░░░░░░░░░░░░░░` 2.0% |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;documentDependencies.ts | `░░░░░░░░░░░░░░░░░░░░` 1.9% |
 | &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;index.ts | `░░░░░░░░░░░░░░░░░░░░` 1.9% |
-| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;documentDependencies.ts | `░░░░░░░░░░░░░░░░░░░░` 1.7% |
 | &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;cloudflare.ts | `░░░░░░░░░░░░░░░░░░░░` 0.8% |
 | &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;checkConfigFiles.ts | `░░░░░░░░░░░░░░░░░░░░` 0.4% |
 | &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;checkDependencies.ts | `░░░░░░░░░░░░░░░░░░░░` 0.2% |

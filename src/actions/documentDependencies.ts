@@ -3,17 +3,7 @@ import { init as initLicenseChecker } from 'license-checker-rseidelsohn';
 import type { InitOpts } from 'license-checker-rseidelsohn';
 
 // ── Local (Development) Framework
-import {
-    clearDirectory,
-    logOperationHeader,
-    logOperationSuccess,
-    logStepHeader,
-    readJSONFile,
-    readTextFile,
-    spawnCommandToFile,
-    substituteText,
-    writeTextFile
-} from '@/utilities';
+import { clearDirectory, logOperationHeader, logOperationSuccess, logStepHeader, readJSONFile, readTextFile, spawnCommandToFile, substituteText, writeTextFile } from '@/utilities';
 
 // ── Types ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -56,15 +46,22 @@ export async function documentDependencies(allowedLicenses = 'MIT'): Promise<voi
     try {
         logOperationHeader('Document Dependencies');
 
-        await clearDirectory('1️⃣  Clear downloaded licenses', 'licenses/downloads');
-
         const rootPackage = await readJSONFile<{ name?: string; version?: string }>('package.json');
+
+        if (rootPackage.name === '@dpuse/dpuse-development') {
+            await skipDependencyDocumentation();
+            logOperationSuccess('Dependencies documented.');
+            return;
+        }
+
+        await clearDirectory('1️⃣  Clear downloaded licenses', 'licenses/downloads');
 
         logStepHeader('2️⃣  Identify production licenses');
         await new Promise<void>((resolve, reject) => {
             const options: InitOpts & { files: string; relativeModulePath: boolean } = {
                 start: process.cwd(),
                 production: true,
+                json: true,
                 files: 'licenses/downloads',
                 relativeModulePath: true,
                 relativeLicensePath: true,
@@ -93,6 +90,17 @@ export async function documentDependencies(allowedLicenses = 'MIT'): Promise<voi
 }
 
 // ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+async function skipDependencyDocumentation(): Promise<void> {
+    logStepHeader("1️⃣  Skip: @dpuse/dpuse-development is a development-only tool and is never part of a production release");
+
+    const message = '⚠️  Dependency licenses are not documented here: @dpuse/dpuse-development is a development-only tool and is never part of a production release.';
+
+    const originalContent = await readTextFile('./README.md');
+    const withTable = substituteText(originalContent, message, START_MARKER, END_MARKER);
+    const withTree = substituteText(withTable, message, TREE_START_MARKER, TREE_END_MARKER);
+    await writeTextFile('README.md', withTree);
+}
 
 async function insertLicensesIntoReadme(stepIcon: string): Promise<void> {
     logStepHeader(`${stepIcon} Insert licenses into 'README.md'`);
