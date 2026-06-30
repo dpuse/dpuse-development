@@ -22,7 +22,10 @@ export async function checkConfigFiles(): Promise<void> {
         await checkConfigFile(moduleDirectory, '../', '.gitattributes');
         await checkConfigFile(moduleDirectory, '../', moduleTypeConfig.publishedTo === 'npm' ? '.gitignore_published' : '.gitignore_unpublished');
         await checkConfigFile(moduleDirectory, '../', '.markdownlint.json');
+        await checkConfigFile(moduleDirectory, '../', '.ncurc.json');
         await checkConfigFile(moduleDirectory, '../', 'LICENSE');
+        await checkConfigFile(moduleDirectory, '../', 'tsconfig.scripts.json');
+        await checkConfigFile(moduleDirectory, '../', 'vitest.config.ts');
 
         logOperationSuccess('Configuration files checked..');
     } catch (error) {
