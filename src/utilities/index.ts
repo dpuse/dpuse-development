@@ -77,7 +77,7 @@ export async function getDirectoryEntries(path: string, options?: ObjectEncoding
 
 // ── Actions - Command ────────────────────────────────────────────────────────────────────────────────────────────────
 
-export async function execCommand(label: string | undefined, command_: string, arguments_: string[] = [], outputFilePath?: string): Promise<void> {
+export async function execCommand(label: string | undefined, command_: string, arguments_: string[], outputFilePath?: string): Promise<void> {
     if (label !== undefined) logStepHeader(`${label} - exec(${command_} ${arguments_.join(' ')})`);
     const { stdout, stderr } = await asyncExecFile(command_, arguments_);
     if (outputFilePath === undefined) {
@@ -88,7 +88,7 @@ export async function execCommand(label: string | undefined, command_: string, a
     if (stderr.trim()) console.error(stderr.trim());
 }
 
-export async function spawnCommand(label: string, command: string, arguments_: string[] = [], isErrorIgnored = false, isShellUsed = false): Promise<void> {
+export async function spawnCommand(label: string, command: string, arguments_: string[], isErrorIgnored = false, isShellUsed = false): Promise<void> {
     logStepHeader(`${label} - spawn(${command} ${arguments_.join(' ')})`);
     return new Promise((resolve, reject) => {
         const child = spawn(command, arguments_, { shell: isShellUsed, stdio: 'inherit' });
@@ -102,7 +102,7 @@ export async function spawnCommand(label: string, command: string, arguments_: s
     });
 }
 
-export async function spawnCommandToFile(label: string, command: string, arguments_: string[] = [], outputPath: string, isErrorIgnored = false): Promise<void> {
+export async function spawnCommandToFile(label: string, command: string, arguments_: string[], outputPath: string, isErrorIgnored = false): Promise<void> {
     logStepHeader(`${label} - spawn(${command} ${arguments_.join(' ')}) > ${outputPath}`);
     return new Promise((resolve, reject) => {
         const child = spawn(command, arguments_, { shell: false, stdio: ['inherit', 'pipe', 'inherit'] });

@@ -18,15 +18,15 @@ export async function checkConfigFiles(): Promise<void> {
         const moduleTypeConfig = getModuleConfig(configJSON.id);
 
         const moduleDirectory = path.dirname(fileURLToPath(import.meta.url));
-        await checkConfigFile(moduleDirectory, '../', '.editorconfig');
-        await checkConfigFile(moduleDirectory, '../', '.gitattributes');
-        await checkConfigFile(moduleDirectory, '../', '.gitignore', moduleTypeConfig.publishedTo === 'npm' ? '.gitignore_published' : '.gitignore_unpublished');
-        await checkConfigFile(moduleDirectory, '../', '.markdownlint.json');
-        await checkConfigFile(moduleDirectory, '../', '.ncurc.json');
-        await checkConfigFile(moduleDirectory, '../', 'LICENSE');
-        await checkConfigFile(moduleDirectory, '../', 'tsconfig.scripts.json');
-        await checkConfigFile(moduleDirectory, '../', 'vite.config.ts', 'vite.config.default.ts');
-        await checkConfigFile(moduleDirectory, '../', 'vitest.config.ts');
+        await checkConfigFile(moduleDirectory, '.editorconfig');
+        await checkConfigFile(moduleDirectory, '.gitattributes');
+        await checkConfigFile(moduleDirectory, '.gitignore', moduleTypeConfig.publishedTo === 'npm' ? '.gitignore_published' : '.gitignore_unpublished');
+        await checkConfigFile(moduleDirectory, '.markdownlint.json');
+        await checkConfigFile(moduleDirectory, '.ncurc.json');
+        await checkConfigFile(moduleDirectory, 'LICENSE');
+        await checkConfigFile(moduleDirectory, 'tsconfig.scripts.json');
+        await checkConfigFile(moduleDirectory, 'vite.config.ts', 'vite.config.default.ts');
+        await checkConfigFile(moduleDirectory, 'vitest.config.ts');
 
         logOperationSuccess('Configuration files checked..');
     } catch (error) {
@@ -37,13 +37,10 @@ export async function checkConfigFiles(): Promise<void> {
 
 // ── Helpers ─────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-async function checkConfigFile(moduleDirectory: string, templateFilePath: string, checkFileName: string, templateFileName?: string): Promise<void> {
-    // const checkFilePath = path.resolve(process.cwd(), checkFileName.split('_', 1)[0] ?? checkFileName);
+async function checkConfigFile(moduleDirectory: string, checkFileName: string, templateFileName?: string): Promise<void> {
     const checkFilePath = path.resolve(process.cwd(), checkFileName);
 
     const templatePath = path.resolve(moduleDirectory, `../${templateFileName ?? checkFileName}`);
-
-    console.log(111, checkFilePath, templatePath);
 
     let checkFileContent;
     try {

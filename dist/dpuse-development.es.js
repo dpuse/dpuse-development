@@ -5745,12 +5745,12 @@ async function Nn(e, r) {
 async function Pn(e, n) {
 	return t.readdir(e, n);
 }
-async function Fn(e, n, r = [], i) {
+async function Fn(e, n, r, i) {
 	e !== void 0 && q(`${e} - exec(${n} ${r.join(" ")})`);
 	let { stdout: a, stderr: o } = await Mn(n, r);
 	i === void 0 ? a.trim() && console.log(a.trim()) : await t.writeFile(i, a.trim(), "utf8"), o.trim() && console.error(o.trim());
 }
-async function In(e, t, n = [], r = !1, i = !1) {
+async function In(e, t, n, r = !1, i = !1) {
 	return q(`${e} - spawn(${t} ${n.join(" ")})`), new Promise((e, o) => {
 		a(t, n, {
 			shell: i,
@@ -5760,7 +5760,7 @@ async function In(e, t, n = [], r = !1, i = !1) {
 		});
 	});
 }
-async function Ln(e, n, r = [], i, o = !1) {
+async function Ln(e, n, r, i, o = !1) {
 	return q(`${e} - spawn(${n} ${r.join(" ")}) > ${i}`), new Promise((e, s) => {
 		let c = a(n, r, {
 			shell: !1,
@@ -5872,23 +5872,24 @@ async function Jn() {
 	try {
 		G("Check configuration files.");
 		let e = Hn((await W("config.json")).id), t = n.dirname(o(import.meta.url));
-		await Yn(t, "../", ".editorconfig"), await Yn(t, "../", ".gitattributes"), await Yn(t, "../", e.publishedTo === "npm" ? ".gitignore_published" : ".gitignore_unpublished"), await Yn(t, "../", ".markdownlint.json"), await Yn(t, "../", ".ncurc.json"), await Yn(t, "../", "LICENSE"), await Yn(t, "../", "tsconfig.scripts.json"), await Yn(t, "../", "vitest.config.ts"), K("Configuration files checked..");
+		await Yn(t, ".editorconfig"), await Yn(t, ".gitattributes"), await Yn(t, ".gitignore", e.publishedTo === "npm" ? ".gitignore_published" : ".gitignore_unpublished"), await Yn(t, ".markdownlint.json"), await Yn(t, ".ncurc.json"), await Yn(t, "LICENSE"), await Yn(t, "tsconfig.scripts.json"), await Yn(t, "vite.config.ts", "vite.config.default.ts"), await Yn(t, "vitest.config.ts"), K("Configuration files checked..");
 	} catch (e) {
 		console.error("❌  Error checking configuration files.", e), process.exit(1);
 	}
 }
 async function Yn(e, t, r) {
-	let i = await Rn(n.resolve(e, `${t}${r}`)), a = n.resolve(process.cwd(), r.split("_", 1)[0] ?? r), o;
+	let i = n.resolve(process.cwd(), t), a = n.resolve(e, `../${r ?? t}`), o;
 	try {
-		o = await Rn(a);
+		o = await Rn(i);
 	} catch (e) {
 		if (e.code !== "ENOENT") throw e;
 	}
-	if (o === i) {
-		console.info(`ℹ️  File '${r.split("_", 1)[0] ?? r}' is the same`);
+	let s = await Rn(a);
+	if (o === s) {
+		console.info(`ℹ️  File '${t.split("_", 1)[0] ?? t}' is the same`);
 		return;
 	}
-	console.info(`⚠️  File '${r.split("_", 1)[0] ?? r}' is NOT the same.`);
+	console.info(`⚠️  File '${t.split("_", 1)[0] ?? t}' is NOT the same.`);
 }
 //#endregion
 //#region src/actions/checkDependencies.ts

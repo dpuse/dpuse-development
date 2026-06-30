@@ -5,9 +5,9 @@ import { safeParse } from 'valibot';
 // ── DPUse Framework
 import { connectorConfigSchema } from '@dpuse/dpuse-shared/component/module/connector';
 import type { ModuleConfig } from '@dpuse/dpuse-shared/component/module';
-import type { ConnectorConfig, ConnectorActionName } from '@dpuse/dpuse-shared/component/module/connector';
-import { type ContextConfig, contextConfigSchema, type ContextActionName } from '@dpuse/dpuse-shared/component/module/context';
-import { type PresenterConfig, presenterConfigSchema, type PresenterActionName } from '@dpuse/dpuse-shared/component/module/presenter';
+import type { ConnectorActionName, ConnectorConfig } from '@dpuse/dpuse-shared/component/module/connector';
+import { type ContextActionName, type ContextConfig, contextConfigSchema } from '@dpuse/dpuse-shared/component/module/context';
+import { type PresenterActionName, type PresenterConfig, presenterConfigSchema } from '@dpuse/dpuse-shared/component/module/presenter';
 
 // ── Local (Development) Framework
 import {
