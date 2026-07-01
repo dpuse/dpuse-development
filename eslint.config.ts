@@ -15,7 +15,7 @@ import { defineConfig, globalIgnores } from 'eslint/config';
 export default defineConfig(
     // Linting scope, strict TypeScript type-checking, and module resolver.
     {
-        files: ['eslint.config.ts', 'src/**/*.ts', 'vite.config.ts', 'vitest.config.ts'],
+        files: ['eslint.config.*', 'src/**/*.ts', 'vite.config.ts', 'vitest.config.ts'],
         extends: [...tseslint.configs.strictTypeChecked, ...tseslint.configs.stylisticTypeChecked],
         languageOptions: {
             parserOptions: { project: './tsconfig.json' }

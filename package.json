@@ -1,6 +1,6 @@
 {
     "name": "@dpuse/dpuse-development",
-    "version": "0.3.633",
+    "version": "0.3.634",
     "private": false,
     "description": "Actions for managing DPUse projects.",
     "license": "MIT",
@@ -64,6 +64,7 @@
     },
     "dependencies": {
         "@dpuse/dpuse-shared": "^0.3.720",
+        "@dpuse/eslint-config-dpuse": "^1.0.82",
         "acorn": "^8.17.0",
         "acorn-typescript": "^1.4.13",
         "acorn-walk": "^8.3.5",
