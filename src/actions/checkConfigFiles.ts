@@ -16,7 +16,6 @@ export async function checkConfigFiles(): Promise<void> {
 
         const configJSON = await readJSONFile<ModuleConfig>('config.json');
         const moduleTypeConfig = getModuleConfig(configJSON.id);
-
         const moduleDirectory = path.dirname(fileURLToPath(import.meta.url));
         await checkConfigFile(moduleDirectory, '.editorconfig');
         await checkConfigFile(moduleDirectory, '.gitattributes');
@@ -25,10 +24,10 @@ export async function checkConfigFiles(): Promise<void> {
         await checkConfigFile(moduleDirectory, '.ncurc.json');
         await checkConfigFile(moduleDirectory, 'LICENSE');
         await checkConfigFile(moduleDirectory, 'tsconfig.scripts.json');
-        await checkConfigFile(moduleDirectory, 'vite.config.ts', 'vite.config.default.ts');
+        await checkConfigFile(moduleDirectory, 'vite.config.ts', moduleTypeConfig.typeId === 'tool' ? 'vite.config.tool.ts' : 'vite.config.default.ts');
         await checkConfigFile(moduleDirectory, 'vitest.config.ts');
 
-        logOperationSuccess('Configuration files checked..');
+        logOperationSuccess('Configuration files checked.');
     } catch (error) {
         console.error('❌  Error checking configuration files.', error);
         process.exit(1);
