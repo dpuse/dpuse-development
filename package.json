@@ -1,6 +1,6 @@
 {
     "name": "@dpuse/dpuse-development",
-    "version": "0.3.623",
+    "version": "0.3.624",
     "private": false,
     "description": "Actions for managing DPUse projects.",
     "license": "MIT",
@@ -34,6 +34,7 @@
         ".ncurc.json",
         ".prettierrc.json",
         "dist",
+        "eslint.config.default.ts",
         "LICENSE",
         "tsconfig.scripts.json",
         "vite.config.default.ts",

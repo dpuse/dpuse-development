@@ -23,11 +23,12 @@ export async function checkConfigFiles(): Promise<void> {
         await checkConfigFile(moduleDirectory, '.gitignore', moduleTypeConfig.publishedTo === 'npm' ? '.gitignore_published' : '.gitignore_unpublished');
         await checkConfigFile(moduleDirectory, '.markdownlint.json');
         await checkConfigFile(moduleDirectory, '.ncurc.json');
+        await checkConfigFile(moduleDirectory, 'eslint.config.ts', 'eslint.config.default.ts');
         await checkConfigFile(moduleDirectory, 'LICENSE');
         await checkConfigFile(moduleDirectory, 'tsconfig.scripts.json');
         if (['kb'].includes(moduleTypeConfig.typeId)) {
             console.info("ℹ️  File 'vite.config.ts' is NOT required by this project");
-        } else if (['app', 'api', 'development'].includes(moduleTypeConfig.typeId)) {
+        } else if (['app', 'api', 'development', 'shared'].includes(moduleTypeConfig.typeId)) {
             console.info("ℹ️  File 'vite.config.ts' is UNIQUE to this project");
         } else {
             const viteConfigTemplate = moduleTypeConfig.typeId === 'tool' ? 'vite.config.tool.ts' : 'vite.config.default.ts';
