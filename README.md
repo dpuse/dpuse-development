@@ -17,16 +17,7 @@ Actions for managing DPUse projects.
 ## Installation
 
 > [!WARNING]
-> This project is published to npm, but it is custom built for the DPUse CI and not designed to be used in other environments. You are welcome to clone and customise it for your own purposes, but you will need to adapt it to your own project structure and tooling.
-
-Install as a development dependency:
-
-```bash
-cd dpuse-development
-npm install --save-dev @dpuse/dpuse-development
-```
-
-> See the Data Positioning security documentation for additional initialization requirements.
+> This project is currently published to npm, but is not designed for general use. It is custom built for the DPUse CI/CD process. You are welcome to clone and customise it for your own purposes, but you will need to adapt it to your own project structure and tooling.
 
 ## DPUse Projects
 
@@ -61,73 +52,37 @@ Support projects...
 
 The package implements the following actions:
 
-| Name                    | Notes                                                                                                                                                                                                                                                                                                              |
-| ----------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| auditDependencies       | Audit the project's dependencies for known security vulnerabilities. uses the owasp-dependency-check module to perform the checks. Updates the OWASP badge(s) at the top of this page. Also runs the 'npm outdated`command.                                                                                        |
-| buildDirectoryIndex     | Build an index for the specified directory path.                                                                                                                                                                                                                                                                   |
-| buildProject            | Builds the package using Vite. Output to '/dist' directory. Wrangler for api. Nuxt for app-nuxt. Builds bundle analysis reports.                                                                                                                                                                                   |
-| checkDependencies       | Identifies outdated dependencies using npm `outdated` and `npm-check-updates` with option to automatically install latest versions.                                                                                                                                                                                |
-| documentDependencies    | Identify licenses of the project's production and peer dependencies. Updates the table in the **Dependency Licenses** section of this page and summary files licenses.json and licenseTree.json in th licenses directory of this repository. Also downloads a copy of dependency license to `licenses/downloads'.. |
-| formatCode              | Uses `prettier` to enforce formatting style rules.                                                                                                                                                                                                                                                                 |
-| lintCode                | Uses `eslint` to check the code for potential errors and enforces coding style rules.                                                                                                                                                                                                                              |
-| releaseProject          | Bump version, builds config, builds project, synchronise with `GitHub` and publish to `npm` or Cloudflare.                                                                                                                                                                                                         |
-| syncProjectWithGitHub   | Synchronise the local repository with the main GitHub repository.                                                                                                                                                                                                                                                  |
-| testProject             | ❌ Not implemented.                                                                                                                                                                                                                                                                                                |
-| updateDPUseDependencies | Install the latest version of the specified Data Positioning dependencies.                                                                                                                                                                                                                                         |
+| Name                  | Notes                                                                                                                                                                                                                                                                                                              |
+| --------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| auditDependencies     | Audit the project's dependencies for known security vulnerabilities. uses the owasp-dependency-check module to perform the checks. Updates the OWASP badge(s) at the top of this page. Also runs the 'npm outdated`command.                                                                                        |
+| buildDirectoryIndex   | Build an index for the specified directory path.                                                                                                                                                                                                                                                                   |
+| buildProject          | Builds the package using Vite. Output to '/dist' directory. Wrangler for api. Nuxt for app-nuxt. Builds bundle analysis reports.                                                                                                                                                                                   |
+| checkDependencies     | Identifies outdated dependencies using npm `outdated` and `npm-check-updates` with option to automatically install latest versions.                                                                                                                                                                                |
+| documentDependencies  | Identify licenses of the project's production and peer dependencies. Updates the table in the **Dependency Licenses** section of this page and summary files licenses.json and licenseTree.json in th licenses directory of this repository. Also downloads a copy of dependency license to `licenses/downloads'.. |
+| formatCode            | Uses `prettier` to enforce formatting style rules.                                                                                                                                                                                                                                                                 |
+| lintCode              | Uses `eslint` to check the code for potential errors and enforces coding style rules.                                                                                                                                                                                                                              |
+| releaseProject        | Bump version, builds config, builds project, synchronise with `GitHub` and publish to `npm` or Cloudflare.                                                                                                                                                                                                         |
+| syncProjectWithGitHub | Synchronise the local repository with the main GitHub repository.                                                                                                                                                                                                                                                  |
+| testProject           | ❌ Not implemented.                                                                                                                                                                                                                                                                                                |
 
 ### Usage
 
-All utilities are designed to be run from `package.json` scripts and assume that the project follows the standard Data Positioning directory structure and that it includes a `config.json` file in the root directory.
+All utilities are designed to be run from `package.json` scripts and assume that the project follows the standard DPUse directory structure and that it includes a `config.json` file in the root directory.
 
-```json
-{
-    ...
-    "scripts": {
-        "audit": "node -e \"import('@dpuse/dpuse-development').then(m => m.auditDependencies())\"",
-        "build": "node -e \"import('@dpuse/dpuse-development').then(m => m.buildProject())\"",
-        "check": "node -e \"import('@dpuse/dpuse-development').then(m => m.checkDependencies())\"",
-        "document": "node -e \"import('@dpuse/dpuse-development').then(m => m.documentDependencies(['MIT']))\"",
-        "format": "node -e \"import('@dpuse/dpuse-development').then(m => m.formatCode())\"",
-        "lint": "node -e \"import('@dpuse/dpuse-development').then(m => m.lintCode())\"",
-        "release": "node -e \"import('@dpuse/dpuse-development').then(m => m.releaseProject())\"",
-        "sync": "node -e \"import('@dpuse/dpuse-development').then(m => m.syncProjectWithGitHub())\"",
-        "test": "node -e \"import('@dpuse/dpuse-development').then(m => m.testProject())\"",
-        "update": "node -e \"import('@dpuse/dpuse-development').then(m => m.updateDPUseDependencies(['development']))\""
-    }
-    ...
-}
-```
-
-## Resources
-
-Common resources (files) used across Data Positioning projects.
-
-| Name                                          | File                                                                 |
-| --------------------------------------------- | -------------------------------------------------------------------- |
-| ESLint rules \*                               | [eslint.config.ts](eslint.config.ts)                                 |
-| Git path attributes                           | [.gitattributes](.gitattributes)                                     |
-| Git ignore rules for published repositories   | [resources/.gitignore_PUBLISHED](resources/.gitignore_PUBLISHED)     |
-| Git ignore rules for unpublished repositories | [resources/.gitignore_UNPUBLISHED](resources/.gitignore_UNPUBLISHED) |
-| LICENSE                                       | [LICENSE](LICENSE)                                                   |
-| Markdown lint rules                           | [.markdownlint.json](.markdownlint.json)                             |
-| VS Code key bindings                          | [resources/vsCodeKeyBindings.json](resources/vsCodeKeyBindings.json) |
+Please see other DPUse repositories for actual usage.
 
 ## Dependency Licenses
 
-License data is collected automatically on each release using [license-checker](https://github.com/RSeidelsohn/license-checker-rseidelsohn). The following table lists all production dependencies. These dependencies (including transitive ones) have been checked and confirmed to use Apache-2.0, BSD-3-Clause, CC0-1.0, or MIT — all permissive, commercially-friendly licenses. Developers cloning this repository should independently verify development dependencies; users of the uploaded library are covered by these checks.
-
 <!-- DEPENDENCY_LICENSES_START -->
-
-⚠️ Dependency licenses are not documented here: @dpuse/dpuse-development is a development-only tool and is never part of a production release.
+> [!WARNING]
+> Dependency licenses are not documented here: @dpuse/dpuse-development is a development-only tool and is never part of a production release
 <!-- DEPENDENCY_LICENSES_END -->
 
 ### Dependency Tree
 
-The dependency tree below lists every package in this project — direct and transitive — along with its installed version, release date, and update status. Packages flagged ❗ have a newer version available; ⚠️ indicates a package that hasn't been updated in the last 6 months or longer. Neither flag necessarily indicates a problem: we let new releases stabilise before upgrading, and some packages are simply mature and stable, requiring no active development.
-
 <!-- DEPENDENCY_TREE_START -->
-
-⚠️ Dependency licenses are not documented here: @dpuse/dpuse-development is a development-only tool and is never part of a production release.
+> [!WARNING]
+> Dependency licenses are not documented here: @dpuse/dpuse-development is a development-only tool and is never part of a production release
 <!-- DEPENDENCY_TREE_END -->
 
 ## Bundle Analysis
@@ -143,32 +98,32 @@ The Bundle Analysis Reports provide detailed breakdowns of the bundle's composit
 
 <!-- BUNDLE_START -->
 
-| Chunk/Module/File                                                                                | Composition                        |
-| :----------------------------------------------------------------------------------------------- | :--------------------------------- |
-| dpuse-development.es.js                                                                          | 299.1 kB · gz 74.6 kB · br 59.5 kB |
-| &nbsp;&nbsp;&nbsp;&nbsp;acorn → dist/acorn.mjs                                                   | `██████████░░░░░░░░░░` 49.5%       |
-| &nbsp;&nbsp;&nbsp;&nbsp;acorn-typescript → lib/index.mjs                                         | `███████░░░░░░░░░░░░░` 35.5%       |
-| &nbsp;&nbsp;&nbsp;&nbsp;src                                                                      | `██░░░░░░░░░░░░░░░░░░` 10.6%       |
-| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;manageProject.ts                                 | `█░░░░░░░░░░░░░░░░░░░` 2.8%        |
-| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;documentBundleSizes.ts                           | `░░░░░░░░░░░░░░░░░░░░` 2.0%        |
-| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;documentDependencies.ts                          | `░░░░░░░░░░░░░░░░░░░░` 1.9%        |
-| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;index.ts                                         | `░░░░░░░░░░░░░░░░░░░░` 1.8%        |
-| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;cloudflare.ts                                    | `░░░░░░░░░░░░░░░░░░░░` 0.8%        |
-| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;checkConfigFiles.ts                              | `░░░░░░░░░░░░░░░░░░░░` 0.5%        |
-| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;documentActions.ts                               | `░░░░░░░░░░░░░░░░░░░░` 0.2%        |
-| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;checkDependencies.ts                             | `░░░░░░░░░░░░░░░░░░░░` 0.2%        |
-| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;formatCode.ts                                    | `░░░░░░░░░░░░░░░░░░░░` 0.1%        |
-| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;auditDependencies.ts                             | `░░░░░░░░░░░░░░░░░░░░` 0.1%        |
-| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;lintCode.ts                                      | `░░░░░░░░░░░░░░░░░░░░` 0.1%        |
-| &nbsp;&nbsp;&nbsp;&nbsp;@dpuse/dpuse-shared                                                      | `█░░░░░░░░░░░░░░░░░░░` 4.1%        |
-| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;dist/componentConfig.schema-dBVLwQIt.js          | `█░░░░░░░░░░░░░░░░░░░` 3.2%        |
-| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;dist/dpuse-shared-componentModuleConnector.es.js | `░░░░░░░░░░░░░░░░░░░░` 0.6%        |
-| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;dist/dpuse-shared-componentModuleContext.es.js   | `░░░░░░░░░░░░░░░░░░░░` 0.1%        |
-| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;dist/dpuse-shared-locale.es.js                   | `░░░░░░░░░░░░░░░░░░░░` 0.1%        |
-| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;dist/dpuse-shared-componentModulePresenter.es.js | `░░░░░░░░░░░░░░░░░░░░` 0.1%        |
-| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;dist/moduleConfig.schema-CUHmgYLu.js             | `░░░░░░░░░░░░░░░░░░░░` 0.1%        |
-| &nbsp;&nbsp;&nbsp;&nbsp;valibot → dist/index.mjs                                                 | `░░░░░░░░░░░░░░░░░░░░` 0.2%        |
-| &nbsp;&nbsp;&nbsp;&nbsp;(runtime) → rolldown/runtime.js                                          | `░░░░░░░░░░░░░░░░░░░░` 0.1%        |
+|Chunk/Module/File|Composition|
+|:------ |:-----------|
+| dpuse-development.es.js | 299.2 kB · gz 74.6 kB · br 59.6 kB |
+| &nbsp;&nbsp;&nbsp;&nbsp;acorn → dist/acorn.mjs | `██████████░░░░░░░░░░` 49.4% |
+| &nbsp;&nbsp;&nbsp;&nbsp;acorn-typescript → lib/index.mjs | `███████░░░░░░░░░░░░░` 35.5% |
+| &nbsp;&nbsp;&nbsp;&nbsp;src | `██░░░░░░░░░░░░░░░░░░` 10.7% |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;manageProject.ts | `█░░░░░░░░░░░░░░░░░░░` 2.8% |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;documentBundleSizes.ts | `░░░░░░░░░░░░░░░░░░░░` 2.0% |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;documentDependencies.ts | `░░░░░░░░░░░░░░░░░░░░` 1.9% |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;index.ts | `░░░░░░░░░░░░░░░░░░░░` 1.9% |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;cloudflare.ts | `░░░░░░░░░░░░░░░░░░░░` 0.8% |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;checkConfigFiles.ts | `░░░░░░░░░░░░░░░░░░░░` 0.6% |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;checkDependencies.ts | `░░░░░░░░░░░░░░░░░░░░` 0.2% |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;documentActions.ts | `░░░░░░░░░░░░░░░░░░░░` 0.2% |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;formatCode.ts | `░░░░░░░░░░░░░░░░░░░░` 0.1% |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;auditDependencies.ts | `░░░░░░░░░░░░░░░░░░░░` 0.1% |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;lintCode.ts | `░░░░░░░░░░░░░░░░░░░░` 0.1% |
+| &nbsp;&nbsp;&nbsp;&nbsp;@dpuse/dpuse-shared | `█░░░░░░░░░░░░░░░░░░░` 4.1% |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;dist/componentConfig.schema-dBVLwQIt.js | `█░░░░░░░░░░░░░░░░░░░` 3.2% |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;dist/dpuse-shared-componentModuleConnector.es.js | `░░░░░░░░░░░░░░░░░░░░` 0.6% |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;dist/dpuse-shared-componentModuleContext.es.js | `░░░░░░░░░░░░░░░░░░░░` 0.1% |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;dist/dpuse-shared-locale.es.js | `░░░░░░░░░░░░░░░░░░░░` 0.1% |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;dist/dpuse-shared-componentModulePresenter.es.js | `░░░░░░░░░░░░░░░░░░░░` 0.1% |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;dist/moduleConfig.schema-CUHmgYLu.js | `░░░░░░░░░░░░░░░░░░░░` 0.1% |
+| &nbsp;&nbsp;&nbsp;&nbsp;valibot → dist/index.mjs | `░░░░░░░░░░░░░░░░░░░░` 0.2% |
+| &nbsp;&nbsp;&nbsp;&nbsp;(runtime) → rolldown/runtime.js | `░░░░░░░░░░░░░░░░░░░░` 0.1% |
 
 <!-- BUNDLE_END -->
 

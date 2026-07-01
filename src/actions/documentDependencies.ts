@@ -94,7 +94,7 @@ export async function documentDependencies(allowedLicenses = 'MIT'): Promise<voi
 async function skipDependencyDocumentation(): Promise<void> {
     logStepHeader('1️⃣  Skip: @dpuse/dpuse-development is a development-only tool and is never part of a production release');
 
-    const message = '⚠️  Dependency licenses are not documented here: @dpuse/dpuse-development is a development-only tool and is never part of a production release';
+    const message = '> [!WARNING]\n> Dependency licenses are not documented here: @dpuse/dpuse-development is a development-only tool and is never part of a production release';
 
     const originalContent = await readTextFile('./README.md');
     const withTable = substituteText(originalContent, message, START_MARKER, END_MARKER);

@@ -6,9 +6,9 @@ import { visualizer } from 'rollup-plugin-visualizer';
 import { fileURLToPath, URL } from 'node:url';
 
 // ── Data
-import config from './config.json' with { type: 'json' };
+import config from './config.json';
 
-// ──  Vite Configuration ──────────────────────────────────────────────────────────────────────────────────────────────
+// ── Vite Configuration ───────────────────────────────────────────────────────────────────────────────────────────────
 
 export default defineConfig({
     build: {
