@@ -1,4 +1,4 @@
-// ── External
+// ── External Dependencies & Registrations
 import { run as runNpmCheckUpdates } from 'npm-check-updates';
 
 // ── Local (Development) Framework
@@ -13,9 +13,9 @@ export async function checkDependencies(): Promise<void> {
         await spawnCommand("1️⃣  Check using 'npm outdated'", 'npm', ['outdated'], true);
 
         logStepHeader("2️⃣  Check using 'npm-check-updates'");
-        await runNpmCheckUpdates({ interactive: true, dep: 'dev,prod,peer,optional', install: 'never' });
+        await runNpmCheckUpdates({ interactive: true, upgrade: true, dep: 'dev,prod,peer,optional', install: 'never' });
 
-        await spawnCommand("3️⃣  Install updated dependencies", 'npm', ['install', '--prefer-online']);
+        await spawnCommand('3️⃣  Install updated dependencies', 'npm', ['install', '--prefer-online']);
 
         logOperationSuccess('Dependencies checked.');
     } catch (error) {

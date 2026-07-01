@@ -24,7 +24,8 @@ export async function checkConfigFiles(): Promise<void> {
         await checkConfigFile(moduleDirectory, '.ncurc.json');
         await checkConfigFile(moduleDirectory, 'LICENSE');
         await checkConfigFile(moduleDirectory, 'tsconfig.scripts.json');
-        await checkConfigFile(moduleDirectory, 'vite.config.ts', moduleTypeConfig.typeId === 'tool' ? 'vite.config.tool.ts' : 'vite.config.default.ts');
+        const viteConfigTemplate = moduleTypeConfig.typeId === 'tool' ? 'vite.config.tool.ts' : 'vite.config.default.ts';
+        await checkConfigFile(moduleDirectory, 'vite.config.ts', moduleTypeConfig.typeId === 'development' ? undefined : viteConfigTemplate);
         await checkConfigFile(moduleDirectory, 'vitest.config.ts');
 
         logOperationSuccess('Configuration files checked.');

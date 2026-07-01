@@ -5873,7 +5873,7 @@ async function Yn() {
 	try {
 		G("Check configuration files.");
 		let e = Un((await W("config.json")).id), t = n.dirname(o(import.meta.url));
-		await Xn(t, ".editorconfig"), await Xn(t, ".gitattributes"), await Xn(t, ".gitignore", e.publishedTo === "npm" ? ".gitignore_published" : ".gitignore_unpublished"), await Xn(t, ".markdownlint.json"), await Xn(t, ".ncurc.json"), await Xn(t, "LICENSE"), await Xn(t, "tsconfig.scripts.json"), await Xn(t, "vite.config.ts", e.typeId === "tool" ? "vite.config.tool.ts" : "vite.config.default.ts"), await Xn(t, "vitest.config.ts"), K("Configuration files checked.");
+		await Xn(t, ".editorconfig"), await Xn(t, ".gitattributes"), await Xn(t, ".gitignore", e.publishedTo === "npm" ? ".gitignore_published" : ".gitignore_unpublished"), await Xn(t, ".markdownlint.json"), await Xn(t, ".ncurc.json"), await Xn(t, "LICENSE"), await Xn(t, "tsconfig.scripts.json"), await Xn(t, "vite.config.ts", e.typeId === "development" ? void 0 : e.typeId === "tool" ? "vite.config.tool.ts" : "vite.config.default.ts"), await Xn(t, "vitest.config.ts"), K("Configuration files checked.");
 	} catch (e) {
 		console.error("❌  Error checking configuration files.", e), process.exit(1);
 	}

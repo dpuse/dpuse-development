@@ -158,7 +158,7 @@ export async function writeTextFile(path: string, data: string): Promise<void> {
 export function logOperationHeader(text: string): void {
     const cyan = '\u{1B}[36m';
     const reset = '\u{1B}[0m';
-    const line = '─'.repeat(Math.max(text.length + 60, 60));
+    const line = '────────────────────────────────────────────────────────────────────────────────';
     console.info(`\n${cyan}${line}`);
     console.info(`▶️  ${text}`);
     console.info(`${line}${reset}`);
