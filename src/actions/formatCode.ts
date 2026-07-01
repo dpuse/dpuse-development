@@ -15,9 +15,9 @@ export async function formatCode(): Promise<void> {
         const formatTargets = ['--write', '*.json', '*.md', '*.ts', ...optionalGlobs];
         await spawnCommand('1️⃣  Format', 'prettier', formatTargets);
 
-        logOperationSuccess('Code formatted.');
+        logOperationSuccess('Code formatted');
     } catch (error) {
-        console.error('❌  Error formatting code.', error);
+        console.error('❌  Error formatting code', error);
         process.exit(1);
     }
 }

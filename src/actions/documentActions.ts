@@ -25,9 +25,9 @@ export async function documentActions(): Promise<void> {
         const updatedContent = substituteText(originalContent, table, START_MARKER, END_MARKER);
         await writeTextFile('README.md', updatedContent);
 
-        logOperationSuccess('Actions documented.');
+        logOperationSuccess('Actions documented');
     } catch (error) {
-        console.error('❌  Error documenting actions.', error);
+        console.error('❌  Error documenting actions', error);
         process.exit(1);
     }
 }

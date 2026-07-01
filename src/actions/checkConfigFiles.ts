@@ -6,14 +6,15 @@ import path from 'node:path';
 import type { ModuleConfig } from '@dpuse/dpuse-shared/component/module';
 
 // ── Local (Development) Framework
-import { getModuleConfig, logOperationHeader, logOperationSuccess, readJSONFile, readTextFile } from '@/utilities';
+import { getModuleConfig, logOperationHeader, logOperationSuccess, logStepHeader, readJSONFile, readTextFile } from '@/utilities';
 
 // ── Actions ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 export async function checkConfigFiles(): Promise<void> {
     try {
-        logOperationHeader('Check configuration files.');
+        logOperationHeader('Check configuration files');
 
+        logStepHeader('1️⃣  Check individual files');
         const configJSON = await readJSONFile<ModuleConfig>('config.json');
         const moduleTypeConfig = getModuleConfig(configJSON.id);
         const moduleDirectory = path.dirname(fileURLToPath(import.meta.url));
@@ -28,9 +29,9 @@ export async function checkConfigFiles(): Promise<void> {
         await checkConfigFile(moduleDirectory, 'vite.config.ts', moduleTypeConfig.typeId === 'development' ? undefined : viteConfigTemplate);
         await checkConfigFile(moduleDirectory, 'vitest.config.ts');
 
-        logOperationSuccess('Configuration files checked.');
+        logOperationSuccess('Configuration files checked');
     } catch (error) {
-        console.error('❌  Error checking configuration files.', error);
+        console.error('❌  Error checking configuration files', error);
         process.exit(1);
     }
 }

@@ -17,9 +17,9 @@ export async function checkDependencies(): Promise<void> {
 
         await spawnCommand('3️⃣  Install updated dependencies', 'npm', ['install', '--prefer-online']);
 
-        logOperationSuccess('Dependencies checked.');
+        logOperationSuccess('Dependencies checked');
     } catch (error) {
-        console.error('❌  Error checking dependencies.', error);
+        console.error('❌  Error checking dependencies', error);
         process.exit(1);
     }
 }

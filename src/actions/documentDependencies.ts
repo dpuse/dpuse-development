@@ -50,7 +50,7 @@ export async function documentDependencies(allowedLicenses = 'MIT'): Promise<voi
 
         if (rootPackage.name === '@dpuse/dpuse-development') {
             await skipDependencyDocumentation();
-            logOperationSuccess('Dependencies documented.');
+            logOperationSuccess('Dependencies documented');
             return;
         }
 
@@ -82,9 +82,9 @@ export async function documentDependencies(allowedLicenses = 'MIT'): Promise<voi
 
         await insertLicensesIntoReadme('4️⃣ ');
 
-        logOperationSuccess('Dependencies documented.');
+        logOperationSuccess('Dependencies documented');
     } catch (error) {
-        console.error('❌  Error documenting dependencies.', error);
+        console.error('❌  Error documenting dependencies', error);
         process.exit(1);
     }
 }
@@ -92,9 +92,9 @@ export async function documentDependencies(allowedLicenses = 'MIT'): Promise<voi
 // ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 async function skipDependencyDocumentation(): Promise<void> {
-    logStepHeader("1️⃣  Skip: @dpuse/dpuse-development is a development-only tool and is never part of a production release");
+    logStepHeader('1️⃣  Skip: @dpuse/dpuse-development is a development-only tool and is never part of a production release');
 
-    const message = '⚠️  Dependency licenses are not documented here: @dpuse/dpuse-development is a development-only tool and is never part of a production release.';
+    const message = '⚠️  Dependency licenses are not documented here: @dpuse/dpuse-development is a development-only tool and is never part of a production release';
 
     const originalContent = await readTextFile('./README.md');
     const withTable = substituteText(originalContent, message, START_MARKER, END_MARKER);

@@ -59,9 +59,9 @@ export async function buildProject(): Promise<void> {
 
         await spawnCommand('1️⃣  Bundle project', 'vite', ['build']);
 
-        logOperationSuccess('Project built.');
+        logOperationSuccess('Project built');
     } catch (error) {
-        console.error('❌  Error building project.', error);
+        console.error('❌  Error building project', error);
         process.exit(1);
     }
 }
@@ -109,7 +109,7 @@ export async function releaseProject(): Promise<void> {
             await uploadModuleToR2(packageJSON, `dpuse-engine-eu/${moduleTypeConfig.uploadGroupName ?? 'unknown'}`);
             await uploadModuleConfigToDO(configJSON); // This MUST follow 'uploadModuleToR2', otherwise the app will receive a message a new engine is available and try to access it before it is uploaded to R2.
         } else if (moduleTypeConfig.uploadGroupName === undefined) {
-            logStepHeader('7️⃣  Registration NOT required.');
+            logStepHeader('7️⃣  Registration NOT required');
         } else {
             logStepHeader('7️⃣  Register module');
             const moduleTypeName = configJSON.id.split('-').slice(2).join('-');
@@ -131,7 +131,7 @@ export async function releaseProject(): Promise<void> {
 
         logOperationSuccess(`Project version '${packageJSON.version ?? 'unknown'}' released.`);
     } catch (error) {
-        console.error('❌  Error releasing project.', error);
+        console.error('❌  Error releasing project', error);
         process.exit(1);
     }
 }
@@ -156,7 +156,7 @@ async function buildConnectorProjectConfig(stepIcon: string, packageJSON: Packag
     if (!response.success) {
         console.error('❌  Configuration is invalid:');
         console.table(response.issues);
-        throw new Error('Configuration is invalid.');
+        throw new Error('Configuration is invalid');
     }
 
     const operations = extractOperationsFromSource<ConnectorActionName>(indexCode);
@@ -174,7 +174,7 @@ async function buildContextProjectConfig(stepIcon: string, packageJSON: PackageJ
     if (!response.success) {
         console.error('❌  Configuration is invalid:');
         console.table(response.issues);
-        throw new Error('Configuration is invalid.');
+        throw new Error('Configuration is invalid');
     }
 
     const operations = extractOperationsFromSource<ContextActionName>(indexCode);
@@ -190,7 +190,7 @@ async function buildPresenterProjectConfig(stepIcon: string, packageJSON: Packag
     if (!response.success) {
         console.error('❌  Configuration is invalid:');
         console.table(response.issues);
-        throw new Error('Configuration is invalid.');
+        throw new Error('Configuration is invalid');
     }
 
     const operations = extractOperationsFromSource<PresenterActionName>(indexCode);
@@ -214,9 +214,9 @@ async function processOperations<T extends OperationConfig>(packageJSON: Package
     if (operations.length > 0) {
         console.info(`ℹ️  Implements ${String(operations.length)} operations:`);
         console.table(operations);
-    } else console.warn('⚠️   Implements no operations.');
+    } else console.warn('⚠️   Implements no operations');
 
-    if (usageId === 'unknown') console.warn('⚠️   No usage identified.');
+    if (usageId === 'unknown') console.warn('⚠️   No usage identified');
     else console.info(`ℹ️  Supports '${usageId ?? 'unknown'}' usage.`);
 
     if (packageJSON.name != null) configJSON.id = packageJSON.name.replace('@dpuse/', '').replace('@dpuse/', '');
@@ -247,7 +247,7 @@ export async function publishProject(): Promise<void> {
             await uploadModuleToR2(packageJSON, `dpuse-engine-eu/${moduleTypeConfig.uploadGroupName ?? 'unknown'}`);
             await uploadModuleConfigToDO(configJSON);
         } else if (moduleTypeConfig.uploadGroupName === undefined) {
-            logStepHeader('1️⃣  Publishing NOT required.');
+            logStepHeader('1️⃣  Publishing NOT required');
         } else {
             logStepHeader('1️⃣  Register module');
             const moduleTypeName = configJSON.id.split('-').slice(2).join('-');
@@ -257,7 +257,7 @@ export async function publishProject(): Promise<void> {
 
         logOperationSuccess(`Project version '${packageJSON.version ?? 'unknown'}' published.`);
     } catch (error) {
-        console.error('❌  Error publishing project.', error);
+        console.error('❌  Error publishing project', error);
         process.exit(1);
     }
 }
@@ -297,7 +297,7 @@ export async function syncProjectWithGitHub(): Promise<void> {
 
         logOperationSuccess(`Project version '${packageJSON.version ?? 'unknown'}' synchronised with GitHub.`);
     } catch (error) {
-        console.error('❌  Error synchronising project with GitHub.', error);
+        console.error('❌  Error synchronising project with GitHub', error);
         process.exit(1);
     }
 }
@@ -310,7 +310,7 @@ export function testProject(): void {
 
         console.error('\n❌  No tests implemented.\n');
     } catch (error) {
-        console.error('❌  Error testing project.', error);
+        console.error('❌  Error testing project', error);
         process.exit(1);
     }
 }

@@ -9,9 +9,9 @@ export async function lintCode(): Promise<void> {
 
         await spawnCommand('1️⃣  Lint', 'eslint', ['.']);
 
-        logOperationSuccess('Code linted.');
+        logOperationSuccess('Code linted');
     } catch (error) {
-        console.error('❌  Error linting code.', error);
+        console.error('❌  Error linting code', error);
         process.exit(1);
     }
 }

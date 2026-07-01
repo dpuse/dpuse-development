@@ -59,9 +59,9 @@ export async function documentBundleSizes(options?: { moduleLevel?: boolean }): 
         const updated = substituteText(readme, `\n${bundleTable}\n`, BUNDLE_START_MARKER, BUNDLE_END_MARKER);
         await writeTextFile('README.md', updated);
 
-        logOperationSuccess('Bundle sizes documented.');
+        logOperationSuccess('Bundle sizes documented');
     } catch (error) {
-        console.error('❌  Error documenting bundle sizes.', error);
+        console.error('❌  Error documenting bundle sizes', error);
         process.exit(1);
     }
 }
@@ -139,13 +139,13 @@ async function buildBundleTable(json: VisualizerJson, distributionDirection: str
 
 function getSoleEntry<T>(entries: T[]): T {
     const [entry] = entries;
-    if (entry === undefined) throw new Error('Expected exactly one entry.');
+    if (entry === undefined) throw new Error('Expected exactly one entry');
     return entry;
 }
 
 function getSoleFileName(files: Map<string, Sizes>): string {
     const [fileName] = files.keys();
-    if (fileName === undefined) throw new Error('Expected exactly one file.');
+    if (fileName === undefined) throw new Error('Expected exactly one file');
     return fileName;
 }
 
