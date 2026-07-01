@@ -77,6 +77,17 @@ async function detectDistributionDirection(): Promise<string> {
     }
 }
 
+function chunkSizes(sizes: Sizes): string {
+    return `${formatBytes(sizes.rendered)} · gz ${formatBytes(sizes.gzip)} · br ${formatBytes(sizes.brotli)}`;
+}
+
+interface GroupData {
+    sizes: Sizes;
+    files: Map<string, Sizes>;
+}
+
+type GroupEntry = [string, GroupData];
+
 async function buildBundleTable(json: VisualizerJson, distributionDirection: string, isModuleLevel: boolean): Promise<string> {
     const chunkGroups = buildChunkGroups(json);
     const bundlerTotal = chunkGroups
@@ -89,52 +100,60 @@ async function buildBundleTable(json: VisualizerJson, distributionDirection: str
 
     const lines = ['|Chunk/Module/File|Composition|', '|:------ |:-----------|'];
 
-    const chunkSizes = (sizes: Sizes): string => `${formatBytes(sizes.rendered)} · gz ${formatBytes(sizes.gzip)} · br ${formatBytes(sizes.brotli)}`;
-
     for (const [file, sizes] of distributionFiles) {
-        const groups = chunkGroups.get(file) ?? new Map<string, { sizes: Sizes; files: Map<string, Sizes> }>();
+        const groups = chunkGroups.get(file) ?? new Map<string, GroupData>();
         const sortedGroups = [...groups].toSorted((a, b) => b[1].sizes.rendered - a[1].sizes.rendered);
 
-        if (sortedGroups.length === 1) {
-            const [groupName, { sizes: groupSizes, files }] = getSoleEntry(sortedGroups);
-            const groupPct = bundlerTotal > 0 ? (groupSizes.rendered / bundlerTotal) * 100 : 0;
+        const sectionLines =
+            sortedGroups.length === 1
+                ? renderSingleGroupSection(file, sizes, getSoleEntry(sortedGroups), bundlerTotal, isModuleLevel)
+                : renderMultiGroupSection(file, sizes, sortedGroups, bundlerTotal, isModuleLevel);
 
-            if (files.size === 1) {
-                const fileName = getSoleFileName(files);
-                lines.push(`| ${file} → ${groupName} → ${fileName} | ${chunkSizes(sizes)} · ${bar(groupPct)} |`);
-            } else if (isModuleLevel) {
-                lines.push(`| ${file} → ${groupName} | ${chunkSizes(sizes)} · ${bar(groupPct)} |`);
-            } else {
-                lines.push(`| ${file} → ${groupName} | ${chunkSizes(sizes)} · ${bar(groupPct)} |`);
-                const sortedFiles = [...files].toSorted((a, b) => b[1].rendered - a[1].rendered);
-                for (const [fileName, fileSizes] of sortedFiles) {
-                    const filePct = bundlerTotal > 0 ? (fileSizes.rendered / bundlerTotal) * 100 : 0;
-                    lines.push(`| ${INDENT}${fileName} | ${bar(filePct)} |`);
-                }
-            }
-        } else {
-            lines.push(`| ${file} | ${chunkSizes(sizes)} |`);
-            for (const [groupName, { sizes: groupSizes, files }] of sortedGroups) {
-                const groupPct = bundlerTotal > 0 ? (groupSizes.rendered / bundlerTotal) * 100 : 0;
-
-                if (files.size === 1) {
-                    const fileName = getSoleFileName(files);
-                    lines.push(`| ${INDENT}${groupName} → ${fileName} | ${bar(groupPct)} |`);
-                } else if (isModuleLevel) {
-                    lines.push(`| ${INDENT}${groupName} | ${bar(groupPct)} |`);
-                } else {
-                    lines.push(`| ${INDENT}${groupName} | ${bar(groupPct)} |`);
-                    const sortedFiles = [...files].toSorted((a, b) => b[1].rendered - a[1].rendered);
-                    for (const [fileName, fileSizes] of sortedFiles) {
-                        const filePct = bundlerTotal > 0 ? (fileSizes.rendered / bundlerTotal) * 100 : 0;
-                        lines.push(`| ${INDENT}${INDENT}${fileName} | ${bar(filePct)} |`);
-                    }
-                }
-            }
-        }
+        lines.push(...sectionLines);
     }
 
     return lines.join('\n');
+}
+
+function renderSingleGroupSection(file: string, sizes: Sizes, group: GroupEntry, bundlerTotal: number, isModuleLevel: boolean): string[] {
+    const [groupName, { sizes: groupSizes, files }] = group;
+    const groupPct = bundlerTotal > 0 ? (groupSizes.rendered / bundlerTotal) * 100 : 0;
+
+    if (files.size === 1) {
+        const fileName = getSoleFileName(files);
+        return [`| ${file} → ${groupName} → ${fileName} | ${chunkSizes(sizes)} · ${bar(groupPct)} |`];
+    }
+
+    const lines = [`| ${file} → ${groupName} | ${chunkSizes(sizes)} · ${bar(groupPct)} |`];
+    if (!isModuleLevel) lines.push(...renderFileRows(files, INDENT, bundlerTotal));
+    return lines;
+}
+
+function renderMultiGroupSection(file: string, sizes: Sizes, sortedGroups: GroupEntry[], bundlerTotal: number, isModuleLevel: boolean): string[] {
+    const lines = [`| ${file} | ${chunkSizes(sizes)} |`];
+
+    for (const [groupName, { sizes: groupSizes, files }] of sortedGroups) {
+        const groupPct = bundlerTotal > 0 ? (groupSizes.rendered / bundlerTotal) * 100 : 0;
+
+        if (files.size === 1) {
+            const fileName = getSoleFileName(files);
+            lines.push(`| ${INDENT}${groupName} → ${fileName} | ${bar(groupPct)} |`);
+            continue;
+        }
+
+        lines.push(`| ${INDENT}${groupName} | ${bar(groupPct)} |`);
+        if (!isModuleLevel) lines.push(...renderFileRows(files, `${INDENT}${INDENT}`, bundlerTotal));
+    }
+
+    return lines;
+}
+
+function renderFileRows(files: Map<string, Sizes>, indent: string, bundlerTotal: number): string[] {
+    const sortedFiles = [...files].toSorted((a, b) => b[1].rendered - a[1].rendered);
+    return sortedFiles.map(([fileName, fileSizes]) => {
+        const filePct = bundlerTotal > 0 ? (fileSizes.rendered / bundlerTotal) * 100 : 0;
+        return `| ${indent}${fileName} | ${bar(filePct)} |`;
+    });
 }
 
 function getSoleEntry<T>(entries: T[]): T {
@@ -165,7 +184,7 @@ async function readDistributionFileSizes(distributionDirection: string): Promise
 }
 
 function accumulateChunkPart(
-    chunks: Map<string, Map<string, { sizes: Sizes; files: Map<string, Sizes> }>>,
+    chunks: Map<string, Map<string, GroupData>>,
     json: VisualizerJson,
     groupName: string,
     fileName: string,
@@ -198,8 +217,8 @@ function accumulateChunkPart(
     addTo(fileSizes, s);
 }
 
-function buildChunkGroups(json: VisualizerJson): Map<string, Map<string, { sizes: Sizes; files: Map<string, Sizes> }>> {
-    const chunks = new Map<string, Map<string, { sizes: Sizes; files: Map<string, Sizes> }>>();
+function buildChunkGroups(json: VisualizerJson): Map<string, Map<string, GroupData>> {
+    const chunks = new Map<string, Map<string, GroupData>>();
 
     for (const meta of Object.values(json.nodeMetas)) {
         const groupName = sourceGroupName(meta.id);
