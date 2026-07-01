@@ -26,7 +26,7 @@ export async function checkConfigFiles(): Promise<void> {
         await checkConfigFile(moduleDirectory, 'eslint.config.ts', ['eslint.config.default.ts']);
         await checkConfigFile(moduleDirectory, 'LICENSE');
         await checkConfigFile(moduleDirectory, 'tsconfig.scripts.json');
-        if (['kb'].includes(moduleTypeConfig.typeId)) {
+        if (['eslint', 'kb'].includes(moduleTypeConfig.typeId)) {
             console.info("ℹ️  File 'vite.config.ts' is NOT required by this project");
         } else if (['app', 'api', 'development', 'shared'].includes(moduleTypeConfig.typeId)) {
             console.info("ℹ️  File 'vite.config.ts' is UNIQUE to this project");
@@ -37,7 +37,11 @@ export async function checkConfigFiles(): Promise<void> {
             else viteConfigTemplates = ['vite.config.default.ts'];
             await checkConfigFile(moduleDirectory, 'vite.config.ts', viteConfigTemplates);
         }
-        await checkConfigFile(moduleDirectory, 'vitest.config.ts');
+        if (['eslint', 'kb'].includes(moduleTypeConfig.typeId)) {
+            console.info("ℹ️  File 'vitest.config.ts' is NOT required by this project");
+        } else {
+            await checkConfigFile(moduleDirectory, 'vitest.config.ts');
+        }
 
         logOperationSuccess('Configuration files checked');
     } catch (error) {
