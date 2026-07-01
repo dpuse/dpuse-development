@@ -16,6 +16,9 @@ Actions for managing DPUse projects.
 
 ## Installation
 
+> [!WARNING]
+> This project is published to npm, but it is custom built for the DPUse CI and not designed to be used in other environments. You are welcome to clone and customise it for your own purposes, but you will need to adapt it to your own project structure and tooling.
+
 Install as a development dependency:
 
 ```bash
@@ -114,7 +117,8 @@ Common resources (files) used across Data Positioning projects.
 License data is collected automatically on each release using [license-checker](https://github.com/RSeidelsohn/license-checker-rseidelsohn). The following table lists all production dependencies. These dependencies (including transitive ones) have been checked and confirmed to use Apache-2.0, BSD-3-Clause, CC0-1.0, or MIT — all permissive, commercially-friendly licenses. Developers cloning this repository should independently verify development dependencies; users of the uploaded library are covered by these checks.
 
 <!-- DEPENDENCY_LICENSES_START -->
-⚠️  Dependency licenses are not documented here: @dpuse/dpuse-development is a development-only tool and is never part of a production release.
+
+⚠️ Dependency licenses are not documented here: @dpuse/dpuse-development is a development-only tool and is never part of a production release.
 <!-- DEPENDENCY_LICENSES_END -->
 
 ### Dependency Tree
@@ -122,7 +126,8 @@ License data is collected automatically on each release using [license-checker](
 The dependency tree below lists every package in this project — direct and transitive — along with its installed version, release date, and update status. Packages flagged ❗ have a newer version available; ⚠️ indicates a package that hasn't been updated in the last 6 months or longer. Neither flag necessarily indicates a problem: we let new releases stabilise before upgrading, and some packages are simply mature and stable, requiring no active development.
 
 <!-- DEPENDENCY_TREE_START -->
-⚠️  Dependency licenses are not documented here: @dpuse/dpuse-development is a development-only tool and is never part of a production release.
+
+⚠️ Dependency licenses are not documented here: @dpuse/dpuse-development is a development-only tool and is never part of a production release.
 <!-- DEPENDENCY_TREE_END -->
 
 ## Bundle Analysis
@@ -138,32 +143,32 @@ The Bundle Analysis Reports provide detailed breakdowns of the bundle's composit
 
 <!-- BUNDLE_START -->
 
-|Chunk/Module/File|Composition|
-|:------ |:-----------|
-| dpuse-development.es.js | 299.1 kB · gz 74.6 kB · br 59.5 kB |
-| &nbsp;&nbsp;&nbsp;&nbsp;acorn → dist/acorn.mjs | `██████████░░░░░░░░░░` 49.5% |
-| &nbsp;&nbsp;&nbsp;&nbsp;acorn-typescript → lib/index.mjs | `███████░░░░░░░░░░░░░` 35.5% |
-| &nbsp;&nbsp;&nbsp;&nbsp;src | `██░░░░░░░░░░░░░░░░░░` 10.6% |
-| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;manageProject.ts | `█░░░░░░░░░░░░░░░░░░░` 2.8% |
-| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;documentBundleSizes.ts | `░░░░░░░░░░░░░░░░░░░░` 2.0% |
-| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;documentDependencies.ts | `░░░░░░░░░░░░░░░░░░░░` 1.9% |
-| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;index.ts | `░░░░░░░░░░░░░░░░░░░░` 1.8% |
-| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;cloudflare.ts | `░░░░░░░░░░░░░░░░░░░░` 0.8% |
-| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;checkConfigFiles.ts | `░░░░░░░░░░░░░░░░░░░░` 0.5% |
-| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;documentActions.ts | `░░░░░░░░░░░░░░░░░░░░` 0.2% |
-| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;checkDependencies.ts | `░░░░░░░░░░░░░░░░░░░░` 0.2% |
-| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;formatCode.ts | `░░░░░░░░░░░░░░░░░░░░` 0.1% |
-| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;auditDependencies.ts | `░░░░░░░░░░░░░░░░░░░░` 0.1% |
-| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;lintCode.ts | `░░░░░░░░░░░░░░░░░░░░` 0.1% |
-| &nbsp;&nbsp;&nbsp;&nbsp;@dpuse/dpuse-shared | `█░░░░░░░░░░░░░░░░░░░` 4.1% |
-| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;dist/componentConfig.schema-dBVLwQIt.js | `█░░░░░░░░░░░░░░░░░░░` 3.2% |
-| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;dist/dpuse-shared-componentModuleConnector.es.js | `░░░░░░░░░░░░░░░░░░░░` 0.6% |
-| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;dist/dpuse-shared-componentModuleContext.es.js | `░░░░░░░░░░░░░░░░░░░░` 0.1% |
-| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;dist/dpuse-shared-locale.es.js | `░░░░░░░░░░░░░░░░░░░░` 0.1% |
-| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;dist/dpuse-shared-componentModulePresenter.es.js | `░░░░░░░░░░░░░░░░░░░░` 0.1% |
-| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;dist/moduleConfig.schema-CUHmgYLu.js | `░░░░░░░░░░░░░░░░░░░░` 0.1% |
-| &nbsp;&nbsp;&nbsp;&nbsp;valibot → dist/index.mjs | `░░░░░░░░░░░░░░░░░░░░` 0.2% |
-| &nbsp;&nbsp;&nbsp;&nbsp;(runtime) → rolldown/runtime.js | `░░░░░░░░░░░░░░░░░░░░` 0.1% |
+| Chunk/Module/File                                                                                | Composition                        |
+| :----------------------------------------------------------------------------------------------- | :--------------------------------- |
+| dpuse-development.es.js                                                                          | 299.1 kB · gz 74.6 kB · br 59.5 kB |
+| &nbsp;&nbsp;&nbsp;&nbsp;acorn → dist/acorn.mjs                                                   | `██████████░░░░░░░░░░` 49.5%       |
+| &nbsp;&nbsp;&nbsp;&nbsp;acorn-typescript → lib/index.mjs                                         | `███████░░░░░░░░░░░░░` 35.5%       |
+| &nbsp;&nbsp;&nbsp;&nbsp;src                                                                      | `██░░░░░░░░░░░░░░░░░░` 10.6%       |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;manageProject.ts                                 | `█░░░░░░░░░░░░░░░░░░░` 2.8%        |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;documentBundleSizes.ts                           | `░░░░░░░░░░░░░░░░░░░░` 2.0%        |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;documentDependencies.ts                          | `░░░░░░░░░░░░░░░░░░░░` 1.9%        |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;index.ts                                         | `░░░░░░░░░░░░░░░░░░░░` 1.8%        |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;cloudflare.ts                                    | `░░░░░░░░░░░░░░░░░░░░` 0.8%        |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;checkConfigFiles.ts                              | `░░░░░░░░░░░░░░░░░░░░` 0.5%        |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;documentActions.ts                               | `░░░░░░░░░░░░░░░░░░░░` 0.2%        |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;checkDependencies.ts                             | `░░░░░░░░░░░░░░░░░░░░` 0.2%        |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;formatCode.ts                                    | `░░░░░░░░░░░░░░░░░░░░` 0.1%        |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;auditDependencies.ts                             | `░░░░░░░░░░░░░░░░░░░░` 0.1%        |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;lintCode.ts                                      | `░░░░░░░░░░░░░░░░░░░░` 0.1%        |
+| &nbsp;&nbsp;&nbsp;&nbsp;@dpuse/dpuse-shared                                                      | `█░░░░░░░░░░░░░░░░░░░` 4.1%        |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;dist/componentConfig.schema-dBVLwQIt.js          | `█░░░░░░░░░░░░░░░░░░░` 3.2%        |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;dist/dpuse-shared-componentModuleConnector.es.js | `░░░░░░░░░░░░░░░░░░░░` 0.6%        |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;dist/dpuse-shared-componentModuleContext.es.js   | `░░░░░░░░░░░░░░░░░░░░` 0.1%        |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;dist/dpuse-shared-locale.es.js                   | `░░░░░░░░░░░░░░░░░░░░` 0.1%        |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;dist/dpuse-shared-componentModulePresenter.es.js | `░░░░░░░░░░░░░░░░░░░░` 0.1%        |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;dist/moduleConfig.schema-CUHmgYLu.js             | `░░░░░░░░░░░░░░░░░░░░` 0.1%        |
+| &nbsp;&nbsp;&nbsp;&nbsp;valibot → dist/index.mjs                                                 | `░░░░░░░░░░░░░░░░░░░░` 0.2%        |
+| &nbsp;&nbsp;&nbsp;&nbsp;(runtime) → rolldown/runtime.js                                          | `░░░░░░░░░░░░░░░░░░░░` 0.1%        |
 
 <!-- BUNDLE_END -->
 
