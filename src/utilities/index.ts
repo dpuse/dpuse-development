@@ -35,7 +35,8 @@ const MODULE_TYPE_CONFIGS: ModuleTypeConfig[] = [
     { idPrefix: 'dpuse-cookbook', typeId: 'cookbook', publishedTo: 'dpuse', uploadGroupName: 'cookbooks' },
     { idPrefix: 'dpuse-resources', typeId: 'resources', publishedTo: undefined, uploadGroupName: undefined },
     { idPrefix: 'dpuse-shared', typeId: 'shared', publishedTo: 'npm', uploadGroupName: undefined },
-    { idPrefix: 'dpuse-tool', typeId: 'tool', publishedTo: 'npm', uploadGroupName: 'tools' }
+    { idPrefix: 'dpuse-tool', typeId: 'tool', publishedTo: 'npm', uploadGroupName: 'tools' },
+    { idPrefix: 'eslint-config-dpuse', typeId: 'eslint', publishedTo: 'npm', uploadGroupName: undefined }
 ];
 
 // ── Initialisation ───────────────────────────────────────────────────────────────────────────────────────────────────
