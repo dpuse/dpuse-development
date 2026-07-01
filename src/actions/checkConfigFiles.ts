@@ -23,7 +23,11 @@ export async function checkConfigFiles(): Promise<void> {
         await checkConfigFile(moduleDirectory, '.gitignore', [moduleTypeConfig.publishedTo === 'npm' ? '.gitignore_published' : '.gitignore_unpublished']);
         await checkConfigFile(moduleDirectory, '.markdownlint.json');
         await checkConfigFile(moduleDirectory, '.ncurc.json');
-        await checkConfigFile(moduleDirectory, 'eslint.config.ts', ['eslint.config.default.ts']);
+        if (['eslint'].includes(moduleTypeConfig.typeId)) {
+            console.info("ℹ️  File 'eslint.config.ts' is NOT required by this project");
+        } else {
+            await checkConfigFile(moduleDirectory, 'eslint.config.ts', ['eslint.config.default.ts']);
+        }
         await checkConfigFile(moduleDirectory, 'LICENSE');
         await checkConfigFile(moduleDirectory, 'tsconfig.scripts.json');
         if (['eslint', 'kb'].includes(moduleTypeConfig.typeId)) {
