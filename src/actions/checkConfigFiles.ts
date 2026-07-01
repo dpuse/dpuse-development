@@ -63,7 +63,7 @@ async function checkConfigFile(moduleDirectory: string, checkFileName: string, t
         const templatePath = path.resolve(moduleDirectory, `../${templateFileName}`);
         const templateContent = await readTextFile(templatePath);
         if (checkFileContent === templateContent) {
-            console.info(`ℹ️  File '${checkFileName.split('_', 1)[0] ?? checkFileName}' is the same`);
+            console.info(`ℹ️  File '${checkFileName.split('_', 1)[0] ?? checkFileName}' is the same as '${templateFileName}'`);
             return;
         }
     }
