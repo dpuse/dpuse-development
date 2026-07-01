@@ -31,8 +31,11 @@ export async function checkConfigFiles(): Promise<void> {
         } else if (['app', 'api', 'development', 'shared'].includes(moduleTypeConfig.typeId)) {
             console.info("ℹ️  File 'vite.config.ts' is UNIQUE to this project");
         } else {
-            const viteConfigTemplate = moduleTypeConfig.typeId === 'tool' ? ['vite.config.tool.ts', 'vite.config.tool.wasm.ts'] : ['vite.config.default.ts'];
-            await checkConfigFile(moduleDirectory, 'vite.config.ts', viteConfigTemplate);
+            let viteConfigTemplates: string[];
+            if (moduleTypeConfig.typeId === 'connector') viteConfigTemplates = ['vite.config.default.ts', 'vite.config.wasm.ts'];
+            else if (moduleTypeConfig.typeId === 'tool') viteConfigTemplates = ['vite.config.tool.ts'];
+            else viteConfigTemplates = ['vite.config.default.ts'];
+            await checkConfigFile(moduleDirectory, 'vite.config.ts', viteConfigTemplates);
         }
         await checkConfigFile(moduleDirectory, 'vitest.config.ts');
 

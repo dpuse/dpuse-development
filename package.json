@@ -1,6 +1,6 @@
 {
     "name": "@dpuse/dpuse-development",
-    "version": "0.3.626",
+    "version": "0.3.627",
     "private": false,
     "description": "Actions for managing DPUse projects.",
     "license": "MIT",
@@ -39,7 +39,7 @@
         "tsconfig.scripts.json",
         "vite.config.default.ts",
         "vite.config.tool.ts",
-        "vite.config.tool.wasm.ts",
+        "vite.config.wasm.ts",
         "vitest.config.ts"
     ],
     "engines": {
