@@ -5878,7 +5878,7 @@ async function qn() {
 	try {
 		G("Check configuration files"), q("1️⃣  Check individual files");
 		let e = Vn((await W("config.json")).id), t = n.dirname(o(import.meta.url));
-		if (await J(t, ".editorconfig"), await J(t, ".gitattributes"), await J(t, ".gitignore", [e.publishedTo === "npm" ? ".gitignore_published" : ".gitignore_unpublished"]), await J(t, ".markdownlint.json"), await J(t, ".ncurc.json"), ["eslint"].includes(e.typeId) ? console.info("ℹ️  File 'eslint.config.js' is NOT required by this project") : await J(t, "eslint.config.js", ["eslint.config.default.js"]), await J(t, "LICENSE"), await J(t, "tsconfig.scripts.json"), ["eslint", "kb"].includes(e.typeId)) console.info("ℹ️  File 'vite.config.ts' is NOT required by this project");
+		if (await J(t, ".editorconfig"), await J(t, ".gitattributes"), await J(t, ".gitignore", [e.publishedTo === "npm" ? ".gitignore_published" : ".gitignore_unpublished"]), await J(t, ".markdownlint.json"), await J(t, ".ncurc.json"), ["development"].includes(e.typeId) ? console.info("ℹ️  File 'eslint.config.js' is UNIQUE to this project") : await J(t, "eslint.config.js", ["eslint.config.default.js"]), await J(t, "LICENSE"), await J(t, "tsconfig.scripts.json"), ["eslint", "kb"].includes(e.typeId)) console.info("ℹ️  File 'vite.config.ts' is NOT required by this project");
 		else if ([
 			"app",
 			"api",

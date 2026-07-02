@@ -23,8 +23,8 @@ export async function checkConfigFiles(): Promise<void> {
         await checkConfigFile(moduleDirectory, '.gitignore', [moduleTypeConfig.publishedTo === 'npm' ? '.gitignore_published' : '.gitignore_unpublished']);
         await checkConfigFile(moduleDirectory, '.markdownlint.json');
         await checkConfigFile(moduleDirectory, '.ncurc.json');
-        if (['eslint'].includes(moduleTypeConfig.typeId)) {
-            console.info("ℹ️  File 'eslint.config.js' is NOT required by this project");
+        if (['development'].includes(moduleTypeConfig.typeId)) {
+            console.info("ℹ️  File 'eslint.config.js' is UNIQUE to this project");
         } else {
             await checkConfigFile(moduleDirectory, 'eslint.config.js', ['eslint.config.default.js']);
         }
