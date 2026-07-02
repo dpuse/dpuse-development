@@ -1,11 +1,12 @@
 // ── External Dependencies & Registrations
 import { dpuseESLintConfig } from '@dpuse/eslint-config-dpuse';
-import type { Linter } from 'eslint';
 
 // ── ESLint Configuration ─────────────────────────────────────────────────────────────────────────────────────────────
 
-const config: Linter.Config[] = dpuseESLintConfig({
-    files: ['eslint.config.ts', 'src/**/*.ts', 'vite.config.ts', 'vitest.config.ts'],
+/** @type {import('eslint').Linter.Config[]} */
+const config = dpuseESLintConfig({
+    files: ['eslint.config.js', 'eslint.config.default.js', 'src/**/*.ts', 'vite.config.ts', 'vitest.config.ts'],
+    ignores: ['rust/**'],
     importCoreModules: ['cloudflare:workers'],
     tsconfigPath: './tsconfig.json',
     tsconfigRootDir: import.meta.dirname,

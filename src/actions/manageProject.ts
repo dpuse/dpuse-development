@@ -66,6 +66,39 @@ export async function buildProject(): Promise<void> {
     }
 }
 
+// ── Actions - Publish ────────────────────────────────────────────────────────────────────────────────────────────────
+
+export async function publishProject(): Promise<void> {
+    try {
+        logOperationHeader('Publish Project');
+
+        const packageJSON = await readJSONFile<PackageJson>('package.json');
+        const configJSON = await readJSONFile<ModuleConfig>('config.json');
+        const moduleTypeConfig = getModuleConfig(configJSON.id);
+
+        if (moduleTypeConfig.typeId === 'app') {
+            logStepHeader('1️⃣  Register module');
+            await putState();
+        } else if (moduleTypeConfig.typeId === 'engine') {
+            logStepHeader('1️⃣  Register module');
+            await uploadModuleToR2(packageJSON, `dpuse-engine-eu/${moduleTypeConfig.uploadGroupName ?? 'unknown'}`);
+            await uploadModuleConfigToDO(configJSON);
+        } else if (moduleTypeConfig.uploadGroupName === undefined) {
+            logStepHeader('1️⃣  Publishing NOT required');
+        } else {
+            logStepHeader('1️⃣  Register module');
+            const moduleTypeName = configJSON.id.split('-').slice(2).join('-');
+            await uploadModuleToR2(packageJSON, `dpuse-engine-eu/${moduleTypeConfig.uploadGroupName}/${moduleTypeName}`);
+            await uploadModuleConfigToDO(configJSON);
+        }
+
+        logOperationSuccess(`Project version '${packageJSON.version ?? 'unknown'}' published.`);
+    } catch (error) {
+        console.error('❌  Error publishing project', error);
+        process.exit(1);
+    }
+}
+
 // ── Actions - Release ────────────────────────────────────────────────────────────────────────────────────────────────
 
 export async function releaseProject(): Promise<void> {
@@ -123,7 +156,7 @@ export async function releaseProject(): Promise<void> {
                 await writeTextFile(npmrcFileName, `registry=https://registry.npmjs.org/\n//registry.npmjs.org/:_authToken=${process.env['NPM_TOKEN'] ?? ''}`);
                 await spawnCommand('8️⃣  Publish to npm', 'npm', ['publish', '--access', 'public']);
             } finally {
-                await removeFile(npmrcFileName);
+                // await removeFile(npmrcFileName);
             }
         } else {
             logStepHeader(`8️⃣  Publishing NOT required for package with type identifier of '${moduleTypeConfig.typeId}'.`);
@@ -227,39 +260,6 @@ async function processOperations<T extends OperationConfig>(packageJSON: Package
     await writeJSONFile('config.json', configJSON);
 
     return configJSON;
-}
-
-// ── Actions - Publish ────────────────────────────────────────────────────────────────────────────────────────────────
-
-export async function publishProject(): Promise<void> {
-    try {
-        logOperationHeader('Publish Project');
-
-        const packageJSON = await readJSONFile<PackageJson>('package.json');
-        const configJSON = await readJSONFile<ModuleConfig>('config.json');
-        const moduleTypeConfig = getModuleConfig(configJSON.id);
-
-        if (moduleTypeConfig.typeId === 'app') {
-            logStepHeader('1️⃣  Register module');
-            await putState();
-        } else if (moduleTypeConfig.typeId === 'engine') {
-            logStepHeader('1️⃣  Register module');
-            await uploadModuleToR2(packageJSON, `dpuse-engine-eu/${moduleTypeConfig.uploadGroupName ?? 'unknown'}`);
-            await uploadModuleConfigToDO(configJSON);
-        } else if (moduleTypeConfig.uploadGroupName === undefined) {
-            logStepHeader('1️⃣  Publishing NOT required');
-        } else {
-            logStepHeader('1️⃣  Register module');
-            const moduleTypeName = configJSON.id.split('-').slice(2).join('-');
-            await uploadModuleToR2(packageJSON, `dpuse-engine-eu/${moduleTypeConfig.uploadGroupName}/${moduleTypeName}`);
-            await uploadModuleConfigToDO(configJSON);
-        }
-
-        logOperationSuccess(`Project version '${packageJSON.version ?? 'unknown'}' published.`);
-    } catch (error) {
-        console.error('❌  Error publishing project', error);
-        process.exit(1);
-    }
 }
 
 // ── Actions - Sync ───────────────────────────────────────────────────────────────────────────────────────────────────

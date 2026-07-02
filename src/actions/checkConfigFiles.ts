@@ -24,9 +24,9 @@ export async function checkConfigFiles(): Promise<void> {
         await checkConfigFile(moduleDirectory, '.markdownlint.json');
         await checkConfigFile(moduleDirectory, '.ncurc.json');
         if (['eslint'].includes(moduleTypeConfig.typeId)) {
-            console.info("ℹ️  File 'eslint.config.ts' is NOT required by this project");
+            console.info("ℹ️  File 'eslint.config.js' is NOT required by this project");
         } else {
-            await checkConfigFile(moduleDirectory, 'eslint.config.ts', ['eslint.config.default.ts']);
+            await checkConfigFile(moduleDirectory, 'eslint.config.js', ['eslint.config.default.js']);
         }
         await checkConfigFile(moduleDirectory, 'LICENSE');
         await checkConfigFile(moduleDirectory, 'tsconfig.scripts.json');
