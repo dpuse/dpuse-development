@@ -6026,12 +6026,11 @@ function lr(e) {
 function ur(e) {
 	return {
 		uncompressed: e.uncompressed,
-		gzip: e.gzip ?? 0,
 		brotli: e.brotli ?? 0
 	};
 }
 function dr(e) {
-	return `${hr(e.uncompressed)} · gz ${hr(e.gzip)} · br ${hr(e.brotli)}`;
+	return `${hr(e.uncompressed)} · brotli ${hr(e.brotli)}`;
 }
 function fr(e) {
 	let t = Math.round(e / 100 * Qn);
@@ -6040,12 +6039,11 @@ function fr(e) {
 function pr() {
 	return {
 		uncompressed: 0,
-		gzip: 0,
 		brotli: 0
 	};
 }
 function mr(e, t) {
-	e.uncompressed += t.uncompressed, e.gzip += t.gzip, e.brotli += t.brotli;
+	e.uncompressed += t.uncompressed, e.brotli += t.brotli;
 }
 function hr(e) {
 	return e < 1024 ? `${String(e)} B` : `${(e / 1024).toFixed(1)} kB`;

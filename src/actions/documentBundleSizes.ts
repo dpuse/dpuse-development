@@ -5,7 +5,6 @@ import { logOperationHeader, logOperationSuccess, logStepHeader, readJSONFile, r
 
 interface Sizes {
     uncompressed: number;
-    gzip: number;
     brotli: number;
 }
 
@@ -13,7 +12,6 @@ interface SondaResource {
     kind: 'asset' | 'chunk' | 'filesystem' | 'sourcemap';
     name: string;
     uncompressed: number;
-    gzip?: number;
     brotli?: number;
     parent?: string | null;
 }
@@ -177,9 +175,7 @@ function buildAssetGroups(json: SondaJson): Map<string, Map<string, GroupData>> 
 
 // Flattens `dependencies[].paths` into `[path, dependencyName]` pairs, longest path first so scoped/nested packages match before their parents.
 function buildDependencyPaths(dependencies: SondaDependency[]): DependencyPath[] {
-    return dependencies
-        .flatMap((dependency): DependencyPath[] => dependency.paths.map((path) => [path, dependency.name]))
-        .toSorted((a, b) => b[0].length - a[0].length);
+    return dependencies.flatMap((dependency): DependencyPath[] => dependency.paths.map((path) => [path, dependency.name])).toSorted((a, b) => b[0].length - a[0].length);
 }
 
 function resolveModule(path: string, dependencyPaths: DependencyPath[]): { group: string; file: string } {
@@ -199,11 +195,11 @@ function lastPathSegment(path: string): string {
 }
 
 function resourceSizes(resource: SondaResource): Sizes {
-    return { uncompressed: resource.uncompressed, gzip: resource.gzip ?? 0, brotli: resource.brotli ?? 0 };
+    return { uncompressed: resource.uncompressed, brotli: resource.brotli ?? 0 };
 }
 
 function chunkSizes(sizes: Sizes): string {
-    return `${formatBytes(sizes.uncompressed)} · gz ${formatBytes(sizes.gzip)} · br ${formatBytes(sizes.brotli)}`;
+    return `${formatBytes(sizes.uncompressed)} · brotli ${formatBytes(sizes.brotli)}`;
 }
 
 function bar(pct: number): string {
@@ -212,12 +208,11 @@ function bar(pct: number): string {
 }
 
 function zero(): Sizes {
-    return { uncompressed: 0, gzip: 0, brotli: 0 };
+    return { uncompressed: 0, brotli: 0 };
 }
 
 function addTo(target: Sizes, source: Sizes): void {
     target.uncompressed += source.uncompressed;
-    target.gzip += source.gzip;
     target.brotli += source.brotli;
 }
 

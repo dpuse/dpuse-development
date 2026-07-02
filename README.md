@@ -100,7 +100,7 @@ The Bundle Analysis Reports provide detailed breakdowns of the bundle's composit
 
 |Chunk/Module/File|Composition|
 |:------ |:-----------|
-| dist/dpuse-development.es.js | 299.2 kB · gz 74.6 kB · br 59.6 kB |
+| dist/dpuse-development.es.js | 299.2 kB · brotli 59.5 kB |
 | &nbsp;&nbsp;&nbsp;&nbsp;acorn → dist/acorn.mjs | `█████████░░░░░░░░░░░` 43.7% |
 | &nbsp;&nbsp;&nbsp;&nbsp;acorn-typescript → lib/index.mjs | `████████░░░░░░░░░░░░` 38.3% |
 | &nbsp;&nbsp;&nbsp;&nbsp;src | `██░░░░░░░░░░░░░░░░░░` 7.8% |
