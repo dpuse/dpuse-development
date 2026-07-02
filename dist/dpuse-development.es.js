@@ -5878,7 +5878,7 @@ async function qn() {
 	try {
 		G("Check configuration files"), q("1️⃣  Check individual files");
 		let e = Vn((await W("config.json")).id), t = n.dirname(o(import.meta.url));
-		if (await J(t, ".editorconfig"), await J(t, ".gitattributes"), await J(t, ".gitignore", [e.publishedTo === "npm" ? ".gitignore_published" : ".gitignore_unpublished"]), await J(t, ".markdownlint.json"), await J(t, ".ncurc.json"), ["eslint"].includes(e.typeId) ? console.info("ℹ️  File 'eslint.config.ts' is NOT required by this project") : await J(t, "eslint.config.ts", ["eslint.config.default.ts"]), await J(t, "LICENSE"), await J(t, "tsconfig.scripts.json"), ["eslint", "kb"].includes(e.typeId)) console.info("ℹ️  File 'vite.config.ts' is NOT required by this project");
+		if (await J(t, ".editorconfig"), await J(t, ".gitattributes"), await J(t, ".gitignore", [e.publishedTo === "npm" ? ".gitignore_published" : ".gitignore_unpublished"]), await J(t, ".markdownlint.json"), await J(t, ".ncurc.json"), ["eslint"].includes(e.typeId) ? console.info("ℹ️  File 'eslint.config.js' is NOT required by this project") : await J(t, "eslint.config.js", ["eslint.config.default.js"]), await J(t, "LICENSE"), await J(t, "tsconfig.scripts.json"), ["eslint", "kb"].includes(e.typeId)) console.info("ℹ️  File 'vite.config.ts' is NOT required by this project");
 		else if ([
 			"app",
 			"api",
@@ -6860,21 +6860,38 @@ async function Fi() {
 }
 async function Ii() {
 	try {
+		G("Publish Project");
+		let e = await W("package.json"), t = await W("config.json"), n = Vn(t.id);
+		if (n.typeId === "app") q("1️⃣  Register module"), await bi();
+		else if (n.typeId === "engine") q("1️⃣  Register module"), await Ci(e, `dpuse-engine-eu/${n.uploadGroupName ?? "unknown"}`), await Si(t);
+		else if (n.uploadGroupName === void 0) q("1️⃣  Publishing NOT required");
+		else {
+			q("1️⃣  Register module");
+			let r = t.id.split("-").slice(2).join("-");
+			await Ci(e, `dpuse-engine-eu/${n.uploadGroupName}/${r}`), await Si(t);
+		}
+		K(`Project version '${e.version ?? "unknown"}' published.`);
+	} catch (e) {
+		console.error("❌  Error publishing project", e), process.exit(1);
+	}
+}
+async function Li() {
+	try {
 		G("Release Project");
 		let e = await W("package.json"), t = await W("config.json");
 		await Ki("1️⃣ ", e);
 		let n = Vn(t.id);
 		switch (n.typeId) {
 			case "connector":
-				t = await Ri("2️⃣ ", e);
-				break;
-			case "context":
 				t = await zi("2️⃣ ", e);
 				break;
-			case "presenter":
+			case "context":
 				t = await Bi("2️⃣ ", e);
 				break;
-			default: t = await Li("2️⃣ ", e);
+			case "presenter":
+				t = await Vi("2️⃣ ", e);
+				break;
+			default: t = await Ri("2️⃣ ", e);
 		}
 		if (await Fn("3️⃣  Bundle project", "vite", ["build"]), await Pn("4️⃣  Stage changes", "git", ["add", "."]), await Pn("5️⃣  Commit changes", "git", [
 			"commit",
@@ -6909,54 +6926,37 @@ async function Ii() {
 		console.error("❌  Error releasing project", e), process.exit(1);
 	}
 }
-async function Li(e, t) {
+async function Ri(e, t) {
 	q(`${e} Build project configuration`);
 	let n = await W("config.json");
 	return t.name != null && (n.id = t.name.replace("@dpuse/", "")), t.version != null && (n.version = t.version), await zn("config.json", n), n;
 }
-async function Ri(e, t) {
+async function zi(e, t) {
 	q(`${e} Build connector project configuration`);
 	let [n, r] = await Promise.all([W("config.json"), Ln("src/index.ts")]), i = /* @__PURE__ */ Di(fi, n);
 	if (!i.success) throw console.error("❌  Configuration is invalid:"), console.table(i.issues), Error("Configuration is invalid");
 	let a = Un(r);
-	return await Hi(t, n, a, Vi(a));
+	return await Ui(t, n, a, Hi(a));
 }
-async function zi(e, t) {
+async function Bi(e, t) {
 	q(`${e} Build context project configuration`);
 	let [n, r] = await Promise.all([W("config.json"), Ln("src/index.ts")]), i = /* @__PURE__ */ Di(Ai, n);
 	if (!i.success) throw console.error("❌  Configuration is invalid:"), console.table(i.issues), Error("Configuration is invalid");
-	return await Hi(t, n, Un(r));
+	return await Ui(t, n, Un(r));
 }
-async function Bi(e, t) {
+async function Vi(e, t) {
 	q(`${e} Build presenter project configuration`);
 	let [n, r] = await Promise.all([W("config.json"), Ln("src/index.ts")]), i = /* @__PURE__ */ Di(Mi, n);
 	if (!i.success) throw console.error("❌  Configuration is invalid:"), console.table(i.issues), Error("Configuration is invalid");
-	return await Hi(t, n, Un(r));
+	return await Ui(t, n, Un(r));
 }
-function Vi(e) {
+function Hi(e) {
 	let t = !1, n = !1;
 	for (let r of e) Pi.has(r) && (t = !0), Ni.has(r) && (n = !0);
 	return t && n ? "bidirectional" : t ? "source" : n ? "destination" : "unknown";
 }
-async function Hi(e, t, n, r) {
+async function Ui(e, t, n, r) {
 	return n.length > 0 ? (console.info(`ℹ️  Implements ${String(n.length)} operations:`), console.table(n)) : console.warn("⚠️   Implements no operations"), r === "unknown" ? console.warn("⚠️   No usage identified") : console.info(`ℹ️  Supports '${r ?? "unknown"}' usage.`), e.name != null && (t.id = e.name.replace("@dpuse/", "").replace("@dpuse/", "")), e.version != null && (t.version = e.version), t.operations = n, t.usageId = r ?? "unknown", await zn("config.json", t), t;
-}
-async function Ui() {
-	try {
-		G("Publish Project");
-		let e = await W("package.json"), t = await W("config.json"), n = Vn(t.id);
-		if (n.typeId === "app") q("1️⃣  Register module"), await bi();
-		else if (n.typeId === "engine") q("1️⃣  Register module"), await Ci(e, `dpuse-engine-eu/${n.uploadGroupName ?? "unknown"}`), await Si(t);
-		else if (n.uploadGroupName === void 0) q("1️⃣  Publishing NOT required");
-		else {
-			q("1️⃣  Register module");
-			let r = t.id.split("-").slice(2).join("-");
-			await Ci(e, `dpuse-engine-eu/${n.uploadGroupName}/${r}`), await Si(t);
-		}
-		K(`Project version '${e.version ?? "unknown"}' published.`);
-	} catch (e) {
-		console.error("❌  Error publishing project", e), process.exit(1);
-	}
 }
 async function Wi() {
 	try {
@@ -6964,15 +6964,15 @@ async function Wi() {
 		let e = await W("package.json"), t = await W("config.json");
 		switch (await Ki("1️⃣ ", e), Vn(t.id).typeId) {
 			case "connector":
-				await Ri("2️⃣ ", e);
-				break;
-			case "context":
 				await zi("2️⃣ ", e);
 				break;
-			case "presenter":
+			case "context":
 				await Bi("2️⃣ ", e);
 				break;
-			default: await Li("2️⃣ ", e);
+			case "presenter":
+				await Vi("2️⃣ ", e);
+				break;
+			default: await Ri("2️⃣ ", e);
 		}
 		await Pn("3️⃣  Stage changes", "git", ["add", "."]), await Pn("4️⃣  Commit changes", "git", [
 			"commit",
@@ -7003,6 +7003,6 @@ async function Ki(e, t, n = "./") {
 	await zn(`${n}package.json`, t);
 }
 //#endregion
-export { Kn as auditDependencies, Fi as buildProject, qn as checkConfigFiles, Jn as checkDependencies, _i as documentActions, $n as documentBundleSizes, br as documentDependencies, vi as formatCode, yi as lintCode, Ui as publishProject, Ii as releaseProject, Wi as syncProjectWithGitHub, Gi as testProject, xi as uploadDirectoryToR2 };
+export { Kn as auditDependencies, Fi as buildProject, qn as checkConfigFiles, Jn as checkDependencies, _i as documentActions, $n as documentBundleSizes, br as documentDependencies, vi as formatCode, yi as lintCode, Ii as publishProject, Li as releaseProject, Wi as syncProjectWithGitHub, Gi as testProject, xi as uploadDirectoryToR2 };
 
 //# sourceMappingURL=dpuse-development.es.js.map

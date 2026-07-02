@@ -1,7 +1,7 @@
 {
   "metadata": {
     "version": "0.13.1",
-    "generatedAt": "2026-07-02T14:40:36.206Z",
+    "generatedAt": "2026-07-02T20:50:09.416Z",
     "integration": "vite",
     "sources": false,
     "gzip": false,
@@ -23,7 +23,7 @@
       "format": "other",
       "uncompressed": 18702,
       "gzip": 0,
-      "brotli": 1106,
+      "brotli": 1105,
       "parent": "dist/dpuse-development.es.js"
     },
     {
@@ -32,7 +32,7 @@
       "type": "script",
       "uncompressed": 306354,
       "gzip": 0,
-      "brotli": 60925
+      "brotli": 60931
     },
     {
       "kind": "filesystem",
@@ -140,7 +140,7 @@
       "format": "esm",
       "uncompressed": 117317,
       "gzip": 0,
-      "brotli": 21992,
+      "brotli": 21995,
       "parent": "dist/dpuse-development.es.js"
     },
     {
@@ -157,7 +157,7 @@
       "format": "esm",
       "uncompressed": 133875,
       "gzip": 0,
-      "brotli": 27193,
+      "brotli": 27197,
       "parent": "dist/dpuse-development.es.js"
     },
     {
@@ -208,7 +208,7 @@
       "format": "esm",
       "uncompressed": 1800,
       "gzip": 0,
-      "brotli": 587,
+      "brotli": 594,
       "parent": "dist/dpuse-development.es.js"
     },
     {
@@ -327,7 +327,7 @@
       "format": "esm",
       "uncompressed": 6151,
       "gzip": 0,
-      "brotli": 1395,
+      "brotli": 1387,
       "parent": "dist/dpuse-development.es.js"
     },
     {
