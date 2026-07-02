@@ -156,7 +156,7 @@ export async function releaseProject(): Promise<void> {
                 await writeTextFile(npmrcFileName, `registry=https://registry.npmjs.org/\n//registry.npmjs.org/:_authToken=${process.env['NPM_TOKEN'] ?? ''}`);
                 await spawnCommand('8️⃣  Publish to npm', 'npm', ['publish', '--access', 'public']);
             } finally {
-                // await removeFile(npmrcFileName);
+                await removeFile(npmrcFileName);
             }
         } else {
             logStepHeader(`8️⃣  Publishing NOT required for package with type identifier of '${moduleTypeConfig.typeId}'.`);
