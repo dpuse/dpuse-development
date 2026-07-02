@@ -1,39 +1,40 @@
-// ── External Dependencies & Registrations
-import { promises as fs } from 'node:fs';
-import { promisify } from 'node:util';
-import { brotliCompress, gzip } from 'node:zlib';
-
 // ── Local (Development) Framework
 import { logOperationHeader, logOperationSuccess, logStepHeader, readJSONFile, readTextFile, substituteText, writeTextFile } from '@/utilities';
-
-// ── Initialisation ───────────────────────────────────────────────────────────────────────────────────────────────────
-
-const gzipAsync = promisify(gzip);
-const brotliAsync = promisify(brotliCompress);
 
 // ── Types ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 interface Sizes {
-    rendered: number;
+    uncompressed: number;
     gzip: number;
     brotli: number;
 }
 
-interface NodePart {
-    renderedLength: number;
-    gzipLength: number;
-    brotliLength: number;
+interface SondaResource {
+    kind: 'asset' | 'chunk' | 'filesystem' | 'sourcemap';
+    name: string;
+    uncompressed: number;
+    gzip?: number;
+    brotli?: number;
+    parent?: string | null;
 }
 
-interface NodeMeta {
-    id: string;
-    moduleParts: Record<string, string>;
+interface SondaDependency {
+    name: string;
+    paths: string[];
 }
 
-interface VisualizerJson {
-    nodeParts: Record<string, NodePart>;
-    nodeMetas: Record<string, NodeMeta>;
+interface SondaJson {
+    resources: SondaResource[];
+    dependencies: SondaDependency[];
 }
+
+interface GroupData {
+    sizes: Sizes;
+    files: Map<string, Sizes>;
+}
+
+type GroupEntry = [string, GroupData];
+type DependencyPath = [path: string, name: string];
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -49,11 +50,10 @@ export async function documentBundleSizes(options?: { moduleLevel?: boolean }): 
         logOperationHeader('Document Bundle Sizes');
 
         logStepHeader('1️⃣  Read bundle analysis report');
-        const json = await readJSONFile<VisualizerJson>('./bundle-analysis-reports/rollup-visualiser/index.json');
+        const json = await readJSONFile<SondaJson>('./bundle-analysis-reports/sonda/index.json');
 
         logStepHeader(`2️⃣  Insert table into 'README.md'`);
-        const distributionDirection = await detectDistributionDirection();
-        const bundleTable = await buildBundleTable(json, distributionDirection, options?.moduleLevel ?? false);
+        const bundleTable = buildBundleTable(json, options?.moduleLevel ?? false);
 
         const readme = await readTextFile('./README.md');
         const updated = substituteText(readme, `\n${bundleTable}\n`, BUNDLE_START_MARKER, BUNDLE_END_MARKER);
@@ -68,41 +68,23 @@ export async function documentBundleSizes(options?: { moduleLevel?: boolean }): 
 
 // ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-async function detectDistributionDirection(): Promise<string> {
-    try {
-        await fs.access('./dist/client/assets');
-        return './dist/client/assets';
-    } catch {
-        return './dist';
-    }
-}
-
-function chunkSizes(sizes: Sizes): string {
-    return `${formatBytes(sizes.rendered)} · gz ${formatBytes(sizes.gzip)} · br ${formatBytes(sizes.brotli)}`;
-}
-
-interface GroupData {
-    sizes: Sizes;
-    files: Map<string, Sizes>;
-}
-
-type GroupEntry = [string, GroupData];
-
-async function buildBundleTable(json: VisualizerJson, distributionDirection: string, isModuleLevel: boolean): Promise<string> {
-    const chunkGroups = buildChunkGroups(json);
-    const bundlerTotal = chunkGroups
+function buildBundleTable(json: SondaJson, isModuleLevel: boolean): string {
+    const assetGroups = buildAssetGroups(json);
+    const bundlerTotal = assetGroups
         .values()
-        .flatMap((g) => g.values().toArray())
-        .reduce((sum, g) => sum + g.sizes.rendered, 0);
+        .flatMap((groups) => groups.values().toArray())
+        .reduce((sum, group) => sum + group.sizes.uncompressed, 0);
 
-    const distributionFiles = await readDistributionFileSizes(distributionDirection);
-    distributionFiles.sort((a, b) => b[1].rendered - a[1].rendered);
+    const assets = json.resources
+        .filter((resource) => resource.kind === 'asset')
+        .map((asset): [string, Sizes] => [asset.name, resourceSizes(asset)])
+        .toSorted((a, b) => b[1].uncompressed - a[1].uncompressed);
 
     const lines = ['|Chunk/Module/File|Composition|', '|:------ |:-----------|'];
 
-    for (const [file, sizes] of distributionFiles) {
-        const groups = chunkGroups.get(file) ?? new Map<string, GroupData>();
-        const sortedGroups = [...groups].toSorted((a, b) => b[1].sizes.rendered - a[1].sizes.rendered);
+    for (const [file, sizes] of assets) {
+        const groups = assetGroups.get(file) ?? new Map<string, GroupData>();
+        const sortedGroups = [...groups].toSorted((a, b) => b[1].sizes.uncompressed - a[1].sizes.uncompressed);
 
         const sectionLines =
             sortedGroups.length === 1
@@ -117,7 +99,7 @@ async function buildBundleTable(json: VisualizerJson, distributionDirection: str
 
 function renderSingleGroupSection(file: string, sizes: Sizes, group: GroupEntry, bundlerTotal: number, isModuleLevel: boolean): string[] {
     const [groupName, { sizes: groupSizes, files }] = group;
-    const groupPct = bundlerTotal > 0 ? (groupSizes.rendered / bundlerTotal) * 100 : 0;
+    const groupPct = bundlerTotal > 0 ? (groupSizes.uncompressed / bundlerTotal) * 100 : 0;
 
     if (files.size === 1) {
         const fileName = getSoleFileName(files);
@@ -133,7 +115,7 @@ function renderMultiGroupSection(file: string, sizes: Sizes, sortedGroups: Group
     const lines = [`| ${file} | ${chunkSizes(sizes)} |`];
 
     for (const [groupName, { sizes: groupSizes, files }] of sortedGroups) {
-        const groupPct = bundlerTotal > 0 ? (groupSizes.rendered / bundlerTotal) * 100 : 0;
+        const groupPct = bundlerTotal > 0 ? (groupSizes.uncompressed / bundlerTotal) * 100 : 0;
 
         if (files.size === 1) {
             const fileName = getSoleFileName(files);
@@ -149,9 +131,9 @@ function renderMultiGroupSection(file: string, sizes: Sizes, sortedGroups: Group
 }
 
 function renderFileRows(files: Map<string, Sizes>, indent: string, bundlerTotal: number): string[] {
-    const sortedFiles = [...files].toSorted((a, b) => b[1].rendered - a[1].rendered);
+    const sortedFiles = [...files].toSorted((a, b) => b[1].uncompressed - a[1].uncompressed);
     return sortedFiles.map(([fileName, fileSizes]) => {
-        const filePct = bundlerTotal > 0 ? (fileSizes.rendered / bundlerTotal) * 100 : 0;
+        const filePct = bundlerTotal > 0 ? (fileSizes.uncompressed / bundlerTotal) * 100 : 0;
         return `| ${indent}${fileName} | ${bar(filePct)} |`;
     });
 }
@@ -168,69 +150,60 @@ function getSoleFileName(files: Map<string, Sizes>): string {
     return fileName;
 }
 
-async function readDistributionFileSizes(distributionDirection: string): Promise<[string, Sizes][]> {
-    // eslint-disable-next-line security/detect-non-literal-fs-filename -- distributionDirection is a build output path, not user input.
-    const entries = await fs.readdir(distributionDirection);
-    const jsFiles = entries.filter((f) => f.endsWith('.js') && !f.endsWith('.map'));
+// Builds, per output asset, the size totals grouped by dependency (or 'src'/'wasm'/'(runtime)'), and by file within each group.
+function buildAssetGroups(json: SondaJson): Map<string, Map<string, GroupData>> {
+    const dependencyPaths = buildDependencyPaths(json.dependencies);
+    const assets = new Map<string, Map<string, GroupData>>();
 
-    return Promise.all(
-        jsFiles.map(async (file) => {
-            // eslint-disable-next-line security/detect-non-literal-fs-filename -- file comes from fs.readdir, not user input.
-            const buffer = await fs.readFile(`${distributionDirection}/${file}`);
-            const [gzipped, brotlied] = await Promise.all([gzipAsync(buffer), brotliAsync(buffer)]);
-            return [file, { rendered: buffer.length, gzip: gzipped.length, brotli: brotlied.length }] as [string, Sizes];
-        })
-    );
-}
+    for (const resource of json.resources) {
+        if (resource.kind !== 'chunk' || !resource.parent) continue;
+        const { group: groupName, file: fileName } = resolveModule(resource.name, dependencyPaths);
+        const sizes = resourceSizes(resource);
 
-function accumulateChunkPart(
-    chunks: Map<string, Map<string, GroupData>>,
-    json: VisualizerJson,
-    groupName: string,
-    fileName: string,
-    chunkName: string,
-    partUid: string
-): void {
-    const part = json.nodeParts[partUid];
-    if (!part) return;
-    const s = partSizes(part);
+        const groups = assets.get(resource.parent) ?? new Map<string, GroupData>();
+        assets.set(resource.parent, groups);
 
-    let chunkGroups = chunks.get(chunkName);
-    if (chunkGroups === undefined) {
-        chunkGroups = new Map();
-        chunks.set(chunkName, chunkGroups);
-    }
+        const group = groups.get(groupName) ?? { sizes: zero(), files: new Map<string, Sizes>() };
+        groups.set(groupName, group);
+        addTo(group.sizes, sizes);
 
-    let group = chunkGroups.get(groupName);
-    if (group === undefined) {
-        group = { sizes: zero(), files: new Map<string, Sizes>() };
-        chunkGroups.set(groupName, group);
-    }
-
-    addTo(group.sizes, s);
-
-    let fileSizes = group.files.get(fileName);
-    if (fileSizes === undefined) {
-        fileSizes = zero();
+        const fileSizes = group.files.get(fileName) ?? zero();
         group.files.set(fileName, fileSizes);
+        addTo(fileSizes, sizes);
     }
-    addTo(fileSizes, s);
+
+    return assets;
 }
 
-function buildChunkGroups(json: VisualizerJson): Map<string, Map<string, GroupData>> {
-    const chunks = new Map<string, Map<string, GroupData>>();
+// Flattens `dependencies[].paths` into `[path, dependencyName]` pairs, longest path first so scoped/nested packages match before their parents.
+function buildDependencyPaths(dependencies: SondaDependency[]): DependencyPath[] {
+    return dependencies
+        .flatMap((dependency): DependencyPath[] => dependency.paths.map((path) => [path, dependency.name]))
+        .toSorted((a, b) => b[0].length - a[0].length);
+}
 
-    for (const meta of Object.values(json.nodeMetas)) {
-        const groupName = sourceGroupName(meta.id);
-        const fileName = shortModuleName(meta.id);
-
-        for (const [chunkName, partUid] of Object.entries(meta.moduleParts)) {
-            const chunkBaseName = chunkName.split('/').at(-1) ?? chunkName;
-            accumulateChunkPart(chunks, json, groupName, fileName, chunkBaseName, partUid);
-        }
+function resolveModule(path: string, dependencyPaths: DependencyPath[]): { group: string; file: string } {
+    const match = dependencyPaths.find(([dependencyPath]) => path === dependencyPath || path.startsWith(`${dependencyPath}/`));
+    if (match) {
+        const [dependencyPath, name] = match;
+        return { group: name, file: path.slice(dependencyPath.length + 1) };
     }
+    if (path === '[unassigned]') return { group: '(unassigned)', file: path }; // Sonda's marker for chunk bytes it can't trace back to a source module.
+    if (path.startsWith('\u{0}')) return { group: '(runtime)', file: path.slice(1) };
+    if (path.startsWith('rust/') || path.includes('vite-plugin-wasm')) return { group: 'wasm', file: lastPathSegment(path) };
+    return { group: 'src', file: lastPathSegment(path) };
+}
 
-    return chunks;
+function lastPathSegment(path: string): string {
+    return path.split('/').at(-1) ?? path;
+}
+
+function resourceSizes(resource: SondaResource): Sizes {
+    return { uncompressed: resource.uncompressed, gzip: resource.gzip ?? 0, brotli: resource.brotli ?? 0 };
+}
+
+function chunkSizes(sizes: Sizes): string {
+    return `${formatBytes(sizes.uncompressed)} · gz ${formatBytes(sizes.gzip)} · br ${formatBytes(sizes.brotli)}`;
 }
 
 function bar(pct: number): string {
@@ -238,42 +211,12 @@ function bar(pct: number): string {
     return `\`${'█'.repeat(count)}${'░'.repeat(BAR_WIDTH - count)}\` ${pct.toFixed(1)}%`;
 }
 
-function sourceGroupName(id: string): string {
-    const path = id.startsWith('/') ? id.slice(1) : id;
-    if (path.startsWith('\u{0}')) return '(runtime)';
-    if (path.startsWith('node_modules/')) {
-        const rest = path.slice('node_modules/'.length);
-        if (rest.startsWith('@')) {
-            const parts = rest.split('/');
-            return `${String(parts[0])}/${String(parts[1])}`;
-        }
-        return rest.split('/', 1)[0] ?? rest;
-    }
-    if (path.startsWith('rust/') || path.startsWith('__vite-plugin-wasm')) return 'wasm';
-    return 'src';
-}
-
-function shortModuleName(id: string): string {
-    const path = id.startsWith('/') ? id.slice(1) : id;
-    if (path.startsWith('\u{0}')) return path.slice(1);
-    if (path.startsWith('node_modules/')) {
-        const rest = path.slice('node_modules/'.length);
-        const parts = rest.startsWith('@') ? rest.split('/').slice(2) : rest.split('/').slice(1);
-        return parts.join('/') || (rest.split('/').at(-1) ?? rest);
-    }
-    return path.split('/').at(-1) ?? path;
-}
-
-function partSizes(part: NodePart): Sizes {
-    return { rendered: part.renderedLength, gzip: part.gzipLength, brotli: part.brotliLength };
-}
-
 function zero(): Sizes {
-    return { rendered: 0, gzip: 0, brotli: 0 };
+    return { uncompressed: 0, gzip: 0, brotli: 0 };
 }
 
 function addTo(target: Sizes, source: Sizes): void {
-    target.rendered += source.rendered;
+    target.uncompressed += source.uncompressed;
     target.gzip += source.gzip;
     target.brotli += source.brotli;
 }

@@ -1,0 +1,411 @@
+{
+  "metadata": {
+    "version": "0.13.1",
+    "generatedAt": "2026-07-02T12:51:01.514Z",
+    "integration": "vite",
+    "sources": false,
+    "gzip": true,
+    "brotli": true
+  },
+  "resources": [
+    {
+      "kind": "sourcemap",
+      "name": "[unassigned]",
+      "type": "other",
+      "format": "other",
+      "uncompressed": 0,
+      "parent": null
+    },
+    {
+      "kind": "chunk",
+      "name": "[unassigned]",
+      "type": "other",
+      "format": "other",
+      "uncompressed": 18706,
+      "gzip": 1340,
+      "brotli": 1107,
+      "parent": "dist/dpuse-development.es.js"
+    },
+    {
+      "kind": "asset",
+      "name": "dist/dpuse-development.es.js",
+      "type": "script",
+      "uncompressed": 306420,
+      "gzip": 76406,
+      "brotli": 61026
+    },
+    {
+      "kind": "filesystem",
+      "name": "node_modules/@dpuse/dpuse-shared/dist/componentConfig.schema-dBVLwQIt.js",
+      "type": "script",
+      "format": "esm",
+      "uncompressed": 11298
+    },
+    {
+      "kind": "chunk",
+      "name": "node_modules/@dpuse/dpuse-shared/dist/componentConfig.schema-dBVLwQIt.js",
+      "type": "script",
+      "format": "esm",
+      "uncompressed": 9497,
+      "gzip": 2348,
+      "brotli": 1962,
+      "parent": "dist/dpuse-development.es.js"
+    },
+    {
+      "kind": "filesystem",
+      "name": "node_modules/@dpuse/dpuse-shared/dist/dpuse-shared-componentModuleConnector.es.js",
+      "type": "script",
+      "format": "esm",
+      "uncompressed": 2526
+    },
+    {
+      "kind": "chunk",
+      "name": "node_modules/@dpuse/dpuse-shared/dist/dpuse-shared-componentModuleConnector.es.js",
+      "type": "script",
+      "format": "esm",
+      "uncompressed": 1891,
+      "gzip": 699,
+      "brotli": 582,
+      "parent": "dist/dpuse-development.es.js"
+    },
+    {
+      "kind": "filesystem",
+      "name": "node_modules/@dpuse/dpuse-shared/dist/dpuse-shared-componentModuleContext.es.js",
+      "type": "script",
+      "format": "esm",
+      "uncompressed": 471
+    },
+    {
+      "kind": "chunk",
+      "name": "node_modules/@dpuse/dpuse-shared/dist/dpuse-shared-componentModuleContext.es.js",
+      "type": "script",
+      "format": "esm",
+      "uncompressed": 322,
+      "gzip": 172,
+      "brotli": 152,
+      "parent": "dist/dpuse-development.es.js"
+    },
+    {
+      "kind": "filesystem",
+      "name": "node_modules/@dpuse/dpuse-shared/dist/dpuse-shared-componentModulePresenter.es.js",
+      "type": "script",
+      "format": "esm",
+      "uncompressed": 411
+    },
+    {
+      "kind": "chunk",
+      "name": "node_modules/@dpuse/dpuse-shared/dist/dpuse-shared-componentModulePresenter.es.js",
+      "type": "script",
+      "format": "esm",
+      "uncompressed": 199,
+      "gzip": 149,
+      "brotli": 125,
+      "parent": "dist/dpuse-development.es.js"
+    },
+    {
+      "kind": "filesystem",
+      "name": "node_modules/@dpuse/dpuse-shared/dist/dpuse-shared-locale.es.js",
+      "type": "script",
+      "format": "esm",
+      "uncompressed": 859
+    },
+    {
+      "kind": "filesystem",
+      "name": "node_modules/@dpuse/dpuse-shared/dist/moduleConfig.schema-CUHmgYLu.js",
+      "type": "script",
+      "format": "esm",
+      "uncompressed": 325
+    },
+    {
+      "kind": "chunk",
+      "name": "node_modules/@dpuse/dpuse-shared/dist/moduleConfig.schema-CUHmgYLu.js",
+      "type": "script",
+      "format": "esm",
+      "uncompressed": 144,
+      "gzip": 136,
+      "brotli": 111,
+      "parent": "dist/dpuse-development.es.js"
+    },
+    {
+      "kind": "filesystem",
+      "name": "node_modules/acorn-typescript/lib/index.mjs",
+      "type": "script",
+      "format": "esm",
+      "uncompressed": 104815
+    },
+    {
+      "kind": "chunk",
+      "name": "node_modules/acorn-typescript/lib/index.mjs",
+      "type": "script",
+      "format": "esm",
+      "uncompressed": 117317,
+      "gzip": 27083,
+      "brotli": 22018,
+      "parent": "dist/dpuse-development.es.js"
+    },
+    {
+      "kind": "filesystem",
+      "name": "node_modules/acorn/dist/acorn.mjs",
+      "type": "script",
+      "format": "esm",
+      "uncompressed": 232769
+    },
+    {
+      "kind": "chunk",
+      "name": "node_modules/acorn/dist/acorn.mjs",
+      "type": "script",
+      "format": "esm",
+      "uncompressed": 133875,
+      "gzip": 35060,
+      "brotli": 27225,
+      "parent": "dist/dpuse-development.es.js"
+    },
+    {
+      "kind": "filesystem",
+      "name": "node_modules/valibot/dist/index.mjs",
+      "type": "script",
+      "format": "esm",
+      "uncompressed": 206613
+    },
+    {
+      "kind": "chunk",
+      "name": "node_modules/valibot/dist/index.mjs",
+      "type": "script",
+      "format": "esm",
+      "uncompressed": 452,
+      "gzip": 249,
+      "brotli": 209,
+      "parent": "dist/dpuse-development.es.js"
+    },
+    {
+      "kind": "filesystem",
+      "name": "src/actions/auditDependencies.ts",
+      "type": "script",
+      "format": "esm",
+      "uncompressed": 406
+    },
+    {
+      "kind": "chunk",
+      "name": "src/actions/auditDependencies.ts",
+      "type": "script",
+      "format": "esm",
+      "uncompressed": 233,
+      "gzip": 196,
+      "brotli": 158,
+      "parent": "dist/dpuse-development.es.js"
+    },
+    {
+      "kind": "filesystem",
+      "name": "src/actions/checkConfigFiles.ts",
+      "type": "script",
+      "format": "esm",
+      "uncompressed": 3277
+    },
+    {
+      "kind": "chunk",
+      "name": "src/actions/checkConfigFiles.ts",
+      "type": "script",
+      "format": "esm",
+      "uncompressed": 1800,
+      "gzip": 739,
+      "brotli": 588,
+      "parent": "dist/dpuse-development.es.js"
+    },
+    {
+      "kind": "filesystem",
+      "name": "src/actions/checkDependencies.ts",
+      "type": "script",
+      "format": "esm",
+      "uncompressed": 788
+    },
+    {
+      "kind": "chunk",
+      "name": "src/actions/checkDependencies.ts",
+      "type": "script",
+      "format": "esm",
+      "uncompressed": 472,
+      "gzip": 300,
+      "brotli": 245,
+      "parent": "dist/dpuse-development.es.js"
+    },
+    {
+      "kind": "filesystem",
+      "name": "src/actions/documentActions.ts",
+      "type": "script",
+      "format": "esm",
+      "uncompressed": 974
+    },
+    {
+      "kind": "chunk",
+      "name": "src/actions/documentActions.ts",
+      "type": "script",
+      "format": "esm",
+      "uncompressed": 419,
+      "gzip": 301,
+      "brotli": 226,
+      "parent": "dist/dpuse-development.es.js"
+    },
+    {
+      "kind": "filesystem",
+      "name": "src/actions/documentBundleSizes.ts",
+      "type": "script",
+      "format": "esm",
+      "uncompressed": 6445
+    },
+    {
+      "kind": "chunk",
+      "name": "src/actions/documentBundleSizes.ts",
+      "type": "script",
+      "format": "esm",
+      "uncompressed": 3749,
+      "gzip": 1547,
+      "brotli": 1300,
+      "parent": "dist/dpuse-development.es.js"
+    },
+    {
+      "kind": "filesystem",
+      "name": "src/actions/documentDependencies.ts",
+      "type": "script",
+      "format": "esm",
+      "uncompressed": 7349
+    },
+    {
+      "kind": "chunk",
+      "name": "src/actions/documentDependencies.ts",
+      "type": "script",
+      "format": "esm",
+      "uncompressed": 4469,
+      "gzip": 1741,
+      "brotli": 1457,
+      "parent": "dist/dpuse-development.es.js"
+    },
+    {
+      "kind": "filesystem",
+      "name": "src/actions/formatCode.ts",
+      "type": "script",
+      "format": "esm",
+      "uncompressed": 633
+    },
+    {
+      "kind": "chunk",
+      "name": "src/actions/formatCode.ts",
+      "type": "script",
+      "format": "esm",
+      "uncompressed": 293,
+      "gzip": 241,
+      "brotli": 202,
+      "parent": "dist/dpuse-development.es.js"
+    },
+    {
+      "kind": "filesystem",
+      "name": "src/actions/lintCode.ts",
+      "type": "script",
+      "format": "esm",
+      "uncompressed": 350
+    },
+    {
+      "kind": "chunk",
+      "name": "src/actions/lintCode.ts",
+      "type": "script",
+      "format": "esm",
+      "uncompressed": 186,
+      "gzip": 170,
+      "brotli": 137,
+      "parent": "dist/dpuse-development.es.js"
+    },
+    {
+      "kind": "filesystem",
+      "name": "src/actions/manageProject.ts",
+      "type": "script",
+      "format": "esm",
+      "uncompressed": 10787
+    },
+    {
+      "kind": "chunk",
+      "name": "src/actions/manageProject.ts",
+      "type": "script",
+      "format": "esm",
+      "uncompressed": 6151,
+      "gzip": 1719,
+      "brotli": 1396,
+      "parent": "dist/dpuse-development.es.js"
+    },
+    {
+      "kind": "filesystem",
+      "name": "src/index.ts",
+      "type": "script",
+      "format": "esm",
+      "uncompressed": 682
+    },
+    {
+      "kind": "filesystem",
+      "name": "src/utilities/cloudflare.ts",
+      "type": "script",
+      "format": "esm",
+      "uncompressed": 3105
+    },
+    {
+      "kind": "chunk",
+      "name": "src/utilities/cloudflare.ts",
+      "type": "script",
+      "format": "esm",
+      "uncompressed": 1549,
+      "gzip": 688,
+      "brotli": 561,
+      "parent": "dist/dpuse-development.es.js"
+    },
+    {
+      "kind": "filesystem",
+      "name": "src/utilities/index.ts",
+      "type": "script",
+      "format": "esm",
+      "uncompressed": 7332
+    },
+    {
+      "kind": "chunk",
+      "name": "src/utilities/index.ts",
+      "type": "script",
+      "format": "esm",
+      "uncompressed": 4696,
+      "gzip": 1528,
+      "brotli": 1264,
+      "parent": "dist/dpuse-development.es.js"
+    }
+  ],
+  "connections": [
+    {
+      "kind": "entrypoint",
+      "source": "dist/dpuse-development.es.js",
+      "target": "src/index.ts",
+      "original": null
+    }
+  ],
+  "dependencies": [
+    {
+      "name": "@dpuse/dpuse-shared",
+      "paths": [
+        "node_modules/@dpuse/dpuse-shared"
+      ]
+    },
+    {
+      "name": "acorn",
+      "paths": [
+        "node_modules/acorn"
+      ]
+    },
+    {
+      "name": "acorn-typescript",
+      "paths": [
+        "node_modules/acorn-typescript"
+      ]
+    },
+    {
+      "name": "valibot",
+      "paths": [
+        "node_modules/valibot"
+      ]
+    }
+  ],
+  "issues": [],
+  "sourcemaps": []
+}

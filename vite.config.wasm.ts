@@ -1,7 +1,6 @@
 // ── External Dependencies & Registrations
 import dts from 'vite-plugin-dts';
 import Sonda from 'sonda/vite';
-import { visualizer } from 'rollup-plugin-visualizer';
 import wasm from 'vite-plugin-wasm';
 import { defineConfig, type PluginOption } from 'vite';
 import { fileURLToPath, URL } from 'node:url';
@@ -25,8 +24,7 @@ export default defineConfig({
         rollupOptions: {
             plugins: [
                 Sonda({ filename: 'index', format: 'html', gzip: true, brotli: true, open: false, outputDir: './bundle-analysis-reports/sonda' }),
-                visualizer({ filename: './bundle-analysis-reports/rollup-visualiser/index.html', open: false, gzipSize: true, brotliSize: true }),
-                visualizer({ filename: './bundle-analysis-reports/rollup-visualiser/index.json', template: 'raw-data', gzipSize: true, brotliSize: true })
+                Sonda({ filename: 'index', format: 'json', gzip: true, brotli: true, open: false, outputDir: './bundle-analysis-reports/sonda' })
             ]
         },
         sourcemap: true,
