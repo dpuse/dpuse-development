@@ -18,8 +18,8 @@ export default defineConfig({
         },
         rollupOptions: {
             plugins: [
-                Sonda({ filename: 'index', format: 'html', gzip: true, brotli: true, open: false, outputDir: './bundle-analysis-reports/sonda' }),
-                Sonda({ filename: 'index', format: 'json', gzip: true, brotli: true, open: false, outputDir: './bundle-analysis-reports/sonda' })
+                Sonda({ filename: 'index', format: 'html', brotli: true, gzip: false, open: false, outputDir: './bundle-analysis-reports/sonda' }),
+                Sonda({ filename: 'index', format: 'json', brotli: true, gzip: false, open: false, outputDir: './bundle-analysis-reports/sonda' })
             ]
         },
         sourcemap: true,
