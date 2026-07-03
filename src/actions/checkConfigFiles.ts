@@ -29,6 +29,11 @@ export async function checkConfigFiles(): Promise<void> {
             await checkConfigFile(moduleDirectory, 'eslint.config.js', ['eslint.config.default.js']);
         }
         await checkConfigFile(moduleDirectory, 'LICENSE');
+        if (['connector', 'engine', 'shared', 'tool'].includes(moduleTypeConfig.typeId)) {
+            await checkConfigFile(moduleDirectory, 'tsconfig.json');
+        } else {
+            console.info("ℹ️  File 'tsconfig.json' is UNIQUE to this project");
+        }
         await checkConfigFile(moduleDirectory, 'tsconfig.scripts.json');
         if (['eslint', 'kb'].includes(moduleTypeConfig.typeId)) {
             console.info("ℹ️  File 'vite.config.ts' is NOT required by this project");
