@@ -30,7 +30,7 @@ export async function checkConfigFiles(): Promise<void> {
         }
         await checkConfigFile(moduleDirectory, 'LICENSE');
         if (['connector', 'engine', 'shared', 'tool'].includes(moduleTypeConfig.typeId)) {
-            await checkConfigFile(moduleDirectory, 'tsconfig.json');
+            await checkConfigFile(moduleDirectory, 'tsconfig.json', ['tsconfig.default.json']);
         } else {
             console.info("ℹ️  File 'tsconfig.json' is UNIQUE to this project");
         }
