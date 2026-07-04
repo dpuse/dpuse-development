@@ -23,18 +23,23 @@ export async function checkConfigFiles(): Promise<void> {
         await checkConfigFile(moduleDirectory, '.gitignore', [moduleTypeConfig.publishedTo === 'npm' ? '.gitignore_published' : '.gitignore_unpublished']);
         await checkConfigFile(moduleDirectory, '.markdownlint.json');
         await checkConfigFile(moduleDirectory, '.ncurc.json');
-        if (['development'].includes(moduleTypeConfig.typeId)) {
+
+        if (['development', 'eslint'].includes(moduleTypeConfig.typeId)) {
             console.info("ℹ️  File 'eslint.config.js' is UNIQUE to this project");
         } else {
             await checkConfigFile(moduleDirectory, 'eslint.config.js', ['eslint.config.default.js']);
         }
+
         await checkConfigFile(moduleDirectory, 'LICENSE');
+
         if (['connector', 'engine', 'shared', 'tool'].includes(moduleTypeConfig.typeId)) {
             await checkConfigFile(moduleDirectory, 'tsconfig.json', ['tsconfig.default.json']);
         } else {
             console.info("ℹ️  File 'tsconfig.json' is UNIQUE to this project");
         }
+
         await checkConfigFile(moduleDirectory, 'tsconfig.scripts.json');
+
         if (['eslint', 'kb'].includes(moduleTypeConfig.typeId)) {
             console.info("ℹ️  File 'vite.config.ts' is NOT required by this project");
         } else if (['app', 'api', 'development', 'shared'].includes(moduleTypeConfig.typeId)) {
@@ -46,6 +51,7 @@ export async function checkConfigFiles(): Promise<void> {
             else viteConfigTemplates = ['vite.config.default.ts'];
             await checkConfigFile(moduleDirectory, 'vite.config.ts', viteConfigTemplates);
         }
+
         if (['eslint', 'kb'].includes(moduleTypeConfig.typeId)) {
             console.info("ℹ️  File 'vitest.config.ts' is NOT required by this project");
         } else {
