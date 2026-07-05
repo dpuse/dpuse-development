@@ -2,7 +2,7 @@ import { Dirent, ObjectEncodingOptions, Stats } from 'node:fs';
 interface ModuleTypeConfig {
     idPrefix: string;
     typeId: 'app' | 'api' | 'connector' | 'context' | 'cookbook' | 'development' | 'engine' | 'eslint' | 'kb' | 'presenter' | 'resources' | 'shared' | 'tool';
-    publishedTo: 'dpuse' | 'npm' | undefined;
+    publishedTo: 'app' | 'api' | 'dpuse' | 'kb' | 'npm' | 'sampleData';
     uploadGroupName: 'connectors' | 'contexts' | 'cookbooks' | 'engine' | 'presenters' | 'tools' | undefined;
 }
 export declare function clearDirectory(label: string | undefined, directoryPath: string): Promise<void>;

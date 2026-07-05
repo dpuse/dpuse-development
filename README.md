@@ -100,15 +100,15 @@ The Bundle Analysis Reports provide detailed breakdowns of the bundle's composit
 
 |Chunk/Module/File|Composition|
 |:------ |:-----------|
-| dist/dpuse-development.es.js | 299.3 kB · brotli 59.5 kB |
-| &nbsp;&nbsp;&nbsp;&nbsp;acorn → dist/acorn.mjs | `█████████░░░░░░░░░░░` 43.7% |
-| &nbsp;&nbsp;&nbsp;&nbsp;acorn-typescript → lib/index.mjs | `████████░░░░░░░░░░░░` 38.3% |
+| dist/dpuse-development.es.js | 299.6 kB · brotli 59.6 kB |
+| &nbsp;&nbsp;&nbsp;&nbsp;acorn → dist/acorn.mjs | `█████████░░░░░░░░░░░` 43.6% |
+| &nbsp;&nbsp;&nbsp;&nbsp;acorn-typescript → lib/index.mjs | `████████░░░░░░░░░░░░` 38.2% |
 | &nbsp;&nbsp;&nbsp;&nbsp;src | `██░░░░░░░░░░░░░░░░░░` 7.9% |
 | &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;manageProject.ts | `░░░░░░░░░░░░░░░░░░░░` 2.0% |
 | &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;index.ts | `░░░░░░░░░░░░░░░░░░░░` 1.5% |
 | &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;documentDependencies.ts | `░░░░░░░░░░░░░░░░░░░░` 1.5% |
 | &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;documentBundleSizes.ts | `░░░░░░░░░░░░░░░░░░░░` 1.2% |
-| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;checkConfigFiles.ts | `░░░░░░░░░░░░░░░░░░░░` 0.6% |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;checkConfigFiles.ts | `░░░░░░░░░░░░░░░░░░░░` 0.7% |
 | &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;cloudflare.ts | `░░░░░░░░░░░░░░░░░░░░` 0.5% |
 | &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;checkDependencies.ts | `░░░░░░░░░░░░░░░░░░░░` 0.2% |
 | &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;documentActions.ts | `░░░░░░░░░░░░░░░░░░░░` 0.1% |
