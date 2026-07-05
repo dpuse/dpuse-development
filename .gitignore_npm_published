@@ -1,13 +1,26 @@
 # '.gitignore' configuration for DPUse projects published to npm.
 .dev.vars
-.env
+.env*
 .eslintcache
 .npmrc
 .wrangler
+coverage
 dist-scripts
 node_modules
+*.tsbuildinfo
+**/.DS_Store
+
+# Logs
+logs
+*.log
+npm-debug.log*
+
+# Rust
 rust/*/pkg
 rust/*/target
 rust/target
-wrangler.jsonc
-**/.DS_Store
+
+# Testing
+__screenshots__/
+test-results/
+playwright-report/
