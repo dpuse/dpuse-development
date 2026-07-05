@@ -1,6 +1,6 @@
 {
     "name": "@dpuse/dpuse-development",
-    "version": "0.3.661",
+    "version": "0.3.662",
     "private": false,
     "description": "Actions for managing DPUse projects.",
     "license": "MIT",
@@ -28,6 +28,7 @@
     "files": [
         ".editorconfig",
         ".gitattributes",
+        ".gitattributes_default",
         ".gitignore_default",
         ".gitignore_npm_published",
         ".markdownlint.json",
