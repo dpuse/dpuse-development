@@ -42,7 +42,7 @@ export async function checkConfigFiles(): Promise<void> {
 
         if (['eslint', 'kb'].includes(moduleTypeConfig.typeId)) {
             console.info("ℹ️  File 'vite.config.ts' is NOT required by this project");
-        } else if (['app', 'api', 'development', 'shared'].includes(moduleTypeConfig.typeId)) {
+        } else if (['app', 'api', 'development', 'engine', 'shared'].includes(moduleTypeConfig.typeId)) {
             console.info("ℹ️  File 'vite.config.ts' is UNIQUE to this project");
         } else {
             let viteConfigTemplates: string[];
