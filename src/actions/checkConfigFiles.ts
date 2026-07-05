@@ -24,7 +24,7 @@ export async function checkConfigFiles(): Promise<void> {
         await checkConfigFile(moduleDirectory, '.markdownlint.json');
         await checkConfigFile(moduleDirectory, '.ncurc.json');
 
-        if (['development', 'eslint'].includes(moduleTypeConfig.typeId)) {
+        if (['api', 'development', 'eslint'].includes(moduleTypeConfig.typeId)) {
             console.info("ℹ️  File 'eslint.config.js' is UNIQUE to this project");
         } else {
             await checkConfigFile(moduleDirectory, 'eslint.config.js', ['eslint.config.default.js']);
@@ -52,7 +52,7 @@ export async function checkConfigFiles(): Promise<void> {
             await checkConfigFile(moduleDirectory, 'vite.config.ts', viteConfigTemplates);
         }
 
-        if (['eslint', 'kb'].includes(moduleTypeConfig.typeId)) {
+        if (['api', 'eslint', 'kb'].includes(moduleTypeConfig.typeId)) {
             console.info("ℹ️  File 'vitest.config.ts' is NOT required by this project");
         } else {
             await checkConfigFile(moduleDirectory, 'vitest.config.ts');
