@@ -1,4 +1,4 @@
-# Common git ignore configuration for UNPUBLISHED DPUse projects.
+# Default '.gitignore' configuration for DPUse projects.
 .dev.vars
 .env
 .npmrc

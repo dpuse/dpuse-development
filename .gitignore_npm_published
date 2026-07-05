@@ -1,4 +1,4 @@
-# Common git ignore configuration for PUBLISHED DPUse projects.
+# '.gitignore' configuration for DPUse projects published to npm.
 .dev.vars
 .env
 .npmrc
