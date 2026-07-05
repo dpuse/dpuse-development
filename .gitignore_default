@@ -1,6 +1,7 @@
 # Default '.gitignore' configuration for DPUse projects.
 .dev.vars
 .env
+.eslintcache
 .npmrc
 .wrangler
 dist
