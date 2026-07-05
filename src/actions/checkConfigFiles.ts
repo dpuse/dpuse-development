@@ -6,7 +6,7 @@ import path from 'node:path';
 import type { ModuleConfig } from '@dpuse/dpuse-shared/component/module';
 
 // ── Local (Development) Framework
-import { getModuleConfig, logOperationHeader, logOperationSuccess, logStepHeader, readJSONFile, readTextFile } from '@/utilities';
+import { getModuleConfig, logOperationHeader, logOperationSuccess, logStepHeader, ModuleTypeConfig, readJSONFile, readTextFile } from '@/utilities';
 
 // ── Actions ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -19,44 +19,16 @@ export async function checkConfigFiles(): Promise<void> {
         const moduleTypeConfig = getModuleConfig(configJSON.id);
         const moduleDirectory = path.dirname(fileURLToPath(import.meta.url));
         await checkConfigFile(moduleDirectory, '.editorconfig');
-        await checkConfigFile(moduleDirectory, '.gitattributes');
+        await checkGitAttributes(moduleTypeConfig, moduleDirectory);
         await checkConfigFile(moduleDirectory, '.gitignore', [moduleTypeConfig.publishedTo === 'npm' ? '.gitignore_npm_published' : '.gitignore_default']);
         await checkConfigFile(moduleDirectory, '.markdownlint.json');
         await checkConfigFile(moduleDirectory, '.ncurc.json');
-
-        if (['app', 'api', 'development', 'eslint'].includes(moduleTypeConfig.typeId)) {
-            console.info("ℹ️  File 'eslint.config.js' is UNIQUE to this project");
-        } else {
-            await checkConfigFile(moduleDirectory, 'eslint.config.js', ['eslint.config.default.js']);
-        }
-
+        await checkESLintConfig(moduleTypeConfig, moduleDirectory);
         await checkConfigFile(moduleDirectory, 'LICENSE');
-
-        if (['connector', 'engine', 'shared', 'tool'].includes(moduleTypeConfig.typeId)) {
-            await checkConfigFile(moduleDirectory, 'tsconfig.json', ['tsconfig.default.json']);
-        } else {
-            console.info("ℹ️  File 'tsconfig.json' is UNIQUE to this project");
-        }
-
+        await checkTSConfig(moduleTypeConfig, moduleDirectory);
         await checkConfigFile(moduleDirectory, 'tsconfig.scripts.json');
-
-        if (['eslint', 'kb'].includes(moduleTypeConfig.typeId)) {
-            console.info("ℹ️  File 'vite.config.ts' is NOT required by this project");
-        } else if (['app', 'api', 'development', 'engine', 'shared'].includes(moduleTypeConfig.typeId)) {
-            console.info("ℹ️  File 'vite.config.ts' is UNIQUE to this project");
-        } else {
-            let viteConfigTemplates: string[];
-            if (moduleTypeConfig.typeId === 'connector') viteConfigTemplates = ['vite.config.default.ts', 'vite.config.wasm.ts'];
-            else if (moduleTypeConfig.typeId === 'tool') viteConfigTemplates = ['vite.config.tool.ts'];
-            else viteConfigTemplates = ['vite.config.default.ts'];
-            await checkConfigFile(moduleDirectory, 'vite.config.ts', viteConfigTemplates);
-        }
-
-        if (['app', 'api', 'eslint', 'kb'].includes(moduleTypeConfig.typeId)) {
-            console.info("ℹ️  File 'vitest.config.ts' is NOT required by this project");
-        } else {
-            await checkConfigFile(moduleDirectory, 'vitest.config.ts');
-        }
+        await checkViteConfig(moduleTypeConfig, moduleDirectory);
+        await checkVitestConfig(moduleTypeConfig, moduleDirectory);
 
         logOperationSuccess('Configuration files checked');
     } catch (error) {
@@ -66,6 +38,50 @@ export async function checkConfigFiles(): Promise<void> {
 }
 
 // ── Helpers ─────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+async function checkGitAttributes(moduleTypeConfig: ModuleTypeConfig, moduleDirectory: string) {
+    if (['development'].includes(moduleTypeConfig.typeId)) {
+        console.info("ℹ️  File '.gitattributes' is UNIQUE to this project");
+    } else {
+        await checkConfigFile(moduleDirectory, '.gitattributes', ['gitattributes.default']);
+    }
+}
+
+async function checkESLintConfig(moduleTypeConfig: ModuleTypeConfig, moduleDirectory: string) {
+    if (['app', 'api', 'development', 'eslint'].includes(moduleTypeConfig.typeId)) {
+        console.info("ℹ️  File 'eslint.config.js' is UNIQUE to this project");
+    } else {
+        await checkConfigFile(moduleDirectory, 'eslint.config.js', ['eslint.config.default.js']);
+    }
+}
+async function checkTSConfig(moduleTypeConfig: ModuleTypeConfig, moduleDirectory: string) {
+    if (['connector', 'engine', 'shared', 'tool'].includes(moduleTypeConfig.typeId)) {
+        await checkConfigFile(moduleDirectory, 'tsconfig.json', ['tsconfig.default.json']);
+    } else {
+        console.info("ℹ️  File 'tsconfig.json' is UNIQUE to this project");
+    }
+}
+
+async function checkViteConfig(moduleTypeConfig: ModuleTypeConfig, moduleDirectory: string) {
+    if (['eslint', 'kb'].includes(moduleTypeConfig.typeId)) {
+        console.info("ℹ️  File 'vite.config.ts' is NOT required by this project");
+    } else if (['app', 'api', 'development', 'engine', 'shared'].includes(moduleTypeConfig.typeId)) {
+        console.info("ℹ️  File 'vite.config.ts' is UNIQUE to this project");
+    } else {
+        let viteConfigTemplates: string[];
+        if (moduleTypeConfig.typeId === 'connector') viteConfigTemplates = ['vite.config.default.ts', 'vite.config.wasm.ts'];
+        else if (moduleTypeConfig.typeId === 'tool') viteConfigTemplates = ['vite.config.tool.ts'];
+        else viteConfigTemplates = ['vite.config.default.ts'];
+        await checkConfigFile(moduleDirectory, 'vite.config.ts', viteConfigTemplates);
+    }
+}
+async function checkVitestConfig(moduleTypeConfig: ModuleTypeConfig, moduleDirectory: string) {
+    if (['app', 'api', 'eslint', 'kb'].includes(moduleTypeConfig.typeId)) {
+        console.info("ℹ️  File 'vitest.config.ts' is NOT required by this project");
+    } else {
+        await checkConfigFile(moduleDirectory, 'vitest.config.ts');
+    }
+}
 
 async function checkConfigFile(moduleDirectory: string, checkFileName: string, templateFileNames: string[] = []): Promise<void> {
     const checkFilePath = path.resolve(process.cwd(), checkFileName);

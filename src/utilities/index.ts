@@ -14,7 +14,7 @@ import type { MethodDefinition, Node } from 'acorn';
 
 // ── Types ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-interface ModuleTypeConfig {
+export interface ModuleTypeConfig {
     idPrefix: string;
     typeId: 'app' | 'api' | 'connector' | 'context' | 'cookbook' | 'development' | 'engine' | 'eslint' | 'kb' | 'presenter' | 'resources' | 'shared' | 'tool';
     publishedTo: 'app' | 'api' | 'dpuse' | 'kb' | 'npm' | 'sampleData';
