@@ -17,23 +17,23 @@ import type { MethodDefinition, Node } from 'acorn';
 interface ModuleTypeConfig {
     idPrefix: string;
     typeId: 'app' | 'api' | 'connector' | 'context' | 'cookbook' | 'development' | 'engine' | 'eslint' | 'kb' | 'presenter' | 'resources' | 'shared' | 'tool';
-    publishedTo: 'dpuse' | 'npm' | undefined;
+    publishedTo: 'app' | 'api' | 'dpuse' | 'kb' | 'npm' | 'sampleData';
     uploadGroupName: 'connectors' | 'contexts' | 'cookbooks' | 'engine' | 'presenters' | 'tools' | undefined;
 }
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const MODULE_TYPE_CONFIGS: ModuleTypeConfig[] = [
-    { idPrefix: 'dpuse-app', typeId: 'app', publishedTo: undefined, uploadGroupName: undefined },
-    { idPrefix: 'dpuse-api', typeId: 'api', publishedTo: undefined, uploadGroupName: undefined },
+    { idPrefix: 'dpuse-app', typeId: 'app', publishedTo: 'app', uploadGroupName: undefined },
+    { idPrefix: 'dpuse-api', typeId: 'api', publishedTo: 'api', uploadGroupName: undefined },
     { idPrefix: 'dpuse-connector', typeId: 'connector', publishedTo: 'dpuse', uploadGroupName: 'connectors' },
     { idPrefix: 'dpuse-context', typeId: 'context', publishedTo: 'dpuse', uploadGroupName: 'contexts' },
     { idPrefix: 'dpuse-development', typeId: 'development', publishedTo: 'npm', uploadGroupName: undefined },
     { idPrefix: 'dpuse-engine', typeId: 'engine', publishedTo: 'dpuse', uploadGroupName: 'engine' },
-    { idPrefix: 'dpuse-kb', typeId: 'kb', publishedTo: undefined, uploadGroupName: undefined },
+    { idPrefix: 'dpuse-kb', typeId: 'kb', publishedTo: 'kb', uploadGroupName: undefined },
     { idPrefix: 'dpuse-presenter', typeId: 'presenter', publishedTo: 'dpuse', uploadGroupName: 'presenters' },
     { idPrefix: 'dpuse-cookbook', typeId: 'cookbook', publishedTo: 'dpuse', uploadGroupName: 'cookbooks' },
-    { idPrefix: 'dpuse-resources', typeId: 'resources', publishedTo: undefined, uploadGroupName: undefined },
+    { idPrefix: 'dpuse-resources', typeId: 'resources', publishedTo: 'sampleData', uploadGroupName: undefined },
     { idPrefix: 'dpuse-shared', typeId: 'shared', publishedTo: 'npm', uploadGroupName: undefined },
     { idPrefix: 'dpuse-tool', typeId: 'tool', publishedTo: 'npm', uploadGroupName: 'tools' },
     { idPrefix: 'eslint-config-dpuse', typeId: 'eslint', publishedTo: 'npm', uploadGroupName: undefined }

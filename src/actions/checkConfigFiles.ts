@@ -20,7 +20,7 @@ export async function checkConfigFiles(): Promise<void> {
         const moduleDirectory = path.dirname(fileURLToPath(import.meta.url));
         await checkConfigFile(moduleDirectory, '.editorconfig');
         await checkConfigFile(moduleDirectory, '.gitattributes');
-        await checkConfigFile(moduleDirectory, '.gitignore', [moduleTypeConfig.publishedTo === 'npm' ? '.gitignore_published' : '.gitignore_unpublished']);
+        await checkConfigFile(moduleDirectory, '.gitignore', [moduleTypeConfig.publishedTo === 'npm' ? '.gitignore_without_dist' : '.gitignore_with_dist']);
         await checkConfigFile(moduleDirectory, '.markdownlint.json');
         await checkConfigFile(moduleDirectory, '.ncurc.json');
 
