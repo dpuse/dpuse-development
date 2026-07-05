@@ -43,7 +43,7 @@ async function checkGitAttributes(moduleTypeConfig: ModuleTypeConfig, moduleDire
     if (['development'].includes(moduleTypeConfig.typeId)) {
         console.info("ℹ️  File '.gitattributes' is UNIQUE to this project");
     } else {
-        await checkConfigFile(moduleDirectory, '.gitattributes', ['gitattributes_default']);
+        await checkConfigFile(moduleDirectory, '.gitattributes', ['.gitattributes_default']);
     }
 }
 
