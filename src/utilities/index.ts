@@ -234,7 +234,8 @@ export function substituteText(originalText: string, substituteText: string, sta
     const startIndex = originalText.indexOf(startMarker);
     const endIndex = originalText.indexOf(endMarker);
     if (startIndex === -1 || endIndex === -1) throw new Error(`Markers ${startMarker}-${endMarker} not found in content.`);
-    return `${originalText.slice(0, Math.max(0, startIndex + startMarker.length))}\n${substituteText}\n${originalText.slice(Math.max(0, endIndex))}`;
+    const trimmedSubstitute = substituteText.trim();
+    return `${originalText.slice(0, Math.max(0, startIndex + startMarker.length))}\n\n${trimmedSubstitute}\n\n${originalText.slice(Math.max(0, endIndex))}`;
 }
 
 /* eslint-enable security/detect-non-literal-fs-filename -- All paths come from package.json scripts, not user input. */
