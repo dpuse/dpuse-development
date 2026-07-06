@@ -90,8 +90,8 @@ function buildGovernanceContent(owner: string, repo: string, authorName: string,
 
 Two complementary tools continuously monitor dependencies for known vulnerabilities:
 
-- **[GitHub Dependabot](https://docs.github.com/en/code-security/dependabot)** automatically raises pull requests to update vulnerable dependencies, drawing on the GitHub Advisory Database which combines NVD and npm-specific advisories.
-- **npm audit** runs on every push to \`main\` via the CI workflow, failing the build if any high or critical severity vulnerabilities are detected.
+- [npm audit](https://docs.npmjs.com/cli/v8/commands/npm-audit) runs on every push to \`main\` via the CI workflow, failing the build if any high or critical severity vulnerabilities are detected.
+- [GitHub Dependabot](https://docs.github.com/en/code-security/dependabot) automatically raises pull requests to update vulnerable dependencies, drawing on the GitHub Advisory Database which combines NVD and npm-specific advisories.
 
 ### Supply Chain Security
 
