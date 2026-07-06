@@ -45,8 +45,8 @@ export async function documentGovernance(): Promise<void> {
 // ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 function resolveOwnerAndRepo(packageJSON: PackageJson): { owner: string; repo: string } {
-    const repository = packageJSON.repository;
-    const url = typeof repository === 'string' ? repository : repository?.url;
+    const repo = packageJSON.repository;
+    const url = typeof repo === 'string' ? repo : repo?.url;
     if (url == null || url === '') throw new Error("package.json 'repository' field is required to document governance.");
 
     const cleanedURL = url.replace(/^git\+/, '').replace(/\.git$/, '');
@@ -76,7 +76,9 @@ function buildGovernanceContent(owner: string, repo: string, authorName: string,
     const repoURL = `https://github.com/${owner}/${repo}`;
     const scorecardURI = `github.com/${owner}/${repo}`;
 
-    return `### CodeQL
+    return `## Security & Quality
+
+### CodeQL
 
 [CodeQL](${repoURL}/security/code-scanning) static analysis runs on every push to \`main\` and on a weekly schedule, scanning TypeScript, JavaScript, Rust, and GitHub Actions workflow files for security vulnerabilities and coding errors.
 
@@ -115,5 +117,5 @@ For security vulnerabilities, see [Reporting Vulnerabilities](#reporting-vulnera
 
 This project is licensed under the MIT License, permitting free use, modification, and distribution.
 
-[MIT](./LICENSE) © ${copyrightYear} ${authorName}`;
+[MIT](./LICENSE) © ${copyrightYear}-present ${authorName}`;
 }
