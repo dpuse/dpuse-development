@@ -3,7 +3,7 @@ import type { PackageJson } from 'type-fest';
 import { safeParse } from 'valibot';
 
 // ── DPUse Framework
-import { connectorConfigSchema } from '@dpuse/dpuse-shared/component/module/connector';
+import { connectorConfigSchema, determineConnectorUsageId } from '@dpuse/dpuse-shared/component/module/connector';
 import type { ModuleConfig } from '@dpuse/dpuse-shared/component/module';
 import type { ConnectorActionName, ConnectorConfig } from '@dpuse/dpuse-shared/component/module/connector';
 import { type ContextActionName, type ContextConfig, contextConfigSchema } from '@dpuse/dpuse-shared/component/module/context';
@@ -28,28 +28,11 @@ import { putState, uploadModuleConfigToDO, uploadModuleToR2 } from '@/utilities/
 
 // ── Types ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-type ConnectorUsageId = 'bidirectional' | 'destination' | 'source' | 'unknown';
-
 interface OperationConfig {
     id?: string;
     version?: string;
-    operations?: string[];
-    usageId?: string;
+    actionNames?: string[];
 }
-
-// ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
-
-const CONNECTOR_DESTINATION_OPERATIONS = new Set(['createObject', 'dropObject', 'removeRecords', 'upsertRecords']);
-const CONNECTOR_SOURCE_OPERATIONS = new Set([
-    'auditObjectContent',
-    'findObjectFolderPath',
-    'getReadableStream',
-    'getRecord',
-    'listNodes',
-    'previewObject',
-    'retrieveChunks',
-    'retrieveRecords'
-]);
 
 // ── Actions - Build ──────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -230,19 +213,6 @@ async function buildPresenterProjectConfig(stepIcon: string, packageJSON: Packag
     return await processOperations<PresenterConfig>(packageJSON, configJSON, operations);
 }
 
-function determineConnectorUsageId(operations: ConnectorActionName[]): ConnectorUsageId {
-    let isSourceOperation = false;
-    let isDestinationOperation = false;
-    for (const operation of operations) {
-        if (CONNECTOR_SOURCE_OPERATIONS.has(operation)) isSourceOperation = true;
-        if (CONNECTOR_DESTINATION_OPERATIONS.has(operation)) isDestinationOperation = true;
-    }
-    if (isSourceOperation && isDestinationOperation) return 'bidirectional';
-    if (isSourceOperation) return 'source';
-    if (isDestinationOperation) return 'destination';
-    return 'unknown';
-}
-
 async function processOperations<T extends OperationConfig>(packageJSON: PackageJson, configJSON: T, operations: string[], usageId?: string): Promise<T> {
     if (operations.length > 0) {
         console.info(`ℹ️  Implements ${String(operations.length)} operations:`);
@@ -250,12 +220,11 @@ async function processOperations<T extends OperationConfig>(packageJSON: Package
     } else console.warn('⚠️   Implements no operations');
 
     if (usageId === 'unknown') console.warn('⚠️   No usage identified');
-    else console.info(`ℹ️  Supports '${usageId ?? 'unknown'}' usage.`);
+    else if (usageId) console.info(`ℹ️  Supports '${usageId}' usage.`);
 
     if (packageJSON.name != null) configJSON.id = packageJSON.name.replace('@dpuse/', '').replace('@dpuse/', '');
     if (packageJSON.version != null) configJSON.version = packageJSON.version;
-    configJSON.operations = operations;
-    configJSON.usageId = usageId ?? 'unknown';
+    configJSON.actionNames = operations;
 
     await writeJSONFile('config.json', configJSON);
 
