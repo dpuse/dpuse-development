@@ -40,6 +40,9 @@ const END_MARKER = '<!-- DEPENDENCY_LICENSES_END -->';
 const TREE_START_MARKER = '<!-- DEPENDENCY_TREE_START -->';
 const TREE_END_MARKER = '<!-- DEPENDENCY_TREE_END -->';
 
+const DEPENDENCY_TREE_INTRO =
+    "The dependency tree below lists every package in this project — direct and transitive — along with its installed version, release date, and update status. Packages flagged ❗ have a newer version available; ⚠️ indicates a package that hasn't been updated in the last 6 months or longer. Neither flag necessarily indicates a problem: we let new releases stabilise before upgrading, and some packages are simply mature and stable, requiring no active development.";
+
 // ── Actions ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 export async function documentDependencies(allowedLicenses = 'MIT'): Promise<void> {
@@ -80,7 +83,7 @@ export async function documentDependencies(allowedLicenses = 'MIT'): Promise<voi
 
         await spawnCommandToFile('3️⃣  Identify transitive dependencies', 'npm', ['ls', '--all', '--json', '--omit=dev'], 'licenses/licenseTree.json');
 
-        await insertLicensesIntoReadme('4️⃣ ');
+        await insertLicensesIntoReadme('4️⃣ ', allowedLicenses);
 
         logOperationSuccess('Dependencies documented');
     } catch (error) {
@@ -102,7 +105,7 @@ async function skipDependencyDocumentation(): Promise<void> {
     await writeTextFile('README.md', withTree);
 }
 
-async function insertLicensesIntoReadme(stepIcon: string): Promise<void> {
+async function insertLicensesIntoReadme(stepIcon: string, allowedLicenses: string): Promise<void> {
     logStepHeader(`${stepIcon} Insert licenses into 'README.md'`);
 
     const [licenses, licenseTree] = await Promise.all([
@@ -124,7 +127,8 @@ async function insertLicensesIntoReadme(stepIcon: string): Promise<void> {
         })
     );
 
-    let licensesContent = '|Dependency|Version|License(s)|Document|\n|:-|:-:|:-|:-|\n';
+    const licensesIntro = buildLicensesIntro(allowedLicenses);
+    let licensesContent = `${licensesIntro}\n\n|Dependency|Version|License(s)|Document|\n|:-|:-:|:-|:-|\n`;
     for (const license of licensesByKey.values()) {
         licensesContent += formatLicenseRow(license);
     }
@@ -133,11 +137,23 @@ async function insertLicensesIntoReadme(stepIcon: string): Promise<void> {
     if (licenseTree.dependencies != null) {
         walkTreeList(licenseTree.dependencies, licensesByKey, treeItems, 0);
     }
+    const treeContent = `${DEPENDENCY_TREE_INTRO}\n\n${treeItems.join('\n')}`;
 
     const originalContent = await readTextFile('./README.md');
     const withTable = substituteText(originalContent, licensesContent, START_MARKER, END_MARKER);
-    const withTree = substituteText(withTable, treeItems.join('\n'), TREE_START_MARKER, TREE_END_MARKER);
+    const withTree = substituteText(withTable, treeContent, TREE_START_MARKER, TREE_END_MARKER);
     await writeTextFile('README.md', withTree);
+}
+
+function buildLicensesIntro(allowedLicenses: string): string {
+    const licenseListText = formatLicenseListText(allowedLicenses.split(';'));
+    return `License data is collected automatically on each release using [license-checker](https://github.com/RSeidelsohn/license-checker-rseidelsohn). The following table lists all production dependencies. These dependencies (including transitive ones) have been checked and confirmed to use ${licenseListText} — all permissive, commercially-friendly licenses. Developers cloning this repository should independently verify development dependencies; users of the uploaded library are covered by these checks.`;
+}
+
+function formatLicenseListText(licenses: string[]): string {
+    if (licenses.length === 1) return licenses[0] ?? '';
+    if (licenses.length === 2) return `${String(licenses[0])} or ${String(licenses[1])}`;
+    return `${licenses.slice(0, -1).join(', ')}, or ${String(licenses.at(-1))}`;
 }
 
 function parseLicenseEntry(key: string, value: ProductionPackageLicense): License {
