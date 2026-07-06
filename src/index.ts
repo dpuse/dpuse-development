@@ -10,6 +10,8 @@ export { documentDependencies } from '@/actions/documentDependencies';
 
 export { documentActions } from '~/src/actions/documentActions';
 
+export { documentUsage } from '@/actions/documentUsage';
+
 export { formatCode } from '@/actions/formatCode';
 
 export { lintCode } from '@/actions/lintCode';
