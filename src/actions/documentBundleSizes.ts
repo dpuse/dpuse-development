@@ -41,8 +41,7 @@ const BUNDLE_END_MARKER = '<!-- BUNDLE_END -->';
 const INDENT = '&nbsp;&nbsp;&nbsp;&nbsp;';
 const BAR_WIDTH = 20;
 
-const BUNDLE_ANALYSIS_INTRO =
-    "The Bundle Analysis Report is generated automatically on each release using [Sonda](https://sonda.dev/), which analyses final source maps to reveal the actual effects of tree-shaking and minification rather than relying on pre-build estimates. Note: Sonda's Vite reports currently exclude CSS files, since Vite does not generate source maps for CSS.";
+const BUNDLE_ANALYSIS_INTRO = `The Bundle Analysis Report is generated automatically on each release using [Sonda](https://sonda.dev/), which analyses final source maps to reveal the actual effects of tree-shaking and minification rather than relying on pre-build estimates.\n_Note: Sonda's Vite reports currently exclude CSS files, since Vite does not generate source maps for CSS._`;
 
 // ── Actions ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
