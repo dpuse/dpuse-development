@@ -21,9 +21,9 @@ export async function documentUsage(): Promise<void> {
 
         const cloneURL = resolveCloneURL(packageJSON);
         const directoryName = resolveDirectoryName(cloneURL);
-        const nodeVersion = resolveMajorVersion(packageJSON.engines?.['node']);
-        const npmVersion = resolveMajorVersion(packageJSON.engines?.['npm']);
-        const typescriptVersion = resolveMajorVersion(packageJSON.devDependencies?.['typescript']);
+        const nodeVersion = resolveVersion(packageJSON.engines?.['node']);
+        const npmVersion = resolveVersion(packageJSON.engines?.['npm']);
+        const typescriptVersion = resolveVersion(packageJSON.devDependencies?.['typescript']);
 
         const content = buildUsageContent(cloneURL, directoryName, nodeVersion, npmVersion, typescriptVersion);
 
@@ -52,10 +52,10 @@ function resolveDirectoryName(cloneURL: string): string {
     return lastSegment.replace(/\.git$/, '');
 }
 
-function resolveMajorVersion(range: string | undefined): string {
+function resolveVersion(range: string | undefined): string {
     if (range == null) throw new Error("package.json version range is required to document usage.");
-    const match = /\d+/.exec(range);
-    if (match == null) throw new Error(`Unable to parse major version from '${range}'.`);
+    const match = /\d+(?:\.\d+)*/.exec(range);
+    if (match == null) throw new Error(`Unable to parse version from '${range}'.`);
     return match[0];
 }
 
