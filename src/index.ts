@@ -12,6 +12,8 @@ export { documentGovernance } from '@/actions/documentGovernance';
 
 export { documentActions } from '~/src/actions/documentActions';
 
+export { documentOpening } from '@/actions/documentOpening';
+
 export { documentUsage } from '@/actions/documentUsage';
 
 export { formatCode } from '@/actions/formatCode';

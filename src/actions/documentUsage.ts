@@ -21,10 +21,11 @@ export async function documentUsage(): Promise<void> {
 
         const cloneURL = resolveCloneURL(packageJSON);
         const directoryName = resolveDirectoryName(cloneURL);
-        const nodeVersion = resolveEngineVersion(packageJSON.engines?.['node']);
-        const npmVersion = resolveEngineVersion(packageJSON.engines?.['npm']);
+        const nodeVersion = resolveMajorVersion(packageJSON.engines?.['node']);
+        const npmVersion = resolveMajorVersion(packageJSON.engines?.['npm']);
+        const typescriptVersion = resolveMajorVersion(packageJSON.devDependencies?.['typescript']);
 
-        const content = buildUsageContent(cloneURL, directoryName, nodeVersion, npmVersion);
+        const content = buildUsageContent(cloneURL, directoryName, nodeVersion, npmVersion, typescriptVersion);
 
         const originalContent = await readTextFile('./README.md');
         const updatedContent = substituteText(originalContent, content, START_MARKER, END_MARKER);
@@ -51,14 +52,14 @@ function resolveDirectoryName(cloneURL: string): string {
     return lastSegment.replace(/\.git$/, '');
 }
 
-function resolveEngineVersion(range: string | undefined): string {
-    if (range == null) throw new Error("package.json 'engines' field is required to document usage.");
-    const match = /\d+(?:\.\d+)*/.exec(range);
-    if (match == null) throw new Error(`Unable to parse engine version from '${range}'.`);
+function resolveMajorVersion(range: string | undefined): string {
+    if (range == null) throw new Error("package.json version range is required to document usage.");
+    const match = /\d+/.exec(range);
+    if (match == null) throw new Error(`Unable to parse major version from '${range}'.`);
     return match[0];
 }
 
-function buildUsageContent(cloneURL: string, directoryName: string, nodeVersion: string, npmVersion: string): string {
+function buildUsageContent(cloneURL: string, directoryName: string, nodeVersion: string, npmVersion: string, typescriptVersion: string): string {
     return `This connector is automatically uploaded to the DPUse Engine cloud once released and becomes instantly available to all new browser app instances, with existing instances notified of the update.
 
 You may view or clone this repository for your own purposes, such as building a new, similar connector, though there is currently no process to accept third-party connectors into DPUse at this stage. Cloned or forked code is unsupported and isn't guaranteed to remain compatible with the DPUse Engine as it evolves.
@@ -69,5 +70,5 @@ cd ${directoryName}
 npm install
 \`\`\`
 
-_Requires [Node.js](https://nodejs.org/) ${nodeVersion} or later and [npm](https://www.npmjs.com/) ${npmVersion} or later._`;
+_Requires [Node.js](https://nodejs.org/) ${nodeVersion} or later, [npm](https://www.npmjs.com/) ${npmVersion} or later, and [TypeScript](https://www.typescriptlang.org/) ${typescriptVersion} or later._`;
 }
