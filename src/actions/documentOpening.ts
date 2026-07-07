@@ -11,6 +11,8 @@ import { logOperationHeader, logOperationSuccess, logStepHeader, readJSONFile, r
 
 const START_MARKER = '<!-- OPENING_START -->';
 const END_MARKER = '<!-- OPENING_END -->';
+const ICON_FILE_NAME = 'icon.svg';
+const ICON_DARK_FILE_NAME = 'icon-dark.svg';
 
 // ── Actions ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -28,7 +30,10 @@ export async function documentOpening(): Promise<void> {
         const introduction = resolveIntroduction(configJSON);
         const icon = resolveIcon(configJSON);
 
-        const content = buildOpeningContent(owner, repo, license, introduction, icon);
+        await writeTextFile(ICON_FILE_NAME, icon.icon);
+        await writeTextFile(ICON_DARK_FILE_NAME, icon.iconDark);
+
+        const content = buildOpeningContent(owner, repo, license, introduction);
 
         const originalContent = await readTextFile('./README.md');
         const updatedContent = substituteText(originalContent, content, START_MARKER, END_MARKER);
@@ -73,17 +78,13 @@ function resolveIcon(configJSON: ModuleConfig): { icon: string; iconDark: string
     return { icon, iconDark };
 }
 
-function toSVGDataURI(svg: string): string {
-    return `data:image/svg+xml;base64,${Buffer.from(svg).toString('base64')}`;
-}
-
-function buildOpeningContent(owner: string, repo: string, license: string, introduction: string, icon: { icon: string; iconDark: string }): string {
+function buildOpeningContent(owner: string, repo: string, license: string, introduction: string): string {
     const repoURL = `https://github.com/${owner}/${repo}`;
     const badgeLicense = license.replace(/-/g, '--');
 
     return `<picture>
-    <source media="(prefers-color-scheme: dark)" srcset="${toSVGDataURI(icon.iconDark)}">
-    <img src="${toSVGDataURI(icon.icon)}" alt="${repo} icon" width="48" height="48">
+    <source media="(prefers-color-scheme: dark)" srcset="./${ICON_DARK_FILE_NAME}">
+    <img src="./${ICON_FILE_NAME}" alt="${repo} icon" width="48" height="48">
 </picture>
 
 [![License: ${license}](https://img.shields.io/badge/License-${badgeLicense}-blue.svg)](./LICENSE)
