@@ -1,6 +1,9 @@
 // ── External Dependencies & Registrations
 import type { PackageJson } from 'type-fest';
 
+// ── DPUse Framework
+import type { ModuleConfig } from '@dpuse/dpuse-shared/component/module';
+
 // ── Local (Development) Framework
 import { logOperationHeader, logOperationSuccess, logStepHeader, readJSONFile, readTextFile, substituteText, writeTextFile } from '@/utilities';
 
@@ -18,11 +21,13 @@ export async function documentOpening(): Promise<void> {
         logStepHeader("1️⃣  Insert opening content into 'README.md'");
 
         const packageJSON = await readJSONFile<PackageJson>('package.json');
+        const configJSON = await readJSONFile<ModuleConfig>('config.json');
 
         const { owner, repo } = resolveOwnerAndRepo(packageJSON);
         const license = resolveLicense(packageJSON);
+        const introduction = resolveIntroduction(configJSON);
 
-        const content = buildOpeningContent(owner, repo, license);
+        const content = buildOpeningContent(owner, repo, license, introduction);
 
         const originalContent = await readTextFile('./README.md');
         const updatedContent = substituteText(originalContent, content, START_MARKER, END_MARKER);
@@ -55,7 +60,13 @@ function resolveLicense(packageJSON: PackageJson): string {
     return license;
 }
 
-function buildOpeningContent(owner: string, repo: string, license: string): string {
+function resolveIntroduction(configJSON: ModuleConfig): string {
+    const paragraphs = configJSON.description.en;
+    if (paragraphs == null || paragraphs.length === 0) throw new Error("config.json 'description.en' field is required to document opening.");
+    return paragraphs.join('\n\n');
+}
+
+function buildOpeningContent(owner: string, repo: string, license: string, introduction: string): string {
     const repoURL = `https://github.com/${owner}/${repo}`;
     const badgeLicense = license.replace(/-/g, '--');
 
@@ -69,5 +80,9 @@ function buildOpeningContent(owner: string, repo: string, license: string): stri
 
 ## About DPUse
 
-DPUse (Data Positioning & Use) is an in-browser application that positions your data for use through three core activities: sourcing, contextualising, and publishing. **Sourcing** uses a library of [Connectors](https://www.dpuse.app) to establish [Connections](https://www.dpuse.app) to applications, databases, file stores, and curated datasets; these connections are subsequently used to configure structured [Data Views](https://www.dpuse.app) from the underlying sources. **Contextualising** extracts chronological events from those [Data Views](https://www.dpuse.app) and maps them into comprehensive [Context Models](https://www.dpuse.app). This provides the DPUse Engine with the structural framework required to generate deterministic transactions, facts, or observations. **Publishing** employs a library of [Presenters](https://www.dpuse.app) to render standard [Presentations](https://www.dpuse.app) immediately using the contextualised data; additionally, [Cookbooks](https://www.dpuse.app) of [Recipes](https://www.dpuse.app) allow you to build Data Apps using your preferred tools.`;
+DPUse (Data Positioning & Use) is an in-browser application that positions your data for use through three core activities: sourcing, contextualising, and publishing. **Sourcing** uses a library of [Connectors](https://www.dpuse.app) to establish [Connections](https://www.dpuse.app) to applications, databases, file stores, and curated datasets; these connections are subsequently used to configure structured [Data Views](https://www.dpuse.app) from the underlying sources. **Contextualising** extracts chronological events from those [Data Views](https://www.dpuse.app) and maps them into comprehensive [Context Models](https://www.dpuse.app). This provides the DPUse Engine with the structural framework required to generate deterministic transactions, facts, or observations. **Publishing** employs a library of [Presenters](https://www.dpuse.app) to render standard [Presentations](https://www.dpuse.app) immediately using the contextualised data; additionally, [Cookbooks](https://www.dpuse.app) of [Recipes](https://www.dpuse.app) allow you to build Data Apps using your preferred tools.
+
+## Introduction
+
+${introduction}`;
 }
