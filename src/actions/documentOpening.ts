@@ -26,8 +26,9 @@ export async function documentOpening(): Promise<void> {
         const { owner, repo } = resolveOwnerAndRepo(packageJSON);
         const license = resolveLicense(packageJSON);
         const introduction = resolveIntroduction(configJSON);
+        const icon = resolveIcon(configJSON);
 
-        const content = buildOpeningContent(owner, repo, license, introduction);
+        const content = buildOpeningContent(owner, repo, license, introduction, icon);
 
         const originalContent = await readTextFile('./README.md');
         const updatedContent = substituteText(originalContent, content, START_MARKER, END_MARKER);
@@ -66,11 +67,26 @@ function resolveIntroduction(configJSON: ModuleConfig): string {
     return paragraphs.join('\n\n');
 }
 
-function buildOpeningContent(owner: string, repo: string, license: string, introduction: string): string {
+function resolveIcon(configJSON: ModuleConfig): { icon: string; iconDark: string } {
+    const { icon, iconDark } = configJSON;
+    if (icon == null || iconDark == null) throw new Error("config.json 'icon' and 'iconDark' fields are required to document opening.");
+    return { icon, iconDark };
+}
+
+function toSVGDataURI(svg: string): string {
+    return `data:image/svg+xml;base64,${Buffer.from(svg).toString('base64')}`;
+}
+
+function buildOpeningContent(owner: string, repo: string, license: string, introduction: string, icon: { icon: string; iconDark: string }): string {
     const repoURL = `https://github.com/${owner}/${repo}`;
     const badgeLicense = license.replace(/-/g, '--');
 
-    return `[![License: ${license}](https://img.shields.io/badge/License-${badgeLicense}-blue.svg)](./LICENSE)
+    return `<picture>
+    <source media="(prefers-color-scheme: dark)" srcset="${toSVGDataURI(icon.iconDark)}">
+    <img src="${toSVGDataURI(icon.icon)}" alt="${repo} icon" width="48" height="48">
+</picture>
+
+[![License: ${license}](https://img.shields.io/badge/License-${badgeLicense}-blue.svg)](./LICENSE)
 [![DPUse version](https://img.shields.io/github/v/release/${owner}/${repo}?color=f6821f&label=DPUse)](${repoURL}/releases/latest)
 [![CI](${repoURL}/actions/workflows/ci.yml/badge.svg)](${repoURL}/actions/workflows/ci.yml)
 [![CodeQL](${repoURL}/actions/workflows/codeql.yml/badge.svg)](${repoURL}/actions/workflows/codeql.yml)
