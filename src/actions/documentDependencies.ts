@@ -51,7 +51,7 @@ export async function documentDependencies(allowedLicenses = 'MIT'): Promise<voi
 
         const rootPackage = await readJSONFile<{ name?: string; version?: string }>('package.json');
 
-        if (rootPackage.name === '@dpuse/dpuse-development') {
+        if (rootPackage.name === '@dpuse/dpuse-development' || rootPackage.name === '@dpuse/eslint-config-dpuse') {
             await skipDependencyDocumentation();
             logOperationSuccess('Dependencies documented');
             return;
