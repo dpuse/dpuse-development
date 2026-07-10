@@ -52,7 +52,7 @@ export async function documentDependencies(allowedLicenses = 'MIT'): Promise<voi
         const rootPackage = await readJSONFile<{ name?: string; version?: string }>('package.json');
 
         if (rootPackage.name === '@dpuse/dpuse-development' || rootPackage.name === '@dpuse/eslint-config-dpuse') {
-            await skipDependencyDocumentation();
+            await skipDependencyDocumentation(rootPackage.name);
             logOperationSuccess('Dependencies documented');
             return;
         }
@@ -94,14 +94,14 @@ export async function documentDependencies(allowedLicenses = 'MIT'): Promise<voi
 
 // ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-async function skipDependencyDocumentation(): Promise<void> {
-    logStepHeader('1️⃣  Skip: @dpuse/dpuse-development is a development-only tool and is never part of a production release');
+async function skipDependencyDocumentation(name: string): Promise<void> {
+    logStepHeader(`1️⃣  Skip: ${name} is a development-only tool and is never part of a production release.`);
 
-    const message = '> [!WARNING]\n> Dependency licenses are not documented here: @dpuse/dpuse-development is a development-only tool and is never part of a production release';
+    const message = `> [!WARNING]\n> Dependency licenses are not documented here: ${name} is a development-only tool and is never part of a production release.`;
 
     const originalContent = await readTextFile('./README.md');
     const withTable = substituteText(originalContent, message, START_MARKER, END_MARKER);
-    const withTree = substituteText(withTable, message, TREE_START_MARKER, TREE_END_MARKER);
+    const withTree = substituteText(withTable, '', TREE_START_MARKER, TREE_END_MARKER);
     await writeTextFile('README.md', withTree);
 }
 
