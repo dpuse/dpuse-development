@@ -32,6 +32,7 @@ interface OperationConfig {
     id?: string;
     version?: string;
     actionNames?: string[];
+    usageId?: string;
 }
 
 // ── Actions - Build ──────────────────────────────────────────────────────────────────────────────────────────────────
@@ -225,6 +226,7 @@ async function processOperations<T extends OperationConfig>(packageJSON: Package
     if (packageJSON.name != null) configJSON.id = packageJSON.name.replace('@dpuse/', '').replace('@dpuse/', '');
     if (packageJSON.version != null) configJSON.version = packageJSON.version;
     configJSON.actionNames = operations;
+    if (usageId !== undefined) configJSON.usageId = usageId;
 
     await writeJSONFile('config.json', configJSON);
 
