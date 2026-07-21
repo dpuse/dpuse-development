@@ -30,7 +30,7 @@ export async function uploadDirectoryToR2(sourceDirectory: string, uploadDirecto
             if (stats.isDirectory()) {
                 const nextLevelChildren = await getDirectoryEntries(sourceItemPath);
                 await listDirectoryEntriesRecursively(sourceItemPath, destinationItemPath, nextLevelChildren);
-            } else {
+            } else if (!name.endsWith('.map')) {
                 console.info(`⚙️ Uploading '${currentSourceDirectory}/${name}'...`);
                 await execCommand(undefined, 'wrangler', ['r2', 'object', 'put', `dpuse-sample-data-eu/${currentDestinationDirectory}/${name}`, `--file=${currentSourceDirectory}/${name}`, '--jurisdiction=eu', '--remote']);
             }

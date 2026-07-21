@@ -3,9 +3,9 @@ import type { PackageJson } from 'type-fest';
 import { safeParse } from 'valibot';
 
 // ── DPUse Framework
-import { connectorConfigSchema, determineConnectorUsageId } from '@dpuse/dpuse-shared/component/module/connector';
 import type { ModuleConfig } from '@dpuse/dpuse-shared/component/module';
 import type { ConnectorActionName, ConnectorConfig } from '@dpuse/dpuse-shared/component/module/connector';
+import { connectorConfigSchema, determineConnectorUsageId } from '@dpuse/dpuse-shared/component/module/connector';
 import { type ContextActionName, type ContextConfig, contextConfigSchema } from '@dpuse/dpuse-shared/component/module/context';
 import { type PresenterActionName, type PresenterConfig, presenterConfigSchema } from '@dpuse/dpuse-shared/component/module/presenter';
 
@@ -32,7 +32,7 @@ interface OperationConfig {
     id?: string;
     version?: string;
     actionNames?: string[];
-    usageId?: string;
+    usageId?: string | null;
 }
 
 // ── Actions - Build ──────────────────────────────────────────────────────────────────────────────────────────────────
