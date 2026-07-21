@@ -30,9 +30,17 @@ export async function uploadDirectoryToR2(sourceDirectory: string, uploadDirecto
             if (stats.isDirectory()) {
                 const nextLevelChildren = await getDirectoryEntries(sourceItemPath);
                 await listDirectoryEntriesRecursively(sourceItemPath, destinationItemPath, nextLevelChildren);
-            } else if (!name.endsWith('.map')) {
+            } else {
                 console.info(`⚙️ Uploading '${currentSourceDirectory}/${name}'...`);
-                await execCommand(undefined, 'wrangler', ['r2', 'object', 'put', `dpuse-sample-data-eu/${currentDestinationDirectory}/${name}`, `--file=${currentSourceDirectory}/${name}`, '--jurisdiction=eu', '--remote']);
+                await execCommand(undefined, 'wrangler', [
+                    'r2',
+                    'object',
+                    'put',
+                    `dpuse-sample-data-eu/${currentDestinationDirectory}/${name}`,
+                    `--file=${currentSourceDirectory}/${name}`,
+                    '--jurisdiction=eu',
+                    '--remote'
+                ]);
             }
         }
     }
@@ -56,7 +64,7 @@ export async function uploadModuleToR2(packageJSON: PackageJson, uploadDirectory
     async function uploadDirectory(currentDirectory: string, prefix = ''): Promise<void> {
         const entries = await getDirectoryEntries(currentDirectory, { withFileTypes: true } as ObjectEncodingOptions);
         for (const entry of entries) {
-            if (entry.isDirectory()) continue;
+            if (entry.isDirectory() || entry.name.endsWith('.map')) continue;
             const fullPath = `${currentDirectory}/${entry.name}`;
             const relativePath = prefix ? `${prefix}/${entry.name}` : entry.name;
             const r2Path = `${uploadDirectoryPath}_${version}/${relativePath}`.replaceAll('\\', '/');
