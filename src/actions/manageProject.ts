@@ -19,6 +19,7 @@ import {
     logStepHeader,
     readJSONFile,
     readTextFile,
+    readTextFileOrNull,
     removeFile,
     spawnCommand,
     writeJSONFile,
@@ -159,6 +160,8 @@ async function buildProjectConfig(stepIcon: string, packageJSON: PackageJson): P
     const configJSON = await readJSONFile<ModuleConfig>('config.json');
     if (packageJSON.name != null) configJSON.id = packageJSON.name.replace('@dpuse/', '');
     if (packageJSON.version != null) configJSON.version = packageJSON.version;
+    configJSON.icon ??= await readTextFileOrNull('logo.svg');
+    configJSON.iconDark ??= await readTextFileOrNull('logoDark.svg');
     await writeJSONFile('config.json', configJSON);
 
     return configJSON;

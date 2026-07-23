@@ -138,6 +138,15 @@ export async function readTextFile(path: string): Promise<string> {
     return await fs.readFile(path, 'utf8');
 }
 
+export async function readTextFileOrNull(path: string): Promise<string | null> {
+    try {
+        return await fs.readFile(path, 'utf8');
+    } catch (error) {
+        if ((error as NodeJS.ErrnoException).code === 'ENOENT') return null; // Treat missing file as no content.
+        throw error;
+    }
+}
+
 export async function removeFile(path: string): Promise<void> {
     try {
         await fs.unlink(path);
