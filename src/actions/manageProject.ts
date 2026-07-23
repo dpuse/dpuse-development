@@ -45,8 +45,6 @@ export async function buildProject(): Promise<void> {
 
         await spawnCommand('1️⃣  Bundle project', 'vite', ['build']);
 
-        await documentBundleSizes();
-
         logOperationSuccess('Project built');
     } catch (error) {
         console.error('❌  Error building project', error);
