@@ -232,7 +232,7 @@ function determineLatestAge(momentString?: string): string {
     if (now.getDate() < input.getDate()) months -= 1;
 
     if (months === 0) return `this month: ${dateString}`;
-    if (months === 1) return `**1** month ago: ${dateString}`;
-    if (months <= 6) return `**${String(months)}** months ago: ${dateString}`;
-    return `**${String(months)}** months ago: ${dateString} ⚠️ `;
+    if (months === 1) return `**1 month** ago: ${dateString}`;
+    if (months <= 6) return `**${String(months)} months** ago: ${dateString}`;
+    return `**${String(months)} months** ago: ${dateString} ⚠️`;
 }

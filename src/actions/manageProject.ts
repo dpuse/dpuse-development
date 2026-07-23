@@ -26,7 +26,6 @@ import {
     writeTextFile
 } from '@/utilities';
 import { putState, uploadModuleConfigToDO, uploadModuleToR2 } from '@/utilities/cloudflare';
-import { documentBundleSizes } from './documentBundleSizes';
 
 // ── Types ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
