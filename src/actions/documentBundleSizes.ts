@@ -56,7 +56,12 @@ export async function documentBundleSizes(options?: { moduleLevel?: boolean }): 
         const bundleTable = buildBundleTable(json, options?.moduleLevel ?? false);
 
         const readme = await readTextFile('./README.md');
-        const updated = substituteText(readme, `\n${BUNDLE_ANALYSIS_INTRO}\n\n${bundleTable}\n`, BUNDLE_START_MARKER, BUNDLE_END_MARKER);
+        const updated = substituteText(
+            readme,
+            `\n${BUNDLE_ANALYSIS_INTRO}\n\n${bundleTable}\n\n(unassigned) = bytes Sonda can't trace to a specific source line (whitespace, stray keywords, bundler-injected region markers) — not actual missing/unknown code.`,
+            BUNDLE_START_MARKER,
+            BUNDLE_END_MARKER
+        );
         await writeTextFile('README.md', updated);
 
         logOperationSuccess('Bundle sizes documented');
