@@ -42,7 +42,7 @@ export async function buildProject(): Promise<void> {
     try {
         logOperationHeader('Build Project');
 
-        await spawnCommand('1️⃣  Bundle project', 'vite', ['build']);
+        await spawnCommand('1️⃣  Bundle project', 'npm', ['run', 'build']);
 
         logOperationSuccess('Project built');
     } catch (error) {
