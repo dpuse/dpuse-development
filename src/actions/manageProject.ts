@@ -26,6 +26,7 @@ import {
     writeTextFile
 } from '@/utilities';
 import { putState, uploadModuleConfigToDO, uploadModuleToR2 } from '@/utilities/cloudflare';
+import { documentBundleSizes } from './documentBundleSizes';
 
 // ── Types ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -42,7 +43,9 @@ export async function buildProject(): Promise<void> {
     try {
         logOperationHeader('Build Project');
 
-        await spawnCommand('1️⃣  Bundle project', 'npm', ['run', 'build']);
+        await spawnCommand('1️⃣  Bundle project', 'vite', ['build']);
+
+        await documentBundleSizes();
 
         logOperationSuccess('Project built');
     } catch (error) {
