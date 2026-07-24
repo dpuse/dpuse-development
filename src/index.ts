@@ -10,7 +10,7 @@ export { documentDependencies } from '@/actions/documentDependencies';
 
 export { documentGovernance } from '@/actions/documentGovernance';
 
-export { documentActions } from '~/src/actions/documentActions';
+export { documentActions } from '@/actions/documentActions';
 
 export { documentOpening } from '@/actions/documentOpening';
 
