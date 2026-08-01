@@ -43,8 +43,8 @@ export async function documentOpening(): Promise<void> {
 // ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 function resolveOwnerAndRepo(packageJSON: PackageJson): { owner: string; repo: string } {
-    const repository = packageJSON.repository;
-    const url = typeof repository === 'string' ? repository : repository?.url;
+    const repo = packageJSON.repository;
+    const url = typeof repo === 'string' ? repo : repo?.url;
     if (url == null || url === '') throw new Error("package.json 'repository' field is required to document opening.");
 
     const cleanedURL = url.replace(/^git\+/, '').replace(/\.git$/, '');
@@ -68,7 +68,7 @@ function resolveIntroduction(configJSON: ModuleConfig): string {
 
 function buildOpeningContent(owner: string, repo: string, license: string, introduction: string): string {
     const repoURL = `https://github.com/${owner}/${repo}`;
-    const badgeLicense = license.replace(/-/g, '--');
+    const badgeLicense = license.replaceAll('-', '--');
 
     return `[![License: ${license}](https://img.shields.io/badge/License-${badgeLicense}-blue.svg)](./LICENSE)
 [![DPUse version](https://img.shields.io/github/v/release/${owner}/${repo}?color=f6821f&label=DPUse)](${repoURL}/releases/latest)
