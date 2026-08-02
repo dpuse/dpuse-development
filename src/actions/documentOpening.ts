@@ -63,7 +63,7 @@ function resolveLicense(packageJSON: PackageJson): string {
 function resolveIntroduction(configJSON: ModuleConfig): string {
     const paragraphs = configJSON.description.en;
     if (paragraphs == null || paragraphs.length === 0) throw new Error("config.json 'description.en' field is required to document opening.");
-    return paragraphs.join('\n\n');
+    return paragraphs;
 }
 
 function buildOpeningContent(owner: string, repo: string, license: string, introduction: string): string {

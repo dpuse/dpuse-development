@@ -3,10 +3,10 @@ import type { PackageJson } from 'type-fest';
 import { safeParse } from 'valibot';
 
 // ── DPUse Framework
+// import type { ContextConfig } from '@dpuse/dpuse-shared/component/context';
 import type { ModuleConfig } from '@dpuse/dpuse-shared/component/module';
 import type { ConnectorActionName, ConnectorConfig } from '@dpuse/dpuse-shared/component/module/connector';
 import { connectorConfigSchema, determineConnectorUsageId } from '@dpuse/dpuse-shared/component/module/connector';
-import { type ContextActionName, type ContextConfig, contextConfigSchema } from '@dpuse/dpuse-shared/component/module/context';
 import { type PresenterActionName, type PresenterConfig, presenterConfigSchema } from '@dpuse/dpuse-shared/component/module/presenter';
 
 // ── Local (Development) Framework
@@ -101,9 +101,9 @@ export async function releaseProject(): Promise<void> {
             case 'connector':
                 configJSON = await buildConnectorProjectConfig('2️⃣ ', packageJSON);
                 break;
-            case 'context':
-                configJSON = await buildContextProjectConfig('2️⃣ ', packageJSON);
-                break;
+            // case 'context':
+            //     configJSON = await buildContextProjectConfig('2️⃣ ', packageJSON);
+            //     break;
             case 'presenter':
                 configJSON = await buildPresenterProjectConfig('2️⃣ ', packageJSON);
                 break;
@@ -185,21 +185,21 @@ async function buildConnectorProjectConfig(stepIcon: string, packageJSON: Packag
     return await processOperations<ConnectorConfig>(packageJSON, configJSON, operations, usageId);
 }
 
-async function buildContextProjectConfig(stepIcon: string, packageJSON: PackageJson): Promise<ContextConfig> {
-    logStepHeader(`${stepIcon} Build context project configuration`);
+// async function buildContextProjectConfig(stepIcon: string, packageJSON: PackageJson): Promise<ContextConfig> {
+//     logStepHeader(`${stepIcon} Build context project configuration`);
 
-    const [configJSON, indexCode] = await Promise.all([readJSONFile<ContextConfig>('config.json'), readTextFile('src/index.ts')]);
+//     const [configJSON, indexCode] = await Promise.all([readJSONFile<ContextConfig>('config.json'), readTextFile('src/index.ts')]);
 
-    const response = safeParse(contextConfigSchema, configJSON);
-    if (!response.success) {
-        console.error('❌  Configuration is invalid:');
-        console.table(response.issues);
-        throw new Error('Configuration is invalid');
-    }
+//     const response = safeParse(contextConfigSchema, configJSON);
+//     if (!response.success) {
+//         console.error('❌  Configuration is invalid:');
+//         console.table(response.issues);
+//         throw new Error('Configuration is invalid');
+//     }
 
-    const operations = extractOperationsFromSource<ContextActionName>(indexCode);
-    return await processOperations<ContextConfig>(packageJSON, configJSON, operations);
-}
+//     const operations = extractOperationsFromSource<ContextActionName>(indexCode);
+//     return await processOperations<ContextConfig>(packageJSON, configJSON, operations);
+// }
 
 async function buildPresenterProjectConfig(stepIcon: string, packageJSON: PackageJson): Promise<PresenterConfig> {
     logStepHeader(`${stepIcon} Build presenter project configuration`);
@@ -253,9 +253,9 @@ export async function syncProjectWithGitHub(): Promise<void> {
             case 'connector':
                 await buildConnectorProjectConfig('2️⃣ ', packageJSON);
                 break;
-            case 'context':
-                await buildContextProjectConfig('2️⃣ ', packageJSON);
-                break;
+            // case 'context':
+            //     await buildContextProjectConfig('2️⃣ ', packageJSON);
+            //     break;
             case 'presenter':
                 await buildPresenterProjectConfig('2️⃣ ', packageJSON);
                 break;

@@ -13,6 +13,7 @@ export declare function spawnCommand(label: string, command: string, arguments_:
 export declare function spawnCommandToFile(label: string, command: string, arguments_: string[], outputPath: string, isErrorIgnored?: boolean): Promise<void>;
 export declare function readJSONFile<T>(path: string): Promise<T>;
 export declare function readTextFile(path: string): Promise<string>;
+export declare function readTextFileOrNull(path: string): Promise<string | null>;
 export declare function removeFile(path: string): Promise<void>;
 export declare function writeJSONFile(path: string, data: object): Promise<void>;
 export declare function writeTextFile(path: string, data: string): Promise<void>;
