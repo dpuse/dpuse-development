@@ -40,7 +40,8 @@ export async function checkDependencies(): Promise<void> {
         const pinnedPackageNames = await getPinnedPackageNames();
         if (pinnedPackageNames.length > 0) {
             await spawnCommand('5️⃣  Move install-script pins to installed versions', 'npm', ['install-scripts', 'approve', ...pinnedPackageNames]);
-            await spawnCommand('6️⃣  Run install scripts skipped in step 3', 'npm', ['rebuild', ...pinnedPackageNames]);
+            // Not strict either, so any install script still awaiting review is reported once, by step 7.
+            await spawnCommand('6️⃣  Run install scripts skipped in step 3', 'npm', ['rebuild', ...pinnedPackageNames, '--no-strict-allow-scripts']);
         } else {
             logStepHeader('5️⃣  No pinned install-script approvals to move');
         }
