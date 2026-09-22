@@ -1,6 +1,6 @@
 {
     "name": "@dpuse/dpuse-development",
-    "version": "0.3.712",
+    "version": "0.3.713",
     "private": false,
     "description": "Actions for managing DPUse projects.",
     "license": "MIT",
@@ -46,8 +46,20 @@
         "vitest.config.ts"
     ],
     "engines": {
-        "node": ">=22",
-        "npm": ">=11"
+        "node": ">=24",
+        "npm": ">=12"
+    },
+    "devEngines": {
+        "runtime": {
+            "name": "node",
+            "version": ">=24",
+            "onFail": "error"
+        },
+        "packageManager": {
+            "name": "npm",
+            "version": ">=12",
+            "onFail": "error"
+        }
     },
     "allowScripts": {
         "fsevents@2.3.3": true,

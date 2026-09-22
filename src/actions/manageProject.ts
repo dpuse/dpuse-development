@@ -20,10 +20,8 @@ import {
     readJSONFile,
     readTextFile,
     readTextFileOrNull,
-    removeFile,
     spawnCommand,
-    writeJSONFile,
-    writeTextFile
+    writeJSONFile
 } from '@/utilities';
 import { putState, uploadModuleConfigToDO, uploadModuleToR2 } from '@/utilities/cloudflare';
 
@@ -135,14 +133,10 @@ export async function releaseProject(): Promise<void> {
             await uploadModuleConfigToDO(configJSON); // This MUST follow 'uploadModuleToR2', otherwise the app will receive a message a new module is available and try to access it before it is uploaded to R2.
         }
 
+        // The release triggers the 'publish.yml' workflow, which publishes to npm through trusted publishing, so no token is needed here.
         if (moduleTypeConfig.publishedTo === 'npm') {
-            const npmrcFileName = '.npmrc';
-            try {
-                await writeTextFile(npmrcFileName, `registry=https://registry.npmjs.org/\n//registry.npmjs.org/:_authToken=${process.env['NPM_TOKEN'] ?? ''}`);
-                await spawnCommand('8️⃣  Publish to npm', 'npm', ['publish', '--access', 'public']);
-            } finally {
-                await removeFile(npmrcFileName);
-            }
+            const tagName = `v${packageJSON.version ?? 'unknown'}`;
+            await spawnCommand('8️⃣  Create GitHub release', 'gh', ['release', 'create', tagName, '--target', 'main', '--generate-notes', '--latest']);
         } else {
             logStepHeader(`8️⃣  Publishing NOT required for package with type identifier of '${moduleTypeConfig.typeId}'.`);
         }
