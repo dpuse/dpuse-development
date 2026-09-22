@@ -16,8 +16,8 @@ import type { MethodDefinition, Node } from 'acorn';
 
 export interface ModuleTypeConfig {
     idPrefix: string;
-    typeId: 'app' | 'api' | 'connector' | 'context' | 'cookbook' | 'development' | 'engine' | 'eslint' | 'kb' | 'presenter' | 'resources' | 'shared' | 'tool';
-    publishedTo: 'app' | 'api' | 'dpuse' | 'kb' | 'npm' | 'sampleData';
+    typeId: 'app' | 'api' | 'connector' | 'context' | 'cookbook' | 'development' | 'engine' | 'eslint' | 'github' | 'kb' | 'presenter' | 'resources' | 'shared' | 'tool';
+    publishedTo: 'app' | 'api' | 'dpuse' | 'github' | 'kb' | 'npm' | 'sampleData';
     uploadGroupName: 'connectors' | 'contexts' | 'cookbooks' | 'engine' | 'presenters' | 'tools' | undefined;
 }
 
@@ -36,7 +36,8 @@ const MODULE_TYPE_CONFIGS: ModuleTypeConfig[] = [
     { idPrefix: 'dpuse-resources', typeId: 'resources', publishedTo: 'sampleData', uploadGroupName: undefined },
     { idPrefix: 'dpuse-shared', typeId: 'shared', publishedTo: 'npm', uploadGroupName: undefined },
     { idPrefix: 'dpuse-tool', typeId: 'tool', publishedTo: 'npm', uploadGroupName: 'tools' },
-    { idPrefix: 'eslint-config-dpuse', typeId: 'eslint', publishedTo: 'npm', uploadGroupName: undefined }
+    { idPrefix: 'eslint-config-dpuse', typeId: 'eslint', publishedTo: 'npm', uploadGroupName: undefined },
+    { idPrefix: 'github', typeId: 'github', publishedTo: 'github', uploadGroupName: undefined } // The organisation profile repository ('dpuse/.github').
 ];
 
 // ── Initialisation ───────────────────────────────────────────────────────────────────────────────────────────────────
@@ -213,9 +214,7 @@ export function extractOperationsFromSource<T>(source: string): T[] {
         const key = md.key;
         if (key.type !== 'Identifier') return;
         const name = key.name;
-        if (!name) return;
-        if (name === 'constructor') return;
-        if (md.accessibility === 'private') return;
+        if (!name || name === 'constructor' || md.accessibility === 'private') return;
         operations.push(name as T);
     });
     return operations;
