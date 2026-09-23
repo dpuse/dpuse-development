@@ -1,6 +1,6 @@
 {
     "name": "@dpuse/dpuse-development",
-    "version": "0.3.721",
+    "version": "0.3.722",
     "private": false,
     "description": "Actions for managing DPUse projects.",
     "license": "MIT",
@@ -86,7 +86,7 @@
         "valibot": "^1.5.0"
     },
     "devDependencies": {
-        "@dpuse/eslint-config-dpuse": "^1.0.119",
+        "@dpuse/eslint-config-dpuse": "^1.0.121",
         "@types/node": "^26.6.2",
         "eslint": "^10.11.0",
         "prettier": "^3.9.9",

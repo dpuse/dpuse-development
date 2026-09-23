@@ -12,6 +12,14 @@ export default defineConfig({
         }
     },
     test: {
+        coverage: {
+            // 'json' writes the coverage-final.json that `fallow health --coverage` reads.
+            exclude: ['dist/**', 'scripts/**', 'tests/**'],
+            include: ['src/**/*.ts'],
+            provider: 'v8',
+            reporter: ['text', 'json'],
+            reportsDirectory: './coverage'
+        },
         globals: true,
         include: ['tests/**/*.test.ts'],
         environment: 'node'
