@@ -7057,17 +7057,32 @@ var sa = di([
 	typeId: /* @__PURE__ */ ri("presenter"),
 	actionNames: /* @__PURE__ */ ti(sa),
 	presentations: /* @__PURE__ */ ti(_i)
-});
-//#endregion
-//#region src/actions/manageProject.ts
-async function la() {
+}), la = [
+	"1️⃣ ",
+	"2️⃣ ",
+	"3️⃣ ",
+	"4️⃣ "
+], ua = [{
+	id: "unit",
+	label: "Run unit tests",
+	command: "vitest",
+	arguments: ["run", "--passWithNoTests"],
+	configFileName: "vitest.config.ts"
+}, {
+	id: "e2e",
+	label: "Run end-to-end tests",
+	command: "playwright",
+	arguments: ["test", "--pass-with-no-tests"],
+	configFileName: "playwright.config.ts"
+}];
+async function da() {
 	try {
 		K("Build Project"), await U("1️⃣  Bundle project", "vite", ["build"]), q("Project built");
 	} catch (e) {
 		console.error("❌  Error building project", e), process.exit(1);
 	}
 }
-async function ua() {
+async function fa() {
 	try {
 		K("Publish Project");
 		let e = await W("package.json"), t = await W("config.json"), n = Bn(t.id);
@@ -7084,20 +7099,20 @@ async function ua() {
 		console.error("❌  Error publishing project", e), process.exit(1);
 	}
 }
-async function da() {
+async function pa() {
 	try {
 		K("Release Project");
 		let e = await W("package.json"), t = await W("config.json");
-		await va("1️⃣ ", e);
+		await ba("1️⃣ ", e);
 		let n = Bn(t.id);
 		switch (n.typeId) {
 			case "connector":
-				t = await pa("2️⃣ ", e);
+				t = await ha("2️⃣ ", e);
 				break;
 			case "presenter":
-				t = await ma("2️⃣ ", e);
+				t = await ga("2️⃣ ", e);
 				break;
-			default: t = await fa("2️⃣ ", e);
+			default: t = await ma("2️⃣ ", e);
 		}
 		if (await U("3️⃣  Bundle project", "vite", ["build"]), await Fn("4️⃣  Stage changes", "git", ["add", "."]), await Fn("5️⃣  Commit changes", "git", [
 			"commit",
@@ -7128,39 +7143,39 @@ async function da() {
 		console.error("❌  Error releasing project", e), process.exit(1);
 	}
 }
-async function fa(e, t) {
+async function ma(e, t) {
 	J(`${e} Build project configuration`);
 	let n = await W("config.json");
 	return t.name != null && (n.id = t.name.replace("@dpuse/", "")), t.version != null && (n.version = t.version), n.icon ??= await Ln("logo.svg"), n.iconDark ??= await Ln("logoDark.svg"), await Rn("config.json", n), n;
 }
-async function pa(e, t) {
+async function ha(e, t) {
 	J(`${e} Build connector project configuration`);
 	let [n, r] = await Promise.all([W("config.json"), G("src/index.ts")]), i = /* @__PURE__ */ oa(Ei, n);
 	if (!i.success) throw console.error("❌  Configuration is invalid:"), console.table(i.issues), Error("Configuration is invalid");
 	let a = Hn(r);
-	return await ha(t, n, a, Ai(a));
+	return await _a(t, n, a, Ai(a));
 }
-async function ma(e, t) {
+async function ga(e, t) {
 	J(`${e} Build presenter project configuration`);
 	let [n, r] = await Promise.all([W("config.json"), G("src/index.ts")]), i = /* @__PURE__ */ oa(ca, n);
 	if (!i.success) throw console.error("❌  Configuration is invalid:"), console.table(i.issues), Error("Configuration is invalid");
-	return await ha(t, n, Hn(r));
+	return await _a(t, n, Hn(r));
 }
-async function ha(e, t, n, r) {
+async function _a(e, t, n, r) {
 	return n.length > 0 ? (console.info(`ℹ️  Implements ${String(n.length)} operations:`), console.table(n)) : console.warn("⚠️   Implements no operations"), r === "unknown" ? console.warn("⚠️   No usage identified") : r && console.info(`ℹ️  Supports '${r}' usage.`), e.name != null && (t.id = e.name.replace("@dpuse/", "").replace("@dpuse/", "")), e.version != null && (t.version = e.version), t.actionNames = n, r !== void 0 && (t.usageId = r), await Rn("config.json", t), t;
 }
-async function ga() {
+async function va() {
 	try {
 		K("Synchronise Project with GitHub");
 		let e = await W("package.json"), t = await W("config.json");
-		switch (await va("1️⃣ ", e), Bn(t.id).typeId) {
+		switch (await ba("1️⃣ ", e), Bn(t.id).typeId) {
 			case "connector":
-				await pa("2️⃣ ", e);
+				await ha("2️⃣ ", e);
 				break;
 			case "presenter":
-				await ma("2️⃣ ", e);
+				await ga("2️⃣ ", e);
 				break;
-			default: await fa("2️⃣ ", e);
+			default: await ma("2️⃣ ", e);
 		}
 		await Fn("3️⃣  Stage changes", "git", ["add", "."]), await Fn("4️⃣  Commit changes", "git", [
 			"commit",
@@ -7175,14 +7190,25 @@ async function ga() {
 		console.error("❌  Error synchronising project with GitHub", e), process.exit(1);
 	}
 }
-function _a() {
+async function ya(e = ["unit"], t = !1) {
 	try {
-		K("Test Project"), console.error("\n❌  No tests implemented.\n");
+		K("Test Project");
+		let n = 0;
+		for (let r of ua) {
+			if (!e.includes(r.id) || await Ln(r.configFileName) === null) continue;
+			let i = t && r.id === "unit" ? ["--coverage"] : [];
+			await U(`${la[n] ?? ""} ${r.label}`, r.command, [...r.arguments, ...i]), n += 1;
+		}
+		if (n === 0) {
+			console.warn("\n⚠️  No tests configured for this project.\n");
+			return;
+		}
+		q("Project tested");
 	} catch (e) {
 		console.error("❌  Error testing project", e), process.exit(1);
 	}
 }
-async function va(e, t, n = "./") {
+async function ba(e, t, n = "./") {
 	if (J(`${e} Bump project version`), t.version == null) t.version = "0.0.001", console.warn(`⚠️  Project version initialised to '${t.version}'.`);
 	else {
 		let e = t.version, n = t.version.split(".");
@@ -7191,6 +7217,6 @@ async function va(e, t, n = "./") {
 	await Rn(`${n}package.json`, t);
 }
 //#endregion
-export { Gn as auditDependencies, la as buildProject, Kn as checkConfigFiles, $n as checkDependencies, Li as documentActions, or as documentBundleSizes, Or as documentDependencies, Vr as documentGovernance, Bi as documentOpening, qi as documentUsage, Qi as formatCode, $i as lintCode, ua as publishProject, da as releaseProject, ga as syncProjectWithGitHub, _a as testProject, ta as uploadDirectoryToR2 };
+export { Gn as auditDependencies, da as buildProject, Kn as checkConfigFiles, $n as checkDependencies, Li as documentActions, or as documentBundleSizes, Or as documentDependencies, Vr as documentGovernance, Bi as documentOpening, qi as documentUsage, Qi as formatCode, $i as lintCode, fa as publishProject, pa as releaseProject, va as syncProjectWithGitHub, ya as testProject, ta as uploadDirectoryToR2 };
 
 //# sourceMappingURL=dpuse-development.es.js.map
