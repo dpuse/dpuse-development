@@ -85,7 +85,7 @@ export async function execCommand(label: string | undefined, command_: string, a
     if (outputFilePath === undefined) {
         if (stdout.trim()) console.log(stdout.trim());
     } else {
-        await fs.writeFile(outputFilePath, stdout.trim(), 'utf8');
+        await fs.writeFile(outputFilePath, stdout.trim(), 'utf-8');
     }
     if (stderr.trim()) console.error(stderr.trim());
 }
@@ -116,7 +116,7 @@ export async function spawnCommandToFile(label: string, command: string, argumen
             if (code === 0 || isErrorIgnored) {
                 void (async () => {
                     try {
-                        await fs.writeFile(outputPath, output, 'utf8');
+                        await fs.writeFile(outputPath, output, 'utf-8');
                         resolve();
                     } catch (error) {
                         reject(error instanceof Error ? error : new Error(String(error)));
@@ -132,16 +132,16 @@ export async function spawnCommandToFile(label: string, command: string, argumen
 // ── Actions - File ───────────────────────────────────────────────────────────────────────────────────────────────────
 
 export async function readJSONFile<T>(path: string): Promise<T> {
-    return JSON.parse(await fs.readFile(path, 'utf8')) as T;
+    return JSON.parse(await fs.readFile(path, 'utf-8')) as T;
 }
 
 export async function readTextFile(path: string): Promise<string> {
-    return await fs.readFile(path, 'utf8');
+    return await fs.readFile(path, 'utf-8');
 }
 
 export async function readTextFileOrNull(path: string): Promise<string | null> {
     try {
-        return await fs.readFile(path, 'utf8');
+        return await fs.readFile(path, 'utf-8');
     } catch (error) {
         if ((error as NodeJS.ErrnoException).code === 'ENOENT') return null; // Treat missing file as no content.
         throw error;
@@ -157,11 +157,11 @@ export async function removeFile(path: string): Promise<void> {
 }
 
 export async function writeJSONFile(path: string, data: object): Promise<void> {
-    await fs.writeFile(path, JSON.stringify(data, undefined, 4), 'utf8');
+    await fs.writeFile(path, JSON.stringify(data, undefined, 4), 'utf-8');
 }
 
 export async function writeTextFile(path: string, data: string): Promise<void> {
-    await fs.writeFile(path, data, 'utf8');
+    await fs.writeFile(path, data, 'utf-8');
 }
 
 // ── Actions - Log ────────────────────────────────────────────────────────────────────────────────────────────────────

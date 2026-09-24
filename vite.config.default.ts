@@ -22,7 +22,8 @@ export default defineConfig({
         sourcemap: true,
         target: 'ESNext'
     },
-    plugins: [dts({ outDirs: 'dist/types' })],
+    // Tests sit in the tsconfig so they get type-checked, but their declarations must not reach the published package.
+    plugins: [dts({ exclude: ['tests/**'], outDirs: 'dist/types' })],
     resolve: {
         alias: {
             '~': fileURLToPath(new URL('./', import.meta.url)),

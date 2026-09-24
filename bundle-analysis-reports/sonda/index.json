@@ -1,7 +1,7 @@
 {
   "metadata": {
     "version": "0.14.0",
-    "generatedAt": "2026-09-23T13:23:19.489Z",
+    "generatedAt": "2026-09-24T14:24:01.630Z",
     "integration": "vite",
     "sources": false,
     "gzip": false,
@@ -23,16 +23,16 @@
       "format": "other",
       "uncompressed": 22757,
       "gzip": 0,
-      "brotli": 2373,
+      "brotli": 2372,
       "parent": "dist/dpuse-development.es.js"
     },
     {
       "kind": "asset",
       "name": "dist/dpuse-development.es.js",
       "type": "script",
-      "uncompressed": 320073,
+      "uncompressed": 320025,
       "gzip": 0,
-      "brotli": 64884
+      "brotli": 64853
     },
     {
       "kind": "filesystem",
@@ -123,7 +123,7 @@
       "format": "esm",
       "uncompressed": 117317,
       "gzip": 0,
-      "brotli": 21661,
+      "brotli": 21656,
       "parent": "dist/dpuse-development.es.js"
     },
     {
@@ -140,7 +140,7 @@
       "format": "esm",
       "uncompressed": 133986,
       "gzip": 0,
-      "brotli": 26855,
+      "brotli": 26849,
       "parent": "dist/dpuse-development.es.js"
     },
     {
@@ -182,16 +182,16 @@
       "name": "src/actions/checkConfigFiles.ts",
       "type": "script",
       "format": "esm",
-      "uncompressed": 5038
+      "uncompressed": 4968
     },
     {
       "kind": "chunk",
       "name": "src/actions/checkConfigFiles.ts",
       "type": "script",
       "format": "esm",
-      "uncompressed": 2818,
+      "uncompressed": 2763,
       "gzip": 0,
-      "brotli": 704,
+      "brotli": 691,
       "parent": "dist/dpuse-development.es.js"
     },
     {
@@ -393,16 +393,16 @@
       "name": "src/utilities/index.ts",
       "type": "script",
       "format": "esm",
-      "uncompressed": 7639
+      "uncompressed": 7646
     },
     {
       "kind": "chunk",
       "name": "src/utilities/index.ts",
       "type": "script",
       "format": "esm",
-      "uncompressed": 4838,
+      "uncompressed": 4845,
       "gzip": 0,
-      "brotli": 1284,
+      "brotli": 1280,
       "parent": "dist/dpuse-development.es.js"
     }
   ],
