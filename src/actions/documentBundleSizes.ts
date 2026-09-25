@@ -193,8 +193,7 @@ function resolveModule(path: string, dependencyPaths: DependencyPath[]): { group
     }
     if (path === '[unassigned]') return { group: '(unassigned)', file: path }; // Sonda's marker for chunk bytes it can't trace back to a source module.
     if (path.startsWith('\u{0}')) return { group: '(runtime)', file: path.slice(1) };
-    if (path.startsWith('rust/') || path.includes('vite-plugin-wasm')) return { group: 'wasm', file: lastPathSegment(path) };
-    return { group: 'src', file: lastPathSegment(path) };
+    return { group: path.startsWith('rust/') || path.includes('vite-plugin-wasm') ? 'wasm' : 'src', file: lastPathSegment(path) };
 }
 
 function lastPathSegment(path: string): string {
@@ -224,6 +223,5 @@ function addTo(target: Sizes, source: Sizes): void {
 }
 
 function formatBytes(bytes: number): string {
-    if (bytes < 1024) return `${String(bytes)} B`;
-    return `${(bytes / 1024).toFixed(1)} kB`;
+    return bytes < 1024 ? `${String(bytes)} B` : `${(bytes / 1024).toFixed(1)} kB`;
 }

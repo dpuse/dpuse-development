@@ -21,8 +21,8 @@ export async function documentUsage(): Promise<void> {
 
         const cloneURL = resolveCloneURL(packageJSON);
         const directoryName = resolveDirectoryName(cloneURL);
-        const nodeVersion = resolveVersion(packageJSON.engines?.['node']);
-        const npmVersion = resolveVersion(packageJSON.engines?.['npm']);
+        const nodeVersion = resolveVersion(packageJSON.engines?.node);
+        const npmVersion = resolveVersion(packageJSON.engines?.npm);
         const typescriptVersion = resolveVersion(packageJSON.devDependencies?.['typescript']);
 
         const content = buildUsageContent(cloneURL, directoryName, nodeVersion, npmVersion, typescriptVersion);
@@ -41,8 +41,8 @@ export async function documentUsage(): Promise<void> {
 // ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 function resolveCloneURL(packageJSON: PackageJson): string {
-    const repository = packageJSON.repository;
-    const url = typeof repository === 'string' ? repository : repository?.url;
+    const repo = packageJSON.repository;
+    const url = typeof repo === 'string' ? repo : repo?.url;
     if (url == null || url === '') throw new Error("package.json 'repository' field is required to document usage.");
     return url.replace(/^git\+/, '');
 }
@@ -53,7 +53,8 @@ function resolveDirectoryName(cloneURL: string): string {
 }
 
 function resolveVersion(range: string | undefined): string {
-    if (range == null) throw new Error("package.json version range is required to document usage.");
+    if (range == null) throw new Error('package.json version range is required to document usage.');
+    // eslint-disable-next-line security/detect-unsafe-regex -- Linear: each group repeat must start with a literal '.'.
     const match = /\d+(?:\.\d+)*/.exec(range);
     if (match == null) throw new Error(`Unable to parse version from '${range}'.`);
     return match[0];

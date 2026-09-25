@@ -61,7 +61,12 @@ function resolveAuthorName(packageJSON: PackageJson): string {
     const authorString = typeof author === 'string' ? author : author?.name;
     if (authorString == null || authorString === '') throw new Error("package.json 'author' field is required to document governance.");
 
-    return authorString.replace(/\s*<[^>]*>\s*/, '').trim();
+    // Drop the first '<email>' and the spaces around it. Not a regex, as '\s*<' backtracks on long runs of spaces.
+    const emailStart = authorString.indexOf('<');
+    const emailEnd = emailStart === -1 ? -1 : authorString.indexOf('>', emailStart);
+    const nameString = emailEnd === -1 ? authorString : authorString.slice(0, emailStart).trimEnd() + authorString.slice(emailEnd + 1).trimStart();
+
+    return nameString.trim();
 }
 
 function resolveCopyrightYear(firstCreatedAt: number | null | undefined): string {
