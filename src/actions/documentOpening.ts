@@ -88,6 +88,8 @@ DPUse (Data Positioning & Use) is an in-browser application that positions your 
 
 **Publishing** uses a library of [Presenters](https://www.dpuse.app) to render standard [Presentations](https://www.dpuse.app) immediately using the contextualised data; additionally, [Cookbooks](https://www.dpuse.app) of [Recipes](https://www.dpuse.app) let you build Data Apps using your preferred tools.
 
+In addition, DPUse provides [Tools](https://www.dpuse.app) used by the application, and you can use them to construct connectors and presenters.
+
 ## Introduction
 
 ${introduction}`;
