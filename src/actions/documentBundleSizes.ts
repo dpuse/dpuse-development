@@ -59,7 +59,7 @@ export async function documentBundleSizes(options?: { moduleLevel?: boolean }): 
         logStepHeader(`2️⃣  Insert table into 'README.md'`);
         const bundleTable = buildBundleTable(json, options?.moduleLevel ?? false);
 
-        await writeReadmeSection(`\n${BUNDLE_ANALYSIS_INTRO}\n\n${bundleTable}\n\n${UNTRACED_NOTE}`, BUNDLE_START_MARKER, BUNDLE_END_MARKER);
+        await writeReadmeSection(`## Bundle Analysis\n\n${BUNDLE_ANALYSIS_INTRO}\n\n${bundleTable}\n\n${UNTRACED_NOTE}`, BUNDLE_START_MARKER, BUNDLE_END_MARKER);
 
         logOperationSuccess('Bundle sizes documented');
     } catch (error) {

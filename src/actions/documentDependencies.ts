@@ -3,7 +3,7 @@ import { init as initLicenseChecker } from 'license-checker-rseidelsohn';
 import type { InitOpts } from 'license-checker-rseidelsohn';
 
 // ── Local (Development) Framework
-import { clearDirectory, logOperationHeader, logOperationSuccess, logStepHeader, readJSONFile, readTextFile, spawnCommandToFile, substituteText, writeTextFile } from '@/utilities';
+import { clearDirectory, logOperationHeader, logOperationSuccess, logStepHeader, readJSONFile, spawnCommandToFile, writeReadmeSection } from '@/utilities';
 
 // ── Types ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -37,8 +37,7 @@ interface NpmPackageTree {
 
 const START_MARKER = '<!-- DEPENDENCY_LICENSES_START -->';
 const END_MARKER = '<!-- DEPENDENCY_LICENSES_END -->';
-const TREE_START_MARKER = '<!-- DEPENDENCY_TREE_START -->';
-const TREE_END_MARKER = '<!-- DEPENDENCY_TREE_END -->';
+const LICENSES_HEADING = '## Dependency Licenses';
 
 const DEPENDENCY_TREE_INTRO =
     "The dependency tree below lists every package in this project — direct and transitive — along with its installed version, release date, and update status. Packages flagged ❗ have a newer version available; ⚠️ indicates a package that hasn't been updated in the last 6 months or longer. Neither flag necessarily indicates a problem: we let new releases stabilise before upgrading, and some packages are mature and stable (have limited or no dependencies), so they require no active development.";
@@ -99,10 +98,7 @@ async function skipDependencyDocumentation(name: string): Promise<void> {
 
     const message = `> [!WARNING]\n> Dependency licenses are not documented here: ${name} is a development-only tool and is never part of a production release.`;
 
-    const originalContent = await readTextFile('./README.md');
-    const withTable = substituteText(originalContent, message, START_MARKER, END_MARKER);
-    const withTree = substituteText(withTable, '', TREE_START_MARKER, TREE_END_MARKER);
-    await writeTextFile('README.md', withTree);
+    await writeReadmeSection(`${LICENSES_HEADING}\n\n${message}`, START_MARKER, END_MARKER);
 }
 
 async function insertLicensesIntoReadme(stepIcon: string, allowedLicenses: string): Promise<void> {
@@ -139,10 +135,7 @@ async function insertLicensesIntoReadme(stepIcon: string, allowedLicenses: strin
     }
     const treeContent = `${DEPENDENCY_TREE_INTRO}\n\n${treeItems.join('\n')}`;
 
-    const originalContent = await readTextFile('./README.md');
-    const withTable = substituteText(originalContent, licensesContent, START_MARKER, END_MARKER);
-    const withTree = substituteText(withTable, treeContent, TREE_START_MARKER, TREE_END_MARKER);
-    await writeTextFile('README.md', withTree);
+    await writeReadmeSection(`${LICENSES_HEADING}\n\n${licensesContent.trimEnd()}\n\n### Dependency Tree\n\n${treeContent}`, START_MARKER, END_MARKER);
 }
 
 function buildLicensesIntro(allowedLicenses: string): string {

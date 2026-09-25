@@ -103,26 +103,18 @@ All utilities are designed to be run from `package.json` scripts and assume that
 
 Please see other DPUse repositories for actual usage.
 
-## Dependency Licenses
-
 <!-- DEPENDENCY_LICENSES_START -->
+
+## Dependency Licenses
 
 > [!WARNING]
 > Dependency licenses are not documented here: @dpuse/dpuse-development is a development-only tool and is never part of a production release.
 
 <!-- DEPENDENCY_LICENSES_END -->
 
-### Dependency Tree
-
-<!-- DEPENDENCY_TREE_START -->
-
-
-
-<!-- DEPENDENCY_TREE_END -->
+<!-- BUNDLE_START -->
 
 ## Bundle Analysis
-
-<!-- BUNDLE_START -->
 
 The Bundle Analysis Report is generated automatically on each release using [Sonda](https://sonda.dev/), which analyses final source maps to reveal the actual effects of tree-shaking and minification rather than relying on pre-build estimates.
 
@@ -130,7 +122,7 @@ _Note: Sonda's Vite reports currently exclude CSS files, since Vite does not gen
 
 |Chunk/Module/File|Composition|
 |:------ |:-----------|
-| dist/dpuse-development.es.js | 312.8 kB · gzip 79.7 kB |
+| dist/dpuse-development.es.js | 312.7 kB · gzip 79.7 kB |
 | &nbsp;&nbsp;&nbsp;&nbsp;acorn → dist/acorn.mjs | `████████░░░░░░░░░░░░` 41.8% |
 | &nbsp;&nbsp;&nbsp;&nbsp;acorn-typescript → lib/index.mjs | `███████░░░░░░░░░░░░░` 36.6% |
 | &nbsp;&nbsp;&nbsp;&nbsp;src | `██░░░░░░░░░░░░░░░░░░` 10.6% |
@@ -159,49 +151,6 @@ _Note: Sonda's Vite reports currently exclude CSS files, since Vite does not gen
 (bundler output, whitespace & JSON) = bytes Sonda can't trace to a source file: whitespace (indentation and line breaks), code the bundler generates (region comments, the combined import/export lines, its small runtime helper and wrappers), and imported JSON such as `config.json`, which the bundler doesn't map. The JSON and the generated code are real bytes that ship; the whitespace mostly disappears once compressed.
 
 <!-- BUNDLE_END -->
-
-## Security & Quality
-
-### CodeQL
-
-[CodeQL](https://github.com/dpuse/dpuse-development/security/code-scanning) static analysis runs on every push to `main` and on a weekly schedule, scanning TypeScript, JavaScript, Rust, and GitHub Actions workflow files for security vulnerabilities and coding errors.
-
-### SonarCloud
-
-[SonarCloud](https://sonarcloud.io/summary/new_code?id=dpuse_dpuse_development) performs continuous code quality and security analysis on every push, detecting bugs, code smells, and security vulnerabilities in the TypeScript source.
-
-### Vulnerability Scanning
-
-Two complementary tools continuously monitor dependencies for known vulnerabilities:
-
-- **[GitHub Dependabot](https://docs.github.com/en/code-security/dependabot)** automatically raises pull requests to update vulnerable dependencies, drawing on the GitHub Advisory Database which combines NVD and npm-specific advisories.
-- **npm audit** runs on every push to `main` via the CI workflow, failing the build if any high or critical severity vulnerabilities are detected.
-
-### Supply Chain Security
-
-[Socket.dev](https://socket.dev) monitors all dependencies for supply chain risk — detecting malicious packages, dependency confusion, typosquatting, and suspicious behaviour that may not yet have a CVE.
-
-### Reporting Vulnerabilities
-
-Please do not open public GitHub issues for security vulnerabilities. Use [GitHub private vulnerability reporting](https://github.com/dpuse/dpuse-development/security/advisories/new) instead. See [SECURITY.md](./SECURITY.md) for the full disclosure policy, contact details, and expected response times.
-
-### OpenSSF 🚧
-
-[![OpenSSF Scorecard](https://api.scorecard.dev/projects/github.com/dpuse/dpuse-development/badge)](https://scorecard.dev/viewer/?uri=github.com/dpuse/dpuse-development)
-
-This project is working towards the [OpenSSF Best Practices](https://www.bestpractices.dev) Passing badge, a self-certification covering security policy, vulnerability reporting, build processes, code quality, and more. The [OpenSSF Scorecard](https://scorecard.dev/viewer/?uri=github.com/dpuse/dpuse-development) provides an independent automated assessment of the project's security practices and is an ongoing area of improvement.
-
-## Contributing
-
-This repository is maintained solely by its owner and does not accept external contributions. It is part of a larger closed application suite and is published for informational and cloning purposes only.
-
-If you find a security vulnerability, see [Reporting Vulnerabilities](#reporting-vulnerabilities). For bugs, inconsistencies, or other feedback, you are welcome to [open a GitHub issue](https://github.com/dpuse/dpuse-development/issues) — feedback is read, but responses and fixes are at the maintainer's discretion.
-
-## License
-
-This project is licensed under the MIT License, permitting free use, modification, and distribution.
-
-[MIT](./LICENSE) © 2026-present Jonathan Terrell
 
 <!-- GOVERNANCE_START -->
 
