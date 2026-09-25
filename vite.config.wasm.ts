@@ -22,7 +22,7 @@ export default defineConfig({
             formats: ['es']
         },
         rollupOptions: {
-            plugins: [Sonda({ filename: 'index', format: 'json', brotli: true, gzip: false, open: false, outputDir: './bundle-analysis-reports/sonda' })]
+            plugins: [Sonda({ filename: 'index', format: 'json', brotli: false, gzip: true, open: false, outputDir: './bundle-analysis-reports/sonda' })]
         },
         sourcemap: true,
         target: 'ESNext'

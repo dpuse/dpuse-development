@@ -1,18 +1,18 @@
 // ── Local (Development) Framework
-import { logOperationHeader, logOperationSuccess, logStepHeader, readJSONFile, readTextFile, substituteText, writeTextFile } from '@/utilities';
+import { logOperationHeader, logOperationSuccess, logStepHeader, readJSONFile, writeReadmeSection } from '@/utilities';
 
 // ── Types ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 interface Sizes {
     uncompressed: number;
-    brotli: number;
+    gzip: number;
 }
 
 interface SondaResource {
     kind: 'asset' | 'chunk' | 'filesystem' | 'sourcemap';
     name: string;
     uncompressed: number;
-    brotli?: number;
+    gzip?: number;
     parent?: string | null;
 }
 
@@ -43,6 +43,9 @@ const BAR_WIDTH = 20;
 
 const BUNDLE_ANALYSIS_INTRO = `The Bundle Analysis Report is generated automatically on each release using [Sonda](https://sonda.dev/), which analyses final source maps to reveal the actual effects of tree-shaking and minification rather than relying on pre-build estimates.\n\n_Note: Sonda's Vite reports currently exclude CSS files, since Vite does not generate source maps for CSS._`;
 
+const UNASSIGNED_NOTE =
+    "(unassigned) = bytes Sonda can't trace to a source file: whitespace (indentation and line breaks), code the bundler generates (region comments, the combined import/export lines, its small runtime helper and wrappers), and imported JSON such as `config.json`, which the bundler doesn't map. The JSON and the generated code are real bytes that ship; the whitespace mostly disappears once compressed.";
+
 // ── Actions ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 export async function documentBundleSizes(options?: { moduleLevel?: boolean }): Promise<void> {
@@ -55,14 +58,7 @@ export async function documentBundleSizes(options?: { moduleLevel?: boolean }): 
         logStepHeader(`2️⃣  Insert table into 'README.md'`);
         const bundleTable = buildBundleTable(json, options?.moduleLevel ?? false);
 
-        const readme = await readTextFile('./README.md');
-        const updated = substituteText(
-            readme,
-            `\n${BUNDLE_ANALYSIS_INTRO}\n\n${bundleTable}\n\n(unassigned) = bytes Sonda can't trace to a specific source line (whitespace, stray keywords, bundler-injected region markers) — not actual missing/unknown code.`,
-            BUNDLE_START_MARKER,
-            BUNDLE_END_MARKER
-        );
-        await writeTextFile('README.md', updated);
+        await writeReadmeSection(`\n${BUNDLE_ANALYSIS_INTRO}\n\n${bundleTable}\n\n${UNASSIGNED_NOTE}`, BUNDLE_START_MARKER, BUNDLE_END_MARKER);
 
         logOperationSuccess('Bundle sizes documented');
     } catch (error) {
@@ -201,11 +197,11 @@ function lastPathSegment(path: string): string {
 }
 
 function resourceSizes(resource: SondaResource): Sizes {
-    return { uncompressed: resource.uncompressed, brotli: resource.brotli ?? 0 };
+    return { uncompressed: resource.uncompressed, gzip: resource.gzip ?? 0 };
 }
 
 function chunkSizes(sizes: Sizes): string {
-    return `${formatBytes(sizes.uncompressed)} · brotli ${formatBytes(sizes.brotli)}`;
+    return `${formatBytes(sizes.uncompressed)} · gzip ${formatBytes(sizes.gzip)}`;
 }
 
 function bar(pct: number): string {
@@ -214,12 +210,12 @@ function bar(pct: number): string {
 }
 
 function zero(): Sizes {
-    return { uncompressed: 0, brotli: 0 };
+    return { uncompressed: 0, gzip: 0 };
 }
 
 function addTo(target: Sizes, source: Sizes): void {
     target.uncompressed += source.uncompressed;
-    target.brotli += source.brotli;
+    target.gzip += source.gzip;
 }
 
 function formatBytes(bytes: number): string {

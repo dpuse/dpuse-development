@@ -22,7 +22,7 @@ export default defineConfig({
                 if (warning.code === 'INVALID_ANNOTATION' && warning.id?.includes('acorn-typescript')) return;
                 warn(warning);
             },
-            plugins: [Sonda({ filename: 'index', format: 'json', brotli: true, gzip: false, open: false, outputDir: './bundle-analysis-reports/sonda' })]
+            plugins: [Sonda({ filename: 'index', format: 'json', brotli: false, gzip: true, open: false, outputDir: './bundle-analysis-reports/sonda' })]
         },
         sourcemap: true,
         target: 'ESNext'

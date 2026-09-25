@@ -17,6 +17,7 @@ import {
     logOperationHeader,
     logOperationSuccess,
     logStepHeader,
+    type ModuleTypeConfig,
     readJSONFile,
     readTextFile,
     readTextFileOrNull,
@@ -81,21 +82,7 @@ export async function publishProject(): Promise<void> {
         const configJSON = await readJSONFile<ModuleConfig>('config.json');
         const moduleTypeConfig = getModuleConfig(configJSON.id);
 
-        if (moduleTypeConfig.typeId === 'app') {
-            logStepHeader('1️⃣  Register module');
-            await putState();
-        } else if (moduleTypeConfig.typeId === 'engine') {
-            logStepHeader('1️⃣  Register module');
-            await uploadModuleToR2(packageJSON, `dpuse-engine-eu/${moduleTypeConfig.uploadGroupName ?? 'unknown'}`);
-            await uploadModuleConfigToDO(configJSON);
-        } else if (moduleTypeConfig.uploadGroupName === undefined) {
-            logStepHeader('1️⃣  Publishing NOT required');
-        } else {
-            logStepHeader('1️⃣  Register module');
-            const moduleTypeName = configJSON.id.split('-').slice(2).join('-');
-            await uploadModuleToR2(packageJSON, `dpuse-engine-eu/${moduleTypeConfig.uploadGroupName}/${moduleTypeName}`);
-            await uploadModuleConfigToDO(configJSON);
-        }
+        await registerModule('1️⃣ ', packageJSON, configJSON, moduleTypeConfig);
 
         logOperationSuccess(`Project version '${packageJSON.version ?? 'unknown'}' published.`);
     } catch (error) {
@@ -139,21 +126,7 @@ export async function releaseProject(): Promise<void> {
 
         await execCommand('6️⃣  Push changes', 'git', ['push', 'origin', 'main:main']);
 
-        if (moduleTypeConfig.typeId === 'app') {
-            logStepHeader('7️⃣  Register module');
-            await putState();
-        } else if (moduleTypeConfig.typeId === 'engine') {
-            logStepHeader('7️⃣  Register module');
-            await uploadModuleToR2(packageJSON, `dpuse-engine-eu/${moduleTypeConfig.uploadGroupName ?? 'unknown'}`);
-            await uploadModuleConfigToDO(configJSON); // This MUST follow 'uploadModuleToR2', otherwise the app will receive a message a new engine is available and try to access it before it is uploaded to R2.
-        } else if (moduleTypeConfig.uploadGroupName === undefined) {
-            logStepHeader('7️⃣  Registration NOT required');
-        } else {
-            logStepHeader('7️⃣  Register module');
-            const moduleTypeName = configJSON.id.split('-').slice(2).join('-');
-            await uploadModuleToR2(packageJSON, `dpuse-engine-eu/${moduleTypeConfig.uploadGroupName}/${moduleTypeName}`);
-            await uploadModuleConfigToDO(configJSON); // This MUST follow 'uploadModuleToR2', otherwise the app will receive a message a new module is available and try to access it before it is uploaded to R2.
-        }
+        await registerModule('7️⃣ ', packageJSON, configJSON, moduleTypeConfig);
 
         // The release triggers the 'publish.yml' workflow, which publishes to npm through trusted publishing, so no token is needed here.
         if (moduleTypeConfig.publishedTo === 'npm') {
@@ -338,4 +311,22 @@ async function bumpPackageVersion(stepIcon: string, packageJSON: PackageJson, pa
         console.info(`Project version bumped from '${oldVersion}' to '${packageJSON.version}'.`);
     }
     await writeJSONFile(`${path}package.json`, packageJSON);
+}
+
+async function registerModule(stepIcon: string, packageJSON: PackageJson, configJSON: ModuleConfig, moduleTypeConfig: ModuleTypeConfig): Promise<void> {
+    if (moduleTypeConfig.typeId === 'app') {
+        logStepHeader(`${stepIcon} Register module`);
+        await putState();
+    } else if (moduleTypeConfig.typeId === 'engine') {
+        logStepHeader(`${stepIcon} Register module`);
+        await uploadModuleToR2(packageJSON, `dpuse-engine-eu/${moduleTypeConfig.uploadGroupName ?? 'unknown'}`);
+        await uploadModuleConfigToDO(configJSON); // This MUST follow 'uploadModuleToR2', otherwise the app will receive a message a new engine is available and try to access it before it is uploaded to R2.
+    } else if (moduleTypeConfig.uploadGroupName === undefined) {
+        logStepHeader(`${stepIcon} Registration NOT required`);
+    } else {
+        logStepHeader(`${stepIcon} Register module`);
+        const moduleTypeName = configJSON.id.split('-').slice(2).join('-');
+        await uploadModuleToR2(packageJSON, `dpuse-engine-eu/${moduleTypeConfig.uploadGroupName}/${moduleTypeName}`);
+        await uploadModuleConfigToDO(configJSON); // This MUST follow 'uploadModuleToR2', otherwise the app will receive a message a new module is available and try to access it before it is uploaded to R2.
+    }
 }
