@@ -5,7 +5,7 @@ import type { PackageJson } from 'type-fest';
 import type { ModuleConfig } from '@dpuse/dpuse-shared/component/module';
 
 // ── Local (Development) Framework
-import { logOperationHeader, logOperationSuccess, logStepHeader, readJSONFile, readTextFile, substituteText, writeTextFile } from '@/utilities';
+import { logOperationHeader, logOperationSuccess, logStepHeader, readJSONFile, resolveOwnerAndRepo, writeReadmeSection } from '@/utilities';
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -23,15 +23,13 @@ export async function documentOpening(): Promise<void> {
         const packageJSON = await readJSONFile<PackageJson>('package.json');
         const configJSON = await readJSONFile<ModuleConfig>('config.json');
 
-        const { owner, repo } = resolveOwnerAndRepo(packageJSON);
+        const { owner, repo } = resolveOwnerAndRepo(packageJSON, 'document opening');
         const license = resolveLicense(packageJSON);
         const introduction = resolveIntroduction(configJSON);
 
         const content = buildOpeningContent(owner, repo, license, introduction);
 
-        const originalContent = await readTextFile('./README.md');
-        const updatedContent = substituteText(originalContent, content, START_MARKER, END_MARKER);
-        await writeTextFile('README.md', updatedContent);
+        await writeReadmeSection(content, START_MARKER, END_MARKER);
 
         logOperationSuccess('Opening documented');
     } catch (error) {
@@ -41,18 +39,6 @@ export async function documentOpening(): Promise<void> {
 }
 
 // ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
-
-function resolveOwnerAndRepo(packageJSON: PackageJson): { owner: string; repo: string } {
-    const repo = packageJSON.repository;
-    const url = typeof repo === 'string' ? repo : repo?.url;
-    if (url == null || url === '') throw new Error("package.json 'repository' field is required to document opening.");
-
-    const cleanedURL = url.replace(/^git\+/, '').replace(/\.git$/, '');
-    const match = /github\.com[/:]([^/]+)\/([^/]+)$/.exec(cleanedURL);
-    if (match?.[1] == null || match[2] == null) throw new Error(`Unable to parse GitHub owner/repo from '${url}'.`);
-
-    return { owner: match[1], repo: match[2] };
-}
 
 function resolveLicense(packageJSON: PackageJson): string {
     const license = packageJSON.license;

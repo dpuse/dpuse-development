@@ -2,7 +2,7 @@
 import type { PackageJson } from 'type-fest';
 
 // ── Local (Development) Framework
-import { logOperationHeader, logOperationSuccess, logStepHeader, readJSONFile, readTextFile, substituteText, writeTextFile } from '@/utilities';
+import { logOperationHeader, logOperationSuccess, logStepHeader, readJSONFile, resolveOwnerAndRepo, writeReadmeSection } from '@/utilities';
 
 // ── Types ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -25,15 +25,13 @@ export async function documentGovernance(): Promise<void> {
 
         const [packageJSON, configJSON] = await Promise.all([readJSONFile<PackageJson>('package.json'), readJSONFile<GovernanceModuleConfig>('config.json')]);
 
-        const { owner, repo } = resolveOwnerAndRepo(packageJSON);
+        const { owner, repo } = resolveOwnerAndRepo(packageJSON, 'document governance');
         const authorName = resolveAuthorName(packageJSON);
         const copyrightYear = resolveCopyrightYear(configJSON.firstCreatedAt);
 
         const content = buildGovernanceContent(owner, repo, authorName, copyrightYear);
 
-        const originalContent = await readTextFile('./README.md');
-        const updatedContent = substituteText(originalContent, content, START_MARKER, END_MARKER);
-        await writeTextFile('README.md', updatedContent);
+        await writeReadmeSection(content, START_MARKER, END_MARKER);
 
         logOperationSuccess('Governance documented');
     } catch (error) {
@@ -43,18 +41,6 @@ export async function documentGovernance(): Promise<void> {
 }
 
 // ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
-
-function resolveOwnerAndRepo(packageJSON: PackageJson): { owner: string; repo: string } {
-    const repo = packageJSON.repository;
-    const url = typeof repo === 'string' ? repo : repo?.url;
-    if (url == null || url === '') throw new Error("package.json 'repository' field is required to document governance.");
-
-    const cleanedURL = url.replace(/^git\+/, '').replace(/\.git$/, '');
-    const match = /github\.com[/:]([^/]+)\/([^/]+)$/.exec(cleanedURL);
-    if (match?.[1] == null || match[2] == null) throw new Error(`Unable to parse GitHub owner/repo from '${url}'.`);
-
-    return { owner: match[1], repo: match[2] };
-}
 
 function resolveAuthorName(packageJSON: PackageJson): string {
     const author = packageJSON.author;

@@ -2,7 +2,7 @@
 import type { PackageJson } from 'type-fest';
 
 // ── Local (Development) Framework
-import { logOperationHeader, logOperationSuccess, logStepHeader, readJSONFile, readTextFile, substituteText, writeTextFile } from '@/utilities';
+import { logOperationHeader, logOperationSuccess, logStepHeader, readJSONFile, writeReadmeSection } from '@/utilities';
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -27,9 +27,7 @@ export async function documentUsage(): Promise<void> {
 
         const content = buildUsageContent(cloneURL, directoryName, nodeVersion, npmVersion, typescriptVersion);
 
-        const originalContent = await readTextFile('./README.md');
-        const updatedContent = substituteText(originalContent, content, START_MARKER, END_MARKER);
-        await writeTextFile('README.md', updatedContent);
+        await writeReadmeSection(content, START_MARKER, END_MARKER);
 
         logOperationSuccess('Usage documented');
     } catch (error) {

@@ -5,6 +5,7 @@
 // ── External Dependencies & Registrations
 import acornTypeScript from 'acorn-typescript';
 import { promises as fs } from 'node:fs';
+import type { PackageJson } from 'type-fest';
 import { Parser } from 'acorn';
 import path from 'node:path';
 import { promisify } from 'node:util';
@@ -160,6 +161,12 @@ export async function writeJSONFile(path: string, data: object): Promise<void> {
     await fs.writeFile(path, JSON.stringify(data, undefined, 4), 'utf-8');
 }
 
+// Replaces the text between a pair of markers in 'README.md'.
+export async function writeReadmeSection(content: string, startMarker: string, endMarker: string): Promise<void> {
+    const originalContent = await readTextFile('./README.md');
+    await writeTextFile('README.md', substituteText(originalContent, content, startMarker, endMarker));
+}
+
 export async function writeTextFile(path: string, data: string): Promise<void> {
     await fs.writeFile(path, data, 'utf-8');
 }
@@ -189,6 +196,21 @@ export function getModuleConfig(configId: string): ModuleTypeConfig {
     const moduleTypeConfig = MODULE_TYPE_CONFIGS.find((config) => configId.startsWith(config.idPrefix));
     if (!moduleTypeConfig) throw new Error(`Failed to locate module type configuration for identifier '${configId}'.`);
     return moduleTypeConfig;
+}
+
+// ── Actions - Package ────────────────────────────────────────────────────────────────────────────────────────────────
+
+// 'purpose' completes the error message, e.g. 'document opening'.
+export function resolveOwnerAndRepo(packageJSON: PackageJson, purpose: string): { owner: string; repo: string } {
+    const repo = packageJSON.repository;
+    const url = typeof repo === 'string' ? repo : repo?.url;
+    if (url == null || url === '') throw new Error(`package.json 'repository' field is required to ${purpose}.`);
+
+    const cleanedURL = url.replace(/^git\+/, '').replace(/\.git$/, '');
+    const match = /github\.com[/:]([^/]+)\/([^/]+)$/.exec(cleanedURL);
+    if (match?.[1] == null || match[2] == null) throw new Error(`Unable to parse GitHub owner/repo from '${url}'.`);
+
+    return { owner: match[1], repo: match[2] };
 }
 
 // ── Actions - Path ───────────────────────────────────────────────────────────────────────────────────────────────────

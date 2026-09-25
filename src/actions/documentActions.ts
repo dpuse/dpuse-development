@@ -3,7 +3,7 @@ import type { ConnectorActionName, ConnectorUsageId } from '@dpuse/dpuse-shared/
 import { determineConnectorUsageId, getConnectorActionsTable } from '@dpuse/dpuse-shared/component/module/connector';
 
 // ── Local (Development) Framework
-import { logOperationHeader, logOperationSuccess, logStepHeader, readJSONFile, readTextFile, substituteText, writeTextFile } from '@/utilities';
+import { logOperationHeader, logOperationSuccess, logStepHeader, readJSONFile, writeReadmeSection } from '@/utilities';
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -40,9 +40,7 @@ export async function documentActions(): Promise<void> {
 
         const block = `${CONNECTOR_ACTIONS_INTRO}\n\n${CONNECTOR_USAGE_DESCRIPTIONS[usageId]} ${CONNECTOR_ACTIONS_TABLE_LEAD_IN}\n\n${table}`;
 
-        const originalContent = await readTextFile('./README.md');
-        const updatedContent = substituteText(originalContent, block, START_MARKER, END_MARKER);
-        await writeTextFile('README.md', updatedContent);
+        await writeReadmeSection(block, START_MARKER, END_MARKER);
 
         logOperationSuccess('Actions documented');
     } catch (error) {
