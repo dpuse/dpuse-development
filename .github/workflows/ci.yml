@@ -11,7 +11,7 @@ permissions:
 
 jobs:
     ci:
-        name: Lint & audit
+        name: Lint, test & audit
         runs-on: ubuntu-latest
         steps:
             - name: Checkout
@@ -29,7 +29,7 @@ jobs:
 
             # Run outside the checkout, as 'devEngines' rejects the bundled npm there too.
             - name: Setup npm
-              run: npm install -g npm@12
+              run: npm install -g --ignore-scripts npm@12.1.0
               working-directory: ${{ runner.temp }}
 
             # The same Node again, now with npm 12, so the npm cache can be used.
