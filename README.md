@@ -122,15 +122,6 @@ Please see other DPUse repositories for actual usage.
 
 ## Bundle Analysis
 
-The Bundle Analysis Reports provide detailed breakdowns of the bundle's composition and module sizes, helping to identify which modules contribute most to the final build. Two complementary reports are generated automatically on each release:
-
-- **[rollup-plugin-visualizer](https://github.com/btd/rollup-plugin-visualizer/tree/master)** — generates a static treemap/sunburst view based on pre-build module estimates, useful for a quick visual scan of overall bundle composition, including CSS assets.
-- **[Sonda](https://sonda.dev/)** — analyses final source maps to capture the effects of tree-shaking and minification, rather than relying on pre-build estimates. This gives a more accurate picture of what's actually shipped, traces module-level dependencies, and shows the size of each module after tree-shaking and minification for more precise insight into what's driving bundle size. Note: Sonda's Vite reports currently exclude CSS files, since Vite does not generate source maps for CSS.
-
-[View the rollup-plugin-visualizer Report](https://dpuse.github.io/dpuse-connector-file-store-emulator/bundle-analysis-reports/rollup-visualiser/index.html).
-
-[View the Sonda Report](https://dpuse.github.io/dpuse-connector-file-store-emulator/bundle-analysis-reports/sonda/index.html).
-
 <!-- BUNDLE_START -->
 
 The Bundle Analysis Report is generated automatically on each release using [Sonda](https://sonda.dev/), which analyses final source maps to reveal the actual effects of tree-shaking and minification rather than relying on pre-build estimates.
@@ -139,7 +130,7 @@ _Note: Sonda's Vite reports currently exclude CSS files, since Vite does not gen
 
 |Chunk/Module/File|Composition|
 |:------ |:-----------|
-| dist/dpuse-development.es.js | 312.7 kB · gzip 79.7 kB |
+| dist/dpuse-development.es.js | 312.8 kB · gzip 79.7 kB |
 | &nbsp;&nbsp;&nbsp;&nbsp;acorn → dist/acorn.mjs | `████████░░░░░░░░░░░░` 41.8% |
 | &nbsp;&nbsp;&nbsp;&nbsp;acorn-typescript → lib/index.mjs | `███████░░░░░░░░░░░░░` 36.6% |
 | &nbsp;&nbsp;&nbsp;&nbsp;src | `██░░░░░░░░░░░░░░░░░░` 10.6% |
@@ -157,7 +148,7 @@ _Note: Sonda's Vite reports currently exclude CSS files, since Vite does not gen
 | &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;formatCode.ts | `░░░░░░░░░░░░░░░░░░░░` 0.1% |
 | &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;auditDependencies.ts | `░░░░░░░░░░░░░░░░░░░░` 0.1% |
 | &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;lintCode.ts | `░░░░░░░░░░░░░░░░░░░░` 0.1% |
-| &nbsp;&nbsp;&nbsp;&nbsp;(unassigned) → [unassigned] | `█░░░░░░░░░░░░░░░░░░░` 7.2% |
+| &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON) | `█░░░░░░░░░░░░░░░░░░░` 7.2% |
 | &nbsp;&nbsp;&nbsp;&nbsp;@dpuse/dpuse-shared | `█░░░░░░░░░░░░░░░░░░░` 3.6% |
 | &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;dist/componentConfig.schema-DT3mO5rS.js | `█░░░░░░░░░░░░░░░░░░░` 2.7% |
 | &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;dist/dpuse-shared-componentModuleConnector.es.js | `░░░░░░░░░░░░░░░░░░░░` 0.7% |
@@ -165,7 +156,7 @@ _Note: Sonda's Vite reports currently exclude CSS files, since Vite does not gen
 | &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;dist/dpuse-shared-componentModulePresenter.es.js | `░░░░░░░░░░░░░░░░░░░░` 0.1% |
 | &nbsp;&nbsp;&nbsp;&nbsp;valibot → dist/index.mjs | `░░░░░░░░░░░░░░░░░░░░` 0.1% |
 
-(unassigned) = bytes Sonda can't trace to a source file: whitespace (indentation and line breaks), code the bundler generates (region comments, the combined import/export lines, its small runtime helper and wrappers), and imported JSON such as `config.json`, which the bundler doesn't map. The JSON and the generated code are real bytes that ship; the whitespace mostly disappears once compressed.
+(bundler output, whitespace & JSON) = bytes Sonda can't trace to a source file: whitespace (indentation and line breaks), code the bundler generates (region comments, the combined import/export lines, its small runtime helper and wrappers), and imported JSON such as `config.json`, which the bundler doesn't map. The JSON and the generated code are real bytes that ship; the whitespace mostly disappears once compressed.
 
 <!-- BUNDLE_END -->
 

@@ -43,8 +43,9 @@ const BAR_WIDTH = 20;
 
 const BUNDLE_ANALYSIS_INTRO = `The Bundle Analysis Report is generated automatically on each release using [Sonda](https://sonda.dev/), which analyses final source maps to reveal the actual effects of tree-shaking and minification rather than relying on pre-build estimates.\n\n_Note: Sonda's Vite reports currently exclude CSS files, since Vite does not generate source maps for CSS._`;
 
-const UNASSIGNED_NOTE =
-    "(unassigned) = bytes Sonda can't trace to a source file: whitespace (indentation and line breaks), code the bundler generates (region comments, the combined import/export lines, its small runtime helper and wrappers), and imported JSON such as `config.json`, which the bundler doesn't map. The JSON and the generated code are real bytes that ship; the whitespace mostly disappears once compressed.";
+const UNTRACED_LABEL = '(bundler output, whitespace & JSON)';
+const UNTRACED_NOTE =
+    `${UNTRACED_LABEL} = bytes Sonda can't trace to a source file: whitespace (indentation and line breaks), code the bundler generates (region comments, the combined import/export lines, its small runtime helper and wrappers), and imported JSON such as \`config.json\`, which the bundler doesn't map. The JSON and the generated code are real bytes that ship; the whitespace mostly disappears once compressed.`;
 
 // ── Actions ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -58,7 +59,7 @@ export async function documentBundleSizes(options?: { moduleLevel?: boolean }): 
         logStepHeader(`2️⃣  Insert table into 'README.md'`);
         const bundleTable = buildBundleTable(json, options?.moduleLevel ?? false);
 
-        await writeReadmeSection(`\n${BUNDLE_ANALYSIS_INTRO}\n\n${bundleTable}\n\n${UNASSIGNED_NOTE}`, BUNDLE_START_MARKER, BUNDLE_END_MARKER);
+        await writeReadmeSection(`\n${BUNDLE_ANALYSIS_INTRO}\n\n${bundleTable}\n\n${UNTRACED_NOTE}`, BUNDLE_START_MARKER, BUNDLE_END_MARKER);
 
         logOperationSuccess('Bundle sizes documented');
     } catch (error) {
@@ -104,7 +105,7 @@ function renderSingleGroupSection(file: string, sizes: Sizes, group: GroupEntry,
 
     if (files.size === 1) {
         const fileName = getSoleFileName(files);
-        return [`| ${file} → ${groupName} → ${fileName} | ${chunkSizes(sizes)} · ${bar(groupPct)} |`];
+        return [`| ${file} → ${formatGroupLabel(groupName, fileName)} | ${chunkSizes(sizes)} · ${bar(groupPct)} |`];
     }
 
     const lines = [`| ${file} → ${groupName} | ${chunkSizes(sizes)} · ${bar(groupPct)} |`];
@@ -120,7 +121,7 @@ function renderMultiGroupSection(file: string, sizes: Sizes, sortedGroups: Group
 
         if (files.size === 1) {
             const fileName = getSoleFileName(files);
-            lines.push(`| ${INDENT}${groupName} → ${fileName} | ${bar(groupPct)} |`);
+            lines.push(`| ${INDENT}${formatGroupLabel(groupName, fileName)} | ${bar(groupPct)} |`);
             continue;
         }
 
@@ -137,6 +138,11 @@ function renderFileRows(files: Map<string, Sizes>, indent: string, bundlerTotal:
         const filePct = bundlerTotal > 0 ? (fileSizes.uncompressed / bundlerTotal) * 100 : 0;
         return `| ${indent}${fileName} | ${bar(filePct)} |`;
     });
+}
+
+// A group with no file name, such as the untraced bytes, is shown on its own rather than as 'group → '.
+function formatGroupLabel(groupName: string, fileName: string): string {
+    return fileName === '' ? groupName : `${groupName} → ${fileName}`;
 }
 
 function getSoleEntry<T>(entries: T[]): T {
@@ -187,7 +193,7 @@ function resolveModule(path: string, dependencyPaths: DependencyPath[]): { group
         const [dependencyPath, name] = match;
         return { group: name, file: path.slice(dependencyPath.length + 1) };
     }
-    if (path === '[unassigned]') return { group: '(unassigned)', file: path }; // Sonda's marker for chunk bytes it can't trace back to a source module.
+    if (path === '[unassigned]') return { group: UNTRACED_LABEL, file: '' }; // Sonda's marker for chunk bytes it can't trace back to a source module.
     if (path.startsWith('\u{0}')) return { group: '(runtime)', file: path.slice(1) };
     return { group: path.startsWith('rust/') || path.includes('vite-plugin-wasm') ? 'wasm' : 'src', file: lastPathSegment(path) };
 }
