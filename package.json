@@ -1,6 +1,6 @@
 {
     "name": "@dpuse/dpuse-development",
-    "version": "0.3.724",
+    "version": "0.3.725",
     "private": false,
     "description": "Actions for managing DPUse projects.",
     "license": "MIT",
@@ -78,7 +78,7 @@
     },
     "dependencies": {
         "@dpuse/dpuse-development": "^0.3.723",
-        "@dpuse/dpuse-shared": "^0.3.826",
+        "@dpuse/dpuse-shared": "^0.3.829",
         "acorn": "^8.18.0",
         "acorn-typescript": "^1.4.13",
         "license-checker-rseidelsohn": "^5.0.1",
@@ -96,6 +96,6 @@
         "vite": "^8.3.1",
         "vite-plugin-dts": "^5.1.1",
         "vite-plugin-wasm": "^3.6.0",
-        "vitest": "^5.0.1"
+        "vitest": "^5.0.2"
     }
 }
