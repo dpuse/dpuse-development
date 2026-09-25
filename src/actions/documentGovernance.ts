@@ -2,9 +2,15 @@
 import type { PackageJson } from 'type-fest';
 
 // ── Local (Development) Framework
-import { logOperationHeader, logOperationSuccess, logStepHeader, readJSONFile, resolveOwnerAndRepo, writeReadmeSection } from '@/utilities';
+import { logOperationHeader, logOperationSuccess, logStepHeader, readJSONFile, resolveOwnerAndRepo, spawnCommandToFile, writeReadmeSection } from '@/utilities';
 
 // ── Types ────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+interface FallowHealth {
+    health_score: { score: number; grade: string };
+    summary: { functions_above_threshold: number; functions_analyzed: number; average_maintainability: number };
+    vital_signs: { dead_file_pct: number; dead_export_pct: number; duplication_pct: number; unused_dep_count: number; circular_dep_count: number; hotspot_count: number };
+}
 
 interface GovernanceModuleConfig {
     firstCreatedAt?: number | null;
@@ -15,21 +21,30 @@ interface GovernanceModuleConfig {
 const START_MARKER = '<!-- GOVERNANCE_START -->';
 const END_MARKER = '<!-- GOVERNANCE_END -->';
 
+// Fallow — only run where the module has it installed. The full report is published as its own page, linked from the
+// README; the README table and badge are both built from the one health run, so they always agree.
+const FALLOW_DIRECTORY = 'code-health-reports/fallow';
+const FALLOW_GRADE_COLOURS: Record<string, string> = { A: 'brightgreen', B: 'green', C: 'yellow', D: 'orange', F: 'red' };
+const FALLOW_HEALTH_PATH = `${FALLOW_DIRECTORY}/health.json`;
+const FALLOW_REPORT_PATH = `${FALLOW_DIRECTORY}/index.md`;
+
 // ── Actions ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 export async function documentGovernance(): Promise<void> {
     try {
         logOperationHeader('Document Governance');
 
-        logStepHeader("1️⃣  Insert governance content into 'README.md'");
-
         const [packageJSON, configJSON] = await Promise.all([readJSONFile<PackageJson>('package.json'), readJSONFile<GovernanceModuleConfig>('config.json')]);
+
+        const fallowHealth = await measureCodeHealth(packageJSON);
+
+        logStepHeader("3️⃣  Insert governance content into 'README.md'");
 
         const { owner, repo } = resolveOwnerAndRepo(packageJSON, 'document governance');
         const authorName = resolveAuthorName(packageJSON);
         const copyrightYear = resolveCopyrightYear(configJSON.firstCreatedAt);
 
-        const content = buildGovernanceContent(owner, repo, authorName, copyrightYear);
+        const content = buildGovernanceContent(owner, repo, authorName, copyrightYear, fallowHealth);
 
         await writeReadmeSection(content, START_MARKER, END_MARKER);
 
@@ -41,6 +56,47 @@ export async function documentGovernance(): Promise<void> {
 }
 
 // ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+// Fallow exits non-zero whenever it has findings, so its exit code is ignored: the findings are what gets reported.
+async function measureCodeHealth(packageJSON: PackageJson): Promise<FallowHealth | undefined> {
+    if (packageJSON.devDependencies?.['fallow'] == null) {
+        logStepHeader('1️⃣  Code health NOT measured, as Fallow is not installed');
+        logStepHeader('2️⃣  Code health report NOT required');
+        return undefined;
+    }
+
+    await spawnCommandToFile('1️⃣  Measure code health', 'fallow', ['health', '--report-only', '--format', 'json'], FALLOW_HEALTH_PATH);
+    await spawnCommandToFile('2️⃣  Write code health report', 'fallow', ['--format', 'markdown'], FALLOW_REPORT_PATH, true);
+    return await readJSONFile<FallowHealth>(FALLOW_HEALTH_PATH);
+}
+
+function buildCodeHealthContent(health: FallowHealth): string {
+    const { score, grade } = health.health_score;
+    const { functions_above_threshold: complexCount, functions_analyzed: functionCount, average_maintainability: maintainability } = health.summary;
+    const signs = health.vital_signs;
+    const badgeMessage = encodeURIComponent(`${grade} (${String(Math.round(score))})`).replaceAll('-', '--').replaceAll('(', '%28').replaceAll(')', '%29');
+    const badgeURL = `https://img.shields.io/badge/fallow-${badgeMessage}-${FALLOW_GRADE_COLOURS[grade] ?? 'lightgrey'}`;
+
+    return `### Code Health
+
+[![Fallow code health](${badgeURL})](./${FALLOW_REPORT_PATH})
+
+[Fallow](https://github.com/fallow-rs/fallow) analyses the TypeScript source on each release for unused code, duplication, complexity, and dependency hygiene. See the [full Fallow report](./${FALLOW_REPORT_PATH}) for every finding.
+
+|Measure|Value|
+|:-|-:|
+|Health score|${score.toFixed(1)} (${grade})|
+|Maintainability (average)|${maintainability.toFixed(1)}|
+|Unused files|${signs.dead_file_pct.toFixed(1)}%|
+|Unused exports|${signs.dead_export_pct.toFixed(1)}%|
+|Duplicated code|${signs.duplication_pct.toFixed(1)}%|
+|Functions over the complexity limits|${String(complexCount)} of ${String(functionCount)}|
+|Unused dependencies|${String(signs.unused_dep_count)}|
+|Circular dependencies|${String(signs.circular_dep_count)}|
+|Hotspots (complex and often changed)|${String(signs.hotspot_count)}|
+
+`;
+}
 
 function resolveAuthorName(packageJSON: PackageJson): string {
     const author = packageJSON.author;
@@ -63,7 +119,7 @@ function resolveCopyrightYear(firstCreatedAt: number | null | undefined): string
     return startYear === currentYear ? String(currentYear) : `${String(startYear)}-present`;
 }
 
-function buildGovernanceContent(owner: string, repo: string, authorName: string, copyrightYear: string): string {
+function buildGovernanceContent(owner: string, repo: string, authorName: string, copyrightYear: string, fallowHealth: FallowHealth | undefined): string {
     const repoURL = `https://github.com/${owner}/${repo}`;
     const scorecardURI = `github.com/${owner}/${repo}`;
 
@@ -77,7 +133,7 @@ function buildGovernanceContent(owner: string, repo: string, authorName: string,
 
 [SonarCloud](https://sonarcloud.io/summary/new_code?id=${owner}_${repo}) performs continuous code quality and security analysis on every push, detecting bugs, code smells, and security vulnerabilities in the TypeScript source.
 
-### Vulnerability Scanning
+${fallowHealth === undefined ? '' : buildCodeHealthContent(fallowHealth)}### Vulnerability Scanning
 
 Two complementary tools continuously monitor dependencies for known vulnerabilities:
 

@@ -117,6 +117,7 @@ export async function spawnCommandToFile(label: string, command: string, argumen
             if (code === 0 || isErrorIgnored) {
                 void (async () => {
                     try {
+                        await fs.mkdir(path.dirname(outputPath), { recursive: true });
                         await fs.writeFile(outputPath, output, 'utf-8');
                         resolve();
                     } catch (error) {
