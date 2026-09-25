@@ -18,8 +18,9 @@ const CONNECTOR_USAGE_DESCRIPTIONS: Record<ConnectorUsageId, string> = {
     destination:
         'This connector is a Destination connector that supports only write actions. Connectors can also function as a Source (read-only) or Bidirectional (read/write), depending on the actions they support.',
     bidirectional:
-        'This connector is a Bidirectional connector that supports both read and write actions. Connectors can also function as a Source (read-only) or Destination (write-only), depending on the actions they support.'
-    // unknown: 'This connector does not yet implement any read or write actions, so its type cannot be determined. Connectors function as a Source (read-only), a Destination (write-only), or Bidirectional (read/write), depending on the actions they support.'
+        'This connector is a Bidirectional connector that supports both read and write actions. Connectors can also function as a Source (read-only) or Destination (write-only), depending on the actions they support.',
+    unknown:
+        'This connector does not yet implement any read or write actions, so its type cannot be determined. Connectors function as a Source (read-only), a Destination (write-only), or Bidirectional (read/write), depending on the actions they support.'
 };
 
 const CONNECTOR_ACTIONS_TABLE_LEAD_IN = 'The table below lists all connector actions and highlights those supported by this connector.';
