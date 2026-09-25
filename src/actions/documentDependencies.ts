@@ -41,7 +41,7 @@ const TREE_START_MARKER = '<!-- DEPENDENCY_TREE_START -->';
 const TREE_END_MARKER = '<!-- DEPENDENCY_TREE_END -->';
 
 const DEPENDENCY_TREE_INTRO =
-    "The dependency tree below lists every package in this project — direct and transitive — along with its installed version, release date, and update status. Packages flagged ❗ have a newer version available; ⚠️ indicates a package that hasn't been updated in the last 6 months or longer. Neither flag necessarily indicates a problem: we let new releases stabilise before upgrading, and some packages are simply mature and stable, requiring no active development.";
+    "The dependency tree below lists every package in this project — direct and transitive — along with its installed version, release date, and update status. Packages flagged ❗ have a newer version available; ⚠️ indicates a package that hasn't been updated in the last 6 months or longer. Neither flag necessarily indicates a problem: we let new releases stabilise before upgrading, and some packages are mature and stable (have limited or no dependencies), so they require no active development.";
 
 // ── Actions ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -152,8 +152,7 @@ function buildLicensesIntro(allowedLicenses: string): string {
 
 function formatLicenseListText(licenses: string[]): string {
     if (licenses.length === 1) return licenses[0] ?? '';
-    if (licenses.length === 2) return `${String(licenses[0])} or ${String(licenses[1])}`;
-    return `${licenses.slice(0, -1).join(', ')}, or ${String(licenses.at(-1))}`;
+    return licenses.length === 2 ? `${String(licenses[0])} or ${String(licenses[1])}` : `${licenses.slice(0, -1).join(', ')}, or ${String(licenses.at(-1))}`;
 }
 
 function parseLicenseEntry(key: string, value: ProductionPackageLicense): License {
@@ -233,6 +232,5 @@ function determineLatestAge(momentString?: string): string {
 
     if (months === 0) return `this month: ${dateString}`;
     if (months === 1) return `**1 month** ago: ${dateString}`;
-    if (months <= 6) return `**${String(months)} months** ago: ${dateString}`;
-    return `**${String(months)} months** ago: ${dateString} ⚠️`;
+    return months <= 6 ? `**${String(months)} months** ago: ${dateString}` : `**${String(months)} months** ago: ${dateString} ⚠️`;
 }
