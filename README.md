@@ -1,19 +1,5 @@
 # DPUse Development
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](./LICENSE)
-[![npm version](https://img.shields.io/npm/v/@dpuse/dpuse-development.svg)](https://www.npmjs.com/package/@dpuse/dpuse-development)
-[![CodeQL](https://github.com/dpuse/dpuse-development/actions/workflows/codeql.yml/badge.svg)](https://github.com/dpuse/dpuse-development/actions/workflows/codeql.yml)
-[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=dpuse_dpuse-development&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=dpuse_dpuse-development)
-[![CI](https://github.com/dpuse/dpuse-development/actions/workflows/ci.yml/badge.svg)](https://github.com/dpuse/dpuse-development/actions/workflows/ci.yml)
-
-## Introduction
-
-<!-- SUMMARY_START -->
-
-Actions for managing DPUse projects.
-
-<!-- SUMMARY_END -->
-
 <!-- OPENING_START -->
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](./LICENSE)
@@ -123,6 +109,8 @@ Please see other DPUse repositories for actual usage.
 ### Dependency Tree
 
 <!-- DEPENDENCY_TREE_START -->
+
+
 
 <!-- DEPENDENCY_TREE_END -->
 
