@@ -27,6 +27,10 @@ interface GitHubRepoDetails {
     security_and_analysis?: Record<string, { status: string } | undefined>;
 }
 
+interface ScorecardResult {
+    checks: { name: string; score: number }[];
+}
+
 interface GovernanceModuleConfig {
     firstCreatedAt?: number | null;
 }
@@ -54,6 +58,11 @@ interface SecuritySettings {
 
 const START_MARKER = '<!-- GOVERNANCE_START -->';
 const END_MARKER = '<!-- GOVERNANCE_END -->';
+
+// Scorecard checks a solo maintainer pushing straight to 'main' can't raise, with the best score each can reach that way.
+const SCORECARD_PRACTICE_LIMITS: Record<string, number> = { 'Branch-Protection': 3, 'Code-Review': 0, Contributors: 0 };
+// Left out when deciding whether gaps remain: the Best Practices badge shows its own progress in the same section.
+const SCORECARD_IGNORED_CHECKS = new Set(['CII-Best-Practices']);
 
 const CODEQL_LANGUAGE_NAMES: Record<string, string> = { actions: 'GitHub Actions', 'javascript-typescript': 'JavaScript/TypeScript', rust: 'Rust' };
 
@@ -83,15 +92,18 @@ export async function documentGovernance(): Promise<void> {
         logStepHeader('3️⃣  Read security checks and settings');
         const securitySettings = await readSecuritySettings(owner, repo, packageJSON);
 
-        logStepHeader('4️⃣  Look up OpenSSF Best Practices badge');
-        const bestPracticesProjectId = await lookUpBestPracticesProjectId(`https://github.com/${owner}/${repo}`);
+        logStepHeader('4️⃣  Look up OpenSSF Best Practices badge and Scorecard results');
+        const [bestPracticesProjectId, scorecardResult] = await Promise.all([
+            lookUpBestPracticesProjectId(`https://github.com/${owner}/${repo}`),
+            lookUpScorecardResult(`github.com/${owner}/${repo}`)
+        ]);
 
         logStepHeader("5️⃣  Insert governance content into 'README.md'");
 
         const authorName = resolveAuthorName(packageJSON);
         const copyrightYear = resolveCopyrightYear(configJSON.firstCreatedAt);
 
-        const content = buildGovernanceContent(owner, repo, authorName, copyrightYear, fallowHealth, bestPracticesProjectId, securitySettings);
+        const content = buildGovernanceContent(owner, repo, authorName, copyrightYear, fallowHealth, bestPracticesProjectId, securitySettings, scorecardResult);
 
         await writeReadmeSection(content, START_MARKER, END_MARKER);
 
@@ -214,6 +226,23 @@ async function lookUpBestPracticesProjectId(repoURL: string): Promise<number | u
     return projects.find((project) => project.repo_url === repoURL)?.id;
 }
 
+// Answers undefined when Scorecard has no results for the repository yet. Other failures throw, as for the badge.
+async function lookUpScorecardResult(scorecardURI: string): Promise<ScorecardResult | undefined> {
+    const response = await fetch(`https://api.scorecard.dev/projects/${scorecardURI}`);
+    if (response.status === 404) return undefined;
+    if (!response.ok) throw new Error(`OpenSSF Scorecard lookup failed with status ${String(response.status)}.`);
+    return (await response.json()) as ScorecardResult;
+}
+
+// True when every check short of 10 is one the way the project is run caps. A score of -1 means Scorecard couldn't assess
+// the check (e.g. Signed-Releases without release assets), so it isn't counted as a gap.
+function isScorecardOnlyPracticeLimited(result: ScorecardResult): boolean {
+    return result.checks.every(
+        ({ name, score }) =>
+            score === -1 || score === 10 || SCORECARD_IGNORED_CHECKS.has(name) || (SCORECARD_PRACTICE_LIMITS[name] !== undefined && score >= SCORECARD_PRACTICE_LIMITS[name])
+    );
+}
+
 function resolveAuthorName(packageJSON: PackageJson): string {
     const author = packageJSON.author;
     const authorString = typeof author === 'string' ? author : author?.name;
@@ -298,11 +327,16 @@ function buildGovernanceContent(
     copyrightYear: string,
     fallowHealth: FallowHealth | undefined,
     bestPracticesProjectId: number | undefined,
-    securitySettings: SecuritySettings
+    securitySettings: SecuritySettings,
+    scorecardResult: ScorecardResult | undefined
 ): string {
     const repoURL = `https://github.com/${owner}/${repo}`;
     const scorecardURI = `github.com/${owner}/${repo}`;
     const bestPracticesURL = `https://www.bestpractices.dev/projects/${String(bestPracticesProjectId)}`;
+    const scorecardLimitText =
+        scorecardResult !== undefined && isScorecardOnlyPracticeLimited(scorecardResult)
+            ? " Apart from the Best Practices badge above, the remaining Scorecard gaps need multi-person review or a pull-request workflow, which this solo-maintained project doesn't use."
+            : '';
     const bestPracticesBadge = bestPracticesProjectId === undefined ? '' : `[![OpenSSF Best Practices](${bestPracticesURL}/badge)](${bestPracticesURL})\n`;
 
     // Without private reporting switched on, the advisory link leads nowhere, so point only at SECURITY.md.
@@ -321,7 +355,7 @@ Please do not open public GitHub issues for security vulnerabilities. ${reportin
 
 ${bestPracticesBadge}[![OpenSSF Scorecard](https://api.scorecard.dev/projects/${scorecardURI}/badge)](https://scorecard.dev/viewer/?uri=${scorecardURI})
 
-This project is working towards the [OpenSSF Best Practices](https://www.bestpractices.dev) Passing badge, a self-certification covering security policy, vulnerability reporting, build processes, code quality, and more. Currently the [OpenSSF Scorecard](https://scorecard.dev/viewer/?uri=${scorecardURI}) provides an independent automated assessment of the project's security practices and is an ongoing area of improvement.
+This project is working towards the [OpenSSF Best Practices](https://www.bestpractices.dev) Passing badge, a self-certification covering security policy, vulnerability reporting, build processes, code quality, and more. Currently the [OpenSSF Scorecard](https://scorecard.dev/viewer/?uri=${scorecardURI}) provides an independent automated assessment of the project's security practices and is an ongoing area of improvement.${scorecardLimitText}
 
 ## Contributing
 
