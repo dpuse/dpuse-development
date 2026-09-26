@@ -1,6 +1,6 @@
 {
     "name": "@dpuse/dpuse-development",
-    "version": "0.3.743",
+    "version": "0.3.744",
     "private": false,
     "description": "Actions for managing DPUse projects.",
     "license": "MIT",
@@ -82,7 +82,7 @@
         "update": "node -e \"import('./dist/dpuse-development.es.js').then(m => m.updateDPUseDependencies(['eslint', 'shared']))\""
     },
     "dependencies": {
-        "@dpuse/dpuse-shared": "^0.3.838",
+        "@dpuse/dpuse-shared": "^0.3.840",
         "acorn": "^8.18.0",
         "acorn-typescript": "^1.4.13",
         "license-checker-rseidelsohn": "^5.0.1",

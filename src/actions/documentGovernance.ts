@@ -6,6 +6,11 @@ import { logOperationHeader, logOperationSuccess, logStepHeader, readJSONFile, r
 
 // ── Types ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
+interface BestPracticesProject {
+    id: number;
+    repo_url: string;
+}
+
 interface FallowHealth {
     health_score: { score: number; grade: string };
     summary: { functions_above_threshold: number; functions_analyzed: number; average_maintainability: number };
@@ -38,13 +43,17 @@ export async function documentGovernance(): Promise<void> {
 
         const fallowHealth = await measureCodeHealth(packageJSON);
 
-        logStepHeader("3️⃣  Insert governance content into 'README.md'");
-
         const { owner, repo } = resolveOwnerAndRepo(packageJSON, 'document governance');
+
+        logStepHeader('3️⃣  Look up OpenSSF Best Practices badge');
+        const bestPracticesProjectId = await lookUpBestPracticesProjectId(`https://github.com/${owner}/${repo}`);
+
+        logStepHeader("4️⃣  Insert governance content into 'README.md'");
+
         const authorName = resolveAuthorName(packageJSON);
         const copyrightYear = resolveCopyrightYear(configJSON.firstCreatedAt);
 
-        const content = buildGovernanceContent(owner, repo, authorName, copyrightYear, fallowHealth);
+        const content = buildGovernanceContent(owner, repo, authorName, copyrightYear, fallowHealth, bestPracticesProjectId);
 
         await writeReadmeSection(content, START_MARKER, END_MARKER);
 
@@ -98,6 +107,17 @@ function buildCodeHealthContent(health: FallowHealth): string {
 `;
 }
 
+// Found by repository URL, as OpenSSF Scorecard does, so a repo shows its badge as soon as it is registered and nothing
+// needs configuring. Failures throw rather than return nothing, so a network blip can't drop the badge from the README.
+async function lookUpBestPracticesProjectId(repoURL: string): Promise<number | undefined> {
+    const response = await fetch(`https://www.bestpractices.dev/projects.json?url=${encodeURIComponent(repoURL)}`);
+    if (!response.ok) throw new Error(`OpenSSF Best Practices lookup failed with status ${String(response.status)}.`);
+
+    // The search also matches home page URLs, so keep only the entry registered for this repository.
+    const projects = (await response.json()) as BestPracticesProject[];
+    return projects.find((project) => project.repo_url === repoURL)?.id;
+}
+
 function resolveAuthorName(packageJSON: PackageJson): string {
     const author = packageJSON.author;
     const authorString = typeof author === 'string' ? author : author?.name;
@@ -119,9 +139,11 @@ function resolveCopyrightYear(firstCreatedAt: number | null | undefined): string
     return startYear === currentYear ? String(currentYear) : `${String(startYear)}-present`;
 }
 
-function buildGovernanceContent(owner: string, repo: string, authorName: string, copyrightYear: string, fallowHealth: FallowHealth | undefined): string {
+function buildGovernanceContent(owner: string, repo: string, authorName: string, copyrightYear: string, fallowHealth: FallowHealth | undefined, bestPracticesProjectId: number | undefined): string {
     const repoURL = `https://github.com/${owner}/${repo}`;
     const scorecardURI = `github.com/${owner}/${repo}`;
+    const bestPracticesURL = `https://www.bestpractices.dev/projects/${String(bestPracticesProjectId)}`;
+    const bestPracticesBadge = bestPracticesProjectId === undefined ? '' : `[![OpenSSF Best Practices](${bestPracticesURL}/badge)](${bestPracticesURL})\n`;
 
     return `## Security & Quality
 
@@ -150,7 +172,7 @@ Please do not open public GitHub issues for security vulnerabilities. Use [GitHu
 
 ### OpenSSF 🚧
 
-[![OpenSSF Scorecard](https://api.scorecard.dev/projects/${scorecardURI}/badge)](https://scorecard.dev/viewer/?uri=${scorecardURI})
+${bestPracticesBadge}[![OpenSSF Scorecard](https://api.scorecard.dev/projects/${scorecardURI}/badge)](https://scorecard.dev/viewer/?uri=${scorecardURI})
 
 This project is working towards the [OpenSSF Best Practices](https://www.bestpractices.dev) Passing badge, a self-certification covering security policy, vulnerability reporting, build processes, code quality, and more. Currently the [OpenSSF Scorecard](https://scorecard.dev/viewer/?uri=${scorecardURI}) provides an independent automated assessment of the project's security practices and is an ongoing area of improvement.
 
