@@ -38,6 +38,9 @@ This package is published to the [public npm registry](https://www.npmjs.com/pac
 npm install @dpuse/dpuse-development
 ```
 
+> [!WARNING]
+> This project is currently published to npm, but is not designed for general use. It is custom built for the DPUse CI/CD process. You are welcome to clone and customise it for your own purposes, but you will need to adapt it to your own project structure and tooling.
+
 To work on the source instead, clone this repository. Cloned or forked code is unsupported and isn't guaranteed to remain compatible with the DPUse Engine as it evolves.
 
 ```bash
@@ -48,12 +51,27 @@ npm install
 
 _Requires [Node.js](https://nodejs.org/) 24 or later, [npm](https://www.npmjs.com/) 12 or later, and [TypeScript](https://www.typescriptlang.org/) 6.0.3 or later._
 
+This repository provides these commands to every DPUse project, and uses them itself:
+
+|Command|What it does|
+|:-|:-|
+|`npm run build`|Builds the project.|
+|`npm test`|Runs the tests.|
+|`npm run lint`|Checks the code with ESLint.|
+|`npm run format`|Formats the code with Prettier.|
+|`npm run audit`|Checks dependencies for known vulnerabilities with npm audit.|
+|`npm run check`|Checks configuration files against the DPUse templates and lists outdated dependencies.|
+|`npm run update`|Updates the DPUse packages this project depends on to their latest versions.|
+|`npm run document`|Regenerates the README's generated sections.|
+|`npm run documentOpening`|Regenerates the README's opening section.|
+|`npm run documentUsage`|Regenerates the README's Usage section.|
+|`npm run documentDependencies`|Regenerates the README's dependency licence report.|
+|`npm run documentBundleSizes`|Regenerates the README's bundle size report.|
+|`npm run documentGovernance`|Regenerates the README's Security & Quality, Contributing and License sections.|
+|`npm run sync`|Bumps the version, then commits and pushes to GitHub.|
+|`npm run release`|Bumps the version, commits and pushes, and creates a GitHub release.|
+
 <!-- USAGE_END -->
-
-### OLD Installation
-
-> [!WARNING]
-> This project is currently published to npm, but is not designed for general use. It is custom built for the DPUse CI/CD process. You are welcome to clone and customise it for your own purposes, but you will need to adapt it to your own project structure and tooling.
 
 ## DPUse Projects
 

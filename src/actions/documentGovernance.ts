@@ -335,7 +335,7 @@ function buildGovernanceContent(
     const bestPracticesURL = `https://www.bestpractices.dev/projects/${String(bestPracticesProjectId)}`;
     const scorecardLimitText =
         scorecardResult !== undefined && isScorecardOnlyPracticeLimited(scorecardResult)
-            ? " Apart from the Best Practices badge above, the remaining Scorecard gaps need multi-person review or a pull-request workflow, which this solo-maintained project doesn't use."
+            ? "\n\n> [!NOTE]\n> Apart from the Best Practices badge above, the remaining Scorecard gaps need multi-person review or a pull-request workflow, which this solo-maintained project doesn't use."
             : '';
     const bestPracticesBadge = bestPracticesProjectId === undefined ? '' : `[![OpenSSF Best Practices](${bestPracticesURL}/badge)](${bestPracticesURL})\n`;
 
