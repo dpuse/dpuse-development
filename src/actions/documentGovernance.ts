@@ -1,8 +1,10 @@
 // ── External Dependencies & Registrations
+import { execFile } from 'node:child_process';
 import type { PackageJson } from 'type-fest';
+import { promisify } from 'node:util';
 
 // ── Local (Development) Framework
-import { logOperationHeader, logOperationSuccess, logStepHeader, readJSONFile, resolveOwnerAndRepo, spawnCommandToFile, writeReadmeSection } from '@/utilities';
+import { logOperationHeader, logOperationSuccess, logStepHeader, readJSONFile, readTextFileOrNull, resolveOwnerAndRepo, spawnCommandToFile, writeReadmeSection } from '@/utilities';
 
 // ── Types ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -17,8 +19,35 @@ interface FallowHealth {
     vital_signs: { dead_file_pct: number; dead_export_pct: number; duplication_pct: number; unused_dep_count: number; circular_dep_count: number; hotspot_count: number };
 }
 
+interface GitHubCheckRuns {
+    check_runs: { app: { slug: string } | null }[];
+}
+
+interface GitHubRepoDetails {
+    security_and_analysis?: Record<string, { status: string } | undefined>;
+}
+
 interface GovernanceModuleConfig {
     firstCreatedAt?: number | null;
+}
+
+// On or off, or undefined where GitHub doesn't reveal the setting (some need an admin login to read).
+type SettingStatus = boolean | undefined;
+
+interface SecuritySettings {
+    codeQLLanguages: string[];
+    dependabotAlerts: SettingStatus;
+    dependabotSecurityUpdates: SettingStatus;
+    dependabotVersionUpdates: boolean;
+    npmAuditInCI: boolean;
+    npmAuditLevel: string | undefined; // The '--audit-level' CI passes; without one, npm audit fails on any severity.
+    privateVulnerabilityReporting: SettingStatus;
+    propertyTests: boolean;
+    pushProtection: SettingStatus;
+    secretScanning: SettingStatus;
+    socket: boolean;
+    sonarCloud: boolean;
+    testsInCI: boolean;
 }
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -26,12 +55,18 @@ interface GovernanceModuleConfig {
 const START_MARKER = '<!-- GOVERNANCE_START -->';
 const END_MARKER = '<!-- GOVERNANCE_END -->';
 
+const CODEQL_LANGUAGE_NAMES: Record<string, string> = { actions: 'GitHub Actions', 'javascript-typescript': 'JavaScript/TypeScript', rust: 'Rust' };
+
 // Fallow — only run where the module has it installed. The full report is published as its own page, linked from the
 // README; the README table and badge are both built from the one health run, so they always agree.
 const FALLOW_DIRECTORY = 'code-health-reports/fallow';
 const FALLOW_GRADE_COLOURS: Record<string, string> = { A: 'brightgreen', B: 'green', C: 'yellow', D: 'orange', F: 'red' };
 const FALLOW_HEALTH_PATH = `${FALLOW_DIRECTORY}/health.json`;
 const FALLOW_REPORT_PATH = `${FALLOW_DIRECTORY}/index.md`;
+
+// ── Initialisation ───────────────────────────────────────────────────────────────────────────────────────────────────
+
+const asyncExecFile = promisify(execFile);
 
 // ── Actions ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -45,15 +80,18 @@ export async function documentGovernance(): Promise<void> {
 
         const { owner, repo } = resolveOwnerAndRepo(packageJSON, 'document governance');
 
-        logStepHeader('3️⃣  Look up OpenSSF Best Practices badge');
+        logStepHeader('3️⃣  Read security checks and settings');
+        const securitySettings = await readSecuritySettings(owner, repo, packageJSON);
+
+        logStepHeader('4️⃣  Look up OpenSSF Best Practices badge');
         const bestPracticesProjectId = await lookUpBestPracticesProjectId(`https://github.com/${owner}/${repo}`);
 
-        logStepHeader("4️⃣  Insert governance content into 'README.md'");
+        logStepHeader("5️⃣  Insert governance content into 'README.md'");
 
         const authorName = resolveAuthorName(packageJSON);
         const copyrightYear = resolveCopyrightYear(configJSON.firstCreatedAt);
 
-        const content = buildGovernanceContent(owner, repo, authorName, copyrightYear, fallowHealth, bestPracticesProjectId);
+        const content = buildGovernanceContent(owner, repo, authorName, copyrightYear, fallowHealth, bestPracticesProjectId, securitySettings);
 
         await writeReadmeSection(content, START_MARKER, END_MARKER);
 
@@ -83,7 +121,10 @@ function buildCodeHealthContent(health: FallowHealth): string {
     const { score, grade } = health.health_score;
     const { functions_above_threshold: complexCount, functions_analyzed: functionCount, average_maintainability: maintainability } = health.summary;
     const signs = health.vital_signs;
-    const badgeMessage = encodeURIComponent(`${grade} (${String(Math.round(score))})`).replaceAll('-', '--').replaceAll('(', '%28').replaceAll(')', '%29');
+    const badgeMessage = encodeURIComponent(`${grade} (${String(Math.round(score))})`)
+        .replaceAll('-', '--')
+        .replaceAll('(', '%28')
+        .replaceAll(')', '%29');
     const badgeURL = `https://img.shields.io/badge/fallow-${badgeMessage}-${FALLOW_GRADE_COLOURS[grade] ?? 'lightgrey'}`;
 
     return `### Code Health
@@ -105,6 +146,61 @@ function buildCodeHealthContent(health: FallowHealth): string {
 |Hotspots (complex and often changed)|${String(signs.hotspot_count)}|
 
 `;
+}
+
+// Read from the repository itself each time, so the README states what is actually switched on rather than what was
+// intended. Workflow and Dependabot files are read locally; repository settings come from the GitHub API through 'gh'.
+async function readSecuritySettings(owner: string, repo: string, packageJSON: PackageJson): Promise<SecuritySettings> {
+    const [ciWorkflow, codeQLWorkflow, dependabotConfig] = await Promise.all([
+        readTextFileOrNull('.github/workflows/ci.yml'),
+        readTextFileOrNull('.github/workflows/codeql.yml'),
+        readTextFileOrNull('.github/dependabot.yml')
+    ]);
+    const [repoDetails, privateVulnerabilityReporting, vulnerabilityAlerts, checkRuns] = await Promise.all([
+        readGitHubAPI(`repos/${owner}/${repo}`),
+        readGitHubAPI(`repos/${owner}/${repo}/private-vulnerability-reporting`),
+        readGitHubAPI(`repos/${owner}/${repo}/vulnerability-alerts`),
+        readGitHubAPI(`repos/${owner}/${repo}/commits/main/check-runs?per_page=100`)
+    ]);
+
+    const securityAndAnalysis = repoDetails === undefined ? undefined : (JSON.parse(repoDetails) as GitHubRepoDetails).security_and_analysis;
+    const readSetting = (name: string): SettingStatus => (securityAndAnalysis?.[name] === undefined ? undefined : securityAndAnalysis[name].status === 'enabled');
+    const checkAppSlugs = new Set((checkRuns === undefined ? [] : (JSON.parse(checkRuns) as GitHubCheckRuns).check_runs).map((checkRun) => checkRun.app?.slug));
+
+    // Version updates count as off when every ecosystem is limited to 0 pull requests, the documented way to pause them.
+    const ecosystemCount = dependabotConfig?.match(/package-ecosystem:/g)?.length ?? 0;
+    const pausedEcosystemCount = dependabotConfig?.match(/open-pull-requests-limit: 0\b/g)?.length ?? 0;
+
+    return {
+        codeQLLanguages: (codeQLWorkflow ?? '')
+            .matchAll(/- language: ([\w-]+)/g)
+            .map(([, language = '']) => CODEQL_LANGUAGE_NAMES[language] ?? language)
+            .toArray(),
+        dependabotAlerts: vulnerabilityAlerts !== undefined, // Answers '204 No Content' when on and '404' when off.
+        dependabotSecurityUpdates: readSetting('dependabot_security_updates'),
+        dependabotVersionUpdates: ecosystemCount > pausedEcosystemCount,
+        npmAuditInCI: /npm (?:run )?audit/.test(ciWorkflow ?? ''),
+        npmAuditLevel: /npm audit --audit-level=(\w+)/.exec(ciWorkflow ?? '')?.[1],
+        privateVulnerabilityReporting: privateVulnerabilityReporting === undefined ? undefined : (JSON.parse(privateVulnerabilityReporting) as { enabled: boolean }).enabled,
+        propertyTests: packageJSON.devDependencies?.['fast-check'] != null,
+        pushProtection: readSetting('secret_scanning_push_protection'),
+        secretScanning: readSetting('secret_scanning'),
+        socket: checkAppSlugs.has('socket-security'),
+        sonarCloud: checkAppSlugs.has('sonarqubecloud'),
+        testsInCI: ciWorkflow?.includes('npm test') ?? false
+    };
+}
+
+// Answers undefined for a 404, which is how some endpoints report a switched-off feature. Any other failure throws, so a
+// missing login or network blip can't be written into the README as settings being off.
+async function readGitHubAPI(endpoint: string): Promise<string | undefined> {
+    try {
+        const { stdout } = await asyncExecFile('gh', ['api', endpoint]);
+        return stdout;
+    } catch (error) {
+        if (String((error as { stderr?: unknown }).stderr).includes('HTTP 404')) return undefined;
+        throw error;
+    }
 }
 
 // Found by repository URL, as OpenSSF Scorecard does, so a repo shows its badge as soon as it is registered and nothing
@@ -139,36 +235,87 @@ function resolveCopyrightYear(firstCreatedAt: number | null | undefined): string
     return startYear === currentYear ? String(currentYear) : `${String(startYear)}-present`;
 }
 
-function buildGovernanceContent(owner: string, repo: string, authorName: string, copyrightYear: string, fallowHealth: FallowHealth | undefined, bestPracticesProjectId: number | undefined): string {
+function formatStatus(status: SettingStatus, onText = 'On'): string {
+    if (status === undefined) return '❔ Unknown';
+    return status ? `✅ ${onText}` : '❌ Off';
+}
+
+function buildSecurityTableContent(owner: string, repo: string, settings: SecuritySettings): string {
+    const repoURL = `https://github.com/${owner}/${repo}`;
+    const codeQLStatus = formatStatus(settings.codeQLLanguages.length > 0, settings.codeQLLanguages.join(', '));
+    const rows = [
+        [
+            `[CodeQL](${repoURL}/security/code-scanning)`,
+            codeQLStatus,
+            'Static analysis for security vulnerabilities and coding errors, on every push and pull request to `main` and weekly.'
+        ],
+        [
+            `[SonarCloud](https://sonarcloud.io/summary/new_code?id=${owner}_${repo})`,
+            formatStatus(settings.sonarCloud),
+            'Code quality and security analysis on every push: bugs, code smells and vulnerabilities.'
+        ],
+        ['Unit tests', formatStatus(settings.testsInCI), 'Run in CI on every push to `main`.'],
+        ['Property-based tests', formatStatus(settings.propertyTests, 'fast-check'), 'Fuzz testing: many random inputs per test to find edge cases, run with the unit tests.'],
+        [
+            'npm audit',
+            formatStatus(settings.npmAuditInCI),
+            settings.npmAuditLevel === undefined
+                ? 'Fails CI when any dependency has a known vulnerability.'
+                : `Fails CI when a dependency has a known vulnerability of ${settings.npmAuditLevel} severity or above.`
+        ],
+        [
+            '[Socket.dev](https://socket.dev)',
+            formatStatus(settings.socket),
+            'Flags supply chain risk in dependencies: malicious packages, typosquatting and suspicious behaviour that may not yet have a CVE.'
+        ],
+        ['Dependabot alerts', formatStatus(settings.dependabotAlerts), 'Alerts when a dependency has a known vulnerability, using the GitHub Advisory Database.'],
+        ['Dependabot security updates', formatStatus(settings.dependabotSecurityUpdates), 'Opens pull requests that update vulnerable dependencies.'],
+        ['Dependabot version updates', formatStatus(settings.dependabotVersionUpdates), 'Opens pull requests for new dependency versions.'],
+        ['Secret scanning', formatStatus(settings.secretScanning), 'Detects credentials, such as API keys and tokens, committed to the repository.'],
+        ['Push protection', formatStatus(settings.pushProtection), 'Blocks pushes that contain credentials.'],
+        [
+            'Private vulnerability reporting',
+            formatStatus(settings.privateVulnerabilityReporting),
+            'Lets anyone report a vulnerability privately. See [Reporting Vulnerabilities](#reporting-vulnerabilities).'
+        ]
+    ];
+
+    return `### Checks & Settings
+
+Read from the repository each time this README is generated, so the status is current as of the latest release.
+
+|Check or setting|Status|What it does|
+|:-|:-|:-|
+${rows.map((row) => `|${row.join('|')}|`).join('\n')}
+
+`;
+}
+
+function buildGovernanceContent(
+    owner: string,
+    repo: string,
+    authorName: string,
+    copyrightYear: string,
+    fallowHealth: FallowHealth | undefined,
+    bestPracticesProjectId: number | undefined,
+    securitySettings: SecuritySettings
+): string {
     const repoURL = `https://github.com/${owner}/${repo}`;
     const scorecardURI = `github.com/${owner}/${repo}`;
     const bestPracticesURL = `https://www.bestpractices.dev/projects/${String(bestPracticesProjectId)}`;
     const bestPracticesBadge = bestPracticesProjectId === undefined ? '' : `[![OpenSSF Best Practices](${bestPracticesURL}/badge)](${bestPracticesURL})\n`;
 
+    // Without private reporting switched on, the advisory link leads nowhere, so point only at SECURITY.md.
+    const reportingText =
+        securitySettings.privateVulnerabilityReporting === true
+            ? `Use [GitHub private vulnerability reporting](${repoURL}/security/advisories/new) instead. See [SECURITY.md](./SECURITY.md) for the full disclosure policy, contact details, and expected response times.`
+            : 'See [SECURITY.md](./SECURITY.md) for how to report one privately, the full disclosure policy, and expected response times.';
+
     return `## Security & Quality
 
-### CodeQL
+${buildSecurityTableContent(owner, repo, securitySettings)}${fallowHealth === undefined ? '' : buildCodeHealthContent(fallowHealth)}### Reporting Vulnerabilities
 
-[CodeQL](${repoURL}/security/code-scanning) static analysis runs on every push to \`main\` and on a weekly schedule, scanning TypeScript, JavaScript, Rust, and GitHub Actions workflow files for security vulnerabilities and coding errors.
-
-### SonarCloud
-
-[SonarCloud](https://sonarcloud.io/summary/new_code?id=${owner}_${repo}) performs continuous code quality and security analysis on every push, detecting bugs, code smells, and security vulnerabilities in the TypeScript source.
-
-${fallowHealth === undefined ? '' : buildCodeHealthContent(fallowHealth)}### Vulnerability Scanning
-
-Two complementary tools continuously monitor dependencies for known vulnerabilities:
-
-- [npm audit](https://docs.npmjs.com/cli/v8/commands/npm-audit) runs on every push to \`main\` via the CI workflow, failing the build if any high or critical severity vulnerabilities are detected.
-- [GitHub Dependabot](https://docs.github.com/en/code-security/dependabot) automatically raises pull requests to update vulnerable dependencies, drawing on the GitHub Advisory Database which combines NVD and npm-specific advisories.
-
-### Supply Chain Security
-
-[Socket.dev](https://socket.dev) monitors all dependencies for supply chain risk — detecting malicious packages, dependency confusion, typosquatting, and suspicious behaviour that may not yet have a CVE.
-
-### Reporting Vulnerabilities
-
-Please do not open public GitHub issues for security vulnerabilities. Use [GitHub private vulnerability reporting](${repoURL}/security/advisories/new) instead. See [SECURITY.md](./SECURITY.md) for the full disclosure policy, contact details, and expected response times.
+Please do not open public GitHub issues for security vulnerabilities. ${reportingText}
 
 ### OpenSSF 🚧
 
@@ -186,5 +333,5 @@ For security vulnerabilities, see [Reporting Vulnerabilities](#reporting-vulnera
 
 This project is licensed under the MIT License, permitting free use, modification, and distribution.
 
-[MIT](./LICENSE) © ${copyrightYear}-present ${authorName}`;
+[MIT](./LICENSE) © ${copyrightYear} ${authorName}`;
 }
