@@ -25,7 +25,6 @@ const SCRIPT_DESCRIPTIONS: [string, string][] = [
     ['format', 'Formats the code with Prettier.'],
     ['audit', 'Checks dependencies for known vulnerabilities with npm audit.'],
     ['check', 'Checks configuration files against the DPUse templates and lists outdated dependencies.'],
-    ['update', 'Updates the DPUse packages this project depends on to their latest versions.'],
     ['document', "Regenerates the README's generated sections."],
     ['documentOpening', "Regenerates the README's opening section."],
     ['documentActions', "Regenerates the README's connector actions table."],

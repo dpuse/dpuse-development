@@ -1,6 +1,6 @@
 {
     "name": "@dpuse/dpuse-development",
-    "version": "0.3.754",
+    "version": "0.3.755",
     "private": false,
     "description": "Actions for managing DPUse projects.",
     "license": "MIT",
@@ -83,6 +83,9 @@
         "sync": "node -e \"import('./dist/dpuse-development.es.js').then(m => m.syncProjectWithGitHub())\"",
         "test": "node -e \"import('./dist/dpuse-development.es.js').then(m => m.testProject())\"",
         "test:coverage": "node -e \"import('./dist/dpuse-development.es.js').then(m => m.testProject(['unit'], true))\""
+    },
+    "peerDependencies": {
+        "typescript": "^6.0.3"
     },
     "dependencies": {
         "@dpuse/dpuse-shared": "^0.3.851",

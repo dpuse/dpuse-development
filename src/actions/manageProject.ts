@@ -10,6 +10,7 @@ import { connectorConfigSchema, determineConnectorUsageId } from '@dpuse/dpuse-s
 import { type PresenterActionName, type PresenterConfig, presenterConfigSchema } from '@dpuse/dpuse-shared/component/module/presenter';
 
 // ── Local Framework
+import { API_REFERENCE_PATH, writeAPIReference } from '@/actions/documentApiReference';
 import {
     execCommand,
     extractOperationsFromSource,
@@ -65,6 +66,13 @@ export async function buildProject(): Promise<void> {
 
         await spawnCommand('1️⃣  Bundle project', 'vite', ['build']);
 
+        // Only where the project keeps an API reference, so projects opt in by adding the file.
+        if ((await readTextFileOrNull(API_REFERENCE_PATH)) === null) {
+            logStepHeader(`2️⃣  '${API_REFERENCE_PATH}' NOT required by this project`);
+        } else {
+            await writeAPIReference('2️⃣ ');
+        }
+
         logOperationSuccess('Project built');
     } catch (error) {
         console.error('❌  Error building project', error);
@@ -108,9 +116,6 @@ export async function releaseProject(): Promise<void> {
             case 'connector':
                 configJSON = await buildConnectorProjectConfig('2️⃣ ', packageJSON);
                 break;
-            // case 'context':
-            //     configJSON = await buildContextProjectConfig('2️⃣ ', packageJSON);
-            //     break;
             case 'presenter':
                 configJSON = await buildPresenterProjectConfig('2️⃣ ', packageJSON);
                 break;
@@ -173,22 +178,6 @@ async function buildConnectorProjectConfig(stepIcon: string, packageJSON: Packag
 
     return await processOperations<ConnectorConfig>(packageJSON, configJSON, operations, usageId);
 }
-
-// async function buildContextProjectConfig(stepIcon: string, packageJSON: PackageJson): Promise<ContextConfig> {
-//     logStepHeader(`${stepIcon} Build context project configuration`);
-
-//     const [configJSON, indexCode] = await Promise.all([readJSONFile<ContextConfig>('config.json'), readTextFile('src/index.ts')]);
-
-//     const response = safeParse(contextConfigSchema, configJSON);
-//     if (!response.success) {
-//         console.error('❌  Configuration is invalid:');
-//         console.table(response.issues);
-//         throw new Error('Configuration is invalid');
-//     }
-
-//     const operations = extractOperationsFromSource<ContextActionName>(indexCode);
-//     return await processOperations<ContextConfig>(packageJSON, configJSON, operations);
-// }
 
 async function buildPresenterProjectConfig(stepIcon: string, packageJSON: PackageJson): Promise<PresenterConfig> {
     logStepHeader(`${stepIcon} Build presenter project configuration`);

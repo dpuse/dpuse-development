@@ -17,7 +17,7 @@ export default defineConfig({
             formats: ['es']
         },
         rollupOptions: {
-            external: ['node:child_process', 'node:fs', 'node:path', 'node:readline', 'node:url', 'node:util', 'node:zlib', 'license-checker-rseidelsohn', 'npm-check-updates'],
+            external: ['node:child_process', 'node:fs', 'node:path', 'node:readline', 'node:url', 'node:util', 'node:zlib', 'license-checker-rseidelsohn', 'npm-check-updates', 'typescript'],
             onwarn(warning, warn) {
                 if (warning.code === 'INVALID_ANNOTATION' && warning.id?.includes('acorn-typescript')) return;
                 warn(warning);

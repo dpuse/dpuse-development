@@ -144,10 +144,10 @@ async function checkConfigFile(moduleDirectory: string, checkFileName: string, t
         const templatePath = path.resolve(moduleDirectory, `../${templateFileName}`);
         const templateContent = prepareTemplate(await readTextFile(templatePath));
         if (checkFileContent === templateContent) {
-            console.info(`ℹ️  File '${checkFileName.split('_', 1)[0] ?? checkFileName}' is the same as '${templateFileName}'`);
+            console.info(`ℹ️  File '${checkFileName}' is the same as '${templateFileName}'`);
             return;
         }
     }
 
-    console.info(`❌  File '${checkFileName.split('_', 1)[0] ?? checkFileName}' is NOT the same`);
+    console.info(`❌  File '${checkFileName}' is NOT the same`);
 }

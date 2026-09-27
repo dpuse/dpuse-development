@@ -1,14 +1,14 @@
 // ── External Dependencies & Registrations
 import { defineConfig } from 'vitest/config';
-import path from 'node:path';
+import { fileURLToPath, URL } from 'node:url';
 
 // ── Vitest Configuration ─────────────────────────────────────────────────────────────────────────────────────────────
 
 export default defineConfig({
     resolve: {
         alias: {
-            '~': path.resolve(__dirname, './'),
-            '@': path.resolve(__dirname, './src')
+            '~': fileURLToPath(new URL('./', import.meta.url)),
+            '@': fileURLToPath(new URL('src', import.meta.url))
         }
     },
     test: {

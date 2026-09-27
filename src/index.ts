@@ -12,6 +12,8 @@ export { documentGovernance } from './actions/documentGovernance';
 
 export { documentActions } from './actions/documentActions';
 
+export { documentAPIReference } from './actions/documentApiReference';
+
 export { documentOpening } from './actions/documentOpening';
 
 export { documentUsage } from './actions/documentUsage';

@@ -69,7 +69,7 @@ describe('documentUsage', () => {
     it('lists the scripts that run dpuse-development actions, directly or through another script', async () => {
         await writeProject('dpuse-shared', {
             name: '@dpuse/dpuse-shared',
-            scripts: { test: RUN, lint: RUN, sync: RUN, release: 'npm run sync && gh release create', custom: 'echo hello', update: 'echo not listed' }
+            scripts: { test: RUN, lint: RUN, sync: RUN, release: 'npm run sync && gh release create', custom: 'echo hello' }
         });
 
         await documentUsage();
@@ -79,7 +79,6 @@ describe('documentUsage', () => {
         expect(readme).toContain('|`npm test`|Runs the tests.|\n|`npm run lint`|Checks the code with ESLint.|');
         expect(readme).toContain('|`npm run release`|Bumps the version, commits and pushes, and creates a GitHub release.|');
         expect(readme).not.toContain('custom');
-        expect(readme).not.toContain('npm run update');
     });
 
     it('describes dpuse-development as providing the commands it runs from its own build', async () => {

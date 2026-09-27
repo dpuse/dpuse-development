@@ -165,7 +165,7 @@ export async function writeReadmeSection(content: string, startMarker: string, e
     await writeTextFile('README.md', substituteText(originalContent, content, startMarker, endMarker));
 }
 
-async function writeTextFile(path: string, data: string): Promise<void> {
+export async function writeTextFile(path: string, data: string): Promise<void> {
     await fs.writeFile(path, data, 'utf-8');
 }
 
