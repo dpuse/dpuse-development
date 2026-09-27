@@ -11,7 +11,7 @@ export async function formatCode(): Promise<void> {
         logOperationHeader('Format Code');
 
         // eslint-disable-next-line security/detect-non-literal-fs-filename -- specified directories, no user input.
-        const optionalGlobs = ['app', 'src'].filter((directory) => existsSync(directory)).map((directory) => `${directory}/**`);
+        const optionalGlobs = ['app', 'src', 'tests'].filter((directory) => existsSync(directory)).map((directory) => `${directory}/**`);
         const formatTargets = ['--write', '*.json', '*.md', '*.ts', ...optionalGlobs];
         await spawnCommand('1️⃣  Format', 'prettier', formatTargets);
 

@@ -140,7 +140,7 @@ async function insertLicensesIntoReadme(stepIcon: string, allowedLicenses: strin
 
 function buildLicensesIntro(allowedLicenses: string): string {
     const licenseListText = formatLicenseListText(allowedLicenses.split(';'));
-    return `License data is collected automatically on each release using [license-checker](https://github.com/RSeidelsohn/license-checker-rseidelsohn). The following table lists all production dependencies. These dependencies (including transitive ones) have been checked and confirmed to use ${licenseListText} — all permissive, commercially-friendly licenses. Users of the uploaded library are covered by these checks; developers cloning this repository should independently verify development dependencies.`;
+    return `License data is updated each time \`npm run document\` is run, using [license-checker](https://github.com/RSeidelsohn/license-checker-rseidelsohn). The following table lists all production dependencies. These dependencies (including transitive ones) have been checked and confirmed to use ${licenseListText} — all permissive, commercially-friendly licenses. Users of the uploaded library are covered by these checks; developers cloning this repository should independently verify development dependencies.`;
 }
 
 function formatLicenseListText(licenses: string[]): string {

@@ -1,6 +1,6 @@
 {
     "name": "@dpuse/dpuse-development",
-    "version": "0.3.751",
+    "version": "0.3.752",
     "private": false,
     "description": "Actions for managing DPUse projects.",
     "license": "MIT",
@@ -79,10 +79,12 @@
         "documentOpening": "node -e \"import('./dist/dpuse-development.es.js').then(m => m.documentOpening())\"",
         "documentUsage": "node -e \"import('./dist/dpuse-development.es.js').then(m => m.documentUsage())\"",
         "format": "node -e \"import('./dist/dpuse-development.es.js').then(m => m.formatCode())\"",
+        "health": "npm run test:coverage && fallow --coverage coverage/coverage-final.json",
         "lint": "node -e \"import('./dist/dpuse-development.es.js').then(m => m.lintCode())\"",
         "release": "npm run sync && gh release create \"v$(npm pkg get version | tr -d '\"')\" --target \"$(git rev-parse HEAD)\" --generate-notes --latest",
         "sync": "node -e \"import('./dist/dpuse-development.es.js').then(m => m.syncProjectWithGitHub())\"",
-        "test": "node -e \"import('./dist/dpuse-development.es.js').then(m => m.testProject())\""
+        "test": "node -e \"import('./dist/dpuse-development.es.js').then(m => m.testProject())\"",
+        "test:coverage": "node -e \"import('./dist/dpuse-development.es.js').then(m => m.testProject(['unit'], true))\""
     },
     "dependencies": {
         "@dpuse/dpuse-shared": "^0.3.851",
@@ -95,7 +97,9 @@
     "devDependencies": {
         "@dpuse/eslint-config-dpuse": "^1.0.123",
         "@types/node": "^26.6.3",
+        "@vitest/coverage-v8": "^5.0.2",
         "eslint": "^10.11.0",
+        "fallow": "^3.30.0",
         "fast-check": "^4.10.2",
         "prettier": "^3.9.9",
         "sonda": "^0.14.0",

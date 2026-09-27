@@ -6,6 +6,7 @@
 [![DPUse version](https://img.shields.io/github/v/release/dpuse/dpuse-development?color=f6821f&label=DPUse)](https://github.com/dpuse/dpuse-development/releases/latest)
 [![CI](https://github.com/dpuse/dpuse-development/actions/workflows/ci.yml/badge.svg)](https://github.com/dpuse/dpuse-development/actions/workflows/ci.yml)
 [![CodeQL](https://github.com/dpuse/dpuse-development/actions/workflows/codeql.yml/badge.svg)](https://github.com/dpuse/dpuse-development/actions/workflows/codeql.yml)
+[![Fallow code health](https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2Fdpuse%2Fdpuse-development%2Fmain%2Fcode-health-reports%2Ffallow%2Fbadge.json)](./code-health-reports/fallow/index.md)
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=dpuse_dpuse-development&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=dpuse_dpuse-development)
 
 [Documentation](https://www.dpuse.app) · [Report a Vulnerability](https://github.com/dpuse/dpuse-development/security/advisories/new) · [Open an Issue](https://github.com/dpuse/dpuse-development/issues)
@@ -53,23 +54,23 @@ _Requires [Node.js](https://nodejs.org/) 24 or later, [npm](https://www.npmjs.co
 
 This repository provides these commands to every DPUse project, and uses them itself:
 
-| Command                        | What it does                                                                            |
-| :----------------------------- | :-------------------------------------------------------------------------------------- |
-| `npm run build`                | Builds the project.                                                                     |
-| `npm test`                     | Runs the tests.                                                                         |
-| `npm run lint`                 | Checks the code with ESLint.                                                            |
-| `npm run format`               | Formats the code with Prettier.                                                         |
-| `npm run audit`                | Checks dependencies for known vulnerabilities with npm audit.                           |
-| `npm run check`                | Checks configuration files against the DPUse templates and lists outdated dependencies. |
-| `npm run update`               | Updates the DPUse packages this project depends on to their latest versions.            |
-| `npm run document`             | Regenerates the README's generated sections.                                            |
-| `npm run documentOpening`      | Regenerates the README's opening section.                                               |
-| `npm run documentUsage`        | Regenerates the README's Usage section.                                                 |
-| `npm run documentDependencies` | Regenerates the README's dependency licence report.                                     |
-| `npm run documentBundleSizes`  | Regenerates the README's bundle size report.                                            |
-| `npm run documentGovernance`   | Regenerates the README's Security & Quality, Contributing and License sections.         |
-| `npm run sync`                 | Bumps the version, then commits and pushes to GitHub.                                   |
-| `npm run release`              | Bumps the version, commits and pushes, and creates a GitHub release.                    |
+|Command|What it does|
+|:-|:-|
+|`npm run build`|Builds the project.|
+|`npm test`|Runs the tests.|
+|`npm run test:coverage`|Runs the unit tests and measures coverage.|
+|`npm run lint`|Checks the code with ESLint.|
+|`npm run format`|Formats the code with Prettier.|
+|`npm run audit`|Checks dependencies for known vulnerabilities with npm audit.|
+|`npm run check`|Checks configuration files against the DPUse templates and lists outdated dependencies.|
+|`npm run document`|Regenerates the README's generated sections.|
+|`npm run documentOpening`|Regenerates the README's opening section.|
+|`npm run documentUsage`|Regenerates the README's Usage section.|
+|`npm run documentDependencies`|Regenerates the README's dependency licence report.|
+|`npm run documentBundleSizes`|Regenerates the README's bundle size report.|
+|`npm run documentGovernance`|Regenerates the README's Quality & Security, Contributing and License sections.|
+|`npm run sync`|Bumps the version, then commits and pushes to GitHub.|
+|`npm run release`|Bumps the version, commits and pushes, and creates a GitHub release.|
 
 <!-- USAGE_END -->
 
@@ -112,37 +113,37 @@ All actions are designed to be run from `package.json` scripts and assume that t
 
 ## Bundle Analysis
 
-The Bundle Analysis Report is generated automatically on each release using [Sonda](https://sonda.dev/), which analyses final source maps to reveal the actual effects of tree-shaking and minification rather than relying on pre-build estimates.
+This report is updated each time the project is built, using [Sonda](https://sonda.dev/), which analyses final source maps to reveal the actual effects of tree-shaking and minification rather than relying on pre-build estimates.
 
 _Note: Sonda's Vite reports currently exclude CSS files, since Vite does not generate source maps for CSS._
 
-| Chunk/Module/File                                                                                | Composition                  |
-| :----------------------------------------------------------------------------------------------- | :--------------------------- |
-| dist/dpuse-development.es.js                                                                     | 321.9 kB · gzip 82.8 kB      |
-| &nbsp;&nbsp;&nbsp;&nbsp;acorn → dist/acorn.mjs                                                   | `████████░░░░░░░░░░░░` 40.6% |
-| &nbsp;&nbsp;&nbsp;&nbsp;acorn-typescript → lib/index.mjs                                         | `███████░░░░░░░░░░░░░` 35.6% |
-| &nbsp;&nbsp;&nbsp;&nbsp;src                                                                      | `███░░░░░░░░░░░░░░░░░` 13.2% |
-| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;documentGovernance.ts                            | `░░░░░░░░░░░░░░░░░░░░` 2.5%  |
-| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;documentDependencies.ts                          | `░░░░░░░░░░░░░░░░░░░░` 1.7%  |
-| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;manageProject.ts                                 | `░░░░░░░░░░░░░░░░░░░░` 1.7%  |
-| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;index.ts                                         | `░░░░░░░░░░░░░░░░░░░░` 1.6%  |
-| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;documentUsage.ts                                 | `░░░░░░░░░░░░░░░░░░░░` 1.4%  |
-| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;documentBundleSizes.ts                           | `░░░░░░░░░░░░░░░░░░░░` 1.4%  |
-| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;checkConfigFiles.ts                              | `░░░░░░░░░░░░░░░░░░░░` 0.8%  |
-| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;documentActions.ts                               | `░░░░░░░░░░░░░░░░░░░░` 0.5%  |
-| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;cloudflare.ts                                    | `░░░░░░░░░░░░░░░░░░░░` 0.5%  |
-| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;checkDependencies.ts                             | `░░░░░░░░░░░░░░░░░░░░` 0.5%  |
-| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;documentOpening.ts                               | `░░░░░░░░░░░░░░░░░░░░` 0.4%  |
-| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;formatCode.ts                                    | `░░░░░░░░░░░░░░░░░░░░` 0.1%  |
-| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;auditDependencies.ts                             | `░░░░░░░░░░░░░░░░░░░░` 0.1%  |
-| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;lintCode.ts                                      | `░░░░░░░░░░░░░░░░░░░░` 0.1%  |
-| &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON)                                      | `█░░░░░░░░░░░░░░░░░░░` 6.9%  |
-| &nbsp;&nbsp;&nbsp;&nbsp;@dpuse/dpuse-shared                                                      | `█░░░░░░░░░░░░░░░░░░░` 3.5%  |
-| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;dist/componentConfig.schema-DT3mO5rS.js          | `█░░░░░░░░░░░░░░░░░░░` 2.6%  |
-| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;dist/dpuse-shared-componentModuleConnector.es.js | `░░░░░░░░░░░░░░░░░░░░` 0.7%  |
-| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;dist/moduleConfig.schema-aYmFWSrn.js             | `░░░░░░░░░░░░░░░░░░░░` 0.1%  |
-| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;dist/dpuse-shared-componentModulePresenter.es.js | `░░░░░░░░░░░░░░░░░░░░` 0.1%  |
-| &nbsp;&nbsp;&nbsp;&nbsp;valibot → dist/index.mjs                                                 | `░░░░░░░░░░░░░░░░░░░░` 0.1%  |
+|Chunk/Module/File|Composition|
+|:------ |:-----------|
+| dist/dpuse-development.es.js | 323.7 kB · gzip 83.3 kB |
+| &nbsp;&nbsp;&nbsp;&nbsp;acorn → dist/acorn.mjs | `████████░░░░░░░░░░░░` 40.4% |
+| &nbsp;&nbsp;&nbsp;&nbsp;acorn-typescript → lib/index.mjs | `███████░░░░░░░░░░░░░` 35.4% |
+| &nbsp;&nbsp;&nbsp;&nbsp;src | `███░░░░░░░░░░░░░░░░░` 13.8% |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;documentGovernance.ts | `█░░░░░░░░░░░░░░░░░░░` 2.7% |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;documentDependencies.ts | `░░░░░░░░░░░░░░░░░░░░` 1.7% |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;manageProject.ts | `░░░░░░░░░░░░░░░░░░░░` 1.7% |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;index.ts | `░░░░░░░░░░░░░░░░░░░░` 1.7% |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;documentUsage.ts | `░░░░░░░░░░░░░░░░░░░░` 1.4% |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;documentBundleSizes.ts | `░░░░░░░░░░░░░░░░░░░░` 1.3% |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;checkConfigFiles.ts | `░░░░░░░░░░░░░░░░░░░░` 1.2% |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;documentActions.ts | `░░░░░░░░░░░░░░░░░░░░` 0.5% |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;documentOpening.ts | `░░░░░░░░░░░░░░░░░░░░` 0.5% |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;cloudflare.ts | `░░░░░░░░░░░░░░░░░░░░` 0.5% |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;checkDependencies.ts | `░░░░░░░░░░░░░░░░░░░░` 0.5% |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;formatCode.ts | `░░░░░░░░░░░░░░░░░░░░` 0.1% |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;auditDependencies.ts | `░░░░░░░░░░░░░░░░░░░░` 0.1% |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;lintCode.ts | `░░░░░░░░░░░░░░░░░░░░` 0.1% |
+| &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON) | `█░░░░░░░░░░░░░░░░░░░` 6.7% |
+| &nbsp;&nbsp;&nbsp;&nbsp;@dpuse/dpuse-shared | `█░░░░░░░░░░░░░░░░░░░` 3.5% |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;dist/componentConfig.schema-DT3mO5rS.js | `█░░░░░░░░░░░░░░░░░░░` 2.6% |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;dist/dpuse-shared-componentModuleConnector.es.js | `░░░░░░░░░░░░░░░░░░░░` 0.7% |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;dist/moduleConfig.schema-aYmFWSrn.js | `░░░░░░░░░░░░░░░░░░░░` 0.1% |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;dist/dpuse-shared-componentModulePresenter.es.js | `░░░░░░░░░░░░░░░░░░░░` 0.1% |
+| &nbsp;&nbsp;&nbsp;&nbsp;valibot → dist/index.mjs | `░░░░░░░░░░░░░░░░░░░░` 0.1% |
 
 (bundler output, whitespace & JSON) = bytes Sonda can't trace to a source file: whitespace (indentation and line breaks), code the bundler generates (region comments, the combined import/export lines, its small runtime helper and wrappers), and imported JSON such as `config.json`, which the bundler doesn't map. The JSON and the generated code are real bytes that ship; the whitespace mostly disappears once compressed.
 
@@ -150,30 +151,42 @@ _Note: Sonda's Vite reports currently exclude CSS files, since Vite does not gen
 
 <!-- GOVERNANCE_START -->
 
-## Security & Quality
+## Quality & Security
 
-### Checks & Settings
+This section is updated each time `npm run document` is run. Settings come from the repository's workflow files and GitHub, and test coverage and the Fallow score are measured at the same time.
 
-Read from the repository each time this README is generated, so the status is current as of the latest release.
+### Testing
 
-| Check or setting                                                                | Status                                   | What it does                                                                                                                     |
-| :------------------------------------------------------------------------------ | :--------------------------------------- | :------------------------------------------------------------------------------------------------------------------------------- |
-| [CodeQL](https://github.com/dpuse/dpuse-development/security/code-scanning)     | ✅ GitHub Actions, JavaScript/TypeScript | Static analysis for security vulnerabilities and coding errors, on every push and pull request to `main` and weekly.             |
-| [SonarCloud](https://sonarcloud.io/summary/new_code?id=dpuse_dpuse-development) | ✅ On                                    | Code quality and security analysis on every push: bugs, code smells and vulnerabilities.                                         |
-| Unit tests                                                                      | ✅ On                                    | Run in CI on every push to `main`.                                                                                               |
-| Property-based tests                                                            | ✅ fast-check                            | Fuzz testing: many random inputs per test to find edge cases, run with the unit tests.                                           |
-| npm audit                                                                       | ✅ On                                    | Fails CI when any dependency has a known vulnerability.                                                                          |
-| [Socket.dev](https://socket.dev)                                                | ✅ On                                    | Flags supply chain risk in dependencies: malicious packages, typosquatting and suspicious behaviour that may not yet have a CVE. |
-| Dependabot alerts                                                               | ✅ On                                    | Alerts when a dependency has a known vulnerability, using the GitHub Advisory Database.                                          |
-| Dependabot security updates                                                     | ❌ Off                                   | Opens pull requests that update vulnerable dependencies.                                                                         |
-| Dependabot version updates                                                      | ❌ Off                                   | Opens pull requests for new dependency versions.                                                                                 |
-| Secret scanning                                                                 | ✅ On                                    | Detects credentials, such as API keys and tokens, committed to the repository.                                                   |
-| Push protection                                                                 | ✅ On                                    | Blocks pushes that contain credentials.                                                                                          |
-| Private vulnerability reporting                                                 | ✅ On                                    | Lets anyone report a vulnerability privately. See [Reporting Vulnerabilities](#reporting-vulnerabilities).                       |
+|Check or setting|Status|What it does|
+|:-|:-|:-|
+|Unit tests|✅ On|Run in CI on every push to `main`.|
+|Property-based tests|✅ fast-check|Fuzz testing: many random inputs per test to find edge cases, run with the unit tests.|
+|Test coverage|✅ 99.6% of lines|Share of source lines the unit tests run. The target is 80%.|
 
-### Reporting Vulnerabilities
+### Code Quality
 
-Please do not open public GitHub issues for security vulnerabilities. Use [GitHub private vulnerability reporting](https://github.com/dpuse/dpuse-development/security/advisories/new) instead. See [SECURITY.md](./SECURITY.md) for the full disclosure policy, contact details, and expected response times.
+|Check or setting|Status|What it does|
+|:-|:-|:-|
+|[Fallow](./code-health-reports/fallow/index.md)|✅ A (87)|Unused code, duplication, complexity and dependency hygiene.|
+|[SonarCloud](https://sonarcloud.io/summary/new_code?id=dpuse_dpuse-development)|✅ On|Code quality and security analysis on every push: bugs, code smells and vulnerabilities.|
+
+### Security Analysis
+
+|Check or setting|Status|What it does|
+|:-|:-|:-|
+|[CodeQL](https://github.com/dpuse/dpuse-development/security/code-scanning)|✅ GitHub Actions, JavaScript/TypeScript|Static analysis for security vulnerabilities, using the extended security queries, on every push and pull request to `main` and weekly.|
+|Secret scanning|✅ On|Detects credentials, such as API keys and tokens, committed to the repository.|
+|Push protection|✅ On|Blocks pushes that contain credentials.|
+
+### Dependencies
+
+|Check or setting|Status|What it does|
+|:-|:-|:-|
+|npm audit|✅ On|Fails CI when any dependency has a known vulnerability.|
+|[Socket.dev](https://socket.dev)|✅ On|Flags supply chain risk in dependencies: malicious packages, typosquatting and suspicious behaviour that may not yet have a CVE.|
+|Dependabot alerts|✅ On|Alerts when a dependency has a known vulnerability, using the GitHub Advisory Database.|
+|Dependabot security updates|❌ Off|Opens pull requests that update vulnerable dependencies.|
+|Dependabot version updates|❌ Off|Opens pull requests for new dependency versions.|
 
 ### OpenSSF 🚧
 
@@ -183,6 +196,10 @@ This project is working towards the [OpenSSF Best Practices](https://www.bestpra
 
 > [!NOTE]
 > Apart from the Best Practices badge above, the remaining Scorecard gaps need multi-person review or a pull-request workflow, which this solo-maintained project doesn't use.
+
+### Reporting Vulnerabilities
+
+Please do not open public GitHub issues for security vulnerabilities. Use [GitHub private vulnerability reporting](https://github.com/dpuse/dpuse-development/security/advisories/new) instead. See [SECURITY.md](./SECURITY.md) for the full disclosure policy, contact details, and expected response times.
 
 ## Contributing
 

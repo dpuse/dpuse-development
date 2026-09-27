@@ -1,0 +1,31 @@
+{
+    "id": "dpuse-connector-example",
+    "label": {
+        "en": "Example Connector"
+    },
+    "description": {
+        "en": "An example connector."
+    },
+    "actionNames": [],
+    "category": null,
+    "categoryId": "fileStore",
+    "firstCreatedAt": null,
+    "implementations": {
+        "default": {
+            "authMethodId": "none",
+            "maxConnectionCount": 1
+        }
+    },
+    "icon": "<svg></svg>",
+    "iconDark": "<svg></svg>",
+    "lastUpdatedAt": null,
+    "status": null,
+    "statusId": "alpha",
+    "typeId": "connector",
+    "usage": null,
+    "usageId": "unknown",
+    "vendorAccountURL": null,
+    "vendorDocumentationURL": null,
+    "vendorHomeURL": null,
+    "version": "0.0.1"
+}

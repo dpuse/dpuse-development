@@ -4,7 +4,21 @@ import type { PackageJson } from 'type-fest';
 import { promisify } from 'node:util';
 
 // ── Local Framework
-import { logOperationHeader, logOperationSuccess, logStepHeader, readJSONFile, readTextFileOrNull, resolveOwnerAndRepo, spawnCommandToFile, writeReadmeSection } from '@/utilities';
+import {
+    FALLOW_BADGE_PATH,
+    FALLOW_DIRECTORY,
+    FALLOW_REPORT_PATH,
+    logOperationHeader,
+    logOperationSuccess,
+    logStepHeader,
+    readJSONFile,
+    readTextFileOrNull,
+    resolveOwnerAndRepo,
+    spawnCommand,
+    spawnCommandToFile,
+    writeJSONFile,
+    writeReadmeSection
+} from '@/utilities';
 
 // ── Types ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -13,10 +27,12 @@ interface BestPracticesProject {
     repo_url: string;
 }
 
+interface CoverageSummary {
+    total: { lines: { pct: number } };
+}
+
 interface FallowHealth {
     health_score: { score: number; grade: string };
-    summary: { functions_above_threshold: number; functions_analyzed: number; average_maintainability: number };
-    vital_signs: { dead_file_pct: number; dead_export_pct: number; duplication_pct: number; unused_dep_count: number; circular_dep_count: number; hotspot_count: number };
 }
 
 interface GitHubCheckRuns {
@@ -35,11 +51,19 @@ interface GovernanceModuleConfig {
     firstCreatedAt?: number | null;
 }
 
+// Everything the checks tables report on, gathered before the README is written.
+interface ChecksResults {
+    coveragePercent: number | undefined;
+    fallowHealth: FallowHealth | undefined;
+    securitySettings: SecuritySettings;
+}
+
 // On or off, or undefined where GitHub doesn't reveal the setting (some need an admin login to read).
 type SettingStatus = boolean | undefined;
 
 interface SecuritySettings {
     codeQLLanguages: string[];
+    codeQLQueries: string | undefined; // The query suite CodeQL is told to run; without one, it runs its default suite.
     dependabotAlerts: SettingStatus;
     dependabotSecurityUpdates: SettingStatus;
     dependabotVersionUpdates: boolean;
@@ -64,14 +88,18 @@ const SCORECARD_PRACTICE_LIMITS: Record<string, number> = { 'Branch-Protection':
 // Left out when deciding whether gaps remain: the Best Practices badge shows its own progress in the same section.
 const SCORECARD_IGNORED_CHECKS = new Set(['CII-Best-Practices']);
 
+// Coverage — only measured where the module has the Vitest coverage provider installed. 'coverage-final.json' feeds
+// Fallow's per-function scores; the summary holds the totals the Testing table reports.
+const COVERAGE_FINAL_PATH = 'coverage/coverage-final.json';
+const COVERAGE_SUMMARY_PATH = 'coverage/coverage-summary.json';
+const COVERAGE_TARGET_PERCENT = 80;
+
 const CODEQL_LANGUAGE_NAMES: Record<string, string> = { actions: 'GitHub Actions', 'javascript-typescript': 'JavaScript/TypeScript', rust: 'Rust' };
 
 // Fallow — only run where the module has it installed. The full report is published as its own page, linked from the
-// README; the README table and badge are both built from the one health run, so they always agree.
-const FALLOW_DIRECTORY = 'code-health-reports/fallow';
+// README; the Code Quality row and the badge are both built from the one health run, so they always agree.
 const FALLOW_GRADE_COLOURS: Record<string, string> = { A: 'brightgreen', B: 'green', C: 'yellow', D: 'orange', F: 'red' };
 const FALLOW_HEALTH_PATH = `${FALLOW_DIRECTORY}/health.json`;
-const FALLOW_REPORT_PATH = `${FALLOW_DIRECTORY}/index.md`;
 
 // ── Initialisation ───────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -85,25 +113,34 @@ export async function documentGovernance(): Promise<void> {
 
         const [packageJSON, configJSON] = await Promise.all([readJSONFile<PackageJson>('package.json'), readJSONFile<GovernanceModuleConfig>('config.json')]);
 
-        const fallowHealth = await measureCodeHealth(packageJSON);
+        const coveragePercent = await measureTestCoverage(packageJSON);
+        const fallowHealth = await measureCodeHealth(packageJSON, coveragePercent === undefined ? [] : ['--coverage', COVERAGE_FINAL_PATH]);
 
         const { owner, repo } = resolveOwnerAndRepo(packageJSON, 'document governance');
 
-        logStepHeader('3️⃣  Read security checks and settings');
+        logStepHeader('4️⃣  Read security checks and settings');
         const securitySettings = await readSecuritySettings(owner, repo, packageJSON);
 
-        logStepHeader('4️⃣  Look up OpenSSF Best Practices badge and Scorecard results');
+        logStepHeader('5️⃣  Look up OpenSSF Best Practices badge and Scorecard results');
         const [bestPracticesProjectId, scorecardResult] = await Promise.all([
             lookUpBestPracticesProjectId(`https://github.com/${owner}/${repo}`),
             lookUpScorecardResult(`github.com/${owner}/${repo}`)
         ]);
 
-        logStepHeader("5️⃣  Insert governance content into 'README.md'");
+        logStepHeader("6️⃣  Insert governance content into 'README.md'");
 
         const authorName = resolveAuthorName(packageJSON);
         const copyrightYear = resolveCopyrightYear(configJSON.firstCreatedAt);
 
-        const content = buildGovernanceContent(owner, repo, authorName, copyrightYear, fallowHealth, bestPracticesProjectId, securitySettings, scorecardResult);
+        const content = buildGovernanceContent(
+            owner,
+            repo,
+            authorName,
+            copyrightYear,
+            { coveragePercent, fallowHealth, securitySettings },
+            bestPracticesProjectId,
+            scorecardResult
+        );
 
         await writeReadmeSection(content, START_MARKER, END_MARKER);
 
@@ -116,48 +153,43 @@ export async function documentGovernance(): Promise<void> {
 
 // ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-// Fallow exits non-zero whenever it has findings, so its exit code is ignored: the findings are what gets reported.
-async function measureCodeHealth(packageJSON: PackageJson): Promise<FallowHealth | undefined> {
-    if (packageJSON.devDependencies?.['fallow'] == null) {
-        logStepHeader('1️⃣  Code health NOT measured, as Fallow is not installed');
-        logStepHeader('2️⃣  Code health report NOT required');
+// Answers undefined where the coverage provider isn't installed, or the Vitest config doesn't write a coverage summary.
+async function measureTestCoverage(packageJSON: PackageJson): Promise<number | undefined> {
+    if (packageJSON.devDependencies?.['@vitest/coverage-v8'] == null) {
+        logStepHeader("1️⃣  Test coverage NOT measured, as '@vitest/coverage-v8' is not installed");
         return undefined;
     }
 
-    await spawnCommandToFile('1️⃣  Measure code health', 'fallow', ['health', '--report-only', '--format', 'json'], FALLOW_HEALTH_PATH);
-    await spawnCommandToFile('2️⃣  Write code health report', 'fallow', ['--format', 'markdown'], FALLOW_REPORT_PATH, true);
-    return await readJSONFile<FallowHealth>(FALLOW_HEALTH_PATH);
+    await spawnCommand('1️⃣  Measure test coverage', 'vitest', ['run', '--passWithNoTests', '--coverage']);
+    const summary = await readTextFileOrNull(COVERAGE_SUMMARY_PATH);
+    return summary === null ? undefined : (JSON.parse(summary) as CoverageSummary).total.lines.pct;
 }
 
-function buildCodeHealthContent(health: FallowHealth): string {
+// Fallow exits non-zero whenever it has findings, so its exit code is ignored: the findings are what gets reported.
+async function measureCodeHealth(packageJSON: PackageJson, coverageArguments: string[]): Promise<FallowHealth | undefined> {
+    if (packageJSON.devDependencies?.['fallow'] == null) {
+        logStepHeader('2️⃣  Code health NOT measured, as Fallow is not installed');
+        logStepHeader('3️⃣  Code health report NOT required');
+        return undefined;
+    }
+
+    await spawnCommandToFile('2️⃣  Measure code health', 'fallow', ['health', '--report-only', '--format', 'json', ...coverageArguments], FALLOW_HEALTH_PATH);
+    await spawnCommandToFile('3️⃣  Write code health report', 'fallow', ['--format', 'markdown'], FALLOW_REPORT_PATH, true);
+    const health = await readJSONFile<FallowHealth>(FALLOW_HEALTH_PATH);
+    await writeFallowBadge(health);
+    return health;
+}
+
+// Written in the shields.io endpoint format, so the opening badge shows the latest pushed grade without the opening
+// section having to be regenerated after this measurement.
+async function writeFallowBadge(health: FallowHealth): Promise<void> {
     const { score, grade } = health.health_score;
-    const { functions_above_threshold: complexCount, functions_analyzed: functionCount, average_maintainability: maintainability } = health.summary;
-    const signs = health.vital_signs;
-    const badgeMessage = encodeURIComponent(`${grade} (${String(Math.round(score))})`)
-        .replaceAll('-', '--')
-        .replaceAll('(', '%28')
-        .replaceAll(')', '%29');
-    const badgeURL = `https://img.shields.io/badge/fallow-${badgeMessage}-${FALLOW_GRADE_COLOURS[grade] ?? 'lightgrey'}`;
-
-    return `### Code Health
-
-[![Fallow code health](${badgeURL})](./${FALLOW_REPORT_PATH})
-
-[Fallow](https://github.com/fallow-rs/fallow) analyses the TypeScript source on each release for unused code, duplication, complexity, and dependency hygiene. See the [full Fallow report](./${FALLOW_REPORT_PATH}) for every finding.
-
-|Measure|Value|
-|:-|-:|
-|Health score|${score.toFixed(1)} (${grade})|
-|Maintainability (average)|${maintainability.toFixed(1)}|
-|Unused files|${signs.dead_file_pct.toFixed(1)}%|
-|Unused exports|${signs.dead_export_pct.toFixed(1)}%|
-|Duplicated code|${signs.duplication_pct.toFixed(1)}%|
-|Functions over the complexity limits|${String(complexCount)} of ${String(functionCount)}|
-|Unused dependencies|${String(signs.unused_dep_count)}|
-|Circular dependencies|${String(signs.circular_dep_count)}|
-|Hotspots (complex and often changed)|${String(signs.hotspot_count)}|
-
-`;
+    await writeJSONFile(FALLOW_BADGE_PATH, {
+        schemaVersion: 1,
+        label: 'fallow',
+        message: `${grade} (${String(Math.round(score))})`,
+        color: FALLOW_GRADE_COLOURS[grade] ?? 'lightgrey'
+    });
 }
 
 // Read from the repository itself each time, so the README states what is actually switched on rather than what was
@@ -188,6 +220,7 @@ async function readSecuritySettings(owner: string, repo: string, packageJSON: Pa
             .matchAll(/- language: ([\w-]+)/g)
             .map(([, language = '']) => CODEQL_LANGUAGE_NAMES[language] ?? language)
             .toArray(),
+        codeQLQueries: /queries: ([\w-]+)/.exec(codeQLWorkflow ?? '')?.[1],
         dependabotAlerts: vulnerabilityAlerts !== undefined, // Answers '204 No Content' when on and '404' when off.
         dependabotSecurityUpdates: readSetting('dependabot_security_updates'),
         dependabotVersionUpdates: ecosystemCount > pausedEcosystemCount,
@@ -248,12 +281,11 @@ function resolveAuthorName(packageJSON: PackageJson): string {
     const authorString = typeof author === 'string' ? author : author?.name;
     if (authorString == null || authorString === '') throw new Error("package.json 'author' field is required to document governance.");
 
-    // Drop the first '<email>' and the spaces around it. Not a regex, as '\s*<' backtracks on long runs of spaces.
+    // Drop the first '<email>' and the spaces around it, keeping one space between what came before and after it, as in
+    // npm's 'Name <email> (url)' form. Not a regex, as '\s*<' backtracks on long runs of spaces.
     const emailStart = authorString.indexOf('<');
     const emailEnd = emailStart === -1 ? -1 : authorString.indexOf('>', emailStart);
-    const nameString = emailEnd === -1 ? authorString : authorString.slice(0, emailStart).trimEnd() + authorString.slice(emailEnd + 1).trimStart();
-
-    return nameString.trim();
+    return emailEnd === -1 ? authorString.trim() : [authorString.slice(0, emailStart).trim(), authorString.slice(emailEnd + 1).trim()].filter((part) => part !== '').join(' ');
 }
 
 function resolveCopyrightYear(firstCreatedAt: number | null | undefined): string {
@@ -269,22 +301,62 @@ function formatStatus(status: SettingStatus, onText = 'On'): string {
     return status ? `✅ ${onText}` : '❌ Off';
 }
 
-function buildSecurityTableContent(owner: string, repo: string, settings: SecuritySettings): string {
+function buildTableContent(heading: string, rows: string[][]): string {
+    if (rows.length === 0) return '';
+    return `### ${heading}
+
+|Check or setting|Status|What it does|
+|:-|:-|:-|
+${rows.map((row) => `|${row.join('|')}|`).join('\n')}
+
+`;
+}
+
+// Grouped by what each check protects against, not by who provides it. Every table has the same three columns.
+function buildChecksContent(owner: string, repo: string, { coveragePercent, fallowHealth, securitySettings: settings }: ChecksResults): string {
     const repoURL = `https://github.com/${owner}/${repo}`;
-    const codeQLStatus = formatStatus(settings.codeQLLanguages.length > 0, settings.codeQLLanguages.join(', '));
-    const rows = [
-        [
-            `[CodeQL](${repoURL}/security/code-scanning)`,
-            codeQLStatus,
-            'Static analysis for security vulnerabilities and coding errors, on every push and pull request to `main` and weekly.'
-        ],
+
+    const codeQualityRows = [
         [
             `[SonarCloud](https://sonarcloud.io/summary/new_code?id=${owner}_${repo})`,
             formatStatus(settings.sonarCloud),
             'Code quality and security analysis on every push: bugs, code smells and vulnerabilities.'
+        ]
+    ];
+    if (fallowHealth !== undefined) {
+        const { score, grade } = fallowHealth.health_score;
+        codeQualityRows.unshift([
+            `[Fallow](./${FALLOW_REPORT_PATH})`,
+            `✅ ${grade} (${String(Math.round(score))})`,
+            'Unused code, duplication, complexity and dependency hygiene.'
+        ]);
+    }
+
+    const codeQLScope = settings.codeQLQueries === 'security-extended' ? 'using the extended security queries' : 'using the default queries';
+    const securityAnalysisRows = [
+        [
+            `[CodeQL](${repoURL}/security/code-scanning)`,
+            formatStatus(settings.codeQLLanguages.length > 0, settings.codeQLLanguages.join(', ')),
+            `Static analysis for security vulnerabilities, ${codeQLScope}, on every push and pull request to \`main\` and weekly.`
         ],
+        ['Secret scanning', formatStatus(settings.secretScanning), 'Detects credentials, such as API keys and tokens, committed to the repository.'],
+        ['Push protection', formatStatus(settings.pushProtection), 'Blocks pushes that contain credentials.']
+    ];
+
+    const testingRows = [
         ['Unit tests', formatStatus(settings.testsInCI), 'Run in CI on every push to `main`.'],
-        ['Property-based tests', formatStatus(settings.propertyTests, 'fast-check'), 'Fuzz testing: many random inputs per test to find edge cases, run with the unit tests.'],
+        ['Property-based tests', formatStatus(settings.propertyTests, 'fast-check'), 'Fuzz testing: many random inputs per test to find edge cases, run with the unit tests.']
+    ];
+    if (coveragePercent !== undefined) {
+        const coverageIcon = coveragePercent >= COVERAGE_TARGET_PERCENT ? '✅' : '⚠️';
+        testingRows.push([
+            'Test coverage',
+            `${coverageIcon} ${coveragePercent.toFixed(1)}% of lines`,
+            `Share of source lines the unit tests run. The target is ${String(COVERAGE_TARGET_PERCENT)}%.`
+        ]);
+    }
+
+    const dependencyRows = [
         [
             'npm audit',
             formatStatus(settings.npmAuditInCI),
@@ -299,25 +371,12 @@ function buildSecurityTableContent(owner: string, repo: string, settings: Securi
         ],
         ['Dependabot alerts', formatStatus(settings.dependabotAlerts), 'Alerts when a dependency has a known vulnerability, using the GitHub Advisory Database.'],
         ['Dependabot security updates', formatStatus(settings.dependabotSecurityUpdates), 'Opens pull requests that update vulnerable dependencies.'],
-        ['Dependabot version updates', formatStatus(settings.dependabotVersionUpdates), 'Opens pull requests for new dependency versions.'],
-        ['Secret scanning', formatStatus(settings.secretScanning), 'Detects credentials, such as API keys and tokens, committed to the repository.'],
-        ['Push protection', formatStatus(settings.pushProtection), 'Blocks pushes that contain credentials.'],
-        [
-            'Private vulnerability reporting',
-            formatStatus(settings.privateVulnerabilityReporting),
-            'Lets anyone report a vulnerability privately. See [Reporting Vulnerabilities](#reporting-vulnerabilities).'
-        ]
+        ['Dependabot version updates', formatStatus(settings.dependabotVersionUpdates), 'Opens pull requests for new dependency versions.']
     ];
 
-    return `### Checks & Settings
+    return `This section is updated each time \`npm run document\` is run. Settings come from the repository's workflow files and GitHub, and test coverage and the Fallow score are measured at the same time.
 
-Read from the repository each time this README is generated, so the status is current as of the latest release.
-
-|Check or setting|Status|What it does|
-|:-|:-|:-|
-${rows.map((row) => `|${row.join('|')}|`).join('\n')}
-
-`;
+${buildTableContent('Testing', testingRows)}${buildTableContent('Code Quality', codeQualityRows)}${buildTableContent('Security Analysis', securityAnalysisRows)}${buildTableContent('Dependencies', dependencyRows)}`;
 }
 
 function buildGovernanceContent(
@@ -325,9 +384,8 @@ function buildGovernanceContent(
     repo: string,
     authorName: string,
     copyrightYear: string,
-    fallowHealth: FallowHealth | undefined,
+    checksResults: ChecksResults,
     bestPracticesProjectId: number | undefined,
-    securitySettings: SecuritySettings,
     scorecardResult: ScorecardResult | undefined
 ): string {
     const repoURL = `https://github.com/${owner}/${repo}`;
@@ -341,21 +399,21 @@ function buildGovernanceContent(
 
     // Without private reporting switched on, the advisory link leads nowhere, so point only at SECURITY.md.
     const reportingText =
-        securitySettings.privateVulnerabilityReporting === true
+        checksResults.securitySettings.privateVulnerabilityReporting === true
             ? `Use [GitHub private vulnerability reporting](${repoURL}/security/advisories/new) instead. See [SECURITY.md](./SECURITY.md) for the full disclosure policy, contact details, and expected response times.`
             : 'See [SECURITY.md](./SECURITY.md) for how to report one privately, the full disclosure policy, and expected response times.';
 
-    return `## Security & Quality
+    return `## Quality & Security
 
-${buildSecurityTableContent(owner, repo, securitySettings)}${fallowHealth === undefined ? '' : buildCodeHealthContent(fallowHealth)}### Reporting Vulnerabilities
-
-Please do not open public GitHub issues for security vulnerabilities. ${reportingText}
-
-### OpenSSF 🚧
+${buildChecksContent(owner, repo, checksResults)}### OpenSSF 🚧
 
 ${bestPracticesBadge}[![OpenSSF Scorecard](https://api.scorecard.dev/projects/${scorecardURI}/badge)](https://scorecard.dev/viewer/?uri=${scorecardURI})
 
 This project is working towards the [OpenSSF Best Practices](https://www.bestpractices.dev) Passing badge, a self-certification covering security policy, vulnerability reporting, build processes, code quality, and more. Currently the [OpenSSF Scorecard](https://scorecard.dev) provides an independent automated assessment of the project's security practices and is an ongoing area of improvement.${scorecardLimitText}
+
+### Reporting Vulnerabilities
+
+Please do not open public GitHub issues for security vulnerabilities. ${reportingText}
 
 ## Contributing
 

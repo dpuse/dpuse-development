@@ -117,7 +117,9 @@ async function checkWorkflows(moduleTypeConfig: ModuleTypeConfig, moduleDirector
     await checkConfigFile(moduleDirectory, '.github/workflows/ci.yml');
     await checkConfigFile(moduleDirectory, '.github/workflows/codeql.yml');
     // Packages published to npm use the npm workflow; the rest are published to Cloudflare.
-    await checkConfigFile(moduleDirectory, '.github/workflows/publish.yml', [moduleTypeConfig.publishedTo === 'npm' ? '.github/workflows/publish.yml' : '.github/publish.cloudflare.yml']);
+    await checkConfigFile(moduleDirectory, '.github/workflows/publish.yml', [
+        moduleTypeConfig.publishedTo === 'npm' ? '.github/workflows/publish.yml' : '.github/publish.cloudflare.yml'
+    ]);
     await checkConfigFile(moduleDirectory, '.github/workflows/scorecard.yml');
 }
 

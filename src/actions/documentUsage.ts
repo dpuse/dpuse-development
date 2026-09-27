@@ -32,7 +32,7 @@ const SCRIPT_DESCRIPTIONS: [string, string][] = [
     ['documentUsage', "Regenerates the README's Usage section."],
     ['documentDependencies', "Regenerates the README's dependency licence report."],
     ['documentBundleSizes', "Regenerates the README's bundle size report."],
-    ['documentGovernance', "Regenerates the README's Security & Quality, Contributing and License sections."],
+    ['documentGovernance', "Regenerates the README's Quality & Security, Contributing and License sections."],
     ['sync', 'Bumps the version, then commits and pushes to GitHub.'],
     ['release', 'Bumps the version, commits and pushes, and creates a GitHub release.'],
     ['publish', 'Registers the released version with DPUse.']

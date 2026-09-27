@@ -24,6 +24,11 @@ export interface ModuleTypeConfig {
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
+// Fallow — governance writes these each time it runs; the README's opening badge reads the badge file from the repository.
+export const FALLOW_DIRECTORY = 'code-health-reports/fallow';
+export const FALLOW_BADGE_PATH = `${FALLOW_DIRECTORY}/badge.json`;
+export const FALLOW_REPORT_PATH = `${FALLOW_DIRECTORY}/index.md`;
+
 const MODULE_TYPE_CONFIGS: ModuleTypeConfig[] = [
     { idPrefix: 'dpuse-app', typeId: 'app', publishedTo: 'app', uploadGroupName: undefined },
     { idPrefix: 'dpuse-api', typeId: 'api', publishedTo: 'api', uploadGroupName: undefined },
@@ -150,14 +155,6 @@ export async function readTextFileOrNull(path: string): Promise<string | null> {
     }
 }
 
-export async function removeFile(path: string): Promise<void> {
-    try {
-        await fs.unlink(path);
-    } catch (error) {
-        if ((error as NodeJS.ErrnoException).code !== 'ENOENT') throw error; // Ignore missing file errors, rethrow others.
-    }
-}
-
 export async function writeJSONFile(path: string, data: object): Promise<void> {
     await fs.writeFile(path, JSON.stringify(data, undefined, 4), 'utf-8');
 }
@@ -168,7 +165,7 @@ export async function writeReadmeSection(content: string, startMarker: string, e
     await writeTextFile('README.md', substituteText(originalContent, content, startMarker, endMarker));
 }
 
-export async function writeTextFile(path: string, data: string): Promise<void> {
+async function writeTextFile(path: string, data: string): Promise<void> {
     await fs.writeFile(path, data, 'utf-8');
 }
 
@@ -261,7 +258,7 @@ function traverseAST(node: Node, doIt: (node: Node) => void): void {
 
 // ── Actions - Text ───────────────────────────────────────────────────────────────────────────────────────────────────
 
-export function substituteText(originalText: string, substituteText: string, startMarker: string, endMarker: string): string {
+function substituteText(originalText: string, substituteText: string, startMarker: string, endMarker: string): string {
     const startIndex = originalText.indexOf(startMarker);
     const endIndex = originalText.indexOf(endMarker);
     if (startIndex === -1 || endIndex === -1) throw new Error(`Markers ${startMarker}-${endMarker} not found in content.`);

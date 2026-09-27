@@ -1,0 +1,37 @@
+{
+    "id": "dpuse-presenter-example",
+    "label": {
+        "en": "Example Presenter"
+    },
+    "description": {
+        "en": "An example presenter."
+    },
+    "firstCreatedAt": null,
+    "icon": "<svg></svg>",
+    "iconDark": null,
+    "lastUpdatedAt": null,
+    "actionNames": [],
+    "presentations": [
+        {
+            "id": "hrWrkForceAverageHeadcount",
+            "label": {
+                "en": "Average Headcount"
+            },
+            "description": {
+                "en": "This is a description..."
+            },
+            "icon": null,
+            "iconDark": null,
+            "order": 2,
+            "path": "hr/wrkForce/averageHeadcount",
+            "typeId": "presenterPresentation"
+        }
+    ],
+    "status": null,
+    "statusId": "alpha",
+    "typeId": "presenter",
+    "version": "0.0.1",
+    "vendorAccountURL": null,
+    "vendorDocumentationURL": null,
+    "vendorHomeURL": null
+}
