@@ -67,7 +67,7 @@ describe('buildProject', () => {
 
         await buildProject();
 
-        expect(await project.readFile('API_REFERENCE.md')).toContain('## @dpuse/dpuse-example\n\n### Functions\n\n- **`run`**`()`');
+        expect(await project.readFile('API_REFERENCE.md')).toContain('## @dpuse/dpuse-example\n\n### Functions\n\n- **run**()');
     });
 
     it('exits when the bundle fails', async () => {
