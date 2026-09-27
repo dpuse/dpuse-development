@@ -54,5 +54,13 @@ jobs:
             - name: Build
               run: npm run build
 
+            # Repeats the CI checks: a release is created straight after its push, so this runs alongside CI rather than
+            # after it, and must not publish a commit that fails them.
+            - name: Lint
+              run: npm run lint
+
+            - name: Test
+              run: npm test
+
             - name: Publish
               run: npm publish --provenance

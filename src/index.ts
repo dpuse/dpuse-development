@@ -1,25 +1,25 @@
-export { auditDependencies } from '@/actions/auditDependencies';
+export { auditDependencies } from './actions/auditDependencies';
 
-export { checkConfigFiles } from '@/actions/checkConfigFiles';
+export { checkConfigFiles } from './actions/checkConfigFiles';
 
-export { checkDependencies } from '@/actions/checkDependencies';
+export { checkDependencies } from './actions/checkDependencies';
 
-export { documentBundleSizes } from '@/actions/documentBundleSizes';
+export { documentBundleSizes } from './actions/documentBundleSizes';
 
-export { documentDependencies } from '@/actions/documentDependencies';
+export { documentDependencies } from './actions/documentDependencies';
 
-export { documentGovernance } from '@/actions/documentGovernance';
+export { documentGovernance } from './actions/documentGovernance';
 
-export { documentActions } from '@/actions/documentActions';
+export { documentActions } from './actions/documentActions';
 
-export { documentOpening } from '@/actions/documentOpening';
+export { documentOpening } from './actions/documentOpening';
 
-export { documentUsage } from '@/actions/documentUsage';
+export { documentUsage } from './actions/documentUsage';
 
-export { formatCode } from '@/actions/formatCode';
+export { formatCode } from './actions/formatCode';
 
-export { lintCode } from '@/actions/lintCode';
+export { lintCode } from './actions/lintCode';
 
-export { uploadDirectoryToR2 } from '@/utilities/cloudflare';
+export { uploadDirectoryToR2 } from './utilities/cloudflare';
 
-export { buildProject, publishProject, releaseProject, syncProjectWithGitHub, testProject } from '@/actions/manageProject';
+export { buildProject, publishProject, releaseProject, syncProjectWithGitHub, testProject } from './actions/manageProject';

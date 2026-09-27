@@ -1,7 +1,7 @@
 // ── External Dependencies & Registrations
 import { existsSync } from 'node:fs';
 
-// ── Local (Development) Framework
+// ── Local Framework
 import { logOperationHeader, logOperationSuccess, spawnCommand } from '@/utilities';
 
 // ── Actions ──────────────────────────────────────────────────────────────────────────────────────────────────────────

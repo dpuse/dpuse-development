@@ -9,7 +9,7 @@ import type { ConnectorActionName, ConnectorConfig } from '@dpuse/dpuse-shared/c
 import { connectorConfigSchema, determineConnectorUsageId } from '@dpuse/dpuse-shared/component/module/connector';
 import { type PresenterActionName, type PresenterConfig, presenterConfigSchema } from '@dpuse/dpuse-shared/component/module/presenter';
 
-// ── Local (Development) Framework
+// ── Local Framework
 import {
     execCommand,
     extractOperationsFromSource,

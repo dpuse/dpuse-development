@@ -1,4 +1,4 @@
-// ── Local (Development) Framework
+// ── Local Framework
 import { logOperationHeader, logOperationSuccess, logStepHeader, readJSONFile, writeReadmeSection } from '@/utilities';
 
 // ── Types ────────────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -44,8 +44,7 @@ const BAR_WIDTH = 20;
 const BUNDLE_ANALYSIS_INTRO = `The Bundle Analysis Report is generated automatically on each release using [Sonda](https://sonda.dev/), which analyses final source maps to reveal the actual effects of tree-shaking and minification rather than relying on pre-build estimates.\n\n_Note: Sonda's Vite reports currently exclude CSS files, since Vite does not generate source maps for CSS._`;
 
 const UNTRACED_LABEL = '(bundler output, whitespace & JSON)';
-const UNTRACED_NOTE =
-    `${UNTRACED_LABEL} = bytes Sonda can't trace to a source file: whitespace (indentation and line breaks), code the bundler generates (region comments, the combined import/export lines, its small runtime helper and wrappers), and imported JSON such as \`config.json\`, which the bundler doesn't map. The JSON and the generated code are real bytes that ship; the whitespace mostly disappears once compressed.`;
+const UNTRACED_NOTE = `${UNTRACED_LABEL} = bytes Sonda can't trace to a source file: whitespace (indentation and line breaks), code the bundler generates (region comments, the combined import/export lines, its small runtime helper and wrappers), and imported JSON such as \`config.json\`, which the bundler doesn't map. The JSON and the generated code are real bytes that ship; the whitespace mostly disappears once compressed.`;
 
 // ── Actions ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 

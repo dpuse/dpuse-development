@@ -5,7 +5,7 @@ import Sonda from 'sonda/vite';
 import { fileURLToPath, URL } from 'node:url';
 
 // ── Data
-import config from './config.json';
+import config from './config.json' with { type: 'json' };
 
 // ── Vite Configuration ───────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -19,11 +19,12 @@ export default defineConfig({
         rollupOptions: {
             plugins: [Sonda({ filename: 'index', format: 'json', brotli: false, gzip: true, open: false, outputDir: './bundle-analysis-reports/sonda' })]
         },
-        sourcemap: true,
+        sourcemap: 'hidden',
         target: 'ESNext'
     },
-    // Tests sit in the tsconfig so they get type-checked, but their declarations must not reach the published package.
-    plugins: [dts({ exclude: ['tests/**'], outDirs: 'dist/types' })],
+    // Tests and config files sit in the tsconfig so they get type-checked, but their declarations must not reach the
+    // published package. 'entryRoot' keeps the types under 'dist/types/src', where package.json points.
+    plugins: [dts({ entryRoot: '.', exclude: ['tests/**', '*.config.*'], outDirs: 'dist/types' })],
     resolve: {
         alias: {
             '~': fileURLToPath(new URL('./', import.meta.url)),

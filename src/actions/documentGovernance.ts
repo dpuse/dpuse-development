@@ -3,7 +3,7 @@ import { execFile } from 'node:child_process';
 import type { PackageJson } from 'type-fest';
 import { promisify } from 'node:util';
 
-// ── Local (Development) Framework
+// ── Local Framework
 import { logOperationHeader, logOperationSuccess, logStepHeader, readJSONFile, readTextFileOrNull, resolveOwnerAndRepo, spawnCommandToFile, writeReadmeSection } from '@/utilities';
 
 // ── Types ────────────────────────────────────────────────────────────────────────────────────────────────────────────

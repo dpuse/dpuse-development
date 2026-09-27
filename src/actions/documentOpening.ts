@@ -4,7 +4,7 @@ import type { PackageJson } from 'type-fest';
 // ── DPUse Framework
 import type { ModuleConfig } from '@dpuse/dpuse-shared/component/module';
 
-// ── Local (Development) Framework
+// ── Local Framework
 import { logOperationHeader, logOperationSuccess, logStepHeader, readJSONFile, resolveOwnerAndRepo, writeReadmeSection } from '@/utilities';
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────

@@ -3,7 +3,7 @@ import path from 'node:path';
 import type { RcOptions } from 'npm-check-updates';
 import { run as runNpmCheckUpdates } from 'npm-check-updates';
 
-// ── Local (Development) Framework
+// ── Local Framework
 import { logOperationHeader, logOperationSuccess, logStepHeader, readJSONFile, spawnCommand } from '@/utilities';
 
 // ── Actions ──────────────────────────────────────────────────────────────────────────────────────────────────────────

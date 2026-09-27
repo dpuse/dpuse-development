@@ -1,17 +1,15 @@
-name: CI
+name: Publish
 
 on:
-    push:
-        branches: ['main']
-    pull_request:
-        branches: ['main']
+    release:
+        types: [published]
 
 permissions:
     contents: read
 
 jobs:
-    ci:
-        name: Lint, test & audit
+    publish:
+        name: Publish to Cloudflare
         runs-on: ubuntu-latest
         steps:
             - name: Checkout
@@ -54,11 +52,16 @@ jobs:
             - name: Build
               run: npm run build
 
+            # Repeats the CI checks: a release is created straight after its push, so this runs alongside CI rather than
+            # after it, and must not publish a commit that fails them.
             - name: Lint
               run: npm run lint
 
             - name: Test
               run: npm test
 
-            - name: Audit
-              run: npm run audit
+            - name: Publish
+              run: npm run publish
+              env:
+                  CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+                  CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}

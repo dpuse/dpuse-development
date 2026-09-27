@@ -2,7 +2,7 @@
 import type { ConnectorActionName, ConnectorUsageId } from '@dpuse/dpuse-shared/component/module/connector';
 import { determineConnectorUsageId, getConnectorActionsTable } from '@dpuse/dpuse-shared/component/module/connector';
 
-// ── Local (Development) Framework
+// ── Local Framework
 import { logOperationHeader, logOperationSuccess, logStepHeader, readJSONFile, writeReadmeSection } from '@/utilities';
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────

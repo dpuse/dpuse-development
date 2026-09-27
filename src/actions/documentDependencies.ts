@@ -1,8 +1,8 @@
-// ── External
+// ── External Dependencies & Registrations
 import { init as initLicenseChecker } from 'license-checker-rseidelsohn';
 import type { InitOpts } from 'license-checker-rseidelsohn';
 
-// ── Local (Development) Framework
+// ── Local Framework
 import { clearDirectory, logOperationHeader, logOperationSuccess, logStepHeader, readJSONFile, spawnCommandToFile, writeReadmeSection } from '@/utilities';
 
 // ── Types ────────────────────────────────────────────────────────────────────────────────────────────────────────────

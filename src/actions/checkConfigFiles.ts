@@ -1,12 +1,18 @@
 // ── External Dependencies & Registrations
 import { fileURLToPath } from 'node:url';
+import type { PackageJson } from 'type-fest';
 import path from 'node:path';
 
 // ── DPUse Framework
 import type { ModuleConfig } from '@dpuse/dpuse-shared/component/module';
 
-// ── Local (Development) Framework
+// ── Local Framework
 import { getModuleConfig, logOperationHeader, logOperationSuccess, logStepHeader, ModuleTypeConfig, readJSONFile, readTextFile } from '@/utilities';
+
+// ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+const PRETTIER_CONFIG_REFERENCE = '@dpuse/dpuse-development/prettierrc';
+const TEMPLATE_REPOSITORY_NAME = 'dpuse-development'; // Stands in for each project's own name in the SECURITY.md template.
 
 // ── Actions ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -16,6 +22,8 @@ export async function checkConfigFiles(): Promise<void> {
 
         logStepHeader('1️⃣  Check individual files');
         const configJSON = await readJSONFile<ModuleConfig>('config.json');
+        const packageJSON = await readJSONFile<PackageJson>('package.json');
+        const isPrivate = packageJSON.private === true; // Private packages have no workflows or security policy.
         const moduleTypeConfig = getModuleConfig(configJSON.id);
         const moduleDirectory = path.dirname(fileURLToPath(import.meta.url));
         await checkConfigFile(moduleDirectory, '.editorconfig');
@@ -29,6 +37,14 @@ export async function checkConfigFiles(): Promise<void> {
         await checkTSConfigScripts(moduleTypeConfig, moduleDirectory);
         await checkViteConfig(moduleTypeConfig, moduleDirectory);
         await checkVitestConfig(moduleTypeConfig, moduleDirectory);
+        checkPrettierConfig(moduleTypeConfig, packageJSON);
+        await checkConfigFile(moduleDirectory, '.github/dependabot.yml', [isPrivate ? '.github/dependabot.private.yml' : '.github/dependabot.yml']);
+        if (isPrivate) {
+            console.info("ℹ️  GitHub workflows and file 'SECURITY.md' are NOT required by this project");
+        } else {
+            await checkWorkflows(moduleTypeConfig, moduleDirectory);
+            await checkConfigFile(moduleDirectory, 'SECURITY.md', [], (content) => content.replaceAll(TEMPLATE_REPOSITORY_NAME, () => configJSON.id));
+        }
 
         logOperationSuccess('Configuration files checked');
     } catch (error) {
@@ -37,7 +53,7 @@ export async function checkConfigFiles(): Promise<void> {
     }
 }
 
-// ── Helpers ─────────────────────────────────────────────────────────────────────────────────────────────────────────────
+// ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 async function checkGitAttributes(moduleTypeConfig: ModuleTypeConfig, moduleDirectory: string) {
     if (['development'].includes(moduleTypeConfig.typeId)) {
@@ -56,6 +72,16 @@ async function checkESLintConfig(moduleTypeConfig: ModuleTypeConfig, moduleDirec
         await checkConfigFile(moduleDirectory, 'eslint.config.js', ['eslint.config.default.js']);
     }
 }
+function checkPrettierConfig(moduleTypeConfig: ModuleTypeConfig, packageJSON: PackageJson) {
+    if (['app', 'development'].includes(moduleTypeConfig.typeId)) {
+        console.info("ℹ️  File '.prettierrc.json' is UNIQUE to this project");
+    } else if (packageJSON['prettier'] === PRETTIER_CONFIG_REFERENCE) {
+        console.info(`ℹ️  Prettier configuration is '${PRETTIER_CONFIG_REFERENCE}'`);
+    } else {
+        console.info(`⚠️  Prettier configuration is NOT '${PRETTIER_CONFIG_REFERENCE}'`);
+    }
+}
+
 async function checkTSConfig(moduleTypeConfig: ModuleTypeConfig, moduleDirectory: string) {
     if (['github'].includes(moduleTypeConfig.typeId)) {
         console.info("ℹ️  File 'tsconfig.json' is NOT required by this project");
@@ -87,6 +113,14 @@ async function checkViteConfig(moduleTypeConfig: ModuleTypeConfig, moduleDirecto
         await checkConfigFile(moduleDirectory, 'vite.config.ts', viteConfigTemplates);
     }
 }
+async function checkWorkflows(moduleTypeConfig: ModuleTypeConfig, moduleDirectory: string) {
+    await checkConfigFile(moduleDirectory, '.github/workflows/ci.yml');
+    await checkConfigFile(moduleDirectory, '.github/workflows/codeql.yml');
+    // Packages published to npm use the npm workflow; the rest are published to Cloudflare.
+    await checkConfigFile(moduleDirectory, '.github/workflows/publish.yml', [moduleTypeConfig.publishedTo === 'npm' ? '.github/workflows/publish.yml' : '.github/publish.cloudflare.yml']);
+    await checkConfigFile(moduleDirectory, '.github/workflows/scorecard.yml');
+}
+
 async function checkVitestConfig(moduleTypeConfig: ModuleTypeConfig, moduleDirectory: string) {
     if (['app', 'api', 'eslint', 'github', 'kb'].includes(moduleTypeConfig.typeId)) {
         console.info("ℹ️  File 'vitest.config.ts' is NOT required by this project");
@@ -95,7 +129,7 @@ async function checkVitestConfig(moduleTypeConfig: ModuleTypeConfig, moduleDirec
     }
 }
 
-async function checkConfigFile(moduleDirectory: string, checkFileName: string, templateFileNames: string[] = []): Promise<void> {
+async function checkConfigFile(moduleDirectory: string, checkFileName: string, templateFileNames: string[] = [], prepareTemplate = (content: string) => content): Promise<void> {
     const checkFilePath = path.resolve(process.cwd(), checkFileName);
     const templates = templateFileNames.length > 0 ? templateFileNames : [checkFileName];
 
@@ -105,10 +139,14 @@ async function checkConfigFile(moduleDirectory: string, checkFileName: string, t
     } catch (error) {
         if ((error as NodeJS.ErrnoException).code !== 'ENOENT') throw error;
     }
+    if (checkFileContent === undefined) {
+        console.info(`⚠️  File '${checkFileName}' is MISSING`);
+        return;
+    }
 
     for (const templateFileName of templates) {
         const templatePath = path.resolve(moduleDirectory, `../${templateFileName}`);
-        const templateContent = await readTextFile(templatePath);
+        const templateContent = prepareTemplate(await readTextFile(templatePath));
         if (checkFileContent === templateContent) {
             console.info(`ℹ️  File '${checkFileName.split('_', 1)[0] ?? checkFileName}' is the same as '${templateFileName}'`);
             return;

@@ -2,7 +2,7 @@
 import type { ModuleConfig } from '@dpuse/dpuse-shared/component/module';
 import type { PackageJson } from 'type-fest';
 
-// ── Local (Development) Framework
+// ── Local Framework
 import type { ModuleTypeConfig } from '@/utilities';
 import { getModuleConfig, logOperationHeader, logOperationSuccess, logStepHeader, readJSONFile, writeReadmeSection } from '@/utilities';
 

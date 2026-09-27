@@ -1,4 +1,4 @@
-// ── Local (Development) Framework
+// ── Local Framework
 import { logOperationHeader, logOperationSuccess, spawnCommand } from '@/utilities';
 
 // ── Actions ──────────────────────────────────────────────────────────────────────────────────────────────────────────
