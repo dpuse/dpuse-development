@@ -9,9 +9,10 @@ import { logOperationHeader, logOperationSuccess, logStepHeader, readJSONFile, w
 
 interface ExportEntry {
     description: string | undefined;
+    detail: string; // What follows the name in code, such as a function's parameters or a constant's type.
     kind: ExportKind;
+    name: string;
     origin: string;
-    signature: string;
 }
 
 type ExportKind = 'Classes' | 'Constants' | 'Functions' | 'Schemas' | 'Types';
@@ -103,7 +104,7 @@ function groupExports(checker: ts.TypeChecker, sourceFile: ts.SourceFile, fieldG
         if (entry !== undefined) groups.get(entry.kind)?.push({ ...entry, description: readDescription(checker, symbol) });
     }
 
-    for (const entries of groups.values()) entries.sort((a, b) => a.signature.localeCompare(b.signature));
+    for (const entries of groups.values()) entries.sort((a, b) => a.name.localeCompare(b.name));
     return groups;
 }
 
@@ -120,13 +121,13 @@ function describeExport(
 
     if (signature !== undefined && !isSchema) {
         const parameters = signature.parameters.map((parameter) => formatParameter(checker, parameter));
-        return { kind: 'Functions', origin: '', signature: `${name}(${parameters.join(', ')})` };
+        return { detail: `(${parameters.join(', ')})`, kind: 'Functions', name, origin: '' };
     }
-    if ((symbol.flags & ts.SymbolFlags.Class) !== 0) return { kind: 'Classes', origin: formatOrigin(checker, symbol, fieldGroupOwners), signature: name };
-    if (isSchema && (symbol.flags & ts.SymbolFlags.Variable) !== 0) return { kind: 'Schemas', origin: '', signature: name };
-    if ((symbol.flags & ts.SymbolFlags.Variable) !== 0) return { kind: 'Constants', origin: '', signature: `${name}: ${formatConstantType(checker, symbol)}` };
+    if ((symbol.flags & ts.SymbolFlags.Class) !== 0) return { detail: '', kind: 'Classes', name, origin: formatOrigin(checker, symbol, fieldGroupOwners) };
+    if (isSchema && (symbol.flags & ts.SymbolFlags.Variable) !== 0) return { detail: '', kind: 'Schemas', name, origin: '' };
+    if ((symbol.flags & ts.SymbolFlags.Variable) !== 0) return { detail: `: ${formatConstantType(checker, symbol)}`, kind: 'Constants', name, origin: '' };
     const isType = (symbol.flags & (ts.SymbolFlags.Enum | ts.SymbolFlags.Interface | ts.SymbolFlags.TypeAlias)) !== 0;
-    return isType ? { kind: 'Types', origin: formatOrigin(checker, symbol, fieldGroupOwners), signature: name } : undefined;
+    return isType ? { detail: '', kind: 'Types', name, origin: formatOrigin(checker, symbol, fieldGroupOwners) } : undefined;
 }
 
 // The summary of the '/** … */' comment above the item, on one line. Tags such as '@param' are left out, and '//'
@@ -298,10 +299,12 @@ function buildSection(importPath: string, groups: Map<ExportKind, ExportEntry[]>
     return [`## ${importPath}`, ...lists].join('\n\n');
 }
 
-// The description goes on a second, indented line in italics, so the names can be read straight down the left. The
+// Only the name is bold, so it stands out from its parameters or type, which follow in a code span of their own. The
+// description goes on a second, indented line in italics, so the names can be read straight down the left. The
 // trailing '\' is a markdown line break, without which the two lines would render as one. Rendering drops leading
 // spaces, so the '&emsp;' is what indents the description on screen; the spaces only indent it in the file.
-function formatEntry({ description, origin, signature }: ExportEntry): string {
-    const firstLine = `- \`${signature}\`${origin}`;
+function formatEntry({ description, detail, name, origin }: ExportEntry): string {
+    const detailCode = detail === '' ? '' : `\`${detail}\``;
+    const firstLine = `- **\`${name}\`**${detailCode}${origin}`;
     return description === undefined ? firstLine : `${firstLine}\\\n    &emsp;_${description}_`;
 }
