@@ -157,16 +157,16 @@ function formatOrigin(checker: ts.TypeChecker, symbol: ts.Symbol, fieldGroupOwne
     );
     const clauses = heritageClauses.map((clause) => {
         const keyword = clause.token === ts.SyntaxKind.ExtendsKeyword ? 'extends' : 'implements';
-        return `${keyword} ${clause.types.map((type) => type.getText()).join(', ')}`;
+        return `${keyword} ${clause.types.map((type) => formatCode(formatTypeNode(type))).join(', ')}`;
     });
 
     const typeAlias = symbol.declarations?.find((declaration) => ts.isTypeAliasDeclaration(declaration));
     const schemaName = typeAlias === undefined ? undefined : findSchemaName(typeAlias);
     if (typeAlias !== undefined && schemaName !== undefined) {
-        clauses.push(`inferred from ${schemaName.getText()}`);
+        clauses.push(`inferred from ${formatCode(schemaName.getText())}`);
         const fields = findSchemaFields(checker, typeAlias);
         const parents = fields === undefined ? [] : findSchemaParents(checker, fields, typeAlias.name.text, fieldGroupOwners);
-        if (parents.length > 0) clauses.push(`extends ${parents.join(', ')}`);
+        if (parents.length > 0) clauses.push(`extends ${parents.map((parent) => formatCode(parent)).join(', ')}`);
     }
     return clauses.length === 0 ? '' : ` (${clauses.join(', ')})`;
 }
@@ -303,14 +303,11 @@ function buildSection(importPath: string, groups: Map<ExportKind, ExportEntry[]>
 // its parameters or type. The description is a quote nested in the item, which indents every line of it and shows it
 // in lighter text, so the names can be read straight down the left.
 function formatEntry({ description, detail, name, origin }: ExportEntry): string {
-    const detailCode = detail === '' ? '' : `\`${detail}\``;
-    const firstLine = `- **\`${name}\`**${detailCode}${escapeMarkdown(origin)}`;
+    const detailCode = detail === '' ? '' : formatCode(detail);
+    const firstLine = `- **${formatCode(name)}**${detailCode}${origin}`;
     return description === undefined ? firstLine : `${firstLine}\n    > ${description}`;
 }
 
-// What a type extends is plain text, so characters markdown would act on are escaped: '<' would start an HTML tag,
-// hiding 'Omit<BaseConfig, 'id'>', and the others would start emphasis or code. An underscore inside a word is left
-// alone, as markdown does not treat it as emphasis.
-function escapeMarkdown(text: string): string {
-    return text.replaceAll(/[\\`*<]|(?<![\da-z])_|_(?![\da-z])/gi, (character) => `\\${character}`);
+function formatCode(text: string): string {
+    return `\`${text}\``;
 }

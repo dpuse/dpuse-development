@@ -137,7 +137,7 @@ Every export, grouped by import path. This file is updated each time the project
 
 ### Classes
 
-- **\`DPUseError\`** (extends Error)
+- **\`DPUseError\`** (extends \`Error\`)
 `);
     });
 
@@ -153,7 +153,7 @@ Every export, grouped by import path. This file is updated each time the project
 
         expect(await project.readFile('API_REFERENCE.md')).toContain(`### Classes
 
-- **\`AppError\`** (extends BaseError, implements Reportable)
+- **\`AppError\`** (extends \`BaseError\`, implements \`Reportable\`)
 
 ### Constants
 
@@ -164,16 +164,15 @@ Every export, grouped by import path. This file is updated each time the project
 
 ### Types
 
-- **\`AlphaConfig\`** (inferred from alphaConfigSchema)
-- **\`BaseConfig\`** (inferred from baseFields)
-- **\`BetaConfig\`** (inferred from betaConfigSchema)
-- **\`ComponentConfig\`** (inferred from componentConfigSchema, extends BaseConfig)
-- **\`ConnectorConfig\`** (inferred from connectorConfigSchema, extends ModuleConfig)
-- **\`ModuleConfig\`** (inferred from moduleConfigSchema, extends ComponentConfig)
-- **\`ModuleTypeId\`** (inferred from moduleTypeIdSchema)
+- **\`AlphaConfig\`** (inferred from \`alphaConfigSchema\`)
+- **\`BaseConfig\`** (inferred from \`baseFields\`)
+- **\`BetaConfig\`** (inferred from \`betaConfigSchema\`)
+- **\`ComponentConfig\`** (inferred from \`componentConfigSchema\`, extends \`BaseConfig\`)
+- **\`ConnectorConfig\`** (inferred from \`connectorConfigSchema\`, extends \`ModuleConfig\`)
+- **\`ModuleConfig\`** (inferred from \`moduleConfigSchema\`, extends \`ComponentConfig\`)
+- **\`ModuleTypeId\`** (inferred from \`moduleTypeIdSchema\`)
 - **\`Reportable\`**
-- **\`SettingsConfig\`**`);
-        expect(await project.readFile('API_REFERENCE.md')).toContain(String.raw`(extends Omit\<BaseConfig, 'id'>)`);
+- **\`SettingsConfig\`** (extends \`Omit<BaseConfig, 'id'>\`)`);
     });
 
     it('names a default class by its declared name', async () => {
