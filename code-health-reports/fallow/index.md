@@ -44,21 +44,21 @@
 
 | File | Score | Commits | Churn | Density | Fan-in | Trend |
 |:-----|:------|:--------|:------|:--------|:-------|:------|
-| `src/actions/documentBundleSizes.ts` | 94.4 | 33 | 1180 | 0.27 | 1 | cooling |
-| `src/actions/checkConfigFiles.ts` | 88.9 | 37 | 443 | 0.24 | 1 | cooling |
-| `src/utilities/index.ts` | 72.0 | 26 | 242 | 0.27 | 13 | cooling |
-| `src/actions/documentDependencies.ts` | 56.0 | 20 | 401 | 0.26 | 1 | cooling |
-| `src/actions/manageProject.ts` | 41.7 | 23 | 778 | 0.16 | 1 | cooling |
-| `src/actions/documentGovernance.ts` | 34.7 | 12 | 513 | 0.18 | 1 | accelerating |
-| `src/actions/documentUsage.ts` | 25.2 | 8 | 239 | 0.21 | 1 | accelerating |
-| `src/actions/checkDependencies.ts` | 24.2 | 13 | 154 | 0.15 | 1 | cooling |
-| `src/actions/documentOpening.ts` | 21.2 | 12 | 194 | 0.13 | 1 | stable |
-| `src/utilities/cloudflare.ts` | 17.9 | 9 | 43 | 0.22 | 2 | cooling |
-| `vite.config.ts` | 12.6 | 13 | 91 | 0.10 | 0 | cooling |
-| `src/actions/formatCode.ts` | 9.2 | 5 | 35 | 0.17 | 1 | cooling |
-| `src/actions/documentActions.ts` | 6.2 | 8 | 88 | 0.06 | 1 | cooling |
-| `src/actions/auditDependencies.ts` | 5.9 | 5 | 29 | 0.11 | 1 | cooling |
-| `src/actions/lintCode.ts` | 5.9 | 5 | 29 | 0.11 | 1 | cooling |
+| `src/actions/documentBundleSizes.ts` | 94.6 | 34 | 1182 | 0.27 | 1 | cooling |
+| `src/actions/checkConfigFiles.ts` | 88.9 | 38 | 447 | 0.24 | 1 | cooling |
+| `src/utilities/index.ts` | 73.3 | 27 | 259 | 0.27 | 13 | cooling |
+| `src/actions/documentDependencies.ts` | 57.9 | 21 | 403 | 0.26 | 1 | cooling |
+| `src/actions/manageProject.ts` | 39.7 | 23 | 778 | 0.16 | 1 | cooling |
+| `src/actions/documentGovernance.ts` | 36.2 | 13 | 737 | 0.18 | 1 | accelerating |
+| `src/actions/documentUsage.ts` | 27.7 | 9 | 241 | 0.21 | 1 | accelerating |
+| `src/actions/checkDependencies.ts` | 23.1 | 13 | 154 | 0.15 | 1 | cooling |
+| `src/actions/documentOpening.ts` | 22.5 | 13 | 205 | 0.13 | 1 | stable |
+| `src/utilities/cloudflare.ts` | 17.0 | 9 | 43 | 0.22 | 2 | cooling |
+| `vite.config.ts` | 13.7 | 14 | 96 | 0.10 | 0 | cooling |
+| `src/actions/formatCode.ts` | 11.7 | 6 | 37 | 0.17 | 1 | cooling |
+| `src/actions/documentActions.ts` | 5.9 | 8 | 88 | 0.06 | 1 | cooling |
+| `src/actions/auditDependencies.ts` | 5.7 | 5 | 29 | 0.11 | 1 | cooling |
+| `src/actions/lintCode.ts` | 5.7 | 5 | 29 | 0.11 | 1 | cooling |
 
 ---
 

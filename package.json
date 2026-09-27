@@ -1,6 +1,6 @@
 {
     "name": "@dpuse/dpuse-development",
-    "version": "0.3.753",
+    "version": "0.3.754",
     "private": false,
     "description": "Actions for managing DPUse projects.",
     "license": "MIT",
@@ -27,7 +27,6 @@
     "files": [
         ".editorconfig",
         ".gitattributes",
-        ".gitattributes_default",
         ".github/dependabot.private.yml",
         ".github/dependabot.yml",
         ".github/publish.cloudflare.yml",
@@ -40,7 +39,6 @@
         "eslint.config.default.js",
         "LICENSE",
         "SECURITY.md",
-        "tsconfig.default.json",
         "tsconfig.json",
         "tsconfig.scripts.json",
         "vite.config.default.ts",

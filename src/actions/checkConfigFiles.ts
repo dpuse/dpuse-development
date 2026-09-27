@@ -27,7 +27,7 @@ export async function checkConfigFiles(): Promise<void> {
         const moduleTypeConfig = getModuleConfig(configJSON.id);
         const moduleDirectory = path.dirname(fileURLToPath(import.meta.url));
         await checkConfigFile(moduleDirectory, '.editorconfig');
-        await checkGitAttributes(moduleTypeConfig, moduleDirectory);
+        await checkConfigFile(moduleDirectory, '.gitattributes');
         await checkConfigFile(moduleDirectory, '.gitignore', ['.gitignore_default']);
         await checkConfigFile(moduleDirectory, '.markdownlint.json');
         await checkConfigFile(moduleDirectory, '.ncurc.json');
@@ -55,40 +55,34 @@ export async function checkConfigFiles(): Promise<void> {
 
 // ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-async function checkGitAttributes(moduleTypeConfig: ModuleTypeConfig, moduleDirectory: string) {
-    if (['development'].includes(moduleTypeConfig.typeId)) {
-        console.info("ℹ️  File '.gitattributes' is UNIQUE to this project");
-    } else {
-        await checkConfigFile(moduleDirectory, '.gitattributes', ['.gitattributes_default']);
-    }
-}
-
 async function checkESLintConfig(moduleTypeConfig: ModuleTypeConfig, moduleDirectory: string) {
     if (['github', 'kb'].includes(moduleTypeConfig.typeId)) {
         console.info("ℹ️  File 'eslint.config.js' is NOT required by this project");
     } else if (['app', 'api', 'development', 'eslint'].includes(moduleTypeConfig.typeId)) {
-        console.info("ℹ️  File 'eslint.config.js' is UNIQUE to this project");
+        console.info("⚠️  File 'eslint.config.js' is UNIQUE to this project");
     } else {
         await checkConfigFile(moduleDirectory, 'eslint.config.js', ['eslint.config.default.js']);
     }
 }
 function checkPrettierConfig(moduleTypeConfig: ModuleTypeConfig, packageJSON: PackageJson) {
-    if (['app', 'development'].includes(moduleTypeConfig.typeId)) {
-        console.info("ℹ️  File '.prettierrc.json' is UNIQUE to this project");
+    if (moduleTypeConfig.typeId === 'development') {
+        console.info("ℹ️  File '.prettierrc.json' is the template"); // Every other project points to this file.
+    } else if (moduleTypeConfig.typeId === 'app') {
+        console.info("⚠️  File '.prettierrc.json' is UNIQUE to this project");
     } else if (packageJSON['prettier'] === PRETTIER_CONFIG_REFERENCE) {
         console.info(`ℹ️  Prettier configuration is '${PRETTIER_CONFIG_REFERENCE}'`);
     } else {
-        console.info(`⚠️  Prettier configuration is NOT '${PRETTIER_CONFIG_REFERENCE}'`);
+        console.info(`❌  Prettier configuration is NOT '${PRETTIER_CONFIG_REFERENCE}'`);
     }
 }
 
 async function checkTSConfig(moduleTypeConfig: ModuleTypeConfig, moduleDirectory: string) {
     if (['github'].includes(moduleTypeConfig.typeId)) {
         console.info("ℹ️  File 'tsconfig.json' is NOT required by this project");
-    } else if (['connector', 'engine', 'shared', 'tool'].includes(moduleTypeConfig.typeId)) {
-        await checkConfigFile(moduleDirectory, 'tsconfig.json', ['tsconfig.default.json']);
+    } else if (['connector', 'development', 'engine', 'shared', 'tool'].includes(moduleTypeConfig.typeId)) {
+        await checkConfigFile(moduleDirectory, 'tsconfig.json');
     } else {
-        console.info("ℹ️  File 'tsconfig.json' is UNIQUE to this project");
+        console.info("⚠️  File 'tsconfig.json' is UNIQUE to this project");
     }
 }
 
@@ -104,7 +98,7 @@ async function checkViteConfig(moduleTypeConfig: ModuleTypeConfig, moduleDirecto
     if (['eslint', 'github', 'kb'].includes(moduleTypeConfig.typeId)) {
         console.info("ℹ️  File 'vite.config.ts' is NOT required by this project");
     } else if (['app', 'api', 'development', 'engine', 'shared'].includes(moduleTypeConfig.typeId)) {
-        console.info("ℹ️  File 'vite.config.ts' is UNIQUE to this project");
+        console.info("⚠️  File 'vite.config.ts' is UNIQUE to this project");
     } else {
         let viteConfigTemplates: string[];
         if (moduleTypeConfig.typeId === 'connector') viteConfigTemplates = ['vite.config.default.ts', 'vite.config.wasm.ts'];
@@ -142,7 +136,7 @@ async function checkConfigFile(moduleDirectory: string, checkFileName: string, t
         if ((error as NodeJS.ErrnoException).code !== 'ENOENT') throw error;
     }
     if (checkFileContent === undefined) {
-        console.info(`⚠️  File '${checkFileName}' is MISSING`);
+        console.info(`❌  File '${checkFileName}' is MISSING`);
         return;
     }
 
@@ -155,5 +149,5 @@ async function checkConfigFile(moduleDirectory: string, checkFileName: string, t
         }
     }
 
-    console.info(`⚠️  File '${checkFileName.split('_', 1)[0] ?? checkFileName}' is NOT the same`);
+    console.info(`❌  File '${checkFileName.split('_', 1)[0] ?? checkFileName}' is NOT the same`);
 }

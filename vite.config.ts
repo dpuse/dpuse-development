@@ -5,7 +5,7 @@ import Sonda from 'sonda/vite';
 import { fileURLToPath, URL } from 'node:url';
 
 // ── Data
-import config from './config.json';
+import config from './config.json' with { type: 'json' };
 
 // ── Vite Configuration ───────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -24,7 +24,7 @@ export default defineConfig({
             },
             plugins: [Sonda({ filename: 'index', format: 'json', brotli: false, gzip: true, open: false, outputDir: './bundle-analysis-reports/sonda' })]
         },
-        sourcemap: true,
+        sourcemap: 'hidden',
         target: 'ESNext'
     },
     // Tests and config files sit in the tsconfig so they get type-checked, but their declarations must not reach the

@@ -42,13 +42,13 @@ describe('checkConfigFiles', () => {
         await writeProject('dpuse-connector-example');
         await copyTemplates({
             '.editorconfig': '.editorconfig',
-            '.gitattributes': '.gitattributes_default',
+            '.gitattributes': '.gitattributes',
             '.gitignore': '.gitignore_default',
             '.markdownlint.json': '.markdownlint.json',
             '.ncurc.json': '.ncurc.json',
             'eslint.config.js': 'eslint.config.default.js',
             LICENSE: 'LICENSE',
-            'tsconfig.json': 'tsconfig.default.json',
+            'tsconfig.json': 'tsconfig.json',
             'tsconfig.scripts.json': 'tsconfig.scripts.json',
             'vite.config.ts': 'vite.config.wasm.ts',
             'vitest.config.ts': 'vitest.config.ts',
@@ -65,6 +65,7 @@ describe('checkConfigFiles', () => {
 
         const output = collectConsoleOutput();
         expect(output).not.toContain('⚠️');
+        expect(output).not.toContain('❌');
         expect(output).toContain("ℹ️  File 'vite.config.ts' is the same as 'vite.config.wasm.ts'");
         expect(output).toContain("ℹ️  File '.github/workflows/publish.yml' is the same as '.github/publish.cloudflare.yml'");
         expect(output).toContain("ℹ️  File 'SECURITY.md' is the same as 'SECURITY.md'");
@@ -78,11 +79,11 @@ describe('checkConfigFiles', () => {
         await checkConfigFiles();
 
         const output = collectConsoleOutput();
-        expect(output).toContain("⚠️  File '.editorconfig' is MISSING");
-        expect(output).toContain("⚠️  File 'vite.config.ts' is MISSING");
-        expect(output).toContain("⚠️  File '.github/workflows/publish.yml' is MISSING");
-        expect(output).toContain("⚠️  File 'SECURITY.md' is MISSING");
-        expect(output).toContain("⚠️  Prettier configuration is NOT '@dpuse/dpuse-development/prettierrc'");
+        expect(output).toContain("❌  File '.editorconfig' is MISSING");
+        expect(output).toContain("❌  File 'vite.config.ts' is MISSING");
+        expect(output).toContain("❌  File '.github/workflows/publish.yml' is MISSING");
+        expect(output).toContain("❌  File 'SECURITY.md' is MISSING");
+        expect(output).toContain("❌  Prettier configuration is NOT '@dpuse/dpuse-development/prettierrc'");
     });
 
     it('reports a file that differs from its template', async () => {
@@ -92,8 +93,8 @@ describe('checkConfigFiles', () => {
         await checkConfigFiles();
 
         const output = collectConsoleOutput();
-        expect(output).toContain("⚠️  File '.editorconfig' is NOT the same");
-        expect(output).toContain("⚠️  File 'vite.config.ts' is NOT the same");
+        expect(output).toContain("❌  File '.editorconfig' is NOT the same");
+        expect(output).toContain("❌  File 'vite.config.ts' is NOT the same");
     });
 
     it('uses the npm publish template for packages published to npm', async () => {
@@ -126,19 +127,19 @@ describe('checkConfigFiles', () => {
         await checkConfigFiles();
 
         const output = collectConsoleOutput();
-        expect(output).toContain("ℹ️  File 'eslint.config.js' is UNIQUE to this project");
-        expect(output).toContain("ℹ️  File 'tsconfig.json' is UNIQUE to this project");
-        expect(output).toContain("ℹ️  File 'vite.config.ts' is UNIQUE to this project");
+        expect(output).toContain("⚠️  File 'eslint.config.js' is UNIQUE to this project");
+        expect(output).toContain("⚠️  File 'tsconfig.json' is UNIQUE to this project");
+        expect(output).toContain("⚠️  File 'vite.config.ts' is UNIQUE to this project");
         expect(output).toContain("ℹ️  File 'vitest.config.ts' is NOT required by this project");
-        expect(output).toContain("ℹ️  File '.prettierrc.json' is UNIQUE to this project");
+        expect(output).toContain("⚠️  File '.prettierrc.json' is UNIQUE to this project");
     });
 
-    it("treats dpuse-development's own '.gitattributes' as its own", async () => {
-        await writeProject('dpuse-development');
+    it("reports dpuse-development's Prettier configuration as the template", async () => {
+        await writeProject('dpuse-development', { prettier: undefined });
 
         await checkConfigFiles();
 
-        expect(collectConsoleOutput()).toContain("ℹ️  File '.gitattributes' is UNIQUE to this project");
+        expect(collectConsoleOutput()).toContain("ℹ️  File '.prettierrc.json' is the template");
     });
 
     it('does not require the TypeScript, ESLint, Vite or Vitest files where a project has no code', async () => {
