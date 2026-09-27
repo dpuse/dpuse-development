@@ -18,6 +18,8 @@ export function listItems(limit = 10): number[] { return [limit]; }
 export const buildLabel = (text: string): string => text;
 export class Connector { list(): void {} }
 export const MAX_COUNT = 3;
+export const LIMITS = { low: 1 } as Record<string, number>;
+export const MODES = ['a', 'b'] as const;
 export const configSchema = { type: 'object' };
 export interface Config { id: string }
 export type StatusId = 'alpha' | 'beta';
@@ -29,6 +31,38 @@ export default hidden;
 const ERRORS_SOURCE = `
 export class DPUseError extends Error {}
 export function formatError(error: unknown): string { return String(error); }
+`;
+
+// Stand-ins for valibot, as only the way a type is written is read, never the library itself.
+const SCHEMA_SOURCE = `
+export type InferOutput<T> = T;
+export function strictObject<T>(entries: T): T { return entries; }
+export function literalUnion<T>(values: T): T { return values; }
+`;
+
+const INHERITANCE_SOURCE = `
+import { type InferOutput, literalUnion, strictObject } from '@/schema';
+export const baseFields = { id: '' };
+export type BaseConfig = InferOutput<ReturnType<typeof strictObject<typeof baseFields>>>;
+export const componentFields = { ...baseFields, status: '' };
+const componentConfigSchema = strictObject({ ...componentFields });
+export type ComponentConfig = InferOutput<typeof componentConfigSchema>;
+export const moduleFields = { ...componentFields, version: '' };
+const moduleConfigSchema = strictObject({ ...moduleFields, typeId: '' });
+export type ModuleConfig = InferOutput<typeof moduleConfigSchema>;
+const connectorConfigSchema = strictObject({ ...moduleFields, typeId: '', category: '' });
+export type ConnectorConfig = InferOutput<typeof connectorConfigSchema>;
+export const sharedFields = { label: '' };
+const alphaConfigSchema = strictObject({ ...sharedFields, alpha: '' });
+export type AlphaConfig = InferOutput<typeof alphaConfigSchema>;
+const betaConfigSchema = strictObject({ ...sharedFields, beta: '' });
+export type BetaConfig = InferOutput<typeof betaConfigSchema>;
+const moduleTypeIdSchema = literalUnion(['connector', 'tool']);
+export type ModuleTypeId = InferOutput<typeof moduleTypeIdSchema>;
+export interface SettingsConfig extends Omit<BaseConfig, 'id'> { theme: string }
+export interface Reportable { report(): void }
+class BaseError extends Error {}
+export class AppError extends BaseError implements Reportable { report(): void {} }
 `;
 
 async function writeProject(packageJSON: object): Promise<void> {
@@ -60,10 +94,10 @@ Every export, grouped by import path. This file is updated each time the project
 
 ### Functions
 
-- buildLabel(text)
-- formatError(error)
-- getStatus(id, localeId?)
-- listItems(limit?)
+- buildLabel(text: string)
+- formatError(error: unknown)
+- getStatus(id: string, localeId?: string)
+- listItems(limit?: number)
 
 ### Classes
 
@@ -71,8 +105,10 @@ Every export, grouped by import path. This file is updated each time the project
 
 ### Constants
 
-- default (hidden)
-- MAX_COUNT
+- default (hidden): number
+- LIMITS: Record<string, number>
+- MAX_COUNT: number
+- MODES: readonly ["a", "b"]
 
 ### Schemas
 
@@ -88,12 +124,46 @@ Every export, grouped by import path. This file is updated each time the project
 
 ### Functions
 
-- formatError(error)
+- formatError(error: unknown)
 
 ### Classes
 
-- DPUseError
+- DPUseError (extends Error)
 `);
+    });
+
+    it('names the schema each type is inferred from, and what each class and type inherits from', async () => {
+        await project.writeFiles({
+            'package.json': JSON.stringify({ name: '@dpuse/dpuse-example', exports: { '.': { types: './dist/types/src/index.d.ts' } } }),
+            'tsconfig.json': TSCONFIG,
+            'src/schema.ts': SCHEMA_SOURCE,
+            'src/index.ts': INHERITANCE_SOURCE
+        });
+
+        await documentAPIReference();
+
+        expect(await project.readFile('API_REFERENCE.md')).toContain(`### Classes
+
+- AppError (extends BaseError, implements Reportable)
+
+### Constants
+
+- baseFields: { id: string; }
+- componentFields: { status: string; id: string; }
+- moduleFields: { version: string; status: string; id: string; }
+- sharedFields: { label: string; }
+
+### Types
+
+- AlphaConfig (inferred from alphaConfigSchema)
+- BaseConfig (inferred from baseFields)
+- BetaConfig (inferred from betaConfigSchema)
+- ComponentConfig (inferred from componentConfigSchema, extends BaseConfig)
+- ConnectorConfig (inferred from connectorConfigSchema, extends ModuleConfig)
+- ModuleConfig (inferred from moduleConfigSchema, extends ComponentConfig)
+- ModuleTypeId (inferred from moduleTypeIdSchema)
+- Reportable
+- SettingsConfig (extends Omit<BaseConfig, 'id'>)`);
     });
 
     it('names a default class by its declared name', async () => {
@@ -115,7 +185,7 @@ Every export, grouped by import path. This file is updated each time the project
 
         await documentAPIReference();
 
-        expect(await project.readFile('API_REFERENCE.md')).toContain('## @dpuse/dpuse-example\n\n### Functions\n\n- formatError(error)');
+        expect(await project.readFile('API_REFERENCE.md')).toContain('## @dpuse/dpuse-example\n\n### Functions\n\n- formatError(error: unknown)');
     });
 
     it.each([

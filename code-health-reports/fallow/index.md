@@ -6,13 +6,13 @@
 
 | Metric | Value |
 |:-------|------:|
-| Total LOC | 2410 |
-| Avg Cyclomatic | 2.9 |
-| P90 Cyclomatic | 6 |
-| Cyclomatic units | Functions: 174, module scopes: 0, templates: 0 |
+| Total LOC | 2556 |
+| Avg Cyclomatic | 3.0 |
+| P90 Cyclomatic | 7 |
+| Cyclomatic units | Functions: 197, module scopes: 0, templates: 0 |
 | Dead Files | 0.0% |
 | Dead Exports | 0.0% |
-| Maintainability (avg) | 92.2 |
+| Maintainability (avg) | 92.0 |
 | Hotspots (since 6 months) | 4 |
 | Circular Deps | 0 |
 | Unused Deps | 0 |
@@ -23,11 +23,11 @@
 | File | Maintainability | Fan-in | Fan-out | Dead Code | Density | Risk |
 |:-----|:---------------|:-------|:--------|:----------|:--------|:-----|
 | `src/actions/documentGovernance.ts` | 91.8 | 1 | 1 | 0% | 0.18 | 16.0 |
+| `src/actions/documentApiReference.ts` | 82.2 | 2 | 1 | 0% | 0.50 | 12.0 |
 | `vite.config.ts` | 97.5 | 0 | 0 | 0% | 0.10 | 12.0 |
 | `src/utilities/index.ts` | 91.9 | 14 | 0 | 0% | 0.27 | 10.0 |
 | `src/actions/documentDependencies.ts` | 89.4 | 1 | 1 | 0% | 0.26 | 9.6 |
 | `src/actions/manageProject.ts` | 89.4 | 1 | 3 | 0% | 0.17 | 9.0 |
-| `src/actions/documentApiReference.ts` | 85.5 | 2 | 1 | 0% | 0.39 | 8.0 |
 | `src/actions/documentBundleSizes.ts` | 89.1 | 1 | 1 | 0% | 0.27 | 7.0 |
 | `src/actions/checkConfigFiles.ts` | 90.3 | 1 | 1 | 0% | 0.23 | 7.0 |
 | `src/utilities/cloudflare.ts` | 90.6 | 2 | 1 | 0% | 0.22 | 7.0 |
@@ -39,27 +39,29 @@
 | `src/actions/auditDependencies.ts` | 96.0 | 1 | 1 | 0% | 0.11 | 2.0 |
 | `src/actions/lintCode.ts` | 96.0 | 1 | 1 | 0% | 0.11 | 2.0 |
 
-**Average maintainability index:** 92.2/100
+**Average maintainability index:** 92.0/100
 
 ### Hotspots (15 files, since 6 months)
 
 | File | Score | Commits | Churn | Density | Fan-in | Trend |
 |:-----|:------|:--------|:------|:--------|:-------|:------|
-| `src/actions/documentBundleSizes.ts` | 90.3 | 34 | 1182 | 0.27 | 1 | cooling |
-| `src/actions/checkConfigFiles.ts` | 85.2 | 39 | 479 | 0.23 | 1 | cooling |
-| `src/utilities/index.ts` | 70.0 | 27 | 259 | 0.27 | 14 | cooling |
-| `src/actions/documentDependencies.ts` | 55.3 | 21 | 403 | 0.26 | 1 | cooling |
-| `src/actions/manageProject.ts` | 40.3 | 23 | 778 | 0.17 | 1 | cooling |
-| `src/actions/documentGovernance.ts` | 34.5 | 13 | 737 | 0.18 | 1 | accelerating |
-| `src/actions/documentUsage.ts` | 26.4 | 9 | 241 | 0.21 | 1 | accelerating |
-| `src/actions/checkDependencies.ts` | 22.0 | 13 | 154 | 0.15 | 1 | cooling |
-| `src/actions/documentOpening.ts` | 21.4 | 13 | 205 | 0.13 | 1 | stable |
-| `src/utilities/cloudflare.ts` | 16.3 | 9 | 43 | 0.22 | 2 | cooling |
-| `vite.config.ts` | 14.8 | 15 | 100 | 0.10 | 0 | cooling |
-| `src/actions/formatCode.ts` | 11.2 | 6 | 37 | 0.17 | 1 | cooling |
-| `src/actions/documentActions.ts` | 5.6 | 8 | 88 | 0.06 | 1 | cooling |
-| `src/actions/auditDependencies.ts` | 5.4 | 5 | 29 | 0.11 | 1 | cooling |
-| `src/actions/lintCode.ts` | 5.4 | 5 | 29 | 0.11 | 1 | cooling |
+| `src/actions/documentBundleSizes.ts` | 86.5 | 34 | 1182 | 0.27 | 1 | cooling |
+| `src/actions/checkConfigFiles.ts` | 85.2 | 40 | 483 | 0.23 | 1 | cooling |
+| `src/utilities/index.ts` | 71.2 | 28 | 261 | 0.27 | 14 | cooling |
+| `src/actions/documentDependencies.ts` | 52.9 | 21 | 403 | 0.26 | 1 | cooling |
+| `src/actions/manageProject.ts` | 41.3 | 24 | 805 | 0.17 | 1 | cooling |
+| `src/actions/documentGovernance.ts` | 33.1 | 13 | 737 | 0.18 | 1 | accelerating |
+| `src/actions/documentUsage.ts` | 28.6 | 10 | 242 | 0.21 | 1 | accelerating |
+| `src/actions/checkDependencies.ts` | 21.1 | 13 | 154 | 0.15 | 1 | cooling |
+| `src/actions/documentOpening.ts` | 20.5 | 13 | 205 | 0.13 | 1 | stable |
+| `vite.config.ts` | 15.7 | 16 | 102 | 0.10 | 0 | cooling |
+| `src/utilities/cloudflare.ts` | 15.6 | 9 | 43 | 0.22 | 2 | cooling |
+| `src/actions/formatCode.ts` | 10.7 | 6 | 37 | 0.17 | 1 | cooling |
+| `src/actions/documentActions.ts` | 5.4 | 8 | 88 | 0.06 | 1 | cooling |
+| `src/actions/auditDependencies.ts` | 5.2 | 5 | 29 | 0.11 | 1 | cooling |
+| `src/actions/lintCode.ts` | 5.2 | 5 | 29 | 0.11 | 1 | cooling |
+
+*1 file excluded (< 3 commits)*
 
 ---
 

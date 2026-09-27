@@ -1,6 +1,6 @@
 {
     "name": "@dpuse/dpuse-development",
-    "version": "0.3.756",
+    "version": "0.3.757",
     "private": false,
     "description": "Actions for managing DPUse projects.",
     "license": "MIT",
@@ -68,7 +68,7 @@
     },
     "scripts": {
         "audit": "node -e \"import('./dist/dpuse-development.es.js').then(m => m.auditDependencies())\"",
-        "build": "vite build && node -e \"import('./dist/dpuse-development.es.js').then(m => m.documentBundleSizes())\"",
+        "build": "vite build && node -e \"import('./dist/dpuse-development.es.js').then(m => m.documentAPIReference())\" && node -e \"import('./dist/dpuse-development.es.js').then(m => m.documentBundleSizes())\"",
         "check": "node -e \"import('./dist/dpuse-development.es.js').then(m => m.checkConfigFiles())\" && node -e \"import('./dist/dpuse-development.es.js').then(m => m.checkDependencies())\"",
         "document": "npm run documentOpening && npm run documentUsage && npm run documentDependencies && npm run documentGovernance",
         "documentBundleSizes": "node -e \"import('./dist/dpuse-development.es.js').then(m => m.documentBundleSizes())\"",
