@@ -93,7 +93,7 @@ describe('documentAPIReference', () => {
 
         await documentAPIReference();
 
-        expect(await project.readFile('API_REFERENCE.md')).toBe(String.raw`# API Reference
+        expect(await project.readFile('API_REFERENCE.md')).toBe(`# API Reference
 
 Every export, grouped by import path. This file is updated each time the project is built.
 
@@ -101,43 +101,43 @@ Every export, grouped by import path. This file is updated each time the project
 
 ### Functions
 
-- **buildLabel**(text: string)
-- **formatError**(error: unknown)
-- **getStatus**(id: string, localeId?: string)
+- **\`buildLabel\`**\`(text: string)\`
+- **\`formatError\`**\`(error: unknown)\`
+- **\`getStatus\`**\`(id: string, localeId?: string)\`
     > Look up a status, in the given locale.
-- **listItems**(limit?: number)
+- **\`listItems\`**\`(limit?: number)\`
 
 ### Classes
 
-- **Connector**
+- **\`Connector\`**
 
 ### Constants
 
-- **default (hidden)**: number
-- **LIMITS**: Record\<string, number>
-- **MAX_COUNT**: number
+- **\`default (hidden)\`**\`: number\`
+- **\`LIMITS\`**\`: Record<string, number>\`
+- **\`MAX_COUNT\`**\`: number\`
     > The most items allowed.
-- **MODES**: readonly ["a", "b"]
+- **\`MODES\`**\`: readonly ["a", "b"]\`
 
 ### Schemas
 
-- **configSchema**
+- **\`configSchema\`**
 
 ### Types
 
-- **Colour**
-- **Config**
-- **StatusId**
+- **\`Colour\`**
+- **\`Config\`**
+- **\`StatusId\`**
 
 ## @dpuse/dpuse-example/errors
 
 ### Functions
 
-- **formatError**(error: unknown)
+- **\`formatError\`**\`(error: unknown)\`
 
 ### Classes
 
-- **DPUseError** (extends Error)
+- **\`DPUseError\`** (extends Error)
 `);
     });
 
@@ -151,28 +151,29 @@ Every export, grouped by import path. This file is updated each time the project
 
         await documentAPIReference();
 
-        expect(await project.readFile('API_REFERENCE.md')).toContain(String.raw`### Classes
+        expect(await project.readFile('API_REFERENCE.md')).toContain(`### Classes
 
-- **AppError** (extends BaseError, implements Reportable)
+- **\`AppError\`** (extends BaseError, implements Reportable)
 
 ### Constants
 
-- **baseFields**: { id: string; }
-- **componentFields**: { status: string; id: string; }
-- **moduleFields**: { version: string; status: string; id: string; }
-- **sharedFields**: { label: string; }
+- **\`baseFields\`**\`: { id: string; }\`
+- **\`componentFields\`**\`: { status: string; id: string; }\`
+- **\`moduleFields\`**\`: { version: string; status: string; id: string; }\`
+- **\`sharedFields\`**\`: { label: string; }\`
 
 ### Types
 
-- **AlphaConfig** (inferred from alphaConfigSchema)
-- **BaseConfig** (inferred from baseFields)
-- **BetaConfig** (inferred from betaConfigSchema)
-- **ComponentConfig** (inferred from componentConfigSchema, extends BaseConfig)
-- **ConnectorConfig** (inferred from connectorConfigSchema, extends ModuleConfig)
-- **ModuleConfig** (inferred from moduleConfigSchema, extends ComponentConfig)
-- **ModuleTypeId** (inferred from moduleTypeIdSchema)
-- **Reportable**
-- **SettingsConfig** (extends Omit\<BaseConfig, 'id'>)`);
+- **\`AlphaConfig\`** (inferred from alphaConfigSchema)
+- **\`BaseConfig\`** (inferred from baseFields)
+- **\`BetaConfig\`** (inferred from betaConfigSchema)
+- **\`ComponentConfig\`** (inferred from componentConfigSchema, extends BaseConfig)
+- **\`ConnectorConfig\`** (inferred from connectorConfigSchema, extends ModuleConfig)
+- **\`ModuleConfig\`** (inferred from moduleConfigSchema, extends ComponentConfig)
+- **\`ModuleTypeId\`** (inferred from moduleTypeIdSchema)
+- **\`Reportable\`**
+- **\`SettingsConfig\`**`);
+        expect(await project.readFile('API_REFERENCE.md')).toContain(String.raw`(extends Omit\<BaseConfig, 'id'>)`);
     });
 
     it('names a default class by its declared name', async () => {
@@ -183,7 +184,7 @@ Every export, grouped by import path. This file is updated each time the project
 
         await documentAPIReference();
 
-        expect(await project.readFile('API_REFERENCE.md')).toContain('### Classes\n\n- **default (Connector)**');
+        expect(await project.readFile('API_REFERENCE.md')).toContain('### Classes\n\n- **`default (Connector)`**');
     });
 
     it('works without a tsconfig', async () => {
@@ -194,7 +195,7 @@ Every export, grouped by import path. This file is updated each time the project
 
         await documentAPIReference();
 
-        expect(await project.readFile('API_REFERENCE.md')).toContain('## @dpuse/dpuse-example\n\n### Functions\n\n- **formatError**(error: unknown)');
+        expect(await project.readFile('API_REFERENCE.md')).toContain('## @dpuse/dpuse-example\n\n### Functions\n\n- **`formatError`**`(error: unknown)`');
     });
 
     it.each([

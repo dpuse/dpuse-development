@@ -299,16 +299,18 @@ function buildSection(importPath: string, groups: Map<ExportKind, ExportEntry[]>
     return [`## ${importPath}`, ...lists].join('\n\n');
 }
 
-// Only the name is bold, so it stands out from its parameters or type. The description is a quote nested in the item,
-// which indents every line of it and shows it in lighter text, so the names can be read straight down the left.
+// The name and what follows it are code, shown on a shaded background, with only the name bold so it stands out from
+// its parameters or type. The description is a quote nested in the item, which indents every line of it and shows it
+// in lighter text, so the names can be read straight down the left.
 function formatEntry({ description, detail, name, origin }: ExportEntry): string {
-    const firstLine = `- **${escapeMarkdown(name)}**${escapeMarkdown(detail)}${escapeMarkdown(origin)}`;
+    const detailCode = detail === '' ? '' : `\`${detail}\``;
+    const firstLine = `- **\`${name}\`**${detailCode}${escapeMarkdown(origin)}`;
     return description === undefined ? firstLine : `${firstLine}\n    > ${description}`;
 }
 
-// Types are shown as plain text, so characters markdown would act on are escaped: '<' would start an HTML tag, hiding
-// 'Promise<string>', and the others would start emphasis or code. An underscore inside a word, as in
-// 'DEFAULT_LOCALE_ID', is left alone, as markdown does not treat it as emphasis.
+// What a type extends is plain text, so characters markdown would act on are escaped: '<' would start an HTML tag,
+// hiding 'Omit<BaseConfig, 'id'>', and the others would start emphasis or code. An underscore inside a word is left
+// alone, as markdown does not treat it as emphasis.
 function escapeMarkdown(text: string): string {
     return text.replaceAll(/[\\`*<]|(?<![\da-z])_|_(?![\da-z])/gi, (character) => `\\${character}`);
 }
