@@ -300,11 +300,10 @@ function buildSection(importPath: string, groups: Map<ExportKind, ExportEntry[]>
 }
 
 // Only the name is bold, so it stands out from its parameters or type, which follow in a code span of their own. The
-// description goes on a second, indented line in italics, so the names can be read straight down the left. The
-// trailing '\' is a markdown line break, without which the two lines would render as one. Rendering drops leading
-// spaces, so the '&emsp;' is what indents the description on screen; the spaces only indent it in the file.
+// description is a quote nested in the item, which indents every line of it and shows it in lighter text, so the names
+// can be read straight down the left.
 function formatEntry({ description, detail, name, origin }: ExportEntry): string {
     const detailCode = detail === '' ? '' : `\`${detail}\``;
     const firstLine = `- **\`${name}\`**${detailCode}${origin}`;
-    return description === undefined ? firstLine : `${firstLine}\\\n    &emsp;_${description}_`;
+    return description === undefined ? firstLine : `${firstLine}\n    > ${description}`;
 }

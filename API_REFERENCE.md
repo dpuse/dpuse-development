@@ -7,8 +7,8 @@ Every export, grouped by import path. This file is updated each time the project
 ### Functions
 
 - **`auditDependencies`**`()`
-- **`buildProject`**`()`\
-    &emsp;_Build a project._
+- **`buildProject`**`()`
+    > Build a project.
 - **`checkConfigFiles`**`()`
 - **`checkDependencies`**`()`
 - **`documentActions`**`()`
@@ -23,6 +23,6 @@ Every export, grouped by import path. This file is updated each time the project
 - **`publishProject`**`()`
 - **`releaseProject`**`()`
 - **`syncProjectWithGitHub`**`()`
-- **`testProject`**`(testTypeIds?: TestTypeId[], isCoverageMeasured?: boolean)`\
-    &emsp;_Runs the requested types of test, skipping any type this project has not configured. Runs the requested types of test, skipping any type this project has not configured. Runs the requested types of test, skipping any type this project has not configured. Runs the requested types of test, skipping any type this project has not configured. Runs the requested types of test, skipping any type this project has not configured. Runs the requested types of test, skipping any type this project has not configured. Runs the requested types of test, skipping any type this project has not configured. Runs the requested types of test, skipping any type this project has not configured._
+- **`testProject`**`(testTypeIds?: TestTypeId[], isCoverageMeasured?: boolean)`
+    > Runs the requested types of test, skipping any type this project has not configured. Runs the requested types of test, skipping any type this project has not configured. Runs the requested types of test, skipping any type this project has not configured. Runs the requested types of test, skipping any type this project has not configured. Runs the requested types of test, skipping any type this project has not configured. Runs the requested types of test, skipping any type this project has not configured. Runs the requested types of test, skipping any type this project has not configured. Runs the requested types of test, skipping any type this project has not configured.
 - **`uploadDirectoryToR2`**`(sourceDirectory: string, uploadDirectory: string)`

@@ -103,8 +103,8 @@ Every export, grouped by import path. This file is updated each time the project
 
 - **\`buildLabel\`**\`(text: string)\`
 - **\`formatError\`**\`(error: unknown)\`
-- **\`getStatus\`**\`(id: string, localeId?: string)\`\\
-    &emsp;_Look up a status, in the given locale._
+- **\`getStatus\`**\`(id: string, localeId?: string)\`
+    > Look up a status, in the given locale.
 - **\`listItems\`**\`(limit?: number)\`
 
 ### Classes
@@ -115,8 +115,8 @@ Every export, grouped by import path. This file is updated each time the project
 
 - **\`default (hidden)\`**\`: number\`
 - **\`LIMITS\`**\`: Record<string, number>\`
-- **\`MAX_COUNT\`**\`: number\`\\
-    &emsp;_The most items allowed._
+- **\`MAX_COUNT\`**\`: number\`
+    > The most items allowed.
 - **\`MODES\`**\`: readonly ["a", "b"]\`
 
 ### Schemas
