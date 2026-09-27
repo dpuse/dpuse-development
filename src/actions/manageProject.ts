@@ -60,6 +60,7 @@ const TEST_TYPE_CONFIGS: TestTypeConfig[] = [
 
 // ── Actions - Build ──────────────────────────────────────────────────────────────────────────────────────────────────
 
+/** Build a project. */
 export async function buildProject(): Promise<void> {
     try {
         logOperationHeader('Build Project');
@@ -256,7 +257,7 @@ export async function syncProjectWithGitHub(): Promise<void> {
 
 // ── Actions - Test ───────────────────────────────────────────────────────────────────────────────────────────────────
 
-// Runs the requested types of test, skipping any type this project has not configured.
+/** Runs the requested types of test, skipping any type this project has not configured. */
 export async function testProject(testTypeIds: TestTypeId[] = ['unit'], isCoverageMeasured = false): Promise<void> {
     try {
         logOperationHeader('Test Project');

@@ -124,12 +124,12 @@ _Note: Sonda's Vite reports currently exclude CSS files, since Vite does not gen
 
 |Chunk/Module/File|Composition|
 |:------ |:-----------|
-| dist/dpuse-development.es.js | 330.6 kB · gzip 85.5 kB |
-| &nbsp;&nbsp;&nbsp;&nbsp;acorn → dist/acorn.mjs | `████████░░░░░░░░░░░░` 39.6% |
-| &nbsp;&nbsp;&nbsp;&nbsp;acorn-typescript → lib/index.mjs | `███████░░░░░░░░░░░░░` 34.7% |
-| &nbsp;&nbsp;&nbsp;&nbsp;src | `███░░░░░░░░░░░░░░░░░` 15.6% |
+| dist/dpuse-development.es.js | 331.0 kB · gzip 85.6 kB |
+| &nbsp;&nbsp;&nbsp;&nbsp;acorn → dist/acorn.mjs | `████████░░░░░░░░░░░░` 39.5% |
+| &nbsp;&nbsp;&nbsp;&nbsp;acorn-typescript → lib/index.mjs | `███████░░░░░░░░░░░░░` 34.6% |
+| &nbsp;&nbsp;&nbsp;&nbsp;src | `███░░░░░░░░░░░░░░░░░` 15.7% |
 | &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;documentGovernance.ts | `█░░░░░░░░░░░░░░░░░░░` 2.7% |
-| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;documentApiReference.ts | `░░░░░░░░░░░░░░░░░░░░` 2.1% |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;documentApiReference.ts | `░░░░░░░░░░░░░░░░░░░░` 2.2% |
 | &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;documentDependencies.ts | `░░░░░░░░░░░░░░░░░░░░` 1.7% |
 | &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;manageProject.ts | `░░░░░░░░░░░░░░░░░░░░` 1.7% |
 | &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;index.ts | `░░░░░░░░░░░░░░░░░░░░` 1.6% |

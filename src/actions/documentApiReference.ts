@@ -7,6 +7,13 @@ import { logOperationHeader, logOperationSuccess, logStepHeader, readJSONFile, w
 
 // ── Types ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
+interface ExportEntry {
+    description: string | undefined;
+    kind: ExportKind;
+    origin: string;
+    signature: string;
+}
+
 type ExportKind = 'Classes' | 'Constants' | 'Functions' | 'Schemas' | 'Types';
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -85,18 +92,18 @@ function readCompilerOptions(): ts.CompilerOptions {
     return ts.parseJsonConfigFileContent(config, ts.sys, process.cwd()).options;
 }
 
-function groupExports(checker: ts.TypeChecker, sourceFile: ts.SourceFile, fieldGroupOwners: Map<ts.ObjectLiteralExpression, string>): Map<ExportKind, string[]> {
-    const groups = new Map<ExportKind, string[]>(EXPORT_KINDS.map((kind) => [kind, []]));
+function groupExports(checker: ts.TypeChecker, sourceFile: ts.SourceFile, fieldGroupOwners: Map<ts.ObjectLiteralExpression, string>): Map<ExportKind, ExportEntry[]> {
+    const groups = new Map<ExportKind, ExportEntry[]>(EXPORT_KINDS.map((kind) => [kind, []]));
     const moduleSymbol = checker.getSymbolAtLocation(sourceFile);
     const exportedSymbols = moduleSymbol === undefined ? [] : checker.getExportsOfModule(moduleSymbol);
 
     for (const exportedSymbol of exportedSymbols) {
         const symbol = resolveAlias(checker, exportedSymbol);
         const entry = describeExport(checker, formatExportName(exportedSymbol, symbol), symbol, fieldGroupOwners);
-        if (entry !== undefined) groups.get(entry.kind)?.push(entry.text);
+        if (entry !== undefined) groups.get(entry.kind)?.push({ ...entry, description: readDescription(checker, symbol) });
     }
 
-    for (const names of groups.values()) names.sort((a, b) => a.localeCompare(b));
+    for (const entries of groups.values()) entries.sort((a, b) => a.signature.localeCompare(b.signature));
     return groups;
 }
 
@@ -106,20 +113,27 @@ function describeExport(
     name: string,
     symbol: ts.Symbol,
     fieldGroupOwners: Map<ts.ObjectLiteralExpression, string>
-): { kind: ExportKind; text: string } | undefined {
+): Omit<ExportEntry, 'description'> | undefined {
     const isValue = (symbol.flags & (ts.SymbolFlags.Function | ts.SymbolFlags.Variable)) !== 0;
     const [signature] = isValue ? checker.getSignaturesOfType(checker.getTypeOfSymbol(symbol), ts.SignatureKind.Call) : [];
     const isSchema = name.endsWith('Schema');
 
     if (signature !== undefined && !isSchema) {
         const parameters = signature.parameters.map((parameter) => formatParameter(checker, parameter));
-        return { kind: 'Functions', text: `${name}(${parameters.join(', ')})` };
+        return { kind: 'Functions', origin: '', signature: `${name}(${parameters.join(', ')})` };
     }
-    if ((symbol.flags & ts.SymbolFlags.Class) !== 0) return { kind: 'Classes', text: `${name}${formatOrigin(checker, symbol, fieldGroupOwners)}` };
-    if (isSchema && (symbol.flags & ts.SymbolFlags.Variable) !== 0) return { kind: 'Schemas', text: name };
-    if ((symbol.flags & ts.SymbolFlags.Variable) !== 0) return { kind: 'Constants', text: `${name}: ${formatConstantType(checker, symbol)}` };
+    if ((symbol.flags & ts.SymbolFlags.Class) !== 0) return { kind: 'Classes', origin: formatOrigin(checker, symbol, fieldGroupOwners), signature: name };
+    if (isSchema && (symbol.flags & ts.SymbolFlags.Variable) !== 0) return { kind: 'Schemas', origin: '', signature: name };
+    if ((symbol.flags & ts.SymbolFlags.Variable) !== 0) return { kind: 'Constants', origin: '', signature: `${name}: ${formatConstantType(checker, symbol)}` };
     const isType = (symbol.flags & (ts.SymbolFlags.Enum | ts.SymbolFlags.Interface | ts.SymbolFlags.TypeAlias)) !== 0;
-    return isType ? { kind: 'Types', text: `${name}${formatOrigin(checker, symbol, fieldGroupOwners)}` } : undefined;
+    return isType ? { kind: 'Types', origin: formatOrigin(checker, symbol, fieldGroupOwners), signature: name } : undefined;
+}
+
+// The summary of the '/** … */' comment above the item, on one line. Tags such as '@param' are left out, and '//'
+// comments, which are notes for maintainers, are never read.
+function readDescription(checker: ts.TypeChecker, symbol: ts.Symbol): string | undefined {
+    const description = ts.displayPartsToString(symbol.getDocumentationComment(checker)).replaceAll(/\s+/g, ' ').trim();
+    return description === '' ? undefined : description;
 }
 
 // The type as written, on the declaration or in an 'as' on its value, which keeps the names it was written with. Where
@@ -275,11 +289,18 @@ function formatTypeNode(typeNode: ts.TypeNode): string {
     return typeNode.getText().replaceAll(/\s+/g, ' ');
 }
 
-function buildSection(importPath: string, groups: Map<ExportKind, string[]>): string {
+function buildSection(importPath: string, groups: Map<ExportKind, ExportEntry[]>): string {
     const lists = EXPORT_KINDS.flatMap((kind) => {
-        const names = groups.get(kind) ?? [];
-        const items = names.map((name) => `- ${name}`);
-        return names.length === 0 ? [] : [`### ${kind}\n\n${items.join('\n')}`];
+        const entries = groups.get(kind) ?? [];
+        const items = entries.map((entry) => formatEntry(entry));
+        return entries.length === 0 ? [] : [`### ${kind}\n\n${items.join('\n')}`];
     });
     return [`## ${importPath}`, ...lists].join('\n\n');
+}
+
+// The description goes on a second, indented line, so the names can be read straight down the left. The trailing '\'
+// is a markdown line break, without which the two lines would render as one.
+function formatEntry({ description, origin, signature }: ExportEntry): string {
+    const firstLine = `- \`${signature}\`${origin}`;
+    return description === undefined ? firstLine : `${firstLine}\\\n  ${description}`;
 }
