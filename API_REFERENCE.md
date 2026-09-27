@@ -8,7 +8,7 @@ Every export, grouped by import path. This file is updated each time the project
 
 - `auditDependencies()`
 - `buildProject()`\
-  Build a project.
+    &emsp;_Build a project._
 - `checkConfigFiles()`
 - `checkDependencies()`
 - `documentActions()`
@@ -24,5 +24,5 @@ Every export, grouped by import path. This file is updated each time the project
 - `releaseProject()`
 - `syncProjectWithGitHub()`
 - `testProject(testTypeIds?: TestTypeId[], isCoverageMeasured?: boolean)`\
-  Runs the requested types of test, skipping any type this project has not configured.
+    &emsp;_Runs the requested types of test, skipping any type this project has not configured._
 - `uploadDirectoryToR2(sourceDirectory: string, uploadDirectory: string)`

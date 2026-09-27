@@ -298,9 +298,10 @@ function buildSection(importPath: string, groups: Map<ExportKind, ExportEntry[]>
     return [`## ${importPath}`, ...lists].join('\n\n');
 }
 
-// The description goes on a second, indented line, so the names can be read straight down the left. The trailing '\'
-// is a markdown line break, without which the two lines would render as one.
+// The description goes on a second, indented line in italics, so the names can be read straight down the left. The
+// trailing '\' is a markdown line break, without which the two lines would render as one. Rendering drops leading
+// spaces, so the '&emsp;' is what indents the description on screen; the spaces only indent it in the file.
 function formatEntry({ description, origin, signature }: ExportEntry): string {
     const firstLine = `- \`${signature}\`${origin}`;
-    return description === undefined ? firstLine : `${firstLine}\\\n  ${description}`;
+    return description === undefined ? firstLine : `${firstLine}\\\n    &emsp;_${description}_`;
 }

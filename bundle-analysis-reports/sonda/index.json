@@ -1,7 +1,7 @@
 {
   "metadata": {
     "version": "0.14.0",
-    "generatedAt": "2026-09-27T15:45:32.372Z",
+    "generatedAt": "2026-09-27T15:47:21.294Z",
     "integration": "vite",
     "sources": false,
     "gzip": true,
@@ -30,8 +30,8 @@
       "kind": "asset",
       "name": "dist/dpuse-development.es.js",
       "type": "script",
-      "uncompressed": 338899,
-      "gzip": 87665,
+      "uncompressed": 338909,
+      "gzip": 87680,
       "brotli": 0
     },
     {
@@ -105,7 +105,7 @@
       "type": "script",
       "format": "esm",
       "uncompressed": 310,
-      "gzip": 170,
+      "gzip": 171,
       "brotli": 0,
       "parent": "dist/dpuse-development.es.js"
     },
@@ -122,7 +122,7 @@
       "type": "script",
       "format": "esm",
       "uncompressed": 117322,
-      "gzip": 26523,
+      "gzip": 26525,
       "brotli": 0,
       "parent": "dist/dpuse-development.es.js"
     },
@@ -139,7 +139,7 @@
       "type": "script",
       "format": "esm",
       "uncompressed": 133988,
-      "gzip": 34372,
+      "gzip": 34375,
       "brotli": 0,
       "parent": "dist/dpuse-development.es.js"
     },
@@ -207,7 +207,7 @@
       "type": "script",
       "format": "esm",
       "uncompressed": 1527,
-      "gzip": 708,
+      "gzip": 709,
       "brotli": 0,
       "parent": "dist/dpuse-development.es.js"
     },
@@ -233,15 +233,15 @@
       "name": "src/actions/documentApiReference.ts",
       "type": "script",
       "format": "esm",
-      "uncompressed": 12602
+      "uncompressed": 12612
     },
     {
       "kind": "chunk",
       "name": "src/actions/documentApiReference.ts",
       "type": "script",
       "format": "esm",
-      "uncompressed": 7352,
-      "gzip": 2559,
+      "uncompressed": 7362,
+      "gzip": 2567,
       "brotli": 0,
       "parent": "dist/dpuse-development.es.js"
     },
@@ -309,7 +309,7 @@
       "type": "script",
       "format": "esm",
       "uncompressed": 1594,
-      "gzip": 816,
+      "gzip": 817,
       "brotli": 0,
       "parent": "dist/dpuse-development.es.js"
     },
