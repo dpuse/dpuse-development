@@ -45,13 +45,13 @@ describe('documentOpening', () => {
         expect(await project.readFile('README.md')).toContain('[Open an Issue](https://github.com/dpuse/dpuse-shared/issues)\n\n## About DPUse');
     });
 
-    it('shows only the License and Version badges, as check results sit in Quality & Security', async () => {
+    it('shows only the License, Version and CI badges, as check results sit in Quality & Security', async () => {
         await writeProject({ devDependencies: { fallow: '^3.30.0' } });
 
         await documentOpening();
 
         const readme = await project.readFile('README.md');
-        expect(readme.match(/\[!\[[^\]]+\]/g)).toEqual(['[![License: Apache-2.0]', '[![DPUse version]']);
+        expect(readme.match(/\[!\[[^\]]+\]/g)).toEqual(['[![License: Apache-2.0]', '[![DPUse version]', '[![CI]']);
     });
 
     it('exits when the licence is missing', async () => {

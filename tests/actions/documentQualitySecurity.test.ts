@@ -158,14 +158,13 @@ describe('documentQualitySecurity', () => {
         const coverageBadge = `![Coverage](https://img.shields.io/endpoint?url=${encodeURIComponent('https://raw.githubusercontent.com/dpuse/dpuse-shared/main/code-health-reports/vitest/badge.json')})`;
         const fallowBadge = `![Fallow code health](https://img.shields.io/endpoint?url=${encodeURIComponent('https://raw.githubusercontent.com/dpuse/dpuse-shared/main/code-health-reports/fallow/badge.json')})`;
 
-        expect(readme).toContain(
-            `[![CI](${repoURL}/actions/workflows/ci.yml/badge.svg)](${repoURL}/actions/workflows/ci.yml) shows the latest CI run on \`main\`, which covers the linting, unit tests and vulnerability audit below.`
-        );
+        const ciNote = ` Runs in the [CI workflow](${repoURL}/actions/workflows/ci.yml) on every push to \`main\`.`;
+        expect(readme).not.toContain('[![CI]');
 
         const testing = sectionOf(readme, 'Testing');
         expect(testing).toContain('|Check|Status|What it does|');
-        expect(testing).toContain('|Unit tests|✅ On|[Vitest](https://vitest.dev) runs the unit tests in CI on every push to `main`.|');
-        expect(testing).toContain('|Property-based tests|✅ On|[fast-check](https://fast-check.dev) runs');
+        expect(testing).toContain(`|Unit tests|✅ On|[Vitest](https://vitest.dev) runs the unit tests.${ciNote}|`);
+        expect(testing).toContain(`alongside the unit tests.${ciNote}|`);
         expect(testing).toContain(`|Test coverage|✅ On|${coverageBadge} [Vitest's V8 coverage](https://vitest.dev/guide/coverage) measures`);
 
         const codeQuality = sectionOf(readme, 'Code Quality');
@@ -173,7 +172,7 @@ describe('documentQualitySecurity', () => {
         expect(codeQuality).toContain(
             '|Code analysis|✅ On|[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=dpuse_dpuse-shared&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=dpuse_dpuse-shared) [SonarCloud](https://sonarcloud.io) checks'
         );
-        expect(codeQuality).toContain('|Linting|✅ On|[ESLint](https://eslint.org) checks the code for errors and style problems in CI on every push to `main`.|');
+        expect(codeQuality).toContain(`|Linting|✅ On|[ESLint](https://eslint.org) checks the code for errors and style problems.${ciNote}|`);
 
         const securityAnalysis = sectionOf(readme, 'Security Analysis');
         expect(securityAnalysis).toContain(
@@ -184,7 +183,7 @@ describe('documentQualitySecurity', () => {
 
         const dependencies = sectionOf(readme, 'Dependencies');
         expect(dependencies).toContain(
-            '|Vulnerability audit|✅ On|[npm audit](https://docs.npmjs.com/cli/commands/npm-audit) fails CI when any dependency has a known vulnerability.|'
+            `|Vulnerability audit|✅ On|[npm audit](https://docs.npmjs.com/cli/commands/npm-audit) fails when any dependency has a known vulnerability.${ciNote}|`
         );
         expect(dependencies).toContain('|Supply chain risk|✅ On|[Socket](https://socket.dev) flags');
         expect(dependencies).toContain('|Security alerts|✅ On|[Dependabot]');
@@ -195,7 +194,7 @@ describe('documentQualitySecurity', () => {
         expect(readme).toContain('[![OpenSSF Best Practices](https://www.bestpractices.dev/projects/14952/badge)]');
     });
 
-    it('leaves out the CI badge, and the badge of any check that is off, rather than show a broken one', async () => {
+    it('leaves out the badge, and the CI note, of any check that is off', async () => {
         await writeProject();
         await fs.rm('.github/workflows/ci.yml');
         await fs.rm('.github/workflows/codeql.yml');
@@ -205,7 +204,7 @@ describe('documentQualitySecurity', () => {
         await documentQualitySecurity();
 
         const readme = await project.readFile('README.md');
-        expect(readme).not.toContain('[![CI]');
+        expect(readme).not.toContain('Runs in the [CI workflow]');
         expect(readme).not.toContain('[![CodeQL]');
         expect(readme).not.toContain('[![Quality Gate Status]');
         expect(readme).toContain('|Code analysis|❌ Off|[SonarCloud](https://sonarcloud.io) checks');
@@ -305,7 +304,9 @@ describe('documentQualitySecurity', () => {
         expect(readme).toContain('|Version updates|✅ On|[Dependabot](https://docs.github.com/en/code-security/dependabot) opens pull requests for new dependency versions.|');
         expect(readme).toContain('|Code analysis|❌ Off|');
         expect(readme).toContain('|Supply chain risk|❌ Off|');
-        expect(readme).toContain('[npm audit](https://docs.npmjs.com/cli/commands/npm-audit) fails CI when a dependency has a known vulnerability of high severity or above.');
+        expect(readme).toContain(
+            '[npm audit](https://docs.npmjs.com/cli/commands/npm-audit) fails when a dependency has a known vulnerability of high severity or above. Runs in the [CI workflow]'
+        );
         expect(readme).toContain('See [SECURITY.md](./SECURITY.md) for how to report one privately');
         expect(readme).not.toContain('OpenSSF Best Practices](https://www.bestpractices.dev/projects/');
     });

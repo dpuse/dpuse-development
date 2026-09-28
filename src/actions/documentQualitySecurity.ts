@@ -61,7 +61,6 @@ interface ChecksResults {
 type SettingStatus = boolean | undefined;
 
 interface SecuritySettings {
-    ciWorkflow: boolean;
     codeQLLanguages: string[];
     codeQLQueries: string | undefined; // The query suite CodeQL is told to run; without one, it runs its default suite.
     dependabotAlerts: SettingStatus;
@@ -216,7 +215,6 @@ async function readSecuritySettings(owner: string, repo: string, packageJSON: Pa
     const pausedEcosystemCount = dependabotConfig?.match(/open-pull-requests-limit: 0\b/g)?.length ?? 0;
 
     return {
-        ciWorkflow: ciWorkflow !== null,
         codeQLLanguages: (codeQLWorkflow ?? '')
             .matchAll(/- language: ([\w-]+)/g)
             .map(([, language = '']) => CODEQL_LANGUAGE_NAMES[language] ?? language)
@@ -312,12 +310,14 @@ function formatEndpointBadge(owner: string, repo: string, label: string, badgePa
 function buildChecksContent(owner: string, repo: string, { coveragePercent, fallowHealth, securitySettings: settings }: ChecksResults): string {
     const repoURL = `https://github.com/${owner}/${repo}`;
 
+    const ciNote = (isInCI: boolean): string => (isInCI ? ` Runs in the [CI workflow](${repoURL}/actions/workflows/ci.yml) on every push to \`main\`.` : '');
+
     const testingRows = [
-        ['Unit tests', formatStatus(settings.testsInCI), '[Vitest](https://vitest.dev) runs the unit tests in CI on every push to `main`.'],
+        ['Unit tests', formatStatus(settings.testsInCI), `[Vitest](https://vitest.dev) runs the unit tests.${ciNote(settings.testsInCI)}`],
         [
             'Property-based tests',
             formatStatus(settings.propertyTests),
-            '[fast-check](https://fast-check.dev) runs many random inputs per test to find edge cases, alongside the unit tests.'
+            `[fast-check](https://fast-check.dev) runs many random inputs per test to find edge cases, alongside the unit tests.${ciNote(settings.propertyTests && settings.testsInCI)}`
         ]
     ];
     if (coveragePercent !== undefined) {
@@ -335,7 +335,7 @@ function buildChecksContent(owner: string, repo: string, { coveragePercent, fall
             formatStatus(settings.sonarCloud),
             `${settings.sonarCloud ? sonarCloudBadge : ''}[SonarCloud](https://sonarcloud.io) checks every push for bugs, code smells and vulnerabilities.`
         ],
-        ['Linting', formatStatus(settings.lintInCI), '[ESLint](https://eslint.org) checks the code for errors and style problems in CI on every push to `main`.']
+        ['Linting', formatStatus(settings.lintInCI), `[ESLint](https://eslint.org) checks the code for errors and style problems.${ciNote(settings.lintInCI)}`]
     ];
     // Measured when the README is regenerated, before the changes are pushed, so it comes first.
     if (fallowHealth !== undefined) {
@@ -374,8 +374,8 @@ function buildChecksContent(owner: string, repo: string, { coveragePercent, fall
             'Vulnerability audit',
             formatStatus(settings.npmAuditInCI),
             settings.npmAuditLevel === undefined
-                ? '[npm audit](https://docs.npmjs.com/cli/commands/npm-audit) fails CI when any dependency has a known vulnerability.'
-                : `[npm audit](https://docs.npmjs.com/cli/commands/npm-audit) fails CI when a dependency has a known vulnerability of ${settings.npmAuditLevel} severity or above.`
+                ? `[npm audit](https://docs.npmjs.com/cli/commands/npm-audit) fails when any dependency has a known vulnerability.${ciNote(settings.npmAuditInCI)}`
+                : `[npm audit](https://docs.npmjs.com/cli/commands/npm-audit) fails when a dependency has a known vulnerability of ${settings.npmAuditLevel} severity or above.${ciNote(settings.npmAuditInCI)}`
         ],
         [
             'Supply chain risk',
@@ -395,12 +395,7 @@ function buildChecksContent(owner: string, repo: string, { coveragePercent, fall
         ]
     ];
 
-    // One CI run covers linting, the unit tests and the vulnerability audit, so its badge sits above the tables, not in a row.
-    const ciText = settings.ciWorkflow
-        ? `\n\n[![CI](${repoURL}/actions/workflows/ci.yml/badge.svg)](${repoURL}/actions/workflows/ci.yml) shows the latest CI run on \`main\`, which covers the linting, unit tests and vulnerability audit below.`
-        : '';
-
-    return `This section is updated each time \`npm run document\` is run. Settings come from the repository's workflow files and GitHub. Test coverage and the Fallow score are measured at the same time.${ciText}
+    return `This section is updated each time \`npm run document\` is run. Settings come from the repository's workflow files and GitHub. Test coverage and the Fallow score are measured at the same time.
 
 ${buildTableContent('Testing', testingRows)}${buildTableContent('Code Quality', codeQualityRows)}${buildTableContent('Security Analysis', securityAnalysisRows)}${buildTableContent('Dependencies', dependencyRows)}`;
 }

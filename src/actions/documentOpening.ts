@@ -63,6 +63,7 @@ function buildOpeningContent(owner: string, repo: string, license: string, descr
 
     return `[![License: ${license}](https://img.shields.io/badge/License-${badgeLicense}-blue.svg)](./LICENSE)
 [![DPUse version](https://img.shields.io/github/v/release/${owner}/${repo}?color=f6821f&label=DPUse)](${repoURL}/releases/latest)
+[![CI](${repoURL}/actions/workflows/ci.yml/badge.svg)](${repoURL}/actions/workflows/ci.yml)
 
 [DPUse](https://www.dpuse.app) · [Report a Vulnerability](${repoURL}/security/advisories/new) · [Open an Issue](${repoURL}/issues)${summary}
 
