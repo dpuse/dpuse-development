@@ -20,6 +20,7 @@ export { formatError } from '@/errors';
  */
 export function getStatus(id: string, localeId?: string): string { return id + (localeId ?? ''); }
 export function listItems(limit = 10): number[] { return [limit]; }
+export function configure({ name, size = 1 }: { name: string; size?: number } = { name: '' }): void {}
 export const buildLabel = (text: string): string => text;
 export class Connector { list(): void {} }
 /** The most items allowed. */
@@ -102,6 +103,7 @@ Every export, grouped by import path. This file is updated each time \`npm run d
 ### Functions
 
 - **\`buildLabel\`**\`(text: string)\`
+- **\`configure\`**\`({ name, size }?: { name: string; size?: number })\`
 - **\`formatError\`**\`(error: unknown)\`
 - **\`getStatus\`**\`(id: string, localeId?: string)\`
     > Look up a status, in the given locale.

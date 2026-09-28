@@ -283,7 +283,18 @@ function formatParameter(checker: ts.TypeChecker, parameter: ts.Symbol): string 
     const parameterDeclaration = declaration !== undefined && ts.isParameter(declaration) ? declaration : undefined;
     const isOptional = parameterDeclaration?.questionToken !== undefined || parameterDeclaration?.initializer !== undefined;
     const typeText = parameterDeclaration?.type === undefined ? checker.typeToString(checker.getTypeOfSymbol(parameter), declaration) : formatTypeNode(parameterDeclaration.type);
-    return `${parameter.name}${isOptional ? '?' : ''}: ${typeText}`;
+    const name = parameterDeclaration === undefined ? parameter.name : formatParameterName(parameterDeclaration.name);
+    return `${name}${isOptional ? '?' : ''}: ${typeText}`;
+}
+
+// A destructured parameter has no name of its own, so TypeScript calls it '__0'. It is shown by the names it unpacks
+// instead, as '{ allowedLicenses, moduleLevel }', leaving out their defaults.
+function formatParameterName(name: ts.BindingName): string {
+    if (ts.isIdentifier(name)) return name.text;
+    const names = name.elements.flatMap((element) =>
+        ts.isBindingElement(element) ? [(element.dotDotDotToken === undefined ? '' : '...') + formatParameterName(element.name)] : []
+    );
+    return ts.isObjectBindingPattern(name) ? `{ ${names.join(', ')} }` : `[${names.join(', ')}]`;
 }
 
 // A type written across several lines is shown on one.

@@ -22,7 +22,7 @@ Every export, grouped by import path. This file is updated each time `npm run do
 - **`documentDependencies`**`(allowedLicenses?: string)`
     > Identify licenses of the project's production and peer dependencies. Updates the table in the Dependency Licenses section of this page and summary files licenses.json and licenseTree.json in th licenses directory of this repository. Also downloads a copy of dependency license to `licenses/downloads'.
 - **`documentOpening`**`()`
-- **`documentProject`**`(__0?: DocumentOptions)`
+- **`documentProject`**`({ allowedLicenses, moduleLevel }?: DocumentOptions)`
     > Regenerates every generated section of the README, in the order they appear, then the API reference where the project keeps one.
 - **`documentQualitySecurity`**`()`
     > Regenerates the README's Quality & Security section: testing, code quality, security analysis, dependencies and OpenSSF.
