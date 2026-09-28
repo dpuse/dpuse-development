@@ -3,6 +3,7 @@ import { logOperationHeader, logOperationSuccess, spawnCommand } from '@/utiliti
 
 // ── Actions ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
+/** Audit the project's dependencies for known security vulnerabilities. Also runs the npm outdated command. */
 export async function auditDependencies(): Promise<void> {
     try {
         logOperationHeader('Audit Dependencies');

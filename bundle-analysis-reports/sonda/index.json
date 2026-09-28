@@ -1,7 +1,7 @@
 {
   "metadata": {
     "version": "0.14.0",
-    "generatedAt": "2026-09-28T09:14:51.520Z",
+    "generatedAt": "2026-09-28T09:20:14.633Z",
     "integration": "vite",
     "sources": false,
     "gzip": true,
@@ -165,7 +165,7 @@
       "name": "src/actions/auditDependencies.ts",
       "type": "script",
       "format": "esm",
-      "uncompressed": 406
+      "uncompressed": 518
     },
     {
       "kind": "chunk",

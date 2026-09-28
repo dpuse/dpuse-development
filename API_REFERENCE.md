@@ -7,6 +7,7 @@ Every export, grouped by import path. This file is updated each time the project
 ### Functions
 
 - **`auditDependencies`**`()`
+    > Audit the project's dependencies for known security vulnerabilities. Also runs the npm outdated command.
 - **`buildProject`**`()`
     > Build a project.
 - **`checkConfigFiles`**`()`
