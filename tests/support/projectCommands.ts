@@ -9,10 +9,11 @@ import { execCommand, spawnCommand } from '@/utilities';
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-export const CONNECTOR_SOURCE = 'export default class Connector {\n    listNodes() {}\n    retrieveRecords() {}\n    private helper() {}\n}\n';
+// Which methods count as actions is tested on 'extractOperationsFromSource' itself; these only need some actions to record.
+export const CONNECTOR_SOURCE = 'export default class Connector {\n    listNodes() {}\n    retrieveRecords() {}\n}\n';
 export const PRESENTER_SOURCE = 'export default class Presenter {\n    list() {}\n    render() {}\n}\n';
 
-// ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
+// ── Actions ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 // The commands a test file's mocked 'execCommand' and 'spawnCommand' were asked to run, as command lines.
 export function executedCommands(): string[] {

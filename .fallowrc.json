@@ -1,5 +1,6 @@
 {
     "$schema": "https://raw.githubusercontent.com/fallow-rs/fallow/main/schema.json",
     "ignorePatterns": ["tests/**", "eslint.config.default.js", "vite.config.*.ts"],
-    "ignoreDependencies": ["fast-check", "vite-plugin-wasm"]
+    "ignoreDependencies": ["fast-check", "vite-plugin-wasm"],
+    "ignoreExportsUsedInFile": true
 }

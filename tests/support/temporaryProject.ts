@@ -6,7 +6,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { afterEach, beforeEach, vi } from 'vitest';
 
-// ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
+// ── Actions ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 // Every action reads and writes files relative to the working directory, so each test runs inside a fresh folder holding
 // only the files it needs. Console output is silenced but kept on the spies, so tests can check what was reported, and

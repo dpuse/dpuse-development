@@ -190,7 +190,7 @@ export async function readTextFileOrNull(path: string): Promise<string | null> {
 }
 
 export async function writeJSONFile(path: string, data: object): Promise<void> {
-    await fs.writeFile(path, JSON.stringify(data, undefined, 4), 'utf-8');
+    await fs.writeFile(path, `${JSON.stringify(data, undefined, 4)}\n`, 'utf-8'); // Ends with a newline, as Prettier and editors expect.
 }
 
 // Replaces the text between a pair of markers in 'README.md'.

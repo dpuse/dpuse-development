@@ -10,7 +10,7 @@ import { documentQualitySecurity } from '@/actions/documentQualitySecurity';
 import { documentUsage } from '@/actions/documentUsage';
 import { API_REFERENCE_PATH, documentAPIReference } from '@/actions/documentApiReference';
 import { BUNDLE_REPORT_PATH, documentBundleSizes } from '@/actions/documentBundleSizes';
-import { getModuleConfig, logStepHeader, readJSONFile, readTextFileOrNull } from '@/utilities';
+import { getModuleConfig, logStepHeader, readJSONFile, readTextFileOrNull, spawnCommand } from '@/utilities';
 
 // ── Types ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -43,11 +43,16 @@ export async function documentProject({ allowedLicenses = 'MIT', moduleLevel = f
         await documentContributingLicense();
 
         // Only where the project keeps an API reference, so projects opt in by adding the file.
-        if ((await readTextFileOrNull(API_REFERENCE_PATH)) === null) {
-            logStepHeader(`ℹ️  '${API_REFERENCE_PATH}' NOT required by this project`);
-        } else {
+        const hasAPIReference = (await readTextFileOrNull(API_REFERENCE_PATH)) !== null;
+        if (hasAPIReference) {
             await documentAPIReference();
+        } else {
+            logStepHeader(`ℹ️  '${API_REFERENCE_PATH}' NOT required by this project`);
         }
+
+        // Saved as Prettier would format them, so 'npm run format' has nothing left to change. Only the files written here
+        // are formatted, so documenting never touches the source.
+        await spawnCommand('ℹ️  Format generated files', 'prettier', ['--write', 'README.md', ...(hasAPIReference ? [API_REFERENCE_PATH] : [])]);
     } catch (error) {
         console.error('❌  Error documenting project', error);
         process.exit(1);

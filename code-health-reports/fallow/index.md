@@ -1,10 +1,4 @@
-## Fallow: 1 issue found
-
-### Unused exports (1)
-
-- `src/utilities/index.ts`
-  - :285 `extractOperationsFromSource`
-
+## Fallow: no issues found
 
 ## Fallow: no code duplication found
 
@@ -12,12 +6,12 @@
 
 | Metric | Value |
 |:-------|------:|
-| Total LOC | 2699 |
+| Total LOC | 2704 |
 | Avg Cyclomatic | 3.0 |
 | P90 Cyclomatic | 6 |
 | Cyclomatic units | Functions: 203, module scopes: 0, templates: 0 |
 | Dead Files | 0.0% |
-| Dead Exports | 1.4% |
+| Dead Exports | 0.0% |
 | Maintainability (avg) | 92.3 |
 | Hotspots (since 6 months) | 2 |
 | Circular Deps | 0 |
@@ -31,7 +25,7 @@
 | `src/actions/documentQualitySecurity.ts` | 91.8 | 1 | 1 | 0% | 0.18 | 16.0 |
 | `src/actions/documentApiReference.ts` | 82.8 | 1 | 1 | 0% | 0.48 | 12.0 |
 | `vite.config.ts` | 97.5 | 0 | 0 | 0% | 0.10 | 12.0 |
-| `src/utilities/index.ts` | 91.7 | 20 | 0 | 4% | 0.25 | 10.0 |
+| `src/utilities/index.ts` | 92.5 | 20 | 0 | 0% | 0.25 | 10.0 |
 | `src/actions/documentDependencies.ts` | 89.4 | 1 | 1 | 0% | 0.26 | 9.6 |
 | `src/actions/testProject.ts` | 92.7 | 1 | 1 | 0% | 0.15 | 9.0 |
 | `src/actions/documentBundleSizes.ts` | 89.1 | 1 | 1 | 0% | 0.27 | 7.0 |
@@ -39,9 +33,9 @@
 | `src/utilities/cloudflare.ts` | 90.6 | 2 | 1 | 0% | 0.22 | 7.0 |
 | `src/actions/documentContributingLicense.ts` | 92.4 | 1 | 1 | 0% | 0.16 | 7.0 |
 | `src/actions/checkDependencies.ts` | 93.0 | 1 | 1 | 0% | 0.14 | 7.0 |
+| `src/actions/documentProject.ts` | 87.8 | 2 | 9 | 0% | 0.10 | 6.0 |
 | `src/actions/documentUsage.ts` | 91.8 | 1 | 1 | 0% | 0.18 | 6.0 |
 | `src/actions/releaseProject.ts` | 91.8 | 1 | 3 | 0% | 0.09 | 6.0 |
-| `src/actions/documentProject.ts` | 88.1 | 2 | 9 | 0% | 0.09 | 5.0 |
 | `src/actions/publishProject.ts` | 90.7 | 2 | 2 | 0% | 0.17 | 5.0 |
 | `src/actions/documentOpening.ts` | 91.8 | 1 | 1 | 0% | 0.18 | 5.0 |
 | `src/actions/syncProjectWithGitHub.ts` | 94.8 | 1 | 1 | 0% | 0.11 | 4.0 |
@@ -63,7 +57,7 @@
 | `src/actions/checkConfigFiles.ts` | 47.9 | 40 | 483 | 0.23 | 1 | cooling |
 | `src/utilities/index.ts` | 41.6 | 30 | 424 | 0.25 | 20 | cooling |
 | `src/actions/documentDependencies.ts` | 32.1 | 22 | 406 | 0.26 | 1 | cooling |
-| `src/actions/documentUsage.ts` | 18.7 | 13 | 321 | 0.18 | 1 | accelerating |
+| `src/actions/documentUsage.ts` | 20.3 | 14 | 323 | 0.18 | 1 | accelerating |
 | `src/actions/documentOpening.ts` | 17.6 | 14 | 230 | 0.18 | 1 | stable |
 | `src/actions/checkDependencies.ts` | 12.3 | 14 | 156 | 0.14 | 1 | stable |
 | `vite.config.ts` | 8.9 | 16 | 102 | 0.10 | 0 | cooling |

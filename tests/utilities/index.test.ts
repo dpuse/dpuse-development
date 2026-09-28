@@ -12,6 +12,7 @@ import {
     resolveOwnerAndRepo,
     spawnCommand,
     spawnCommandToFile,
+    writeJSONFile,
     writeReadmeSection
 } from '@/utilities';
 import { collectConsoleOutput, useTemporaryProject } from '../support/temporaryProject';
@@ -147,6 +148,11 @@ describe('file helpers', () => {
 
     it('treats a missing folder as already clear', async () => {
         await expect(clearDirectory(undefined, 'missing')).resolves.toBeUndefined();
+    });
+
+    it('writes JSON indented by four spaces, ending with a newline', async () => {
+        await writeJSONFile('config.json', { id: 'dpuse-shared' });
+        expect(await project.readFile('config.json')).toBe('{\n    "id": "dpuse-shared"\n}\n');
     });
 
     it('replaces only the text between the README markers', async () => {

@@ -11,6 +11,8 @@ import { documentOpening } from '@/actions/documentOpening';
 import { documentProject } from '@/actions/documentProject';
 import { documentQualitySecurity } from '@/actions/documentQualitySecurity';
 import { documentUsage } from '@/actions/documentUsage';
+import { spawnCommand } from '@/utilities';
+import { spawnedCommands } from '../support/projectCommands';
 import { useTemporaryProject } from '../support/temporaryProject';
 
 // ── Mocks ────────────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -54,6 +56,11 @@ vi.mock('@/actions/documentOpening', () => ({
         calls.push('opening');
     })
 }));
+// Prettier is recorded rather than run.
+vi.mock('@/utilities', async (importOriginal) => ({
+    ...(await importOriginal<object>()),
+    spawnCommand: vi.fn(() => Promise.resolve())
+}));
 vi.mock('@/actions/documentUsage', () => ({
     documentUsage: vi.fn(() => {
         calls.push('usage');
@@ -66,6 +73,7 @@ const project = useTemporaryProject();
 
 beforeEach(() => {
     calls.length = 0;
+    vi.mocked(spawnCommand).mockClear();
     for (const action of [
         documentActions,
         documentAPIReference,
@@ -105,6 +113,15 @@ describe('documentProject', () => {
         await documentProject();
 
         expect(calls).toEqual(['opening', 'usage', 'dependencies', 'qualitySecurity', 'contributingLicense', 'apiReference']);
+        expect(spawnedCommands()).toEqual(['prettier --write README.md API_REFERENCE.md']);
+    });
+
+    it('formats only the README where there is no API reference', async () => {
+        await project.writeFiles({ 'config.json': JSON.stringify({ id: 'dpuse-shared' }) });
+
+        await documentProject();
+
+        expect(spawnedCommands()).toEqual(['prettier --write README.md']);
     });
 
     it('adds the actions table, after the opening, for a connector', async () => {
