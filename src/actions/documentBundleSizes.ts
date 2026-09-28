@@ -36,12 +36,14 @@ type DependencyPath = [path: string, name: string];
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
+export const BUNDLE_REPORT_PATH = 'bundle-analysis-reports/sonda/index.json'; // Written by Sonda during the Vite build.
+
 const BUNDLE_START_MARKER = '<!-- BUNDLE_START -->';
 const BUNDLE_END_MARKER = '<!-- BUNDLE_END -->';
 const INDENT = '&nbsp;&nbsp;&nbsp;&nbsp;';
 const BAR_WIDTH = 20;
 
-const BUNDLE_ANALYSIS_INTRO = `This report is updated each time the project is built, using [Sonda](https://sonda.dev/), which analyses final source maps to reveal the actual effects of tree-shaking and minification rather than relying on pre-build estimates.\n\n_Note: Sonda's Vite reports currently exclude CSS files, since Vite does not generate source maps for CSS._`;
+const BUNDLE_ANALYSIS_INTRO = `This report is updated with each release, from the bundle the release builds, using [Sonda](https://sonda.dev/), which analyses final source maps to reveal the actual effects of tree-shaking and minification rather than relying on pre-build estimates.\n\n_Note: Sonda's Vite reports currently exclude CSS files, since Vite does not generate source maps for CSS._`;
 
 const UNTRACED_LABEL = '(bundler output, whitespace & JSON)';
 const UNTRACED_NOTE = `${UNTRACED_LABEL} = bytes Sonda can't trace to a source file: whitespace (indentation and line breaks), code the bundler generates (region comments, the combined import/export lines, its small runtime helper and wrappers), and imported JSON such as \`config.json\`, which the bundler doesn't map. The JSON and the generated code are real bytes that ship; the whitespace mostly disappears once compressed.`;
@@ -53,7 +55,7 @@ export async function documentBundleSizes(options?: { moduleLevel?: boolean }): 
         logOperationHeader('Document Bundle Sizes');
 
         logStepHeader('1️⃣  Read bundle analysis report');
-        const json = await readJSONFile<SondaJson>('./bundle-analysis-reports/sonda/index.json');
+        const json = await readJSONFile<SondaJson>(BUNDLE_REPORT_PATH);
 
         logStepHeader(`2️⃣  Insert table into 'README.md'`);
         const bundleTable = buildBundleTable(json, options?.moduleLevel ?? false);

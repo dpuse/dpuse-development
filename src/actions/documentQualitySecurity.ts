@@ -11,6 +11,9 @@ import {
     logOperationHeader,
     logOperationSuccess,
     logStepHeader,
+    migrateGovernanceSection,
+    QUALITY_SECURITY_END_MARKER,
+    QUALITY_SECURITY_START_MARKER,
     readJSONFile,
     readTextFileOrNull,
     resolveOwnerAndRepo,
@@ -47,10 +50,6 @@ interface ScorecardResult {
     checks: { name: string; score: number }[];
 }
 
-interface GovernanceModuleConfig {
-    firstCreatedAt?: number | null;
-}
-
 // Everything the checks tables report on, gathered before the README is written.
 interface ChecksResults {
     coveragePercent: number | undefined;
@@ -80,9 +79,6 @@ interface SecuritySettings {
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-const START_MARKER = '<!-- GOVERNANCE_START -->';
-const END_MARKER = '<!-- GOVERNANCE_END -->';
-
 // Scorecard checks a solo maintainer pushing straight to 'main' can't raise, with the best score each can reach that way.
 const SCORECARD_PRACTICE_LIMITS: Record<string, number> = { 'Branch-Protection': 3, 'Code-Review': 0, Contributors: 0 };
 // Left out when deciding whether gaps remain: the Best Practices badge shows its own progress in the same section.
@@ -107,16 +103,17 @@ const asyncExecFile = promisify(execFile);
 
 // ── Actions ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-export async function documentGovernance(): Promise<void> {
+/** Regenerates the README's Quality & Security section: testing, code quality, security analysis, dependencies and OpenSSF. */
+export async function documentQualitySecurity(): Promise<void> {
     try {
-        logOperationHeader('Document Governance');
+        logOperationHeader('Document Quality & Security');
 
-        const [packageJSON, configJSON] = await Promise.all([readJSONFile<PackageJson>('package.json'), readJSONFile<GovernanceModuleConfig>('config.json')]);
+        const packageJSON = await readJSONFile<PackageJson>('package.json');
 
         const coveragePercent = await measureTestCoverage(packageJSON);
         const fallowHealth = await measureCodeHealth(packageJSON, coveragePercent === undefined ? [] : ['--coverage', COVERAGE_FINAL_PATH]);
 
-        const { owner, repo } = resolveOwnerAndRepo(packageJSON, 'document governance');
+        const { owner, repo } = resolveOwnerAndRepo(packageJSON, 'document quality and security');
 
         logStepHeader('4️⃣  Read security checks and settings');
         const securitySettings = await readSecuritySettings(owner, repo, packageJSON);
@@ -127,26 +124,15 @@ export async function documentGovernance(): Promise<void> {
             lookUpScorecardResult(`github.com/${owner}/${repo}`)
         ]);
 
-        logStepHeader("6️⃣  Insert governance content into 'README.md'");
+        logStepHeader("6️⃣  Insert quality and security content into 'README.md'");
+        const content = buildQualitySecurityContent(owner, repo, { coveragePercent, fallowHealth, securitySettings }, bestPracticesProjectId, scorecardResult);
 
-        const authorName = resolveAuthorName(packageJSON);
-        const copyrightYear = resolveCopyrightYear(configJSON.firstCreatedAt);
+        await migrateGovernanceSection();
+        await writeReadmeSection(content, QUALITY_SECURITY_START_MARKER, QUALITY_SECURITY_END_MARKER);
 
-        const content = buildGovernanceContent(
-            owner,
-            repo,
-            authorName,
-            copyrightYear,
-            { coveragePercent, fallowHealth, securitySettings },
-            bestPracticesProjectId,
-            scorecardResult
-        );
-
-        await writeReadmeSection(content, START_MARKER, END_MARKER);
-
-        logOperationSuccess('Governance documented');
+        logOperationSuccess('Quality & security documented');
     } catch (error) {
-        console.error('❌  Error documenting governance', error);
+        console.error('❌  Error documenting quality and security', error);
         process.exit(1);
     }
 }
@@ -276,26 +262,6 @@ function isScorecardOnlyPracticeLimited(result: ScorecardResult): boolean {
     );
 }
 
-function resolveAuthorName(packageJSON: PackageJson): string {
-    const author = packageJSON.author;
-    const authorString = typeof author === 'string' ? author : author?.name;
-    if (authorString == null || authorString === '') throw new Error("package.json 'author' field is required to document governance.");
-
-    // Drop the first '<email>' and the spaces around it, keeping one space between what came before and after it, as in
-    // npm's 'Name <email> (url)' form. Not a regex, as '\s*<' backtracks on long runs of spaces.
-    const emailStart = authorString.indexOf('<');
-    const emailEnd = emailStart === -1 ? -1 : authorString.indexOf('>', emailStart);
-    return emailEnd === -1 ? authorString.trim() : [authorString.slice(0, emailStart).trim(), authorString.slice(emailEnd + 1).trim()].filter((part) => part !== '').join(' ');
-}
-
-function resolveCopyrightYear(firstCreatedAt: number | null | undefined): string {
-    const currentYear = new Date().getFullYear();
-    if (firstCreatedAt == null) return String(currentYear);
-
-    const startYear = new Date(firstCreatedAt).getFullYear();
-    return startYear === currentYear ? String(currentYear) : `${String(startYear)}-present`;
-}
-
 function formatStatus(status: SettingStatus, onText = 'On'): string {
     if (status === undefined) return '❔ Unknown';
     return status ? `✅ ${onText}` : '❌ Off';
@@ -379,11 +345,9 @@ function buildChecksContent(owner: string, repo: string, { coveragePercent, fall
 ${buildTableContent('Testing', testingRows)}${buildTableContent('Code Quality', codeQualityRows)}${buildTableContent('Security Analysis', securityAnalysisRows)}${buildTableContent('Dependencies', dependencyRows)}`;
 }
 
-function buildGovernanceContent(
+function buildQualitySecurityContent(
     owner: string,
     repo: string,
-    authorName: string,
-    copyrightYear: string,
     checksResults: ChecksResults,
     bestPracticesProjectId: number | undefined,
     scorecardResult: ScorecardResult | undefined
@@ -413,17 +377,5 @@ This project is working towards the [OpenSSF Best Practices](https://www.bestpra
 
 ### Reporting Vulnerabilities
 
-Please do not open public GitHub issues for security vulnerabilities. ${reportingText}
-
-## Contributing
-
-This repository is maintained solely by its owner and does not, at present, accept external contributions into the canonical repo. Its source is published openly under the MIT License — every DPUse project is fully open source except DPUse Engine, which remains closed and proprietary.
-
-For security vulnerabilities, see [Reporting Vulnerabilities](#reporting-vulnerabilities). For bugs, inconsistencies, or other feedback, [open a GitHub issue](${repoURL}/issues) — feedback is read, but responses and fixes are at the maintainer's discretion.
-
-## License
-
-This project is licensed under the MIT License, permitting free use, modification, and distribution.
-
-[MIT](./LICENSE) © ${copyrightYear} ${authorName}`;
+Please do not open public GitHub issues for security vulnerabilities. ${reportingText}`;
 }

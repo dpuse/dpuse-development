@@ -2,10 +2,10 @@
 
 // ── External Dependencies & Registrations
 import { promises as fs } from 'node:fs';
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 // ── Local Framework
-import { documentGovernance } from '@/actions/documentGovernance';
+import { documentQualitySecurity } from '@/actions/documentQualitySecurity';
 import { buildReadme, useTemporaryProject } from '../support/temporaryProject';
 
 // ── Mocks ────────────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -84,16 +84,15 @@ function stubOpenSSF({
     );
 }
 
-async function writeProject(packageJSON: object = {}, files: Record<string, string> = {}, firstCreatedAt: number | null = Date.UTC(2024, 0, 1)): Promise<void> {
+async function writeProject(packageJSON: object = {}, files: Record<string, string> = {}): Promise<void> {
     await project.writeFiles({
-        'config.json': JSON.stringify({ id: 'dpuse-shared', firstCreatedAt }),
+        'config.json': JSON.stringify({ id: 'dpuse-shared' }),
         'package.json': JSON.stringify({
-            author: 'Jonathan Terrell <terrell.jm@gmail.com>',
             repository: { type: 'git', url: 'git+https://github.com/dpuse/dpuse-shared.git' },
             devDependencies: { '@vitest/coverage-v8': '^5.0.2', fallow: '^3.30.0', 'fast-check': '^4.10.2' },
             ...packageJSON
         }),
-        'README.md': buildReadme('GOVERNANCE'),
+        'README.md': buildReadme('GOVERNANCE'), // The old single section, so every test also runs the migration.
         '.github/workflows/ci.yml': CI_WORKFLOW,
         '.github/workflows/codeql.yml': CODEQL_WORKFLOW,
         '.github/dependabot.yml': DEPENDABOT_PAUSED,
@@ -108,16 +107,10 @@ function sectionOf(readme: string, heading: string): string {
     return readme.slice(start, end);
 }
 
-describe('documentGovernance', () => {
+describe('documentQualitySecurity', () => {
     beforeEach(() => {
-        vi.useFakeTimers({ toFake: ['Date'] });
-        vi.setSystemTime(new Date('2026-09-15T12:00:00Z'));
         reports.coverageSummary = { total: { lines: { pct: 84.61 } } };
         reports.fallowHealth = { health_score: { score: 89.6, grade: 'A' } };
-    });
-
-    afterEach(() => {
-        vi.useRealTimers();
     });
 
     it('writes the four check tables in order, then OpenSSF and vulnerability reporting', async () => {
@@ -125,7 +118,7 @@ describe('documentGovernance', () => {
         stubGitHub();
         stubOpenSSF();
 
-        await documentGovernance();
+        await documentQualitySecurity();
 
         const readme = await project.readFile('README.md');
         const headings = readme.match(/^#{2,3} .+$/gm);
@@ -136,11 +129,21 @@ describe('documentGovernance', () => {
             '### Security Analysis',
             '### Dependencies',
             '### OpenSSF 🚧',
-            '### Reporting Vulnerabilities',
-            '## Contributing',
-            '## License'
+            '### Reporting Vulnerabilities'
         ]);
         expect(readme).toContain('This section is updated each time `npm run document` is run.');
+    });
+
+    it('splits an old README section, leaving empty Contributing and License markers after it', async () => {
+        await writeProject();
+        stubGitHub();
+        stubOpenSSF();
+
+        await documentQualitySecurity();
+
+        const readme = await project.readFile('README.md');
+        expect(readme).not.toContain('GOVERNANCE');
+        expect(readme).toMatch(/Reporting Vulnerabilities[\s\S]*<!-- QUALITY_SECURITY_END -->\n\n<!-- CONTRIBUTING_LICENSE_START -->\n<!-- CONTRIBUTING_LICENSE_END -->/);
     });
 
     it('reports tests, coverage, Fallow, CodeQL and dependency checks from the workflows and GitHub', async () => {
@@ -148,7 +151,7 @@ describe('documentGovernance', () => {
         stubGitHub();
         stubOpenSSF();
 
-        await documentGovernance();
+        await documentQualitySecurity();
 
         const readme = await project.readFile('README.md');
         const testing = sectionOf(readme, 'Testing');
@@ -175,7 +178,6 @@ describe('documentGovernance', () => {
 
         expect(readme).toContain('Use [GitHub private vulnerability reporting](https://github.com/dpuse/dpuse-shared/security/advisories/new) instead.');
         expect(readme).toContain('[![OpenSSF Best Practices](https://www.bestpractices.dev/projects/14952/badge)]');
-        expect(readme).toContain('[MIT](./LICENSE) © 2024-present Jonathan Terrell');
     });
 
     it('writes the Fallow badge file the opening badge reads', async () => {
@@ -184,7 +186,7 @@ describe('documentGovernance', () => {
         stubOpenSSF();
         reports.fallowHealth = { health_score: { score: 71.2, grade: 'C' } };
 
-        await documentGovernance();
+        await documentQualitySecurity();
 
         expect(await project.readJSON('code-health-reports/fallow/badge.json')).toEqual({ schemaVersion: 1, label: 'fallow', message: 'C (71)', color: 'yellow' });
     });
@@ -195,7 +197,7 @@ describe('documentGovernance', () => {
         stubOpenSSF();
         reports.coverageSummary = { total: { lines: { pct: 0.9 } } };
 
-        await documentGovernance();
+        await documentQualitySecurity();
 
         expect(await project.readFile('README.md')).toContain('|Test coverage|⚠️ 0.9% of lines|');
     });
@@ -205,7 +207,7 @@ describe('documentGovernance', () => {
         stubGitHub();
         stubOpenSSF();
 
-        await documentGovernance();
+        await documentQualitySecurity();
 
         const readme = await project.readFile('README.md');
         expect(readme).not.toContain('Test coverage');
@@ -220,7 +222,7 @@ describe('documentGovernance', () => {
         stubOpenSSF();
         reports.coverageSummary = undefined;
 
-        await documentGovernance();
+        await documentQualitySecurity();
 
         expect(await project.readFile('README.md')).not.toContain('Test coverage');
     });
@@ -238,7 +240,7 @@ describe('documentGovernance', () => {
         });
         stubOpenSSF({ bestPractices: [] });
 
-        await documentGovernance();
+        await documentQualitySecurity();
 
         const readme = await project.readFile('README.md');
         expect(readme).toContain('|Unit tests|❌ Off|');
@@ -259,7 +261,7 @@ describe('documentGovernance', () => {
         stubGitHub();
         stubOpenSSF();
 
-        await documentGovernance();
+        await documentQualitySecurity();
         expect(await project.readFile('README.md')).toContain('|❌ Off|Static analysis for security vulnerabilities, using the default queries,');
     });
 
@@ -275,29 +277,15 @@ describe('documentGovernance', () => {
         ];
         stubOpenSSF({ scorecard: { checks: limitedChecks } });
 
-        await documentGovernance();
+        await documentQualitySecurity();
         expect(await project.readFile('README.md')).toContain('the remaining Scorecard gaps need multi-person review or a pull-request workflow');
 
         stubOpenSSF({ scorecard: { checks: [...limitedChecks, { name: 'Fuzzing', score: 0 }] } });
-        await documentGovernance();
+        await documentQualitySecurity();
         expect(await project.readFile('README.md')).not.toContain('the remaining Scorecard gaps');
     });
 
     it.each([
-        ['Jonathan Terrell', Date.UTC(2026, 0, 1), '© 2026 Jonathan Terrell'],
-        [{ name: 'Jonathan Terrell  <terrell.jm@gmail.com>  (https://example.com)' }, null, '© 2026 Jonathan Terrell (https://example.com)']
-    ])('names the author %j with the right copyright years', async (author, firstCreatedAt, expected) => {
-        await writeProject({ author }, {}, firstCreatedAt);
-        stubGitHub();
-        stubOpenSSF();
-
-        await documentGovernance();
-
-        expect(await project.readFile('README.md')).toContain(`[MIT](./LICENSE) ${expected}`);
-    });
-
-    it.each([
-        ['the author is missing', { author: '' }, {}],
         ['the Best Practices lookup fails', {}, { failing: 'https://www.bestpractices.dev' }],
         ['the Scorecard lookup fails', {}, { failing: 'https://api.scorecard.dev' }]
     ])('exits when %s', async (_case, packageJSON, openSSF) => {
@@ -305,8 +293,8 @@ describe('documentGovernance', () => {
         stubGitHub();
         stubOpenSSF(openSSF);
 
-        await expect(documentGovernance()).rejects.toThrow('process.exit(1)');
-        expect(console.error).toHaveBeenCalledWith('❌  Error documenting governance', expect.any(Error));
+        await expect(documentQualitySecurity()).rejects.toThrow('process.exit(1)');
+        expect(console.error).toHaveBeenCalledWith('❌  Error documenting quality and security', expect.any(Error));
     });
 
     it('exits rather than reporting settings as off when GitHub cannot be reached', async () => {
@@ -314,7 +302,7 @@ describe('documentGovernance', () => {
         stubGitHub({ [REPO]: Object.assign(new Error('Command failed'), { stderr: 'gh: not logged in' }) });
         stubOpenSSF();
 
-        await expect(documentGovernance()).rejects.toThrow('process.exit(1)');
+        await expect(documentQualitySecurity()).rejects.toThrow('process.exit(1)');
     });
 });
 

@@ -9,9 +9,16 @@ import type { PackageJson } from 'type-fest';
 import { Parser } from 'acorn';
 import path from 'node:path';
 import { promisify } from 'node:util';
+import { safeParse } from 'valibot';
 import type { Dirent, ObjectEncodingOptions, Stats } from 'node:fs';
 import { execFile, spawn } from 'node:child_process';
 import type { MethodDefinition, Node } from 'acorn';
+
+// ── DPUse Framework
+import type { ModuleConfig } from '@dpuse/dpuse-shared/component/module';
+import type { ConnectorActionName, ConnectorConfig } from '@dpuse/dpuse-shared/component/module/connector';
+import { connectorConfigSchema, determineConnectorUsageId } from '@dpuse/dpuse-shared/component/module/connector';
+import { type PresenterActionName, type PresenterConfig, presenterConfigSchema } from '@dpuse/dpuse-shared/component/module/presenter';
 
 // ── Types ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -22,12 +29,27 @@ export interface ModuleTypeConfig {
     uploadGroupName: 'connectors' | 'contexts' | 'cookbooks' | 'engine' | 'presenters' | 'tools' | undefined;
 }
 
+interface OperationConfig {
+    id?: string;
+    version?: string;
+    actionNames?: string[];
+    usageId?: string | null;
+}
+
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-// Fallow — governance writes these each time it runs; the README's opening badge reads the badge file from the repository.
+// Fallow — Quality & Security writes these each time it runs; the README's opening badge reads the badge file from the repository.
 export const FALLOW_DIRECTORY = 'code-health-reports/fallow';
 export const FALLOW_BADGE_PATH = `${FALLOW_DIRECTORY}/badge.json`;
 export const FALLOW_REPORT_PATH = `${FALLOW_DIRECTORY}/index.md`;
+
+// README markers — Quality & Security, and Contributing and License, once shared one 'GOVERNANCE' section.
+export const CONTRIBUTING_LICENSE_END_MARKER = '<!-- CONTRIBUTING_LICENSE_END -->';
+export const CONTRIBUTING_LICENSE_START_MARKER = '<!-- CONTRIBUTING_LICENSE_START -->';
+const GOVERNANCE_END_MARKER = '<!-- GOVERNANCE_END -->';
+const GOVERNANCE_START_MARKER = '<!-- GOVERNANCE_START -->';
+export const QUALITY_SECURITY_END_MARKER = '<!-- QUALITY_SECURITY_END -->';
+export const QUALITY_SECURITY_START_MARKER = '<!-- QUALITY_SECURITY_START -->';
 
 const MODULE_TYPE_CONFIGS: ModuleTypeConfig[] = [
     { idPrefix: 'dpuse-app', typeId: 'app', publishedTo: 'app', uploadGroupName: undefined },
@@ -138,6 +160,18 @@ export async function spawnCommandToFile(label: string, command: string, argumen
 
 // ── Actions - File ───────────────────────────────────────────────────────────────────────────────────────────────────
 
+// Swaps an old README's single 'GOVERNANCE' section for the two sections that replaced it, so either can then be
+// written. A README already split, or without the old section, is left as it is.
+export async function migrateGovernanceSection(): Promise<void> {
+    const readme = await readTextFile('./README.md');
+    const startIndex = readme.indexOf(GOVERNANCE_START_MARKER);
+    const endIndex = readme.indexOf(GOVERNANCE_END_MARKER);
+    if (startIndex === -1 || endIndex === -1) return;
+
+    const markers = `${QUALITY_SECURITY_START_MARKER}\n${QUALITY_SECURITY_END_MARKER}\n\n${CONTRIBUTING_LICENSE_START_MARKER}\n${CONTRIBUTING_LICENSE_END_MARKER}`;
+    await writeTextFile('README.md', `${readme.slice(0, startIndex)}${markers}${readme.slice(endIndex + GOVERNANCE_END_MARKER.length)}`);
+}
+
 export async function readJSONFile<T>(path: string): Promise<T> {
     return JSON.parse(await fs.readFile(path, 'utf-8')) as T;
 }
@@ -215,6 +249,37 @@ export async function getStatsForPath(path: string): Promise<Stats> {
     return await fs.stat(path);
 }
 
+// ── Actions - Project ────────────────────────────────────────────────────────────────────────────────────────────────
+
+// Connectors and presenters also record the actions their source implements, so their configuration is built from it.
+export async function buildModuleConfig(stepIcon: string, packageJSON: PackageJson, moduleTypeConfig: ModuleTypeConfig): Promise<ModuleConfig> {
+    switch (moduleTypeConfig.typeId) {
+        case 'connector':
+            return await buildConnectorProjectConfig(stepIcon, packageJSON);
+        // case 'context':
+        //     return await buildContextProjectConfig(stepIcon, packageJSON);
+        case 'presenter':
+            return await buildPresenterProjectConfig(stepIcon, packageJSON);
+        default:
+            return await buildProjectConfig(stepIcon, packageJSON);
+    }
+}
+
+export async function bumpPackageVersion(stepIcon: string, packageJSON: PackageJson, path = './'): Promise<void> {
+    logStepHeader(`${stepIcon} Bump project version`);
+
+    if (packageJSON.version == null) {
+        packageJSON.version = '0.0.001';
+        console.warn(`⚠️  Project version initialised to '${packageJSON.version}'.`);
+    } else {
+        const oldVersion = packageJSON.version;
+        const versionSegments = packageJSON.version.split('.');
+        packageJSON.version = `${versionSegments[0] ?? 'unknown'}.${versionSegments[1] ?? 'unknown'}.${String(Number(versionSegments[2]) + 1)}`;
+        console.info(`Project version bumped from '${oldVersion}' to '${packageJSON.version}'.`);
+    }
+    await writeJSONFile(`${path}package.json`, packageJSON);
+}
+
 // ── Actions - Source ─────────────────────────────────────────────────────────────────────────────────────────────────
 
 export function extractOperationsFromSource<T>(source: string): T[] {
@@ -238,6 +303,82 @@ export function extractOperationsFromSource<T>(source: string): T[] {
     return operations;
 }
 
+// ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+async function buildConnectorProjectConfig(stepIcon: string, packageJSON: PackageJson): Promise<ConnectorConfig> {
+    logStepHeader(`${stepIcon} Build connector project configuration`);
+
+    const [configJSON, indexCode] = await Promise.all([readJSONFile<ConnectorConfig>('config.json'), readTextFile('src/index.ts')]);
+
+    const response = safeParse(connectorConfigSchema, configJSON);
+    if (!response.success) {
+        console.error('❌  Configuration is invalid:');
+        console.table(response.issues);
+        throw new Error('Configuration is invalid');
+    }
+
+    const operations = extractOperationsFromSource<ConnectorActionName>(indexCode);
+    const usageId = determineConnectorUsageId(operations);
+
+    return await processOperations<ConnectorConfig>(packageJSON, configJSON, operations, usageId);
+}
+
+async function buildPresenterProjectConfig(stepIcon: string, packageJSON: PackageJson): Promise<PresenterConfig> {
+    logStepHeader(`${stepIcon} Build presenter project configuration`);
+
+    const [configJSON, indexCode] = await Promise.all([readJSONFile<PresenterConfig>('config.json'), readTextFile('src/index.ts')]);
+
+    const response = safeParse(presenterConfigSchema, configJSON);
+    if (!response.success) {
+        console.error('❌  Configuration is invalid:');
+        console.table(response.issues);
+        throw new Error('Configuration is invalid');
+    }
+
+    const operations = extractOperationsFromSource<PresenterActionName>(indexCode);
+    return await processOperations<PresenterConfig>(packageJSON, configJSON, operations);
+}
+
+async function buildProjectConfig(stepIcon: string, packageJSON: PackageJson): Promise<ModuleConfig> {
+    logStepHeader(`${stepIcon} Build project configuration`);
+
+    const configJSON = await readJSONFile<ModuleConfig>('config.json');
+    if (packageJSON.name != null) configJSON.id = packageJSON.name.replace('@dpuse/', '');
+    if (packageJSON.version != null) configJSON.version = packageJSON.version;
+    configJSON.icon ??= await readTextFileOrNull('logo.svg');
+    configJSON.iconDark ??= await readTextFileOrNull('logoDark.svg');
+    await writeJSONFile('config.json', configJSON);
+
+    return configJSON;
+}
+
+async function processOperations<T extends OperationConfig>(packageJSON: PackageJson, configJSON: T, operations: string[], usageId?: string): Promise<T> {
+    if (operations.length > 0) {
+        console.info(`ℹ️  Implements ${String(operations.length)} operations:`);
+        console.table(operations);
+    } else console.warn('⚠️   Implements no operations');
+
+    if (usageId === 'unknown') console.warn('⚠️   No usage identified');
+    else if (usageId) console.info(`ℹ️  Supports '${usageId}' usage.`);
+
+    if (packageJSON.name != null) configJSON.id = packageJSON.name.replace('@dpuse/', '').replace('@dpuse/', '');
+    if (packageJSON.version != null) configJSON.version = packageJSON.version;
+    configJSON.actionNames = operations;
+    if (usageId !== undefined) configJSON.usageId = usageId;
+
+    await writeJSONFile('config.json', configJSON);
+
+    return configJSON;
+}
+
+function substituteText(originalText: string, substituteText: string, startMarker: string, endMarker: string): string {
+    const startIndex = originalText.indexOf(startMarker);
+    const endIndex = originalText.indexOf(endMarker);
+    if (startIndex === -1 || endIndex === -1) throw new Error(`Markers ${startMarker}-${endMarker} not found in content.`);
+    const trimmedSubstitute = substituteText.trim();
+    return `${originalText.slice(0, Math.max(0, startIndex + startMarker.length))}\n\n${trimmedSubstitute}\n\n${originalText.slice(Math.max(0, endIndex))}`;
+}
+
 function traverseAST(node: Node, doIt: (node: Node) => void): void {
     doIt(node);
     for (const [key, value_] of Object.entries(node)) {
@@ -252,16 +393,6 @@ function traverseAST(node: Node, doIt: (node: Node) => void): void {
             traverseAST(value, doIt);
         }
     }
-}
-
-// ── Actions - Text ───────────────────────────────────────────────────────────────────────────────────────────────────
-
-function substituteText(originalText: string, substituteText: string, startMarker: string, endMarker: string): string {
-    const startIndex = originalText.indexOf(startMarker);
-    const endIndex = originalText.indexOf(endMarker);
-    if (startIndex === -1 || endIndex === -1) throw new Error(`Markers ${startMarker}-${endMarker} not found in content.`);
-    const trimmedSubstitute = substituteText.trim();
-    return `${originalText.slice(0, Math.max(0, startIndex + startMarker.length))}\n\n${trimmedSubstitute}\n\n${originalText.slice(Math.max(0, endIndex))}`;
 }
 
 /* eslint-enable security/detect-non-literal-fs-filename -- All paths come from package.json scripts, not user input. */

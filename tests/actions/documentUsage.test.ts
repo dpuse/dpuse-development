@@ -79,7 +79,7 @@ describe('documentUsage', () => {
         const readme = await project.readFile('README.md');
         expect(readme).toContain('Repository tasks run through npm scripts provided by [@dpuse/dpuse-development]');
         expect(readme).toContain('|`npm test`|Runs the tests.|\n|`npm run lint`|Checks the code with ESLint.|');
-        expect(readme).toContain('|`npm run release`|Bumps the version, commits and pushes, and creates a GitHub release.|');
+        expect(readme).toContain('|`npm run release`|Builds the project and regenerates the README, then bumps the version, commits and pushes, and creates a GitHub release.|');
         expect(readme).not.toContain('custom');
     });
 
