@@ -28,6 +28,7 @@ const API_REFERENCE_INTRO = 'Every export, grouped by import path. This file is 
 
 // ── Actions ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
+/** Lists every export of each import path in API_REFERENCE.md. Runs on each build where the project has that file. */
 export async function documentAPIReference(): Promise<void> {
     try {
         logOperationHeader('Document API Reference');

@@ -70,7 +70,7 @@ describe('checkConfigFiles', () => {
         expect(output).toContain("ℹ️  File '.github/workflows/publish.yml' is the same as '.github/publish.cloudflare.yml'");
         expect(output).toContain("ℹ️  File 'SECURITY.md' is the same as 'SECURITY.md'");
         expect(output).toContain("ℹ️  Prettier configuration is '@dpuse/dpuse-development/prettierrc'");
-        expect(output).toContain('✅  Configuration files checked');
+        expect(output).toContain('✅ Configuration files checked');
     });
 
     it('reports missing files and a different Prettier configuration', async () => {

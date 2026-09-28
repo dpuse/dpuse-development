@@ -6,6 +6,7 @@ import { logOperationHeader, logOperationSuccess, spawnCommand } from '@/utiliti
 
 // ── Actions ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
+/** Uses prettier to enforce formatting style rules. */
 export async function formatCode(): Promise<void> {
     try {
         logOperationHeader('Format Code');

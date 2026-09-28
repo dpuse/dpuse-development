@@ -83,7 +83,7 @@ describe('testProject', () => {
         await testProject(['unit', 'e2e']);
 
         expect(spawnedCommands()).toEqual(['vitest run --passWithNoTests']);
-        expect(collectConsoleOutput()).toContain('✅  Project tested');
+        expect(collectConsoleOutput()).toContain('✅ Project tested');
     });
 
     it('runs the unit tests before the end-to-end tests, measuring coverage for the unit tests only', async () => {

@@ -6,7 +6,7 @@
 
 | Metric | Value |
 |:-------|------:|
-| Total LOC | 2584 |
+| Total LOC | 2592 |
 | Avg Cyclomatic | 3.0 |
 | P90 Cyclomatic | 6 |
 | Cyclomatic units | Functions: 202, module scopes: 0, templates: 0 |
@@ -31,11 +31,11 @@
 | `src/actions/documentBundleSizes.ts` | 89.1 | 1 | 1 | 0% | 0.27 | 7.0 |
 | `src/actions/checkConfigFiles.ts` | 90.3 | 1 | 1 | 0% | 0.23 | 7.0 |
 | `src/utilities/cloudflare.ts` | 90.6 | 2 | 1 | 0% | 0.22 | 7.0 |
-| `src/actions/checkDependencies.ts` | 92.7 | 1 | 1 | 0% | 0.15 | 7.0 |
+| `src/actions/checkDependencies.ts` | 93.0 | 1 | 1 | 0% | 0.14 | 7.0 |
 | `src/actions/documentUsage.ts` | 90.6 | 1 | 1 | 0% | 0.22 | 6.0 |
 | `src/actions/documentOpening.ts` | 91.8 | 1 | 1 | 0% | 0.18 | 5.0 |
 | `src/actions/documentActions.ts` | 95.4 | 1 | 1 | 0% | 0.06 | 3.0 |
-| `src/actions/formatCode.ts` | 94.8 | 1 | 1 | 0% | 0.17 | 2.0 |
+| `src/actions/formatCode.ts` | 94.8 | 1 | 1 | 0% | 0.16 | 2.0 |
 | `src/actions/auditDependencies.ts` | 96.0 | 1 | 1 | 0% | 0.11 | 2.0 |
 | `src/actions/lintCode.ts` | 96.0 | 1 | 1 | 0% | 0.11 | 2.0 |
 
@@ -54,12 +54,12 @@
 | `src/actions/documentUsage.ts` | 19.3 | 11 | 259 | 0.22 | 1 | accelerating |
 | `src/actions/documentGovernance.ts` | 19.0 | 13 | 737 | 0.18 | 1 | accelerating |
 | `src/actions/documentOpening.ts` | 18.0 | 14 | 230 | 0.18 | 1 | stable |
-| `src/actions/checkDependencies.ts` | 12.1 | 13 | 154 | 0.15 | 1 | cooling |
+| `src/actions/checkDependencies.ts` | 11.3 | 13 | 154 | 0.14 | 1 | cooling |
 | `vite.config.ts` | 9.0 | 16 | 102 | 0.10 | 0 | cooling |
 | `src/utilities/cloudflare.ts` | 8.9 | 9 | 43 | 0.22 | 2 | cooling |
-| `src/actions/formatCode.ts` | 6.2 | 6 | 37 | 0.17 | 1 | cooling |
+| `src/actions/formatCode.ts` | 5.8 | 6 | 37 | 0.16 | 1 | cooling |
+| `src/actions/auditDependencies.ts` | 4.0 | 6 | 30 | 0.11 | 1 | cooling |
 | `src/actions/documentActions.ts` | 3.1 | 8 | 88 | 0.06 | 1 | cooling |
-| `src/actions/auditDependencies.ts` | 3.0 | 5 | 29 | 0.11 | 1 | cooling |
 | `src/actions/lintCode.ts` | 3.0 | 5 | 29 | 0.11 | 1 | cooling |
 
 ---

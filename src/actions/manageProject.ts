@@ -59,7 +59,7 @@ const TEST_TYPE_CONFIGS: TestTypeConfig[] = [
 
 // ── Actions - Build ──────────────────────────────────────────────────────────────────────────────────────────────────
 
-/** Build a project. */
+/** Builds the package using Vite. Output to '/dist' directory. Builds bundle analysis reports. */
 export async function buildProject(): Promise<void> {
     try {
         logOperationHeader('Build Project');
@@ -101,6 +101,7 @@ export async function publishProject(): Promise<void> {
 
 // ── Actions - Release ────────────────────────────────────────────────────────────────────────────────────────────────
 
+/** Bump version, builds config, builds project, synchronise with GitHub and publish to npm or Cloudflare. */
 export async function releaseProject(): Promise<void> {
     try {
         logOperationHeader('Release Project');
@@ -216,6 +217,7 @@ async function processOperations<T extends OperationConfig>(packageJSON: Package
 
 // ── Actions - Sync ───────────────────────────────────────────────────────────────────────────────────────────────────
 
+/** Synchronise the local repository with the main GitHub repository. */
 export async function syncProjectWithGitHub(): Promise<void> {
     try {
         logOperationHeader('Synchronise Project with GitHub');

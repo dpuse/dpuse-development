@@ -1,7 +1,7 @@
 {
   "metadata": {
     "version": "0.14.0",
-    "generatedAt": "2026-09-28T09:20:14.633Z",
+    "generatedAt": "2026-09-28T09:39:22.821Z",
     "integration": "vite",
     "sources": false,
     "gzip": true,
@@ -21,7 +21,7 @@
       "name": "[unassigned]",
       "type": "other",
       "format": "other",
-      "uncompressed": 22483,
+      "uncompressed": 22482,
       "gzip": 2599,
       "brotli": 0,
       "parent": "dist/dpuse-development.es.js"
@@ -30,8 +30,8 @@
       "kind": "asset",
       "name": "dist/dpuse-development.es.js",
       "type": "script",
-      "uncompressed": 338960,
-      "gzip": 87707,
+      "uncompressed": 338908,
+      "gzip": 87698,
       "brotli": 0
     },
     {
@@ -199,7 +199,7 @@
       "name": "src/actions/checkDependencies.ts",
       "type": "script",
       "format": "esm",
-      "uncompressed": 2328
+      "uncompressed": 2466
     },
     {
       "kind": "chunk",
@@ -233,7 +233,7 @@
       "name": "src/actions/documentApiReference.ts",
       "type": "script",
       "format": "esm",
-      "uncompressed": 12803
+      "uncompressed": 12922
     },
     {
       "kind": "chunk",
@@ -267,7 +267,7 @@
       "name": "src/actions/documentDependencies.ts",
       "type": "script",
       "format": "esm",
-      "uncompressed": 8580
+      "uncompressed": 8895
     },
     {
       "kind": "chunk",
@@ -335,7 +335,7 @@
       "name": "src/actions/formatCode.ts",
       "type": "script",
       "format": "esm",
-      "uncompressed": 655
+      "uncompressed": 711
     },
     {
       "kind": "chunk",
@@ -352,7 +352,7 @@
       "name": "src/actions/lintCode.ts",
       "type": "script",
       "format": "esm",
-      "uncompressed": 350
+      "uncompressed": 441
     },
     {
       "kind": "chunk",
@@ -369,7 +369,7 @@
       "name": "src/actions/manageProject.ts",
       "type": "script",
       "format": "esm",
-      "uncompressed": 10080
+      "uncompressed": 10338
     },
     {
       "kind": "chunk",
@@ -410,15 +410,15 @@
       "name": "src/utilities/index.ts",
       "type": "script",
       "format": "esm",
-      "uncompressed": 8571
+      "uncompressed": 8504
     },
     {
       "kind": "chunk",
       "name": "src/utilities/index.ts",
       "type": "script",
       "format": "esm",
-      "uncompressed": 5486,
-      "gzip": 1828,
+      "uncompressed": 5435,
+      "gzip": 1818,
       "brotli": 0,
       "parent": "dist/dpuse-development.es.js"
     }

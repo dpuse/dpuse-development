@@ -3,6 +3,7 @@ import { logOperationHeader, logOperationSuccess, spawnCommand } from '@/utiliti
 
 // ── Actions ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
+/** Uses eslint to check the code for potential errors and enforces coding style rules. */
 export async function lintCode(): Promise<void> {
     try {
         logOperationHeader('Lint Code');

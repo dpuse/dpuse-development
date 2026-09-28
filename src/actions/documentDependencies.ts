@@ -44,6 +44,9 @@ const DEPENDENCY_TREE_INTRO =
 
 // ── Actions ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
+/** Identify licenses of the project's production and peer dependencies. Updates the table in the Dependency Licenses
+ *  section of this page and summary files licenses.json and licenseTree.json in th licenses directory of this
+ *  repository. Also downloads a copy of dependency license to `licenses/downloads'. */
 export async function documentDependencies(allowedLicenses = 'MIT'): Promise<void> {
     try {
         logOperationHeader('Document Dependencies');

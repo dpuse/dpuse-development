@@ -174,18 +174,16 @@ export async function writeTextFile(path: string, data: string): Promise<void> {
 export function logOperationHeader(text: string): void {
     const cyan = '\u{1B}[36m';
     const reset = '\u{1B}[0m';
-    const line = '────────────────────────────────────────────────────────────────────────────────';
-    console.info(`\n${cyan}${line}`);
-    console.info(`▶️  ${text}`);
-    console.info(`${line}${reset}`);
+    console.info(`${cyan}────────────────────────────────────────────────────────────────────────────────`);
+    console.info(`▶️  ${text}${reset}`);
 }
 
 export function logOperationSuccess(message: string): void {
-    console.info(`\n✅  ${message}\n`);
+    console.info(`✅ ${message}`);
 }
 
 export function logStepHeader(text: string): void {
-    console.info(`\n${text}\n`);
+    console.info(text);
 }
 
 // ── Actions - Module ─────────────────────────────────────────────────────────────────────────────────────────────────

@@ -8,6 +8,8 @@ import { logOperationHeader, logOperationSuccess, logStepHeader, readJSONFile, s
 
 // ── Actions ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
+/** Identifies outdated dependencies using npm outdated and npm-check-updates with option to automatically install
+ *  latest versions. */
 export async function checkDependencies(): Promise<void> {
     try {
         logOperationHeader('Check Dependencies');
