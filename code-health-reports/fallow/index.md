@@ -58,7 +58,7 @@
 
 | File | Score | Commits | Churn | Density | Fan-in | Trend |
 |:-----|:------|:--------|:------|:--------|:-------|:------|
-| `src/actions/documentApiReference.ts` | 51.9 | 12 | 463 | 0.48 | 1 | cooling |
+| `src/actions/documentApiReference.ts` | 51.8 | 12 | 463 | 0.48 | 1 | cooling |
 | `src/actions/documentBundleSizes.ts` | 51.1 | 35 | 1188 | 0.27 | 1 | cooling |
 | `src/actions/checkConfigFiles.ts` | 47.9 | 40 | 483 | 0.23 | 1 | cooling |
 | `src/utilities/index.ts` | 41.6 | 30 | 424 | 0.25 | 20 | cooling |
@@ -73,7 +73,7 @@
 | `src/actions/lintCode.ts` | 3.9 | 6 | 30 | 0.11 | 1 | cooling |
 | `src/actions/documentActions.ts` | 3.0 | 8 | 88 | 0.06 | 1 | cooling |
 
-*8 files excluded (< 3 commits)*
+*9 files excluded (< 3 commits)*
 
 ---
 
