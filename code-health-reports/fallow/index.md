@@ -63,8 +63,8 @@
 | `src/actions/checkConfigFiles.ts` | 47.9 | 40 | 483 | 0.23 | 1 | cooling |
 | `src/utilities/index.ts` | 41.6 | 30 | 424 | 0.25 | 20 | cooling |
 | `src/actions/documentDependencies.ts` | 32.1 | 22 | 406 | 0.26 | 1 | cooling |
+| `src/actions/documentUsage.ts` | 18.7 | 13 | 321 | 0.18 | 1 | accelerating |
 | `src/actions/documentOpening.ts` | 17.6 | 14 | 230 | 0.18 | 1 | stable |
-| `src/actions/documentUsage.ts` | 17.1 | 12 | 261 | 0.18 | 1 | accelerating |
 | `src/actions/checkDependencies.ts` | 12.3 | 14 | 156 | 0.14 | 1 | stable |
 | `vite.config.ts` | 8.9 | 16 | 102 | 0.10 | 0 | cooling |
 | `src/utilities/cloudflare.ts` | 8.8 | 9 | 43 | 0.22 | 2 | cooling |

@@ -54,7 +54,7 @@ npm install
 
 _Requires [Node.js](https://nodejs.org/) 24 or later, [npm](https://www.npmjs.com/) 12 or later, and [TypeScript](https://www.typescriptlang.org/) 6.0.3 or later._
 
-This repository uses its own actions to manage itself, and provides them to every other DPUse repository.
+This repository manages itself using the actions it implements.
 
 <!-- USAGE_END -->
 

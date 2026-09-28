@@ -77,7 +77,7 @@ describe('documentUsage', () => {
 
         await writeProject('dpuse-development', { name: '@dpuse/dpuse-development' });
         await documentUsage();
-        expect(await project.readFile('README.md')).toContain('This repository uses its own actions to manage itself, and provides them to every other DPUse repository.');
+        expect(await project.readFile('README.md')).toContain('This repository manages itself using the actions it implements.');
     });
 
     it('does not list the repository commands', async () => {

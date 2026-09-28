@@ -21,7 +21,7 @@ const INTERNAL_NPM_WARNING = `> [!WARNING]
 > This project is not designed for general use. It is custom built for the DPUse CI/CD process. You are welcome to clone and customise it for your own purposes, but you will need to adapt it to your own project structure and tooling.`;
 
 // How the repository is managed. dpuse-development provides the actions every other repository uses, and runs them on itself.
-const DEVELOPMENT_MANAGEMENT_TEXT = 'This repository uses its own actions to manage itself, and provides them to every other DPUse repository.';
+const DEVELOPMENT_MANAGEMENT_TEXT = 'This repository manages itself using the actions it implements.';
 const SHARED_MANAGEMENT_TEXT = 'This repository is managed using the common set of actions provided by [@dpuse/dpuse-development](https://github.com/dpuse/dpuse-development).';
 
 // ── Actions ──────────────────────────────────────────────────────────────────────────────────────────────────────────
