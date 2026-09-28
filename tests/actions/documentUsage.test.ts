@@ -72,12 +72,14 @@ describe('documentUsage', () => {
         await writeProject('dpuse-shared', { name: '@dpuse/dpuse-shared' });
         await documentUsage();
         expect(await project.readFile('README.md')).toContain(
-            'This repository is managed using the common set of actions provided by [@dpuse/dpuse-development](https://github.com/dpuse/dpuse-development).'
+            'This repository is managed using the common set of actions provided by [@dpuse/dpuse-development](https://github.com/dpuse/dpuse-development). See the `scripts` block in [package.json](https://github.com/dpuse/dpuse-shared/blob/main/package.json) for details.'
         );
 
         await writeProject('dpuse-development', { name: '@dpuse/dpuse-development' });
         await documentUsage();
-        expect(await project.readFile('README.md')).toContain('This repository manages itself using the actions it implements.');
+        expect(await project.readFile('README.md')).toContain(
+            'This repository manages itself using the actions it implements. See the `scripts` block in [package.json](https://github.com/dpuse/dpuse-development/blob/main/package.json) for details.'
+        );
     });
 
     it('does not list the repository commands', async () => {

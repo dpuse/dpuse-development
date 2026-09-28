@@ -50,7 +50,7 @@ npm install
 
 _Requires [Node.js](https://nodejs.org/) 24 or later, [npm](https://www.npmjs.com/) 12 or later, and [TypeScript](https://www.typescriptlang.org/) 6.0.3 or later._
 
-This repository manages itself using the actions it implements.
+This repository manages itself using the actions it implements. See the `scripts` block in [package.json](https://github.com/dpuse/dpuse-development/blob/main/package.json) for details.
 
 <!-- USAGE_END -->
 
@@ -77,11 +77,11 @@ _Note: Sonda's Vite reports currently exclude CSS files, since Vite does not gen
 
 | Chunk/Module/File                                                                                | Composition                  |
 | :----------------------------------------------------------------------------------------------- | :--------------------------- |
-| dist/dpuse-development.es.js                                                                     | 332.2 kB · gzip 85.5 kB      |
-| &nbsp;&nbsp;&nbsp;&nbsp;acorn → dist/acorn.mjs                                                   | `████████░░░░░░░░░░░░` 39.4% |
-| &nbsp;&nbsp;&nbsp;&nbsp;acorn-typescript → lib/index.mjs                                         | `███████░░░░░░░░░░░░░` 34.5% |
-| &nbsp;&nbsp;&nbsp;&nbsp;src                                                                      | `███░░░░░░░░░░░░░░░░░` 15.9% |
-| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;documentQualitySecurity.ts                       | `█░░░░░░░░░░░░░░░░░░░` 2.9%  |
+| dist/dpuse-development.es.js                                                                     | 332.6 kB · gzip 85.7 kB      |
+| &nbsp;&nbsp;&nbsp;&nbsp;acorn → dist/acorn.mjs                                                   | `████████░░░░░░░░░░░░` 39.3% |
+| &nbsp;&nbsp;&nbsp;&nbsp;acorn-typescript → lib/index.mjs                                         | `███████░░░░░░░░░░░░░` 34.4% |
+| &nbsp;&nbsp;&nbsp;&nbsp;src                                                                      | `███░░░░░░░░░░░░░░░░░` 16.1% |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;documentQualitySecurity.ts                       | `█░░░░░░░░░░░░░░░░░░░` 3.0%  |
 | &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;index.ts                                         | `░░░░░░░░░░░░░░░░░░░░` 2.4%  |
 | &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;documentApiReference.ts                          | `░░░░░░░░░░░░░░░░░░░░` 2.3%  |
 | &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;documentDependencies.ts                          | `░░░░░░░░░░░░░░░░░░░░` 1.7%  |
@@ -121,28 +121,31 @@ _Note: Sonda's Vite reports currently exclude CSS files, since Vite does not gen
 
 This section is updated each time `npm run document` is run. Settings come from the repository's workflow files and GitHub. Test coverage and the Fallow score are measured at the same time.
 
+[![CI](https://github.com/dpuse/dpuse-development/actions/workflows/ci.yml/badge.svg)](https://github.com/dpuse/dpuse-development/actions/workflows/ci.yml) shows the latest CI run on `main`, which covers the linting, unit tests and vulnerability audit below.
+
 ### Testing
 
-| Check                | Status                                                                                                                                                                  | What it does                                                                                                                        |
-| :------------------- | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------- | :---------------------------------------------------------------------------------------------------------------------------------- |
-| Unit tests           | [![CI](https://github.com/dpuse/dpuse-development/actions/workflows/ci.yml/badge.svg)](https://github.com/dpuse/dpuse-development/actions/workflows/ci.yml)             | [Vitest](https://vitest.dev) runs the unit tests in CI on every push to `main`.                                                     |
-| Property-based tests | ✅ On                                                                                                                                                                   | [fast-check](https://fast-check.dev) runs many random inputs per test to find edge cases, alongside the unit tests.                 |
-| Test coverage        | ![Coverage](https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2Fdpuse%2Fdpuse-development%2Fmain%2Fcode-health-reports%2Fvitest%2Fbadge.json) | [Vitest's V8 coverage](https://vitest.dev/guide/coverage) measures the share of source lines the unit tests run. The target is 80%. |
+| Check                | Status | What it does                                                                                                                                                                                                                                                                                                |
+| :------------------- | :----- | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Unit tests           | ✅ On  | [Vitest](https://vitest.dev) runs the unit tests in CI on every push to `main`.                                                                                                                                                                                                                             |
+| Property-based tests | ✅ On  | [fast-check](https://fast-check.dev) runs many random inputs per test to find edge cases, alongside the unit tests.                                                                                                                                                                                         |
+| Test coverage        | ✅ On  | ![Coverage](https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2Fdpuse%2Fdpuse-development%2Fmain%2Fcode-health-reports%2Fvitest%2Fbadge.json) [Vitest's V8 coverage](https://vitest.dev/guide/coverage) measures the share of source lines the unit tests run. The target is 80%. |
 
 ### Code Quality
 
-| Check         | Status                                                                                                                                                                                                                     | What it does                                                                                                      |
-| :------------ | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | :---------------------------------------------------------------------------------------------------------------- |
-| Code health   | [![Fallow code health](https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2Fdpuse%2Fdpuse-development%2Fmain%2Fcode-health-reports%2Ffallow%2Fbadge.json)](./code-health-reports/fallow/index.md) | [Fallow](https://github.com/fallow-rs/fallow) finds unused code, duplication, complexity and dependency problems. |
-| Code analysis | [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=dpuse_dpuse-development&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=dpuse_dpuse-development)                          | [SonarCloud](https://sonarcloud.io) checks every push for bugs, code smells and vulnerabilities.                  |
+| Check         | Status | What it does                                                                                                                                                                                                                                                                                                                                 |
+| :------------ | :----- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Code health   | ✅ On  | [![Fallow code health](https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2Fdpuse%2Fdpuse-development%2Fmain%2Fcode-health-reports%2Ffallow%2Fbadge.json)](./code-health-reports/fallow/index.md) [Fallow](https://github.com/fallow-rs/fallow) finds unused code, duplication, complexity and dependency problems. |
+| Code analysis | ✅ On  | [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=dpuse_dpuse-development&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=dpuse_dpuse-development) [SonarCloud](https://sonarcloud.io) checks every push for bugs, code smells and vulnerabilities.                                           |
+| Linting       | ✅ On  | [ESLint](https://eslint.org) checks the code for errors and style problems in CI on every push to `main`.                                                                                                                                                                                                                                    |
 
 ### Security Analysis
 
-| Check           | Status                                                                                                                                                            | What it does                                                                                                                                                                                               |
-| :-------------- | :---------------------------------------------------------------------------------------------------------------------------------------------------------------- | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Push protection | ✅ On                                                                                                                                                             | [GitHub push protection](https://docs.github.com/en/code-security/secret-scanning/push-protection-for-repositories-and-organizations) blocks pushes that contain credentials.                              |
-| Static analysis | [![CodeQL](https://github.com/dpuse/dpuse-development/actions/workflows/codeql.yml/badge.svg)](https://github.com/dpuse/dpuse-development/security/code-scanning) | [CodeQL](https://codeql.github.com) scans GitHub Actions and JavaScript/TypeScript for security vulnerabilities, using the extended security queries, on every push and pull request to `main` and weekly. |
-| Secret scanning | ✅ On                                                                                                                                                             | [GitHub secret scanning](https://docs.github.com/en/code-security/secret-scanning) detects credentials, such as API keys and tokens, committed to the repository.                                          |
+| Check           | Status | What it does                                                                                                                                                                                                                                                                                                                                                                 |
+| :-------------- | :----- | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Push protection | ✅ On  | [GitHub push protection](https://docs.github.com/en/code-security/secret-scanning/push-protection-for-repositories-and-organizations) blocks pushes that contain credentials.                                                                                                                                                                                                |
+| Static analysis | ✅ On  | [![CodeQL](https://github.com/dpuse/dpuse-development/actions/workflows/codeql.yml/badge.svg)](https://github.com/dpuse/dpuse-development/security/code-scanning) [CodeQL](https://codeql.github.com) scans GitHub Actions and JavaScript/TypeScript for security vulnerabilities, using the extended security queries, on every push and pull request to `main` and weekly. |
+| Secret scanning | ✅ On  | [GitHub secret scanning](https://docs.github.com/en/code-security/secret-scanning) detects credentials, such as API keys and tokens, committed to the repository.                                                                                                                                                                                                            |
 
 ### Dependencies
 

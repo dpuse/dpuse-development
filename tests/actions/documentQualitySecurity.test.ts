@@ -44,7 +44,7 @@ const project = useTemporaryProject();
 
 const REPO = 'repos/dpuse/dpuse-shared';
 
-const CI_WORKFLOW = 'steps:\n  - run: npm test\n  - run: npm run audit\n';
+const CI_WORKFLOW = 'steps:\n  - run: npm run lint\n  - run: npm test\n  - run: npm run audit\n';
 const CODEQL_WORKFLOW = 'matrix:\n  include:\n    - language: actions\n    - language: javascript-typescript\n    - language: swift\nqueries: security-extended\n';
 const DEPENDABOT_PAUSED = 'updates:\n  - package-ecosystem: npm\n    open-pull-requests-limit: 0\n';
 
@@ -146,7 +146,7 @@ describe('documentQualitySecurity', () => {
         expect(readme).toMatch(/Reporting Vulnerabilities[\s\S]*<!-- QUALITY_SECURITY_END -->\n\n<!-- CONTRIBUTING_LICENSE_START -->\n<!-- CONTRIBUTING_LICENSE_END -->/);
     });
 
-    it('shows a badge where a check has one, and names and links the product doing each check', async () => {
+    it('shows on or off as the status, and opens what each check does with its badge and product', async () => {
         await writeProject();
         stubGitHub();
         stubOpenSSF();
@@ -158,20 +158,26 @@ describe('documentQualitySecurity', () => {
         const coverageBadge = `![Coverage](https://img.shields.io/endpoint?url=${encodeURIComponent('https://raw.githubusercontent.com/dpuse/dpuse-shared/main/code-health-reports/vitest/badge.json')})`;
         const fallowBadge = `![Fallow code health](https://img.shields.io/endpoint?url=${encodeURIComponent('https://raw.githubusercontent.com/dpuse/dpuse-shared/main/code-health-reports/fallow/badge.json')})`;
 
+        expect(readme).toContain(
+            `[![CI](${repoURL}/actions/workflows/ci.yml/badge.svg)](${repoURL}/actions/workflows/ci.yml) shows the latest CI run on \`main\`, which covers the linting, unit tests and vulnerability audit below.`
+        );
+
         const testing = sectionOf(readme, 'Testing');
         expect(testing).toContain('|Check|Status|What it does|');
-        expect(testing).toContain(`|Unit tests|[![CI](${repoURL}/actions/workflows/ci.yml/badge.svg)](${repoURL}/actions/workflows/ci.yml)|[Vitest](https://vitest.dev) runs`);
+        expect(testing).toContain('|Unit tests|✅ On|[Vitest](https://vitest.dev) runs the unit tests in CI on every push to `main`.|');
         expect(testing).toContain('|Property-based tests|✅ On|[fast-check](https://fast-check.dev) runs');
-        expect(testing).toContain(`|Test coverage|${coverageBadge}|[Vitest's V8 coverage](https://vitest.dev/guide/coverage) measures`);
+        expect(testing).toContain(`|Test coverage|✅ On|${coverageBadge} [Vitest's V8 coverage](https://vitest.dev/guide/coverage) measures`);
 
         const codeQuality = sectionOf(readme, 'Code Quality');
-        expect(codeQuality).toContain(`|Code health|[${fallowBadge}](./code-health-reports/fallow/index.md)|[Fallow](https://github.com/fallow-rs/fallow) finds`);
-        expect(codeQuality).toContain('|Code analysis|[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=dpuse_dpuse-shared&metric=alert_status)]');
+        expect(codeQuality).toContain(`|Code health|✅ On|[${fallowBadge}](./code-health-reports/fallow/index.md) [Fallow](https://github.com/fallow-rs/fallow) finds`);
+        expect(codeQuality).toContain(
+            '|Code analysis|✅ On|[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=dpuse_dpuse-shared&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=dpuse_dpuse-shared) [SonarCloud](https://sonarcloud.io) checks'
+        );
+        expect(codeQuality).toContain('|Linting|✅ On|[ESLint](https://eslint.org) checks the code for errors and style problems in CI on every push to `main`.|');
 
         const securityAnalysis = sectionOf(readme, 'Security Analysis');
-        expect(securityAnalysis).toContain(`|Static analysis|[![CodeQL](${repoURL}/actions/workflows/codeql.yml/badge.svg)](${repoURL}/security/code-scanning)|`);
         expect(securityAnalysis).toContain(
-            '[CodeQL](https://codeql.github.com) scans GitHub Actions and JavaScript/TypeScript and swift for security vulnerabilities, using the extended security queries,'
+            `|Static analysis|✅ On|[![CodeQL](${repoURL}/actions/workflows/codeql.yml/badge.svg)](${repoURL}/security/code-scanning) [CodeQL](https://codeql.github.com) scans GitHub Actions and JavaScript/TypeScript and swift for security vulnerabilities, using the extended security queries,`
         );
         expect(securityAnalysis).toContain('|Secret scanning|✅ On|[GitHub secret scanning]');
         expect(securityAnalysis).toContain('|Push protection|✅ On|[GitHub push protection]');
@@ -189,6 +195,22 @@ describe('documentQualitySecurity', () => {
         expect(readme).toContain('[![OpenSSF Best Practices](https://www.bestpractices.dev/projects/14952/badge)]');
     });
 
+    it('leaves out the CI badge, and the badge of any check that is off, rather than show a broken one', async () => {
+        await writeProject();
+        await fs.rm('.github/workflows/ci.yml');
+        await fs.rm('.github/workflows/codeql.yml');
+        stubGitHub({ [`${REPO}/commits/main/check-runs?per_page=100`]: undefined });
+        stubOpenSSF();
+
+        await documentQualitySecurity();
+
+        const readme = await project.readFile('README.md');
+        expect(readme).not.toContain('[![CI]');
+        expect(readme).not.toContain('[![CodeQL]');
+        expect(readme).not.toContain('[![Quality Gate Status]');
+        expect(readme).toContain('|Code analysis|❌ Off|[SonarCloud](https://sonarcloud.io) checks');
+    });
+
     it('orders each table by when its checks act, then alphabetically', async () => {
         await writeProject();
         stubGitHub();
@@ -204,7 +226,7 @@ describe('documentQualitySecurity', () => {
                 .drop(2) // The header and divider rows.
                 .toArray();
         expect(checkNames('Testing')).toEqual(['Unit tests', 'Property-based tests', 'Test coverage']);
-        expect(checkNames('Code Quality')).toEqual(['Code health', 'Code analysis']);
+        expect(checkNames('Code Quality')).toEqual(['Code health', 'Code analysis', 'Linting']);
         expect(checkNames('Security Analysis')).toEqual(['Push protection', 'Static analysis', 'Secret scanning']);
         expect(checkNames('Dependencies')).toEqual(['Vulnerability audit', 'Supply chain risk', 'Security alerts', 'Security updates', 'Version updates']);
     });

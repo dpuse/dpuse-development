@@ -61,11 +61,13 @@ interface ChecksResults {
 type SettingStatus = boolean | undefined;
 
 interface SecuritySettings {
+    ciWorkflow: boolean;
     codeQLLanguages: string[];
     codeQLQueries: string | undefined; // The query suite CodeQL is told to run; without one, it runs its default suite.
     dependabotAlerts: SettingStatus;
     dependabotSecurityUpdates: SettingStatus;
     dependabotVersionUpdates: boolean;
+    lintInCI: boolean;
     npmAuditInCI: boolean;
     npmAuditLevel: string | undefined; // The '--audit-level' CI passes; without one, npm audit fails on any severity.
     privateVulnerabilityReporting: SettingStatus;
@@ -214,6 +216,7 @@ async function readSecuritySettings(owner: string, repo: string, packageJSON: Pa
     const pausedEcosystemCount = dependabotConfig?.match(/open-pull-requests-limit: 0\b/g)?.length ?? 0;
 
     return {
+        ciWorkflow: ciWorkflow !== null,
         codeQLLanguages: (codeQLWorkflow ?? '')
             .matchAll(/- language: ([\w-]+)/g)
             .map(([, language = '']) => CODEQL_LANGUAGE_NAMES[language] ?? language)
@@ -222,6 +225,7 @@ async function readSecuritySettings(owner: string, repo: string, packageJSON: Pa
         dependabotAlerts: vulnerabilityAlerts !== undefined, // Answers '204 No Content' when on and '404' when off.
         dependabotSecurityUpdates: readSetting('dependabot_security_updates'),
         dependabotVersionUpdates: ecosystemCount > pausedEcosystemCount,
+        lintInCI: (ciWorkflow ?? '').includes('npm run lint'),
         npmAuditInCI: /npm (?:run )?audit/.test(ciWorkflow ?? ''),
         npmAuditLevel: /npm audit --audit-level=(\w+)/.exec(ciWorkflow ?? '')?.[1],
         privateVulnerabilityReporting: privateVulnerabilityReporting === undefined ? undefined : (JSON.parse(privateVulnerabilityReporting) as { enabled: boolean }).enabled,
@@ -302,18 +306,14 @@ function formatEndpointBadge(owner: string, repo: string, label: string, badgePa
 }
 
 // Grouped by what each check protects against, and within a group in the order the checks act on a change: before a
-// push, on every push, then continuously. The Status column shows a check's badge where it has one, and otherwise
-// whether it is on; a check that is off shows as off, never as a broken badge. The product doing each check is named
-// and linked in what it does.
+// push, on every push, then continuously, and alphabetically within each. Status is only ever on, off or unknown. What
+// it does opens with the check's badge where it has one, shown only while the check is on so a badge is never broken,
+// and names and links the product doing the check.
 function buildChecksContent(owner: string, repo: string, { coveragePercent, fallowHealth, securitySettings: settings }: ChecksResults): string {
     const repoURL = `https://github.com/${owner}/${repo}`;
 
     const testingRows = [
-        [
-            'Unit tests',
-            settings.testsInCI ? `[![CI](${repoURL}/actions/workflows/ci.yml/badge.svg)](${repoURL}/actions/workflows/ci.yml)` : formatStatus(false),
-            '[Vitest](https://vitest.dev) runs the unit tests in CI on every push to `main`.'
-        ],
+        ['Unit tests', formatStatus(settings.testsInCI), '[Vitest](https://vitest.dev) runs the unit tests in CI on every push to `main`.'],
         [
             'Property-based tests',
             formatStatus(settings.propertyTests),
@@ -323,30 +323,33 @@ function buildChecksContent(owner: string, repo: string, { coveragePercent, fall
     if (coveragePercent !== undefined) {
         testingRows.push([
             'Test coverage',
-            formatEndpointBadge(owner, repo, 'Coverage', COVERAGE_BADGE_PATH),
-            `[Vitest's V8 coverage](https://vitest.dev/guide/coverage) measures the share of source lines the unit tests run. The target is ${String(COVERAGE_TARGET_PERCENT)}%.`
+            formatStatus(true),
+            `${formatEndpointBadge(owner, repo, 'Coverage', COVERAGE_BADGE_PATH)} [Vitest's V8 coverage](https://vitest.dev/guide/coverage) measures the share of source lines the unit tests run. The target is ${String(COVERAGE_TARGET_PERCENT)}%.`
         ]);
     }
 
+    const sonarCloudBadge = `[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=${owner}_${repo}&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=${owner}_${repo}) `;
     const codeQualityRows = [
         [
             'Code analysis',
-            settings.sonarCloud
-                ? `[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=${owner}_${repo}&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=${owner}_${repo})`
-                : formatStatus(false),
-            '[SonarCloud](https://sonarcloud.io) checks every push for bugs, code smells and vulnerabilities.'
-        ]
+            formatStatus(settings.sonarCloud),
+            `${settings.sonarCloud ? sonarCloudBadge : ''}[SonarCloud](https://sonarcloud.io) checks every push for bugs, code smells and vulnerabilities.`
+        ],
+        ['Linting', formatStatus(settings.lintInCI), '[ESLint](https://eslint.org) checks the code for errors and style problems in CI on every push to `main`.']
     ];
+    // Measured when the README is regenerated, before the changes are pushed, so it comes first.
     if (fallowHealth !== undefined) {
         codeQualityRows.unshift([
             'Code health',
-            `[${formatEndpointBadge(owner, repo, 'Fallow code health', FALLOW_BADGE_PATH)}](./${FALLOW_REPORT_PATH})`,
-            '[Fallow](https://github.com/fallow-rs/fallow) finds unused code, duplication, complexity and dependency problems.'
+            formatStatus(true),
+            `[${formatEndpointBadge(owner, repo, 'Fallow code health', FALLOW_BADGE_PATH)}](./${FALLOW_REPORT_PATH}) [Fallow](https://github.com/fallow-rs/fallow) finds unused code, duplication, complexity and dependency problems.`
         ]);
     }
 
+    const hasCodeQL = settings.codeQLLanguages.length > 0;
+    const codeQLBadge = `[![CodeQL](${repoURL}/actions/workflows/codeql.yml/badge.svg)](${repoURL}/security/code-scanning) `;
     const codeQLScope = settings.codeQLQueries === 'security-extended' ? 'using the extended security queries' : 'using the default queries';
-    const codeQLLanguages = settings.codeQLLanguages.length === 0 ? '' : ` ${settings.codeQLLanguages.join(' and ')}`;
+    const codeQLLanguages = hasCodeQL ? ` ${settings.codeQLLanguages.join(' and ')}` : '';
     const securityAnalysisRows = [
         [
             'Push protection',
@@ -355,8 +358,8 @@ function buildChecksContent(owner: string, repo: string, { coveragePercent, fall
         ],
         [
             'Static analysis',
-            settings.codeQLLanguages.length > 0 ? `[![CodeQL](${repoURL}/actions/workflows/codeql.yml/badge.svg)](${repoURL}/security/code-scanning)` : formatStatus(false),
-            `[CodeQL](https://codeql.github.com) scans${codeQLLanguages} for security vulnerabilities, ${codeQLScope}, on every push and pull request to \`main\` and weekly.`
+            formatStatus(hasCodeQL),
+            `${hasCodeQL ? codeQLBadge : ''}[CodeQL](https://codeql.github.com) scans${codeQLLanguages} for security vulnerabilities, ${codeQLScope}, on every push and pull request to \`main\` and weekly.`
         ],
         [
             'Secret scanning',
@@ -392,7 +395,12 @@ function buildChecksContent(owner: string, repo: string, { coveragePercent, fall
         ]
     ];
 
-    return `This section is updated each time \`npm run document\` is run. Settings come from the repository's workflow files and GitHub. Test coverage and the Fallow score are measured at the same time.
+    // One CI run covers linting, the unit tests and the vulnerability audit, so its badge sits above the tables, not in a row.
+    const ciText = settings.ciWorkflow
+        ? `\n\n[![CI](${repoURL}/actions/workflows/ci.yml/badge.svg)](${repoURL}/actions/workflows/ci.yml) shows the latest CI run on \`main\`, which covers the linting, unit tests and vulnerability audit below.`
+        : '';
+
+    return `This section is updated each time \`npm run document\` is run. Settings come from the repository's workflow files and GitHub. Test coverage and the Fallow score are measured at the same time.${ciText}
 
 ${buildTableContent('Testing', testingRows)}${buildTableContent('Code Quality', codeQualityRows)}${buildTableContent('Security Analysis', securityAnalysisRows)}${buildTableContent('Dependencies', dependencyRows)}`;
 }

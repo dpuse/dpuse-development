@@ -41,7 +41,10 @@ export async function documentUsage(): Promise<void> {
         const typescriptVersion = resolveVersion(packageJSON.devDependencies?.['typescript']);
 
         const introduction = buildIntroductionContent(getModuleConfig(configJSON.id), packageJSON.name);
-        const management = packageJSON.name === '@dpuse/dpuse-development' ? DEVELOPMENT_MANAGEMENT_TEXT : SHARED_MANAGEMENT_TEXT;
+        // A full link, so it still works where the README is shown away from GitHub, such as on npm.
+        const packageJSONURL = `${cloneURL.replace(/\.git$/, '')}/blob/main/package.json`;
+        const managementText = packageJSON.name === '@dpuse/dpuse-development' ? DEVELOPMENT_MANAGEMENT_TEXT : SHARED_MANAGEMENT_TEXT;
+        const management = `${managementText} See the \`scripts\` block in [package.json](${packageJSONURL}) for details.`;
         const content = buildUsageContent(introduction, cloneURL, directoryName, nodeVersion, npmVersion, typescriptVersion, management);
 
         await writeReadmeSection(content, START_MARKER, END_MARKER);
