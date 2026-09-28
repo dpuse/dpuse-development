@@ -68,36 +68,20 @@ describe('documentUsage', () => {
         expect(await project.readFile('README.md')).toContain('You may view or clone this repository for your own purposes.');
     });
 
-    it('lists the scripts that run dpuse-development actions, directly or through another script', async () => {
-        await writeProject('dpuse-shared', {
-            name: '@dpuse/dpuse-shared',
-            scripts: { test: RUN, lint: RUN, sync: RUN, release: 'npm run sync && gh release create', custom: 'echo hello' }
-        });
-
+    it('says each repository is managed with the actions dpuse-development provides', async () => {
+        await writeProject('dpuse-shared', { name: '@dpuse/dpuse-shared' });
         await documentUsage();
+        expect(await project.readFile('README.md')).toContain(
+            'This repository is managed using the common set of actions provided by [@dpuse/dpuse-development](https://github.com/dpuse/dpuse-development).'
+        );
 
-        const readme = await project.readFile('README.md');
-        expect(readme).toContain('Repository tasks run through npm scripts provided by [@dpuse/dpuse-development]');
-        expect(readme).toContain('|`npm test`|Runs the tests.|\n|`npm run lint`|Checks the code with ESLint.|');
-        expect(readme).toContain('|`npm run release`|Builds the project and regenerates the README, then bumps the version, commits and pushes, and creates a GitHub release.|');
-        expect(readme).not.toContain('custom');
+        await writeProject('dpuse-development', { name: '@dpuse/dpuse-development' });
+        await documentUsage();
+        expect(await project.readFile('README.md')).toContain('This repository uses its own actions to manage itself, and provides them to every other DPUse repository.');
     });
 
-    it('describes dpuse-development as providing the commands it runs from its own build', async () => {
-        await writeProject('dpuse-development', {
-            name: '@dpuse/dpuse-development',
-            scripts: { lint: 'node -e "import(\'./dist/dpuse-development.es.js\').then(m => m.lintCode())"' }
-        });
-
-        await documentUsage();
-
-        const readme = await project.readFile('README.md');
-        expect(readme).toContain('This repository provides these commands to every DPUse project, and uses them itself:');
-        expect(readme).toContain('|`npm run lint`|');
-    });
-
-    it('leaves the commands table out when no script runs an action', async () => {
-        await writeProject('dpuse-shared', { name: '@dpuse/dpuse-shared', scripts: { build: 'vite build' } });
+    it('does not list the repository commands', async () => {
+        await writeProject('dpuse-shared', { name: '@dpuse/dpuse-shared', scripts: { lint: RUN } });
 
         await documentUsage();
 

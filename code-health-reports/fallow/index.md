@@ -12,10 +12,10 @@
 
 | Metric | Value |
 |:-------|------:|
-| Total LOC | 2739 |
+| Total LOC | 2699 |
 | Avg Cyclomatic | 3.0 |
 | P90 Cyclomatic | 6 |
-| Cyclomatic units | Functions: 210, module scopes: 0, templates: 0 |
+| Cyclomatic units | Functions: 203, module scopes: 0, templates: 0 |
 | Dead Files | 0.0% |
 | Dead Exports | 1.4% |
 | Maintainability (avg) | 92.3 |
@@ -39,7 +39,7 @@
 | `src/utilities/cloudflare.ts` | 90.6 | 2 | 1 | 0% | 0.22 | 7.0 |
 | `src/actions/documentContributingLicense.ts` | 92.4 | 1 | 1 | 0% | 0.16 | 7.0 |
 | `src/actions/checkDependencies.ts` | 93.0 | 1 | 1 | 0% | 0.14 | 7.0 |
-| `src/actions/documentUsage.ts` | 90.6 | 1 | 1 | 0% | 0.22 | 6.0 |
+| `src/actions/documentUsage.ts` | 91.8 | 1 | 1 | 0% | 0.18 | 6.0 |
 | `src/actions/releaseProject.ts` | 91.8 | 1 | 3 | 0% | 0.09 | 6.0 |
 | `src/actions/documentProject.ts` | 88.1 | 2 | 9 | 0% | 0.09 | 5.0 |
 | `src/actions/publishProject.ts` | 90.7 | 2 | 2 | 0% | 0.17 | 5.0 |
@@ -63,8 +63,8 @@
 | `src/actions/checkConfigFiles.ts` | 47.9 | 40 | 483 | 0.23 | 1 | cooling |
 | `src/utilities/index.ts` | 41.6 | 30 | 424 | 0.25 | 20 | cooling |
 | `src/actions/documentDependencies.ts` | 32.1 | 22 | 406 | 0.26 | 1 | cooling |
-| `src/actions/documentUsage.ts` | 20.9 | 12 | 261 | 0.22 | 1 | accelerating |
 | `src/actions/documentOpening.ts` | 17.6 | 14 | 230 | 0.18 | 1 | stable |
+| `src/actions/documentUsage.ts` | 17.1 | 12 | 261 | 0.18 | 1 | accelerating |
 | `src/actions/checkDependencies.ts` | 12.3 | 14 | 156 | 0.14 | 1 | stable |
 | `vite.config.ts` | 8.9 | 16 | 102 | 0.10 | 0 | cooling |
 | `src/utilities/cloudflare.ts` | 8.8 | 9 | 43 | 0.22 | 2 | cooling |
