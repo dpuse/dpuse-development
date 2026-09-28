@@ -58,12 +58,12 @@
 | `src/utilities/index.ts` | 44.3 | 32 | 432 | 0.24 | 20 | cooling |
 | `src/actions/documentDependencies.ts` | 32.1 | 22 | 406 | 0.26 | 1 | cooling |
 | `src/actions/documentUsage.ts` | 22.0 | 15 | 328 | 0.18 | 1 | accelerating |
-| `src/actions/documentOpening.ts` | 18.2 | 15 | 242 | 0.17 | 1 | stable |
+| `src/actions/documentOpening.ts` | 19.7 | 16 | 243 | 0.17 | 1 | stable |
 | `src/actions/checkDependencies.ts` | 12.3 | 14 | 156 | 0.14 | 1 | stable |
 | `vite.config.ts` | 8.9 | 16 | 102 | 0.10 | 0 | cooling |
 | `src/utilities/cloudflare.ts` | 8.7 | 9 | 43 | 0.22 | 2 | cooling |
 | `src/actions/formatCode.ts` | 7.1 | 7 | 38 | 0.16 | 1 | stable |
-| `src/actions/documentQualitySecurity.ts` | 4.9 | 3 | 567 | 0.18 | 1 | accelerating |
+| `src/actions/documentQualitySecurity.ts` | 6.5 | 4 | 588 | 0.18 | 1 | accelerating |
 | `src/actions/auditDependencies.ts` | 3.9 | 6 | 30 | 0.11 | 1 | cooling |
 | `src/actions/lintCode.ts` | 3.9 | 6 | 30 | 0.11 | 1 | cooling |
 | `src/actions/documentActions.ts` | 3.0 | 8 | 88 | 0.06 | 1 | cooling |
