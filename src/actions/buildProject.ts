@@ -1,6 +1,5 @@
 // ── Local Framework
-import { API_REFERENCE_PATH, writeAPIReference } from '@/actions/documentApiReference';
-import { logOperationHeader, logOperationSuccess, logStepHeader, readTextFileOrNull, spawnCommand } from '@/utilities';
+import { logOperationHeader, logOperationSuccess, spawnCommand } from '@/utilities';
 
 // ── Actions ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -10,13 +9,6 @@ export async function buildProject(): Promise<void> {
         logOperationHeader('Build Project');
 
         await spawnCommand('1️⃣  Bundle project', 'vite', ['build']);
-
-        // Only where the project keeps an API reference, so projects opt in by adding the file.
-        if ((await readTextFileOrNull(API_REFERENCE_PATH)) === null) {
-            logStepHeader(`2️⃣  '${API_REFERENCE_PATH}' NOT required by this project`);
-        } else {
-            await writeAPIReference('2️⃣ ');
-        }
 
         logOperationSuccess('Project built');
     } catch (error) {

@@ -18,7 +18,7 @@ vi.mock('@/utilities', async (importOriginal) => ({
 
 // ── Tests ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-const project = useTemporaryProject();
+useTemporaryProject(); // Runs each test in its own folder, with its console output captured.
 
 beforeEach(() => {
     vi.mocked(spawnCommand).mockClear().mockResolvedValue();
@@ -28,19 +28,7 @@ describe('buildProject', () => {
     it('bundles the project with Vite', async () => {
         await buildProject();
         expect(spawnedCommands()).toEqual(['vite build']);
-        expect(collectConsoleOutput()).toContain("2️⃣  'API_REFERENCE.md' NOT required by this project");
-    });
-
-    it('updates the API reference where the project keeps one', async () => {
-        await project.writeFiles({
-            'API_REFERENCE.md': 'Out of date',
-            'package.json': JSON.stringify({ name: '@dpuse/dpuse-example', exports: { '.': { types: './dist/types/src/index.d.ts' } } }),
-            'src/index.ts': 'export function run(): void {}\n'
-        });
-
-        await buildProject();
-
-        expect(await project.readFile('API_REFERENCE.md')).toContain('## @dpuse/dpuse-example\n\n### Functions\n\n- **`run`**`()`');
+        expect(collectConsoleOutput()).toContain('✅ Project built');
     });
 
     it('exits when the bundle fails', async () => {

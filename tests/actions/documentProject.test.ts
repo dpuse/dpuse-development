@@ -3,6 +3,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 // ── Local Framework
 import { documentActions } from '@/actions/documentActions';
+import { documentAPIReference } from '@/actions/documentApiReference';
 import { documentBundleSizes } from '@/actions/documentBundleSizes';
 import { documentContributingLicense } from '@/actions/documentContributingLicense';
 import { documentDependencies } from '@/actions/documentDependencies';
@@ -19,6 +20,12 @@ const calls = vi.hoisted<string[]>(() => []);
 vi.mock('@/actions/documentActions', () => ({
     documentActions: vi.fn(() => {
         calls.push('actions');
+    })
+}));
+vi.mock('@/actions/documentApiReference', async (importOriginal) => ({
+    ...(await importOriginal<object>()),
+    documentAPIReference: vi.fn(() => {
+        calls.push('apiReference');
     })
 }));
 vi.mock('@/actions/documentBundleSizes', async (importOriginal) => ({
@@ -59,7 +66,16 @@ const project = useTemporaryProject();
 
 beforeEach(() => {
     calls.length = 0;
-    for (const action of [documentActions, documentBundleSizes, documentContributingLicense, documentDependencies, documentOpening, documentQualitySecurity, documentUsage])
+    for (const action of [
+        documentActions,
+        documentAPIReference,
+        documentBundleSizes,
+        documentContributingLicense,
+        documentDependencies,
+        documentOpening,
+        documentQualitySecurity,
+        documentUsage
+    ])
         vi.mocked(action).mockClear();
 });
 
@@ -81,6 +97,14 @@ describe('documentProject', () => {
 
         expect(calls).toEqual(['opening', 'usage', 'dependencies', 'bundleSizes', 'qualitySecurity', 'contributingLicense']);
         expect(documentBundleSizes).toHaveBeenCalledWith({ moduleLevel: true });
+    });
+
+    it('regenerates the API reference last, where the project keeps one', async () => {
+        await project.writeFiles({ 'config.json': JSON.stringify({ id: 'dpuse-shared' }), 'API_REFERENCE.md': 'Out of date' });
+
+        await documentProject();
+
+        expect(calls).toEqual(['opening', 'usage', 'dependencies', 'qualitySecurity', 'contributingLicense', 'apiReference']);
     });
 
     it('adds the actions table, after the opening, for a connector', async () => {

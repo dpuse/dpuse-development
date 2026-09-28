@@ -54,7 +54,6 @@ This repository provides these commands to every DPUse project, and uses them it
 
 |Command|What it does|
 |:-|:-|
-|`npm run build`|Builds the project.|
 |`npm test`|Runs the tests.|
 |`npm run lint`|Checks the code with ESLint.|
 |`npm run format`|Formats the code with Prettier.|
@@ -79,7 +78,7 @@ The package implements the following actions:
 | documentDependencies        | Identify licenses of the project's production and peer dependencies. Updates the table in the **Dependency Licenses** section of this page and summary files licenses.json and licenseTree.json in th licenses directory of this repository. Also downloads a copy of dependency license to `licenses/downloads'.. |
 | documentContributingLicense | Regenerates the **Contributing** and **License** sections.                                                                                                                                                                                                                                                         |
 | documentActions             |                                                                                                                                                                                                                                                                                                                    |
-| documentAPIReference        | Lists every export of each import path in `API_REFERENCE.md`. Runs on each build where the project has that file.                                                                                                                                                                                                  |
+| documentAPIReference        | Lists every export of each import path in `API_REFERENCE.md`. Runs with `documentProject` where the project has that file.                                                                                                                                                                                         |
 | documentOpening             |                                                                                                                                                                                                                                                                                                                    |
 | documentProject             | Regenerates every generated section of the README, in the order they appear. Also runs as part of `releaseProject`.                                                                                                                                                                                                |
 | documentQualitySecurity     | Regenerates the **Quality & Security** section: testing, code quality, security analysis, dependencies and OpenSSF.                                                                                                                                                                                                |
@@ -87,7 +86,7 @@ The package implements the following actions:
 | formatCode                  | Uses `prettier` to enforce formatting style rules.                                                                                                                                                                                                                                                                 |
 | lintCode                    | Uses `eslint` to check the code for potential errors and enforces coding style rules.                                                                                                                                                                                                                              |
 | uploadDirectoryToR2         |                                                                                                                                                                                                                                                                                                                    |
-| buildProject                | Builds the package using Vite. Output to '/dist' directory. Builds bundle analysis reports.                                                                                                                                                                                                                        |
+| buildProject                | Builds the package using Vite. Output to '/dist' directory. Writes the bundle analysis report.                                                                                                                                                                                                                     |
 | publishProject              |                                                                                                                                                                                                                                                                                                                    |
 | releaseProject              | Bump version, builds config, builds project, synchronise with `GitHub` and publish to `npm` or Cloudflare.                                                                                                                                                                                                         |
 | syncProjectWithGitHub       | Synchronise the local repository with the main GitHub repository.                                                                                                                                                                                                                                                  |
@@ -118,7 +117,7 @@ _Note: Sonda's Vite reports currently exclude CSS files, since Vite does not gen
 
 |Chunk/Module/File|Composition|
 |:------ |:-----------|
-| dist/dpuse-development.es.js | 332.8 kB · gzip 85.7 kB |
+| dist/dpuse-development.es.js | 332.8 kB · gzip 85.8 kB |
 | &nbsp;&nbsp;&nbsp;&nbsp;acorn → dist/acorn.mjs | `████████░░░░░░░░░░░░` 39.3% |
 | &nbsp;&nbsp;&nbsp;&nbsp;acorn-typescript → lib/index.mjs | `███████░░░░░░░░░░░░░` 34.4% |
 | &nbsp;&nbsp;&nbsp;&nbsp;src | `███░░░░░░░░░░░░░░░░░` 16.0% |
@@ -137,11 +136,11 @@ _Note: Sonda's Vite reports currently exclude CSS files, since Vite does not gen
 | &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;releaseProject.ts | `░░░░░░░░░░░░░░░░░░░░` 0.3% |
 | &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;testProject.ts | `░░░░░░░░░░░░░░░░░░░░` 0.3% |
 | &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;publishProject.ts | `░░░░░░░░░░░░░░░░░░░░` 0.2% |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;documentProject.ts | `░░░░░░░░░░░░░░░░░░░░` 0.2% |
 | &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;syncProjectWithGitHub.ts | `░░░░░░░░░░░░░░░░░░░░` 0.2% |
-| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;documentProject.ts | `░░░░░░░░░░░░░░░░░░░░` 0.1% |
-| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;buildProject.ts | `░░░░░░░░░░░░░░░░░░░░` 0.1% |
 | &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;formatCode.ts | `░░░░░░░░░░░░░░░░░░░░` 0.1% |
 | &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;auditDependencies.ts | `░░░░░░░░░░░░░░░░░░░░` 0.1% |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;buildProject.ts | `░░░░░░░░░░░░░░░░░░░░` 0.1% |
 | &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;lintCode.ts | `░░░░░░░░░░░░░░░░░░░░` 0.1% |
 | &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON) | `█░░░░░░░░░░░░░░░░░░░` 6.7% |
 | &nbsp;&nbsp;&nbsp;&nbsp;@dpuse/dpuse-shared | `█░░░░░░░░░░░░░░░░░░░` 3.4% |

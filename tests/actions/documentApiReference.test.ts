@@ -95,7 +95,7 @@ describe('documentAPIReference', () => {
 
         expect(await project.readFile('API_REFERENCE.md')).toBe(`# API Reference
 
-Every export, grouped by import path. This file is updated each time the project is built.
+Every export, grouped by import path. This file is updated each time \`npm run document\` is run, and with each release.
 
 ## @dpuse/dpuse-example
 

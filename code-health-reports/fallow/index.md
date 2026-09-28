@@ -17,8 +17,8 @@
 | P90 Cyclomatic | 6 |
 | Cyclomatic units | Functions: 207, module scopes: 0, templates: 0 |
 | Dead Files | 0.0% |
-| Dead Exports | 1.2% |
-| Maintainability (avg) | 92.1 |
+| Dead Exports | 1.3% |
+| Maintainability (avg) | 92.2 |
 | Hotspots (since 6 months) | 1 |
 | Circular Deps | 0 |
 | Unused Deps | 0 |
@@ -41,17 +41,17 @@
 | `src/actions/checkDependencies.ts` | 93.0 | 1 | 1 | 0% | 0.14 | 7.0 |
 | `src/actions/documentUsage.ts` | 90.6 | 2 | 1 | 0% | 0.22 | 6.0 |
 | `src/actions/releaseProject.ts` | 91.8 | 1 | 3 | 0% | 0.09 | 6.0 |
+| `src/actions/documentProject.ts` | 88.1 | 2 | 9 | 0% | 0.09 | 5.0 |
 | `src/actions/publishProject.ts` | 90.7 | 2 | 2 | 0% | 0.17 | 5.0 |
 | `src/actions/documentOpening.ts` | 91.8 | 2 | 1 | 0% | 0.18 | 5.0 |
-| `src/actions/documentProject.ts` | 88.9 | 2 | 8 | 0% | 0.08 | 4.0 |
 | `src/actions/syncProjectWithGitHub.ts` | 94.8 | 1 | 1 | 0% | 0.11 | 4.0 |
-| `src/actions/buildProject.ts` | 93.8 | 1 | 2 | 0% | 0.11 | 3.0 |
 | `src/actions/documentActions.ts` | 95.4 | 2 | 1 | 0% | 0.06 | 3.0 |
 | `src/actions/formatCode.ts` | 94.8 | 1 | 1 | 0% | 0.16 | 2.0 |
 | `src/actions/auditDependencies.ts` | 96.0 | 1 | 1 | 0% | 0.11 | 2.0 |
+| `src/actions/buildProject.ts` | 96.0 | 1 | 1 | 0% | 0.11 | 2.0 |
 | `src/actions/lintCode.ts` | 96.0 | 1 | 1 | 0% | 0.11 | 2.0 |
 
-**Average maintainability index:** 92.1/100
+**Average maintainability index:** 92.2/100
 
 ### Hotspots (14 files, since 6 months)
 

@@ -8,6 +8,7 @@ import { documentDependencies } from '@/actions/documentDependencies';
 import { documentOpening } from '@/actions/documentOpening';
 import { documentQualitySecurity } from '@/actions/documentQualitySecurity';
 import { documentUsage } from '@/actions/documentUsage';
+import { API_REFERENCE_PATH, documentAPIReference } from '@/actions/documentApiReference';
 import { BUNDLE_REPORT_PATH, documentBundleSizes } from '@/actions/documentBundleSizes';
 import { getModuleConfig, logStepHeader, readJSONFile, readTextFileOrNull } from '@/utilities';
 
@@ -20,7 +21,7 @@ export interface DocumentOptions {
 
 // ── Actions ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-/** Regenerates every generated section of the README, in the order they appear. */
+/** Regenerates every generated section of the README, in the order they appear, then the API reference where the project keeps one. */
 export async function documentProject({ allowedLicenses = 'MIT', moduleLevel = false }: DocumentOptions = {}): Promise<void> {
     try {
         const configJSON = await readJSONFile<ModuleConfig>('config.json');
@@ -40,6 +41,13 @@ export async function documentProject({ allowedLicenses = 'MIT', moduleLevel = f
 
         await documentQualitySecurity();
         await documentContributingLicense();
+
+        // Only where the project keeps an API reference, so projects opt in by adding the file.
+        if ((await readTextFileOrNull(API_REFERENCE_PATH)) === null) {
+            logStepHeader(`ℹ️  '${API_REFERENCE_PATH}' NOT required by this project`);
+        } else {
+            await documentAPIReference();
+        }
     } catch (error) {
         console.error('❌  Error documenting project', error);
         process.exit(1);

@@ -24,11 +24,11 @@ export const API_REFERENCE_PATH = 'API_REFERENCE.md';
 // In the order each import path's section lists them.
 const EXPORT_KINDS: ExportKind[] = ['Functions', 'Classes', 'Constants', 'Schemas', 'Types'];
 
-const API_REFERENCE_INTRO = 'Every export, grouped by import path. This file is updated each time the project is built.';
+const API_REFERENCE_INTRO = 'Every export, grouped by import path. This file is updated each time `npm run document` is run, and with each release.';
 
 // ── Actions ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-/** Lists every export of each import path in API_REFERENCE.md. Runs on each build where the project has that file. */
+/** Lists every export of each import path in API_REFERENCE.md. Runs with the README's sections where the project has that file. */
 export async function documentAPIReference(): Promise<void> {
     try {
         logOperationHeader('Document API Reference');
@@ -46,7 +46,7 @@ export async function documentAPIReference(): Promise<void> {
 
 // Lists the exports of each import path in package.json 'exports', read from the TypeScript source the path's types are
 // built from. Paths without types, such as a shared config file, are left out.
-export async function writeAPIReference(stepIcon: string): Promise<void> {
+async function writeAPIReference(stepIcon: string): Promise<void> {
     logStepHeader(`${stepIcon} Write '${API_REFERENCE_PATH}'`);
 
     const packageJSON = await readJSONFile<PackageJson>('package.json');

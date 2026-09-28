@@ -1,6 +1,6 @@
 # API Reference
 
-Every export, grouped by import path. This file is updated each time the project is built.
+Every export, grouped by import path. This file is updated each time `npm run document` is run, and with each release.
 
 ## @dpuse/dpuse-development
 
@@ -15,7 +15,7 @@ Every export, grouped by import path. This file is updated each time the project
     > Identifies outdated dependencies using npm outdated and npm-check-updates with option to automatically install latest versions.
 - **`documentActions`**`()`
 - **`documentAPIReference`**`()`
-    > Lists every export of each import path in API_REFERENCE.md. Runs on each build where the project has that file.
+    > Lists every export of each import path in API_REFERENCE.md. Runs with the README's sections where the project has that file.
 - **`documentBundleSizes`**`(options?: { moduleLevel?: boolean })`
 - **`documentContributingLicense`**`()`
     > Regenerates the README's Contributing and License sections.
@@ -23,7 +23,7 @@ Every export, grouped by import path. This file is updated each time the project
     > Identify licenses of the project's production and peer dependencies. Updates the table in the Dependency Licenses section of this page and summary files licenses.json and licenseTree.json in th licenses directory of this repository. Also downloads a copy of dependency license to `licenses/downloads'.
 - **`documentOpening`**`()`
 - **`documentProject`**`(__0?: DocumentOptions)`
-    > Regenerates every generated section of the README, in the order they appear.
+    > Regenerates every generated section of the README, in the order they appear, then the API reference where the project keeps one.
 - **`documentQualitySecurity`**`()`
     > Regenerates the README's Quality & Security section: testing, code quality, security analysis, dependencies and OpenSSF.
 - **`documentUsage`**`()`
