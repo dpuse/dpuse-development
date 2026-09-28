@@ -33,12 +33,12 @@ describe('testProject', () => {
         expect(collectConsoleOutput()).toContain('✅ Project tested');
     });
 
-    it('runs the unit tests before the end-to-end tests, measuring coverage for the unit tests only', async () => {
+    it('runs the unit tests before the end-to-end tests', async () => {
         await project.writeFiles({ 'vitest.config.ts': '', 'playwright.config.ts': '' });
 
-        await testProject(['e2e', 'unit'], true);
+        await testProject(['e2e', 'unit']);
 
-        expect(spawnedCommands()).toEqual(['vitest run --passWithNoTests --coverage', 'playwright test --pass-with-no-tests']);
+        expect(spawnedCommands()).toEqual(['vitest run --passWithNoTests', 'playwright test --pass-with-no-tests']);
     });
 
     it('warns when no requested type of test is configured', async () => {

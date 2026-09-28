@@ -28,7 +28,7 @@ const TEST_TYPE_CONFIGS: TestTypeConfig[] = [
 // ── Actions ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 /** Runs the requested types of test, skipping any type this project has not configured. */
-export async function testProject(testTypeIds: TestTypeId[] = ['unit'], isCoverageMeasured = false): Promise<void> {
+export async function testProject(testTypeIds: TestTypeId[] = ['unit']): Promise<void> {
     try {
         logOperationHeader('Test Project');
 
@@ -39,9 +39,8 @@ export async function testProject(testTypeIds: TestTypeId[] = ['unit'], isCovera
             // Without its configuration file the project does not run this type of test, so pass over it quietly.
             if ((await readTextFileOrNull(testTypeConfig.configFileName)) === null) continue;
 
-            const coverageArguments = isCoverageMeasured && testTypeConfig.id === 'unit' ? ['--coverage'] : [];
             const stepLabel = `${STEP_ICONS[stepNumber] ?? ''} ${testTypeConfig.label}`;
-            await spawnCommand(stepLabel, testTypeConfig.command, [...testTypeConfig.arguments, ...coverageArguments]);
+            await spawnCommand(stepLabel, testTypeConfig.command, testTypeConfig.arguments);
             stepNumber += 1;
         }
 

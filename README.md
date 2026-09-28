@@ -81,7 +81,7 @@ _Note: Sonda's Vite reports currently exclude CSS files, since Vite does not gen
 
 | Chunk/Module/File                                                                                | Composition                  |
 | :----------------------------------------------------------------------------------------------- | :--------------------------- |
-| dist/dpuse-development.es.js                                                                     | 331.4 kB · gzip 85.3 kB      |
+| dist/dpuse-development.es.js                                                                     | 331.3 kB · gzip 85.2 kB      |
 | &nbsp;&nbsp;&nbsp;&nbsp;acorn → dist/acorn.mjs                                                   | `████████░░░░░░░░░░░░` 39.5% |
 | &nbsp;&nbsp;&nbsp;&nbsp;acorn-typescript → lib/index.mjs                                         | `███████░░░░░░░░░░░░░` 34.6% |
 | &nbsp;&nbsp;&nbsp;&nbsp;src                                                                      | `███░░░░░░░░░░░░░░░░░` 15.7% |
@@ -98,7 +98,7 @@ _Note: Sonda's Vite reports currently exclude CSS files, since Vite does not gen
 | &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;checkDependencies.ts                             | `░░░░░░░░░░░░░░░░░░░░` 0.5%  |
 | &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;documentContributingLicense.ts                   | `░░░░░░░░░░░░░░░░░░░░` 0.4%  |
 | &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;releaseProject.ts                                | `░░░░░░░░░░░░░░░░░░░░` 0.3%  |
-| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;testProject.ts                                   | `░░░░░░░░░░░░░░░░░░░░` 0.3%  |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;testProject.ts                                   | `░░░░░░░░░░░░░░░░░░░░` 0.2%  |
 | &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;publishProject.ts                                | `░░░░░░░░░░░░░░░░░░░░` 0.2%  |
 | &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;documentProject.ts                               | `░░░░░░░░░░░░░░░░░░░░` 0.2%  |
 | &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;syncProjectWithGitHub.ts                         | `░░░░░░░░░░░░░░░░░░░░` 0.2%  |

@@ -1,7 +1,7 @@
 {
   "metadata": {
     "version": "0.14.0",
-    "generatedAt": "2026-09-28T14:25:49.491Z",
+    "generatedAt": "2026-09-28T14:32:59.532Z",
     "integration": "vite",
     "sources": false,
     "gzip": true,
@@ -21,7 +21,7 @@
       "name": "[unassigned]",
       "type": "other",
       "format": "other",
-      "uncompressed": 22660,
+      "uncompressed": 22649,
       "gzip": 2523,
       "brotli": 0,
       "parent": "dist/dpuse-development.es.js"
@@ -30,8 +30,8 @@
       "kind": "asset",
       "name": "dist/dpuse-development.es.js",
       "type": "script",
-      "uncompressed": 339331,
-      "gzip": 87321,
+      "uncompressed": 339234,
+      "gzip": 87294,
       "brotli": 0
     },
     {
@@ -47,7 +47,7 @@
       "type": "script",
       "format": "esm",
       "uncompressed": 8695,
-      "gzip": 2174,
+      "gzip": 2175,
       "brotli": 0,
       "parent": "dist/dpuse-development.es.js"
     },
@@ -105,7 +105,7 @@
       "type": "script",
       "format": "esm",
       "uncompressed": 310,
-      "gzip": 164,
+      "gzip": 165,
       "brotli": 0,
       "parent": "dist/dpuse-development.es.js"
     },
@@ -122,7 +122,7 @@
       "type": "script",
       "format": "esm",
       "uncompressed": 117322,
-      "gzip": 26020,
+      "gzip": 26025,
       "brotli": 0,
       "parent": "dist/dpuse-development.es.js"
     },
@@ -139,7 +139,7 @@
       "type": "script",
       "format": "esm",
       "uncompressed": 133988,
-      "gzip": 33721,
+      "gzip": 33727,
       "brotli": 0,
       "parent": "dist/dpuse-development.es.js"
     },
@@ -275,7 +275,7 @@
       "type": "script",
       "format": "esm",
       "uncompressed": 7786,
-      "gzip": 2677,
+      "gzip": 2678,
       "brotli": 0,
       "parent": "dist/dpuse-development.es.js"
     },
@@ -292,7 +292,7 @@
       "type": "script",
       "format": "esm",
       "uncompressed": 4501,
-      "gzip": 1872,
+      "gzip": 1873,
       "brotli": 0,
       "parent": "dist/dpuse-development.es.js"
     },
@@ -377,7 +377,7 @@
       "type": "script",
       "format": "esm",
       "uncompressed": 8331,
-      "gzip": 3290,
+      "gzip": 3291,
       "brotli": 0,
       "parent": "dist/dpuse-development.es.js"
     },
@@ -394,7 +394,7 @@
       "type": "script",
       "format": "esm",
       "uncompressed": 2646,
-      "gzip": 1229,
+      "gzip": 1230,
       "brotli": 0,
       "parent": "dist/dpuse-development.es.js"
     },
@@ -488,15 +488,15 @@
       "name": "src/actions/testProject.ts",
       "type": "script",
       "format": "esm",
-      "uncompressed": 1517
+      "uncompressed": 1359
     },
     {
       "kind": "chunk",
       "name": "src/actions/testProject.ts",
       "type": "script",
       "format": "esm",
-      "uncompressed": 860,
-      "gzip": 483,
+      "uncompressed": 774,
+      "gzip": 441,
       "brotli": 0,
       "parent": "dist/dpuse-development.es.js"
     },
@@ -537,7 +537,7 @@
       "type": "script",
       "format": "esm",
       "uncompressed": 8034,
-      "gzip": 2504,
+      "gzip": 2505,
       "brotli": 0,
       "parent": "dist/dpuse-development.es.js"
     }

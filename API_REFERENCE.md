@@ -23,6 +23,6 @@ Every export, grouped by import path. This file is updated each time `npm run do
     > Bump version, builds config, builds project, regenerates the README, synchronise with GitHub and publish to npm or Cloudflare.
 - **`syncProjectWithGitHub`**`()`
     > Synchronise the local repository with the main GitHub repository.
-- **`testProject`**`(testTypeIds?: TestTypeId[], isCoverageMeasured?: boolean)`
+- **`testProject`**`(testTypeIds?: TestTypeId[])`
     > Runs the requested types of test, skipping any type this project has not configured.
 - **`uploadDirectoryToR2`**`(sourceDirectory: string, uploadDirectory: string)`
