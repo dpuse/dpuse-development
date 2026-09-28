@@ -1,9 +1,11 @@
 {
     "id": "dpuse-development",
     "description": {
-        "en": []
+        "en": [
+            "The package implements a common set of actions used to manage DPUse repositories. All actions are designed to be run from `package.json` scripts and assume that the project follows the standard DPUse directory structure and that it includes a `config.json` file in the root directory. See [API Reference](https://github.com/dpuse/dpuse-development/blob/main/API_REFERENCE.md)."
+        ]
     },
     "icon": null,
     "iconDark": null,
-    "version": "0.3.777"
+    "version": "0.3.778"
 }
