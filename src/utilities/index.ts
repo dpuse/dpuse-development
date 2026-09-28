@@ -189,8 +189,10 @@ export async function readTextFileOrNull(path: string): Promise<string | null> {
     }
 }
 
-export async function writeJSONFile(path: string, data: object): Promise<void> {
-    await fs.writeFile(path, `${JSON.stringify(data, undefined, 4)}\n`, 'utf-8'); // Ends with a newline, as Prettier and editors expect.
+// Creates any missing folders on the way, as a badge or report may be the first file written to its folder.
+export async function writeJSONFile(filePath: string, data: object): Promise<void> {
+    await fs.mkdir(path.dirname(filePath), { recursive: true });
+    await fs.writeFile(filePath, `${JSON.stringify(data, undefined, 4)}\n`, 'utf-8'); // Ends with a newline, as Prettier and editors expect.
 }
 
 // Replaces the text between a pair of markers in 'README.md'.

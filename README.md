@@ -4,10 +4,6 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](./LICENSE)
 [![DPUse version](https://img.shields.io/github/v/release/dpuse/dpuse-development?color=f6821f&label=DPUse)](https://github.com/dpuse/dpuse-development/releases/latest)
-[![CI](https://github.com/dpuse/dpuse-development/actions/workflows/ci.yml/badge.svg)](https://github.com/dpuse/dpuse-development/actions/workflows/ci.yml)
-[![CodeQL](https://github.com/dpuse/dpuse-development/actions/workflows/codeql.yml/badge.svg)](https://github.com/dpuse/dpuse-development/actions/workflows/codeql.yml)
-[![Fallow code health](https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2Fdpuse%2Fdpuse-development%2Fmain%2Fcode-health-reports%2Ffallow%2Fbadge.json)](./code-health-reports/fallow/index.md)
-[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=dpuse_dpuse-development&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=dpuse_dpuse-development)
 
 [DPUse](https://www.dpuse.app) · [Report a Vulnerability](https://github.com/dpuse/dpuse-development/security/advisories/new) · [Open an Issue](https://github.com/dpuse/dpuse-development/issues)
 
@@ -81,11 +77,11 @@ _Note: Sonda's Vite reports currently exclude CSS files, since Vite does not gen
 
 | Chunk/Module/File                                                                                | Composition                  |
 | :----------------------------------------------------------------------------------------------- | :--------------------------- |
-| dist/dpuse-development.es.js                                                                     | 331.3 kB · gzip 85.2 kB      |
-| &nbsp;&nbsp;&nbsp;&nbsp;acorn → dist/acorn.mjs                                                   | `████████░░░░░░░░░░░░` 39.5% |
-| &nbsp;&nbsp;&nbsp;&nbsp;acorn-typescript → lib/index.mjs                                         | `███████░░░░░░░░░░░░░` 34.6% |
-| &nbsp;&nbsp;&nbsp;&nbsp;src                                                                      | `███░░░░░░░░░░░░░░░░░` 15.7% |
-| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;documentQualitySecurity.ts                       | `░░░░░░░░░░░░░░░░░░░░` 2.5%  |
+| dist/dpuse-development.es.js                                                                     | 332.2 kB · gzip 85.5 kB      |
+| &nbsp;&nbsp;&nbsp;&nbsp;acorn → dist/acorn.mjs                                                   | `████████░░░░░░░░░░░░` 39.4% |
+| &nbsp;&nbsp;&nbsp;&nbsp;acorn-typescript → lib/index.mjs                                         | `███████░░░░░░░░░░░░░` 34.5% |
+| &nbsp;&nbsp;&nbsp;&nbsp;src                                                                      | `███░░░░░░░░░░░░░░░░░` 15.9% |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;documentQualitySecurity.ts                       | `█░░░░░░░░░░░░░░░░░░░` 2.9%  |
 | &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;index.ts                                         | `░░░░░░░░░░░░░░░░░░░░` 2.4%  |
 | &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;documentApiReference.ts                          | `░░░░░░░░░░░░░░░░░░░░` 2.3%  |
 | &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;documentDependencies.ts                          | `░░░░░░░░░░░░░░░░░░░░` 1.7%  |
@@ -93,10 +89,10 @@ _Note: Sonda's Vite reports currently exclude CSS files, since Vite does not gen
 | &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;checkConfigFiles.ts                              | `░░░░░░░░░░░░░░░░░░░░` 1.1%  |
 | &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;documentUsage.ts                                 | `░░░░░░░░░░░░░░░░░░░░` 0.8%  |
 | &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;documentActions.ts                               | `░░░░░░░░░░░░░░░░░░░░` 0.5%  |
-| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;documentOpening.ts                               | `░░░░░░░░░░░░░░░░░░░░` 0.5%  |
 | &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;cloudflare.ts                                    | `░░░░░░░░░░░░░░░░░░░░` 0.5%  |
-| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;checkDependencies.ts                             | `░░░░░░░░░░░░░░░░░░░░` 0.5%  |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;checkDependencies.ts                             | `░░░░░░░░░░░░░░░░░░░░` 0.4%  |
 | &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;documentContributingLicense.ts                   | `░░░░░░░░░░░░░░░░░░░░` 0.4%  |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;documentOpening.ts                               | `░░░░░░░░░░░░░░░░░░░░` 0.3%  |
 | &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;releaseProject.ts                                | `░░░░░░░░░░░░░░░░░░░░` 0.3%  |
 | &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;testProject.ts                                   | `░░░░░░░░░░░░░░░░░░░░` 0.2%  |
 | &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;publishProject.ts                                | `░░░░░░░░░░░░░░░░░░░░` 0.2%  |
@@ -107,7 +103,7 @@ _Note: Sonda's Vite reports currently exclude CSS files, since Vite does not gen
 | &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;buildProject.ts                                  | `░░░░░░░░░░░░░░░░░░░░` 0.1%  |
 | &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;lintCode.ts                                      | `░░░░░░░░░░░░░░░░░░░░` 0.1%  |
 | &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;checkProject.ts                                  | `░░░░░░░░░░░░░░░░░░░░` 0.0%  |
-| &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON)                                      | `█░░░░░░░░░░░░░░░░░░░` 6.7%  |
+| &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON)                                      | `█░░░░░░░░░░░░░░░░░░░` 6.6%  |
 | &nbsp;&nbsp;&nbsp;&nbsp;@dpuse/dpuse-shared                                                      | `█░░░░░░░░░░░░░░░░░░░` 3.4%  |
 | &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;dist/componentConfig.schema-DT3mO5rS.js          | `█░░░░░░░░░░░░░░░░░░░` 2.6%  |
 | &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;dist/dpuse-shared-componentModuleConnector.es.js | `░░░░░░░░░░░░░░░░░░░░` 0.7%  |
@@ -123,40 +119,40 @@ _Note: Sonda's Vite reports currently exclude CSS files, since Vite does not gen
 
 ## Quality & Security
 
-This section is updated each time `npm run document` is run. Settings come from the repository's workflow files and GitHub, and test coverage and the Fallow score are measured at the same time.
+This section is updated each time `npm run document` is run. Settings come from the repository's workflow files and GitHub. Test coverage and the Fallow score are measured at the same time.
 
 ### Testing
 
-| Check or setting     | Status            | What it does                                                                           |
-| :------------------- | :---------------- | :------------------------------------------------------------------------------------- |
-| Unit tests           | ✅ On             | Run in CI on every push to `main`.                                                     |
-| Property-based tests | ✅ fast-check     | Fuzz testing: many random inputs per test to find edge cases, run with the unit tests. |
-| Test coverage        | ✅ 99.7% of lines | Share of source lines the unit tests run. The target is 80%.                           |
+| Check                | Status                                                                                                                                                                  | What it does                                                                                                                        |
+| :------------------- | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------- | :---------------------------------------------------------------------------------------------------------------------------------- |
+| Unit tests           | [![CI](https://github.com/dpuse/dpuse-development/actions/workflows/ci.yml/badge.svg)](https://github.com/dpuse/dpuse-development/actions/workflows/ci.yml)             | [Vitest](https://vitest.dev) runs the unit tests in CI on every push to `main`.                                                     |
+| Property-based tests | ✅ On                                                                                                                                                                   | [fast-check](https://fast-check.dev) runs many random inputs per test to find edge cases, alongside the unit tests.                 |
+| Test coverage        | ![Coverage](https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2Fdpuse%2Fdpuse-development%2Fmain%2Fcode-health-reports%2Fvitest%2Fbadge.json) | [Vitest's V8 coverage](https://vitest.dev/guide/coverage) measures the share of source lines the unit tests run. The target is 80%. |
 
 ### Code Quality
 
-| Check or setting                                                                | Status    | What it does                                                                             |
-| :------------------------------------------------------------------------------ | :-------- | :--------------------------------------------------------------------------------------- |
-| [Fallow](./code-health-reports/fallow/index.md)                                 | ✅ A (85) | Unused code, duplication, complexity and dependency hygiene.                             |
-| [SonarCloud](https://sonarcloud.io/summary/new_code?id=dpuse_dpuse-development) | ✅ On     | Code quality and security analysis on every push: bugs, code smells and vulnerabilities. |
+| Check         | Status                                                                                                                                                                                                                     | What it does                                                                                                      |
+| :------------ | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | :---------------------------------------------------------------------------------------------------------------- |
+| Code health   | [![Fallow code health](https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2Fdpuse%2Fdpuse-development%2Fmain%2Fcode-health-reports%2Ffallow%2Fbadge.json)](./code-health-reports/fallow/index.md) | [Fallow](https://github.com/fallow-rs/fallow) finds unused code, duplication, complexity and dependency problems. |
+| Code analysis | [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=dpuse_dpuse-development&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=dpuse_dpuse-development)                          | [SonarCloud](https://sonarcloud.io) checks every push for bugs, code smells and vulnerabilities.                  |
 
 ### Security Analysis
 
-| Check or setting                                                            | Status                                   | What it does                                                                                                                            |
-| :-------------------------------------------------------------------------- | :--------------------------------------- | :-------------------------------------------------------------------------------------------------------------------------------------- |
-| [CodeQL](https://github.com/dpuse/dpuse-development/security/code-scanning) | ✅ GitHub Actions, JavaScript/TypeScript | Static analysis for security vulnerabilities, using the extended security queries, on every push and pull request to `main` and weekly. |
-| Secret scanning                                                             | ✅ On                                    | Detects credentials, such as API keys and tokens, committed to the repository.                                                          |
-| Push protection                                                             | ✅ On                                    | Blocks pushes that contain credentials.                                                                                                 |
+| Check           | Status                                                                                                                                                            | What it does                                                                                                                                                                                               |
+| :-------------- | :---------------------------------------------------------------------------------------------------------------------------------------------------------------- | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Push protection | ✅ On                                                                                                                                                             | [GitHub push protection](https://docs.github.com/en/code-security/secret-scanning/push-protection-for-repositories-and-organizations) blocks pushes that contain credentials.                              |
+| Static analysis | [![CodeQL](https://github.com/dpuse/dpuse-development/actions/workflows/codeql.yml/badge.svg)](https://github.com/dpuse/dpuse-development/security/code-scanning) | [CodeQL](https://codeql.github.com) scans GitHub Actions and JavaScript/TypeScript for security vulnerabilities, using the extended security queries, on every push and pull request to `main` and weekly. |
+| Secret scanning | ✅ On                                                                                                                                                             | [GitHub secret scanning](https://docs.github.com/en/code-security/secret-scanning) detects credentials, such as API keys and tokens, committed to the repository.                                          |
 
 ### Dependencies
 
-| Check or setting                 | Status | What it does                                                                                                                     |
-| :------------------------------- | :----- | :------------------------------------------------------------------------------------------------------------------------------- |
-| npm audit                        | ✅ On  | Fails CI when any dependency has a known vulnerability.                                                                          |
-| [Socket.dev](https://socket.dev) | ✅ On  | Flags supply chain risk in dependencies: malicious packages, typosquatting and suspicious behaviour that may not yet have a CVE. |
-| Dependabot alerts                | ✅ On  | Alerts when a dependency has a known vulnerability, using the GitHub Advisory Database.                                          |
-| Dependabot security updates      | ❌ Off | Opens pull requests that update vulnerable dependencies.                                                                         |
-| Dependabot version updates       | ❌ Off | Opens pull requests for new dependency versions.                                                                                 |
+| Check               | Status | What it does                                                                                                                                              |
+| :------------------ | :----- | :-------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Vulnerability audit | ✅ On  | [npm audit](https://docs.npmjs.com/cli/commands/npm-audit) fails CI when any dependency has a known vulnerability.                                        |
+| Supply chain risk   | ✅ On  | [Socket](https://socket.dev) flags malicious packages, typosquatting and suspicious behaviour that may not yet have a CVE.                                |
+| Security alerts     | ✅ On  | [Dependabot](https://docs.github.com/en/code-security/dependabot) alerts when a dependency has a known vulnerability, using the GitHub Advisory Database. |
+| Security updates    | ❌ Off | [Dependabot](https://docs.github.com/en/code-security/dependabot) opens pull requests that update vulnerable dependencies. These are handled manually.    |
+| Version updates     | ❌ Off | [Dependabot](https://docs.github.com/en/code-security/dependabot) opens pull requests for new dependency versions. These are handled manually.            |
 
 ### OpenSSF 🚧
 

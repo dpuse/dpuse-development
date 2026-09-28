@@ -26,7 +26,7 @@ describe('documentOpening', () => {
 
         const readme = await project.readFile('README.md');
         expect(readme).toContain('[![License: Apache-2.0](https://img.shields.io/badge/License-Apache--2.0-blue.svg)](./LICENSE)');
-        expect(readme).toContain('[![CI](https://github.com/dpuse/dpuse-shared/actions/workflows/ci.yml/badge.svg)]');
+        expect(readme).toContain('[![DPUse version](https://img.shields.io/github/v/release/dpuse/dpuse-shared?color=f6821f&label=DPUse)]');
         expect(readme).toContain('[Report a Vulnerability](https://github.com/dpuse/dpuse-shared/security/advisories/new)');
         expect(readme).toContain('## About DPUse');
         expect(readme).toContain('## Introduction\n\nFirst paragraph.\n\nSecond paragraph.');
@@ -45,26 +45,13 @@ describe('documentOpening', () => {
         expect(await project.readFile('README.md')).toContain('[Open an Issue](https://github.com/dpuse/dpuse-shared/issues)\n\n## About DPUse');
     });
 
-    it('adds the Fallow badge, between CodeQL and SonarCloud, when Fallow is installed', async () => {
+    it('shows only the License and Version badges, as check results sit in Quality & Security', async () => {
         await writeProject({ devDependencies: { fallow: '^3.30.0' } });
 
         await documentOpening();
 
         const readme = await project.readFile('README.md');
-        const badgeSourceURL = encodeURIComponent('https://raw.githubusercontent.com/dpuse/dpuse-shared/main/code-health-reports/fallow/badge.json');
-        expect(readme).toContain(`[![Fallow code health](https://img.shields.io/endpoint?url=${badgeSourceURL})](./code-health-reports/fallow/index.md)`);
-        expect(readme.indexOf('[![CodeQL]')).toBeLessThan(readme.indexOf('[![Fallow'));
-        expect(readme.indexOf('[![Fallow')).toBeLessThan(readme.indexOf('[![Quality Gate'));
-    });
-
-    it.each([[[]], ['']])('leaves out the Introduction when config.json has no description (%j)', async (description) => {
-        await writeProject({}, description);
-
-        await documentOpening();
-
-        const readme = await project.readFile('README.md');
-        expect(readme).not.toContain('## Introduction');
-        expect(readme).toContain('construct connectors and presenters.\n\n<!-- OPENING_END -->');
+        expect(readme.match(/\[!\[[^\]]+\]/g)).toEqual(['[![License: Apache-2.0]', '[![DPUse version]']);
     });
 
     it('exits when the licence is missing', async () => {

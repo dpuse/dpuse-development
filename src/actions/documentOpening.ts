@@ -5,7 +5,7 @@ import type { PackageJson } from 'type-fest';
 import type { ModuleConfig } from '@dpuse/dpuse-shared/component/module';
 
 // ── Local Framework
-import { FALLOW_BADGE_PATH, FALLOW_REPORT_PATH, logOperationHeader, logOperationSuccess, logStepHeader, readJSONFile, resolveOwnerAndRepo, writeReadmeSection } from '@/utilities';
+import { logOperationHeader, logOperationSuccess, logStepHeader, readJSONFile, resolveOwnerAndRepo, writeReadmeSection } from '@/utilities';
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -27,7 +27,7 @@ export async function documentOpening(): Promise<void> {
         const license = resolveLicense(packageJSON);
         const introduction = resolveIntroduction(configJSON);
 
-        const content = buildOpeningContent(owner, repo, license, packageJSON.description, introduction, packageJSON.devDependencies?.['fallow'] != null);
+        const content = buildOpeningContent(owner, repo, license, packageJSON.description, introduction);
 
         await writeReadmeSection(content, START_MARKER, END_MARKER);
 
@@ -54,21 +54,15 @@ function resolveIntroduction(configJSON: ModuleConfig): string | undefined {
     return paragraphs.length === 0 ? undefined : paragraphs.join('\n\n');
 }
 
-// The Fallow badge reads the badge file governance commits, through shields.io, so it only renders for public repositories.
 // The package description is optional, so a project without one simply has no summary under the links.
-function buildOpeningContent(owner: string, repo: string, license: string, description: string | undefined, introduction: string | undefined, hasFallow: boolean): string {
+function buildOpeningContent(owner: string, repo: string, license: string, description: string | undefined, introduction: string | undefined): string {
     const repoURL = `https://github.com/${owner}/${repo}`;
     const badgeLicense = license.replaceAll('-', '--');
-    const fallowBadgeSourceURL = encodeURIComponent(`https://raw.githubusercontent.com/${owner}/${repo}/main/${FALLOW_BADGE_PATH}`);
     const summary = description == null || description === '' ? '' : `\n\n${description}`;
     const introductionSection = introduction === undefined ? '' : `\n\n## Introduction\n\n${introduction}`;
-    const fallowBadge = hasFallow ? `[![Fallow code health](https://img.shields.io/endpoint?url=${fallowBadgeSourceURL})](./${FALLOW_REPORT_PATH})\n` : '';
 
     return `[![License: ${license}](https://img.shields.io/badge/License-${badgeLicense}-blue.svg)](./LICENSE)
 [![DPUse version](https://img.shields.io/github/v/release/${owner}/${repo}?color=f6821f&label=DPUse)](${repoURL}/releases/latest)
-[![CI](${repoURL}/actions/workflows/ci.yml/badge.svg)](${repoURL}/actions/workflows/ci.yml)
-[![CodeQL](${repoURL}/actions/workflows/codeql.yml/badge.svg)](${repoURL}/actions/workflows/codeql.yml)
-${fallowBadge}[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=${owner}_${repo}&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=${owner}_${repo})
 
 [DPUse](https://www.dpuse.app) · [Report a Vulnerability](${repoURL}/security/advisories/new) · [Open an Issue](${repoURL}/issues)${summary}
 

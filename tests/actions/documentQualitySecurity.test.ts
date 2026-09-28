@@ -146,7 +146,7 @@ describe('documentQualitySecurity', () => {
         expect(readme).toMatch(/Reporting Vulnerabilities[\s\S]*<!-- QUALITY_SECURITY_END -->\n\n<!-- CONTRIBUTING_LICENSE_START -->\n<!-- CONTRIBUTING_LICENSE_END -->/);
     });
 
-    it('reports tests, coverage, Fallow, CodeQL and dependency checks from the workflows and GitHub', async () => {
+    it('shows a badge where a check has one, and names and links the product doing each check', async () => {
         await writeProject();
         stubGitHub();
         stubOpenSSF();
@@ -154,33 +154,77 @@ describe('documentQualitySecurity', () => {
         await documentQualitySecurity();
 
         const readme = await project.readFile('README.md');
+        const repoURL = 'https://github.com/dpuse/dpuse-shared';
+        const coverageBadge = `![Coverage](https://img.shields.io/endpoint?url=${encodeURIComponent('https://raw.githubusercontent.com/dpuse/dpuse-shared/main/code-health-reports/vitest/badge.json')})`;
+        const fallowBadge = `![Fallow code health](https://img.shields.io/endpoint?url=${encodeURIComponent('https://raw.githubusercontent.com/dpuse/dpuse-shared/main/code-health-reports/fallow/badge.json')})`;
+
         const testing = sectionOf(readme, 'Testing');
-        expect(testing).toContain('|Unit tests|✅ On|');
-        expect(testing).toContain('|Property-based tests|✅ fast-check|');
-        expect(testing).toContain('|Test coverage|✅ 84.6% of lines|Share of source lines the unit tests run. The target is 80%.|');
+        expect(testing).toContain('|Check|Status|What it does|');
+        expect(testing).toContain(`|Unit tests|[![CI](${repoURL}/actions/workflows/ci.yml/badge.svg)](${repoURL}/actions/workflows/ci.yml)|[Vitest](https://vitest.dev) runs`);
+        expect(testing).toContain('|Property-based tests|✅ On|[fast-check](https://fast-check.dev) runs');
+        expect(testing).toContain(`|Test coverage|${coverageBadge}|[Vitest's V8 coverage](https://vitest.dev/guide/coverage) measures`);
 
         const codeQuality = sectionOf(readme, 'Code Quality');
-        expect(codeQuality).toContain('|[Fallow](./code-health-reports/fallow/index.md)|✅ A (90)|');
-        expect(codeQuality.indexOf('[Fallow]')).toBeLessThan(codeQuality.indexOf('[SonarCloud]'));
-        expect(codeQuality).toContain('|[SonarCloud](https://sonarcloud.io/summary/new_code?id=dpuse_dpuse-shared)|✅ On|');
+        expect(codeQuality).toContain(`|Code health|[${fallowBadge}](./code-health-reports/fallow/index.md)|[Fallow](https://github.com/fallow-rs/fallow) finds`);
+        expect(codeQuality).toContain('|Code analysis|[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=dpuse_dpuse-shared&metric=alert_status)]');
 
         const securityAnalysis = sectionOf(readme, 'Security Analysis');
-        expect(securityAnalysis).toContain('|✅ GitHub Actions, JavaScript/TypeScript, swift|Static analysis for security vulnerabilities, using the extended security queries,');
-        expect(securityAnalysis).toContain('|Secret scanning|✅ On|');
-        expect(securityAnalysis).toContain('|Push protection|✅ On|');
+        expect(securityAnalysis).toContain(`|Static analysis|[![CodeQL](${repoURL}/actions/workflows/codeql.yml/badge.svg)](${repoURL}/security/code-scanning)|`);
+        expect(securityAnalysis).toContain(
+            '[CodeQL](https://codeql.github.com) scans GitHub Actions and JavaScript/TypeScript and swift for security vulnerabilities, using the extended security queries,'
+        );
+        expect(securityAnalysis).toContain('|Secret scanning|✅ On|[GitHub secret scanning]');
+        expect(securityAnalysis).toContain('|Push protection|✅ On|[GitHub push protection]');
 
         const dependencies = sectionOf(readme, 'Dependencies');
-        expect(dependencies).toContain('|npm audit|✅ On|Fails CI when any dependency has a known vulnerability.|');
-        expect(dependencies).toContain('|[Socket.dev](https://socket.dev)|✅ On|');
-        expect(dependencies).toContain('|Dependabot alerts|✅ On|');
-        expect(dependencies).toContain('|Dependabot security updates|❌ Off|');
-        expect(dependencies).toContain('|Dependabot version updates|❌ Off|');
+        expect(dependencies).toContain(
+            '|Vulnerability audit|✅ On|[npm audit](https://docs.npmjs.com/cli/commands/npm-audit) fails CI when any dependency has a known vulnerability.|'
+        );
+        expect(dependencies).toContain('|Supply chain risk|✅ On|[Socket](https://socket.dev) flags');
+        expect(dependencies).toContain('|Security alerts|✅ On|[Dependabot]');
+        expect(dependencies).toContain('opens pull requests that update vulnerable dependencies. These are handled manually.|');
+        expect(dependencies).toContain('opens pull requests for new dependency versions. These are handled manually.|');
 
         expect(readme).toContain('Use [GitHub private vulnerability reporting](https://github.com/dpuse/dpuse-shared/security/advisories/new) instead.');
         expect(readme).toContain('[![OpenSSF Best Practices](https://www.bestpractices.dev/projects/14952/badge)]');
     });
 
-    it('writes the Fallow badge file the opening badge reads', async () => {
+    it('orders each table by when its checks act, then alphabetically', async () => {
+        await writeProject();
+        stubGitHub();
+        stubOpenSSF();
+
+        await documentQualitySecurity();
+
+        const readme = await project.readFile('README.md');
+        const checkNames = (heading: string): string[] =>
+            sectionOf(readme, heading)
+                .matchAll(/^\|([^|]+)\|/gm)
+                .map(([, name = '']) => name)
+                .drop(2) // The header and divider rows.
+                .toArray();
+        expect(checkNames('Testing')).toEqual(['Unit tests', 'Property-based tests', 'Test coverage']);
+        expect(checkNames('Code Quality')).toEqual(['Code health', 'Code analysis']);
+        expect(checkNames('Security Analysis')).toEqual(['Push protection', 'Static analysis', 'Secret scanning']);
+        expect(checkNames('Dependencies')).toEqual(['Vulnerability audit', 'Supply chain risk', 'Security alerts', 'Security updates', 'Version updates']);
+    });
+
+    it.each([
+        [84.61, '84.6%', 'brightgreen'],
+        [72, '72.0%', 'yellow'],
+        [0.9, '0.9%', 'red']
+    ])('writes a coverage badge for %d%%, coloured by how it compares with the target', async (percent, message, color) => {
+        await writeProject();
+        stubGitHub();
+        stubOpenSSF();
+        reports.coverageSummary = { total: { lines: { pct: percent } } };
+
+        await documentQualitySecurity();
+
+        expect(await project.readJSON('code-health-reports/vitest/badge.json')).toEqual({ schemaVersion: 1, label: 'coverage', message, color });
+    });
+
+    it('writes the Fallow badge file the Code Quality badge reads', async () => {
         await writeProject();
         stubGitHub();
         stubOpenSSF();
@@ -191,17 +235,6 @@ describe('documentQualitySecurity', () => {
         expect(await project.readJSON('code-health-reports/fallow/badge.json')).toEqual({ schemaVersion: 1, label: 'fallow', message: 'C (71)', color: 'yellow' });
     });
 
-    it('flags coverage below the target', async () => {
-        await writeProject();
-        stubGitHub();
-        stubOpenSSF();
-        reports.coverageSummary = { total: { lines: { pct: 0.9 } } };
-
-        await documentQualitySecurity();
-
-        expect(await project.readFile('README.md')).toContain('|Test coverage|⚠️ 0.9% of lines|');
-    });
-
     it('leaves out the coverage and Fallow rows where they are not installed', async () => {
         await writeProject({ devDependencies: {} });
         stubGitHub();
@@ -210,8 +243,8 @@ describe('documentQualitySecurity', () => {
         await documentQualitySecurity();
 
         const readme = await project.readFile('README.md');
-        expect(readme).not.toContain('Test coverage');
-        expect(readme).not.toContain('[Fallow]');
+        expect(readme).not.toContain('|Test coverage|');
+        expect(readme).not.toContain('|Code health|');
         expect(readme).toContain('|Property-based tests|❌ Off|');
         await expect(fs.access('code-health-reports')).rejects.toThrow();
     });
@@ -224,7 +257,7 @@ describe('documentQualitySecurity', () => {
 
         await documentQualitySecurity();
 
-        expect(await project.readFile('README.md')).not.toContain('Test coverage');
+        expect(await project.readFile('README.md')).not.toContain('|Test coverage|');
     });
 
     it('reports settings GitHub switches off or does not reveal', async () => {
@@ -245,10 +278,12 @@ describe('documentQualitySecurity', () => {
         const readme = await project.readFile('README.md');
         expect(readme).toContain('|Unit tests|❌ Off|');
         expect(readme).toContain('|Secret scanning|❔ Unknown|');
-        expect(readme).toContain('|Dependabot alerts|❌ Off|');
-        expect(readme).toContain('|Dependabot version updates|✅ On|');
-        expect(readme).toContain('|[SonarCloud](https://sonarcloud.io/summary/new_code?id=dpuse_dpuse-shared)|❌ Off|');
-        expect(readme).toContain('Fails CI when a dependency has a known vulnerability of high severity or above.');
+        expect(readme).toContain('|Security alerts|❌ Off|');
+        expect(readme).toContain('|Security updates|❔ Unknown|');
+        expect(readme).toContain('|Version updates|✅ On|[Dependabot](https://docs.github.com/en/code-security/dependabot) opens pull requests for new dependency versions.|');
+        expect(readme).toContain('|Code analysis|❌ Off|');
+        expect(readme).toContain('|Supply chain risk|❌ Off|');
+        expect(readme).toContain('[npm audit](https://docs.npmjs.com/cli/commands/npm-audit) fails CI when a dependency has a known vulnerability of high severity or above.');
         expect(readme).toContain('See [SECURITY.md](./SECURITY.md) for how to report one privately');
         expect(readme).not.toContain('OpenSSF Best Practices](https://www.bestpractices.dev/projects/');
     });
@@ -262,7 +297,9 @@ describe('documentQualitySecurity', () => {
         stubOpenSSF();
 
         await documentQualitySecurity();
-        expect(await project.readFile('README.md')).toContain('|❌ Off|Static analysis for security vulnerabilities, using the default queries,');
+        expect(await project.readFile('README.md')).toContain(
+            '|Static analysis|❌ Off|[CodeQL](https://codeql.github.com) scans for security vulnerabilities, using the default queries,'
+        );
     });
 
     it('explains the Scorecard gaps only when every one is down to how a solo project is run', async () => {
