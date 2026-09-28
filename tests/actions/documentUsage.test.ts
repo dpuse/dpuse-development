@@ -45,7 +45,7 @@ describe('documentUsage', () => {
         await documentUsage();
 
         const readme = await project.readFile('README.md');
-        expect(readme).toContain('[public npm registry](https://www.npmjs.com/package/@dpuse/dpuse-shared)');
+        expect(readme).toContain('This [package](https://www.npmjs.com/package/@dpuse/dpuse-shared) is available on [npm](https://www.npmjs.com/).');
         expect(readme).toContain('npm install @dpuse/dpuse-shared');
         expect(readme).not.toContain('[!WARNING]');
     });
@@ -55,7 +55,9 @@ describe('documentUsage', () => {
 
         await documentUsage();
 
-        expect(await project.readFile('README.md')).toContain('> This project is currently published to npm, but is not designed for general use.');
+        const readme = await project.readFile('README.md');
+        expect(readme).toContain('> [!WARNING]\n> This project is not designed for general use.');
+        expect(readme).toContain('your own project structure and tooling.\n\nTo work on the source instead, clone this repository.');
     });
 
     it('uses the general wording for modules that are neither uploaded nor on npm', async () => {
@@ -63,7 +65,7 @@ describe('documentUsage', () => {
 
         await documentUsage();
 
-        expect(await project.readFile('README.md')).toContain('You may view or clone this repository for your own purposes. Cloned or forked code is unsupported');
+        expect(await project.readFile('README.md')).toContain('You may view or clone this repository for your own purposes.');
     });
 
     it('lists the scripts that run dpuse-development actions, directly or through another script', async () => {

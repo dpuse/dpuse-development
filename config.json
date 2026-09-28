@@ -1,11 +1,9 @@
 {
     "id": "dpuse-development",
     "description": {
-        "en": [
-            "Actions for managing DPUse projects."
-        ]
+        "en": []
     },
     "icon": null,
     "iconDark": null,
-    "version": "0.3.766"
+    "version": "0.3.767"
 }

@@ -13,7 +13,7 @@ const END_MARKER = '<!-- USAGE_END -->';
 
 // Module types the DPUse Engine uploads to the cloud for the browser app to load. The engine itself is also uploaded, but
 // isn't something others build their own version of, so it gets the general wording.
-const UPLOADED_MODULE_TYPE_IDS = new Set<ModuleTypeConfig['typeId']>(['connector', 'context', 'cookbook', 'presenter']);
+const UPLOADED_MODULE_TYPE_IDS = new Set<ModuleTypeConfig['typeId']>(['connector', 'cookbook', 'presenter']);
 
 // What each dpuse-development script does, in the order the README lists them. Scripts not named here aren't listed.
 const SCRIPT_DESCRIPTIONS: [string, string][] = [
@@ -40,11 +40,7 @@ const SCRIPT_DESCRIPTIONS: [string, string][] = [
 // Published to npm only so DPUse projects can install them, not for general use, so the npm wording carries a warning.
 const INTERNAL_NPM_MODULE_TYPE_IDS = new Set<ModuleTypeConfig['typeId']>(['development', 'eslint']);
 const INTERNAL_NPM_WARNING = `> [!WARNING]
-> This project is currently published to npm, but is not designed for general use. It is custom built for the DPUse CI/CD process. You are welcome to clone and customise it for your own purposes, but you will need to adapt it to your own project structure and tooling.
-
-`;
-
-const UNSUPPORTED_TEXT = "Cloned or forked code is unsupported and isn't guaranteed to remain compatible with the DPUse Engine as it evolves.";
+> This project is not designed for general use. It is custom built for the DPUse CI/CD process. You are welcome to clone and customise it for your own purposes, but you will need to adapt it to your own project structure and tooling.`;
 
 // ── Actions ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -104,21 +100,22 @@ function buildIntroductionContent(moduleTypeConfig: ModuleTypeConfig, packageNam
     if (UPLOADED_MODULE_TYPE_IDS.has(typeId)) {
         return `This ${typeId} is automatically uploaded to the DPUse Engine cloud once released and becomes instantly available to all new browser app instances, with existing instances notified of the update.
 
-You may view or clone this repository for your own purposes, such as building a new, similar ${typeId}, though there is currently no process to accept third-party ${typeId}s into DPUse at this stage. ${UNSUPPORTED_TEXT}`;
+You may view or clone this repository for your own purposes, such as building a new, similar ${typeId}, though there is currently no process to accept third-party ${typeId}s into DPUse at this stage.`;
     }
 
     if (moduleTypeConfig.publishedTo === 'npm') {
         if (packageName == null || packageName === '') throw new Error("package.json 'name' field is required to document usage.");
-        return `This package is published to the [public npm registry](https://www.npmjs.com/package/${packageName}). Install it with:
+        const warning = INTERNAL_NPM_MODULE_TYPE_IDS.has(typeId) ? `${INTERNAL_NPM_WARNING}\n\n` : ''; // Its own paragraph, or the text after it joins the warning.
+        return `This [package](https://www.npmjs.com/package/${packageName}) is available on [npm](https://www.npmjs.com/). Install it with:
 
 \`\`\`bash
 npm install ${packageName}
 \`\`\`
 
-${INTERNAL_NPM_MODULE_TYPE_IDS.has(typeId) ? INTERNAL_NPM_WARNING : ''}To work on the source instead, clone this repository. ${UNSUPPORTED_TEXT}`;
+${warning}To work on the source instead, clone this repository.`;
     }
 
-    return `You may view or clone this repository for your own purposes. ${UNSUPPORTED_TEXT}`;
+    return `You may view or clone this repository for your own purposes.`;
 }
 
 // Lists the scripts that run a dpuse-development action, either directly or by running another such script (as

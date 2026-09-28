@@ -27,7 +27,7 @@ export async function documentOpening(): Promise<void> {
         const license = resolveLicense(packageJSON);
         const introduction = resolveIntroduction(configJSON);
 
-        const content = buildOpeningContent(owner, repo, license, introduction, packageJSON.devDependencies?.['fallow'] != null);
+        const content = buildOpeningContent(owner, repo, license, packageJSON.description, introduction, packageJSON.devDependencies?.['fallow'] != null);
 
         await writeReadmeSection(content, START_MARKER, END_MARKER);
 
@@ -46,17 +46,22 @@ function resolveLicense(packageJSON: PackageJson): string {
     return license;
 }
 
-function resolveIntroduction(configJSON: ModuleConfig): string {
-    const paragraphs = configJSON.description.en;
-    if (paragraphs == null || paragraphs.length === 0) throw new Error("config.json 'description.en' field is required to document opening.");
-    return paragraphs;
+// 'description.en' holds the introduction's paragraphs. The schema types it as one string, but config files list the
+// paragraphs in an array, so both are accepted. With no paragraphs, the Introduction section is left out.
+function resolveIntroduction(configJSON: ModuleConfig): string | undefined {
+    const value: unknown = configJSON.description.en;
+    const paragraphs = (Array.isArray(value) ? value : [value]).filter((paragraph): paragraph is string => typeof paragraph === 'string' && paragraph !== '');
+    return paragraphs.length === 0 ? undefined : paragraphs.join('\n\n');
 }
 
 // The Fallow badge reads the badge file governance commits, through shields.io, so it only renders for public repositories.
-function buildOpeningContent(owner: string, repo: string, license: string, introduction: string, hasFallow: boolean): string {
+// The package description is optional, so a project without one simply has no summary under the links.
+function buildOpeningContent(owner: string, repo: string, license: string, description: string | undefined, introduction: string | undefined, hasFallow: boolean): string {
     const repoURL = `https://github.com/${owner}/${repo}`;
     const badgeLicense = license.replaceAll('-', '--');
     const fallowBadgeSourceURL = encodeURIComponent(`https://raw.githubusercontent.com/${owner}/${repo}/main/${FALLOW_BADGE_PATH}`);
+    const summary = description == null || description === '' ? '' : `\n\n${description}`;
+    const introductionSection = introduction === undefined ? '' : `\n\n## Introduction\n\n${introduction}`;
     const fallowBadge = hasFallow ? `[![Fallow code health](https://img.shields.io/endpoint?url=${fallowBadgeSourceURL})](./${FALLOW_REPORT_PATH})\n` : '';
 
     return `[![License: ${license}](https://img.shields.io/badge/License-${badgeLicense}-blue.svg)](./LICENSE)
@@ -65,7 +70,7 @@ function buildOpeningContent(owner: string, repo: string, license: string, intro
 [![CodeQL](${repoURL}/actions/workflows/codeql.yml/badge.svg)](${repoURL}/actions/workflows/codeql.yml)
 ${fallowBadge}[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=${owner}_${repo}&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=${owner}_${repo})
 
-[Documentation](https://www.dpuse.app) · [Report a Vulnerability](${repoURL}/security/advisories/new) · [Open an Issue](${repoURL}/issues)
+[DPUse](https://www.dpuse.app) · [Report a Vulnerability](${repoURL}/security/advisories/new) · [Open an Issue](${repoURL}/issues)${summary}
 
 ## About DPUse
 
@@ -77,9 +82,5 @@ DPUse (Data Positioning & Use) is an in-browser application that positions your 
 
 **Publishing** uses a library of [Presenters](https://www.dpuse.app) to render standard [Presentations](https://www.dpuse.app) immediately using the contextualised data; additionally, [Cookbooks](https://www.dpuse.app) of [Recipes](https://www.dpuse.app) let you build Data Apps using your preferred tools.
 
-In addition, DPUse provides [Tools](https://www.dpuse.app) used by the application, and you can use them to construct connectors and presenters.
-
-## Introduction
-
-${introduction}`;
+In addition, DPUse provides [Tools](https://www.dpuse.app) used by the application, and you can use them to construct connectors and presenters.${introductionSection}`;
 }

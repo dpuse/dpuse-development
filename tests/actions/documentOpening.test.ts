@@ -29,8 +29,20 @@ describe('documentOpening', () => {
         expect(readme).toContain('[![CI](https://github.com/dpuse/dpuse-shared/actions/workflows/ci.yml/badge.svg)]');
         expect(readme).toContain('[Report a Vulnerability](https://github.com/dpuse/dpuse-shared/security/advisories/new)');
         expect(readme).toContain('## About DPUse');
-        expect(readme).toContain('## Introduction\n\nFirst paragraph.,Second paragraph.');
+        expect(readme).toContain('## Introduction\n\nFirst paragraph.\n\nSecond paragraph.');
         expect(readme).not.toContain('Fallow code health');
+    });
+
+    it('puts the package description under the links, and leaves it out when there is none', async () => {
+        await writeProject({ description: 'Common constants, types and utilities.' });
+        await documentOpening();
+        expect(await project.readFile('README.md')).toContain(
+            '[Open an Issue](https://github.com/dpuse/dpuse-shared/issues)\n\nCommon constants, types and utilities.\n\n## About DPUse'
+        );
+
+        await writeProject({});
+        await documentOpening();
+        expect(await project.readFile('README.md')).toContain('[Open an Issue](https://github.com/dpuse/dpuse-shared/issues)\n\n## About DPUse');
     });
 
     it('adds the Fallow badge, between CodeQL and SonarCloud, when Fallow is installed', async () => {
@@ -45,14 +57,21 @@ describe('documentOpening', () => {
         expect(readme.indexOf('[![Fallow')).toBeLessThan(readme.indexOf('[![Quality Gate'));
     });
 
-    it.each([
-        ['licence is missing', { license: '' }, undefined, "package.json 'license' field is required to document opening."],
-        ['description is missing', {}, [], "config.json 'description.en' field is required to document opening."]
-    ])('exits when the %s', async (_case, packageJSON, description, message) => {
-        await writeProject(packageJSON, description);
+    it.each([[[]], ['']])('leaves out the Introduction when config.json has no description (%j)', async (description) => {
+        await writeProject({}, description);
+
+        await documentOpening();
+
+        const readme = await project.readFile('README.md');
+        expect(readme).not.toContain('## Introduction');
+        expect(readme).toContain('construct connectors and presenters.\n\n<!-- OPENING_END -->');
+    });
+
+    it('exits when the licence is missing', async () => {
+        await writeProject({ license: '' });
 
         await expect(documentOpening()).rejects.toThrow('process.exit(1)');
-        expect(console.error).toHaveBeenCalledWith('❌  Error documenting opening', new Error(message));
+        expect(console.error).toHaveBeenCalledWith('❌  Error documenting opening', new Error("package.json 'license' field is required to document opening."));
     });
 });
 

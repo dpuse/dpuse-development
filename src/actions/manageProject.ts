@@ -3,7 +3,6 @@ import type { PackageJson } from 'type-fest';
 import { safeParse } from 'valibot';
 
 // ── DPUse Framework
-// import type { ContextConfig } from '@dpuse/dpuse-shared/component/context';
 import type { ModuleConfig } from '@dpuse/dpuse-shared/component/module';
 import type { ConnectorActionName, ConnectorConfig } from '@dpuse/dpuse-shared/component/module/connector';
 import { connectorConfigSchema, determineConnectorUsageId } from '@dpuse/dpuse-shared/component/module/connector';
@@ -257,7 +256,7 @@ export async function syncProjectWithGitHub(): Promise<void> {
 
 // ── Actions - Test ───────────────────────────────────────────────────────────────────────────────────────────────────
 
-/** Runs the requested types of test, skipping any type this project has not configured. Runs the requested types of test, skipping any type this project has not configured. Runs the requested types of test, skipping any type this project has not configured. Runs the requested types of test, skipping any type this project has not configured. Runs the requested types of test, skipping any type this project has not configured. Runs the requested types of test, skipping any type this project has not configured. Runs the requested types of test, skipping any type this project has not configured. Runs the requested types of test, skipping any type this project has not configured. */
+/** Runs the requested types of test, skipping any type this project has not configured. */
 export async function testProject(testTypeIds: TestTypeId[] = ['unit'], isCoverageMeasured = false): Promise<void> {
     try {
         logOperationHeader('Test Project');
@@ -265,6 +264,7 @@ export async function testProject(testTypeIds: TestTypeId[] = ['unit'], isCovera
         let stepNumber = 0;
         for (const testTypeConfig of TEST_TYPE_CONFIGS) {
             if (!testTypeIds.includes(testTypeConfig.id)) continue;
+
             // Without its configuration file the project does not run this type of test, so pass over it quietly.
             if ((await readTextFileOrNull(testTypeConfig.configFileName)) === null) continue;
 
