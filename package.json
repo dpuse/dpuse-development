@@ -1,6 +1,6 @@
 {
     "name": "@dpuse/dpuse-development",
-    "version": "0.3.788",
+    "version": "0.3.789",
     "private": false,
     "description": "Actions for managing DPUse projects.",
     "license": "MIT",
@@ -70,7 +70,7 @@
         "audit": "node -e \"import('./dist/dpuse-development.es.js').then(m => m.auditDependencies())\"",
         "build": "vite build",
         "check": "node -e \"import('./dist/dpuse-development.es.js').then(m => m.checkProject())\"",
-        "document": "node -e \"import('./dist/dpuse-development.es.js').then(m => m.documentProject({ allowedLicenses: 'Apache-2.0;BSD-3-Clause;MIT' }))\"",
+        "document": "node -e \"import('./dist/dpuse-development.es.js').then(m => m.documentProject({ allowedLicenses: '' }))\"",
         "format": "node -e \"import('./dist/dpuse-development.es.js').then(m => m.formatCode())\"",
         "lint": "node -e \"import('./dist/dpuse-development.es.js').then(m => m.lintCode())\"",
         "release": "npm run build && npm run document && npm run sync && gh release create \"v$(npm pkg get version | tr -d '\"')\" --target \"$(git rev-parse HEAD)\" --generate-notes --latest",
