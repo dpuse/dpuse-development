@@ -5,7 +5,7 @@ import type { PackageJson } from 'type-fest';
 import type { ModuleConfig } from '@dpuse/dpuse-shared';
 
 // ── Local Framework
-import { logOperationHeader, logOperationSuccess, logStepHeader, readJSONFile, resolveOwnerAndRepo, writeReadmeSection } from '@/utilities';
+import { getModuleConfig, logOperationHeader, logOperationSuccess, logStepHeader, readJSONFile, resolveOwnerAndRepo, writeReadmeSection } from '@/utilities';
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -26,8 +26,9 @@ export async function documentOpening(): Promise<void> {
         const { owner, repo } = resolveOwnerAndRepo(packageJSON, 'document opening');
         const license = resolveLicense(packageJSON);
         const introduction = resolveIntroduction(configJSON);
+        const npmPackageName = getModuleConfig(configJSON.id).publishedTo === 'npm' ? resolvePackageName(packageJSON) : undefined;
 
-        const content = buildOpeningContent(owner, repo, license, packageJSON.description, introduction);
+        const content = buildOpeningContent(owner, repo, license, npmPackageName, packageJSON.description, introduction);
 
         await writeReadmeSection(content, START_MARKER, END_MARKER);
 
@@ -46,6 +47,12 @@ function resolveLicense(packageJSON: PackageJson): string {
     return license;
 }
 
+function resolvePackageName(packageJSON: PackageJson): string {
+    const name = packageJSON.name;
+    if (name == null || name === '') throw new Error("package.json 'name' field is required to document opening.");
+    return name;
+}
+
 // 'description.en' holds the introduction's paragraphs. The schema types it as one string, but config files list the
 // paragraphs in an array, so both are accepted. With no paragraphs, the Introduction section is left out.
 function resolveIntroduction(configJSON: ModuleConfig): string | undefined {
@@ -54,15 +61,27 @@ function resolveIntroduction(configJSON: ModuleConfig): string | undefined {
     return paragraphs.length === 0 ? undefined : paragraphs.join('\n\n');
 }
 
-// The package description is optional, so a project without one simply has no summary under the links.
-function buildOpeningContent(owner: string, repo: string, license: string, description: string | undefined, introduction: string | undefined): string {
+// The package description is optional, so a project without one simply has no summary under the links. Only projects
+// published to npm get the npm badge; the rest reach people through DPUse itself.
+function buildOpeningContent(
+    owner: string,
+    repo: string,
+    license: string,
+    npmPackageName: string | undefined,
+    description: string | undefined,
+    introduction: string | undefined
+): string {
     const repoURL = `https://github.com/${owner}/${repo}`;
     const badgeLicense = license.replaceAll('-', '--');
+    const npmBadge =
+        npmPackageName === undefined
+            ? ''
+            : `\n[![npm version](https://img.shields.io/npm/v/${npmPackageName}?color=cb3837&label=npm)](https://www.npmjs.com/package/${npmPackageName})`;
     const summary = description == null || description === '' ? '' : `\n\n${description}`;
     const introductionSection = introduction === undefined ? '' : `\n\n## Introduction\n\n${introduction}`;
 
     return `[![License: ${license}](https://img.shields.io/badge/License-${badgeLicense}-blue.svg)](./LICENSE)
-[![DPUse version](https://img.shields.io/github/v/release/${owner}/${repo}?color=f6821f&label=DPUse)](${repoURL}/releases/latest)
+[![DPUse version](https://img.shields.io/github/v/release/${owner}/${repo}?color=f6821f&label=DPUse)](${repoURL}/releases/latest)${npmBadge}
 [![CI](${repoURL}/actions/workflows/ci.yml/badge.svg)](${repoURL}/actions/workflows/ci.yml)
 
 [DPUse](https://www.dpuse.app) · [Report a Vulnerability](${repoURL}/security/advisories/new) · [Open an Issue](${repoURL}/issues)${summary}

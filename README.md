@@ -4,6 +4,7 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](./LICENSE)
 [![DPUse version](https://img.shields.io/github/v/release/dpuse/dpuse-development?color=f6821f&label=DPUse)](https://github.com/dpuse/dpuse-development/releases/latest)
+[![npm version](https://img.shields.io/npm/v/@dpuse/dpuse-development?color=cb3837&label=npm)](https://www.npmjs.com/package/@dpuse/dpuse-development)
 [![CI](https://github.com/dpuse/dpuse-development/actions/workflows/ci.yml/badge.svg)](https://github.com/dpuse/dpuse-development/actions/workflows/ci.yml)
 
 [DPUse](https://www.dpuse.app) · [Report a Vulnerability](https://github.com/dpuse/dpuse-development/security/advisories/new) · [Open an Issue](https://github.com/dpuse/dpuse-development/issues)
@@ -78,17 +79,17 @@ _Note: Sonda's Vite reports currently exclude CSS files, since Vite does not gen
 
 | Chunk/Module/File                                                              | Composition                  |
 | :----------------------------------------------------------------------------- | :--------------------------- |
-| dist/dpuse-development.es.js                                                   | 45.0 kB · gzip 14.5 kB       |
-| &nbsp;&nbsp;&nbsp;&nbsp;src                                                    | `██████████░░░░░░░░░░` 51.4% |
-| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;documentQualitySecurity.ts     | `███░░░░░░░░░░░░░░░░░` 13.0% |
+| dist/dpuse-development.es.js                                                   | 45.3 kB · gzip 14.5 kB       |
+| &nbsp;&nbsp;&nbsp;&nbsp;src                                                    | `██████████░░░░░░░░░░` 51.6% |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;documentQualitySecurity.ts     | `███░░░░░░░░░░░░░░░░░` 12.9% |
 | &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;documentDependencies.ts        | `██░░░░░░░░░░░░░░░░░░` 8.0%  |
-| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;documentBundleSizes.ts         | `█░░░░░░░░░░░░░░░░░░░` 5.8%  |
-| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;checkConfigFiles.ts            | `█░░░░░░░░░░░░░░░░░░░` 4.8%  |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;documentBundleSizes.ts         | `█░░░░░░░░░░░░░░░░░░░` 5.7%  |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;checkConfigFiles.ts            | `█░░░░░░░░░░░░░░░░░░░` 4.7%  |
 | &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;documentUsage.ts               | `█░░░░░░░░░░░░░░░░░░░` 3.6%  |
 | &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;documentActions.ts             | `░░░░░░░░░░░░░░░░░░░░` 2.3%  |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;documentOpening.ts             | `░░░░░░░░░░░░░░░░░░░░` 2.1%  |
 | &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;cloudflare.ts                  | `░░░░░░░░░░░░░░░░░░░░` 2.0%  |
 | &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;checkDependencies.ts           | `░░░░░░░░░░░░░░░░░░░░` 2.0%  |
-| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;documentOpening.ts             | `░░░░░░░░░░░░░░░░░░░░` 1.6%  |
 | &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;documentContributingLicense.ts | `░░░░░░░░░░░░░░░░░░░░` 1.6%  |
 | &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;releaseProject.ts              | `░░░░░░░░░░░░░░░░░░░░` 1.3%  |
 | &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;testProject.ts                 | `░░░░░░░░░░░░░░░░░░░░` 1.0%  |
@@ -103,12 +104,12 @@ _Note: Sonda's Vite reports currently exclude CSS files, since Vite does not gen
 | &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;checkProject.ts                | `░░░░░░░░░░░░░░░░░░░░` 0.1%  |
 | &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON)                    | `██░░░░░░░░░░░░░░░░░░` 7.9%  |
 | dist/utilities-DxgaXApN.js                                                     | 22.4 kB · gzip 6.2 kB        |
-| &nbsp;&nbsp;&nbsp;&nbsp;@dpuse/dpuse-shared → dist/dpuse-shared.es.js          | `███░░░░░░░░░░░░░░░░░` 15.5% |
+| &nbsp;&nbsp;&nbsp;&nbsp;@dpuse/dpuse-shared → dist/dpuse-shared.es.js          | `███░░░░░░░░░░░░░░░░░` 15.4% |
 | &nbsp;&nbsp;&nbsp;&nbsp;src → index.ts                                         | `██░░░░░░░░░░░░░░░░░░` 10.0% |
-| &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON)                    | `█░░░░░░░░░░░░░░░░░░░` 3.5%  |
+| &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON)                    | `█░░░░░░░░░░░░░░░░░░░` 3.4%  |
 | &nbsp;&nbsp;&nbsp;&nbsp;valibot → dist/index.mjs                               | `░░░░░░░░░░░░░░░░░░░░` 0.5%  |
 | dist/apiReference-DCzx5xFp.js                                                  | 8.4 kB · gzip 3.1 kB         |
-| &nbsp;&nbsp;&nbsp;&nbsp;src → apiReference.ts                                  | `██░░░░░░░░░░░░░░░░░░` 10.6% |
+| &nbsp;&nbsp;&nbsp;&nbsp;src → apiReference.ts                                  | `██░░░░░░░░░░░░░░░░░░` 10.5% |
 | &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON)                    | `░░░░░░░░░░░░░░░░░░░░` 0.5%  |
 
 (bundler output, whitespace & JSON) = bytes Sonda can't trace to a source file: whitespace (indentation and line breaks), code the bundler generates (region comments, the combined import/export lines, its small runtime helper and wrappers), and imported JSON such as `config.json`, which the bundler doesn't map. The JSON and the generated code are real bytes that ship; the whitespace mostly disappears once compressed.

@@ -10,10 +10,10 @@ import { buildReadme, useTemporaryProject } from '../support/temporaryProject';
 
 const project = useTemporaryProject();
 
-async function writeProject(packageJSON: object, description: unknown = ['First paragraph.', 'Second paragraph.']): Promise<void> {
+async function writeProject(packageJSON: object, description: unknown = ['First paragraph.', 'Second paragraph.'], id = 'dpuse-shared'): Promise<void> {
     await project.writeFiles({
-        'config.json': JSON.stringify({ id: 'dpuse-shared', description: { en: description } }),
-        'package.json': JSON.stringify({ license: 'Apache-2.0', repository: 'git+https://github.com/dpuse/dpuse-shared.git', ...packageJSON }),
+        'config.json': JSON.stringify({ id, description: { en: description } }),
+        'package.json': JSON.stringify({ license: 'Apache-2.0', name: '@dpuse/dpuse-shared', repository: 'git+https://github.com/dpuse/dpuse-shared.git', ...packageJSON }),
         'README.md': buildReadme('OPENING')
     });
 }
@@ -45,13 +45,29 @@ describe('documentOpening', () => {
         expect(await project.readFile('README.md')).toContain('[Open an Issue](https://github.com/dpuse/dpuse-shared/issues)\n\n## About DPUse');
     });
 
-    it('shows only the License, Version and CI badges, as check results sit in Quality & Security', async () => {
+    it('shows only the License, Version, npm and CI badges, as check results sit in Quality & Security', async () => {
         await writeProject({ devDependencies: { fallow: '^3.30.0' } });
 
         await documentOpening();
 
         const readme = await project.readFile('README.md');
-        expect(readme.match(/\[!\[[^\]]+\]/g)).toEqual(['[![License: Apache-2.0]', '[![DPUse version]', '[![CI]']);
+        expect(readme.match(/\[!\[[^\]]+\]/g)).toEqual(['[![License: Apache-2.0]', '[![DPUse version]', '[![npm version]', '[![CI]']);
+        expect(readme).toContain('[![npm version](https://img.shields.io/npm/v/@dpuse/dpuse-shared?color=cb3837&label=npm)](https://www.npmjs.com/package/@dpuse/dpuse-shared)');
+    });
+
+    it('leaves out the npm badge for projects not published to npm', async () => {
+        await writeProject({}, undefined, 'dpuse-connector-dropbox');
+
+        await documentOpening();
+
+        expect(await project.readFile('README.md')).not.toContain('[![npm version]');
+    });
+
+    it('exits when a project published to npm has no package name', async () => {
+        await writeProject({ name: '' });
+
+        await expect(documentOpening()).rejects.toThrow('process.exit(1)');
+        expect(console.error).toHaveBeenCalledWith('❌  Error documenting opening', new Error("package.json 'name' field is required to document opening."));
     });
 
     it('exits when the licence is missing', async () => {
