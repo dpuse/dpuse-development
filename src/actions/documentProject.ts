@@ -12,17 +12,12 @@ import { API_REFERENCE_PATH, documentAPIReference } from '@/actions/documentApiR
 import { BUNDLE_REPORT_PATH, documentBundleSizes } from '@/actions/documentBundleSizes';
 import { getModuleConfig, logStepHeader, readJSONFile, readTextFileOrNull, spawnCommand } from '@/utilities';
 
-// ── Types ────────────────────────────────────────────────────────────────────────────────────────────────────────────
-
-export interface DocumentOptions {
-    allowedLicenses?: string; // The licences dependencies may use, separated by ';'.
-    moduleLevel?: boolean; // Breaks bundle sizes down by module rather than by package.
-}
-
 // ── Actions ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 /** Regenerates every generated section of the README, in the order they appear, then the API reference where the project keeps one. */
-export async function documentProject({ allowedLicenses = 'MIT', moduleLevel = false }: DocumentOptions = {}): Promise<void> {
+// 'allowedLicenses' lists the licences dependencies may use, separated by ';'. 'isModuleLevel' breaks bundle sizes
+// down by module rather than by package.
+export async function documentProject(allowedLicenses = 'MIT', isModuleLevel = false): Promise<void> {
     try {
         const configJSON = await readJSONFile<ModuleConfig>('config.json');
         const isConnector = getModuleConfig(configJSON.id).typeId === 'connector'; // Only connectors have an actions table.
@@ -36,7 +31,7 @@ export async function documentProject({ allowedLicenses = 'MIT', moduleLevel = f
         if ((await readTextFileOrNull(BUNDLE_REPORT_PATH)) === null) {
             logStepHeader(`ℹ️  Bundle sizes NOT documented, as there is no '${BUNDLE_REPORT_PATH}' yet. Build the project first.`);
         } else {
-            await documentBundleSizes({ moduleLevel });
+            await documentBundleSizes({ moduleLevel: isModuleLevel });
         }
 
         await documentQualitySecurity();

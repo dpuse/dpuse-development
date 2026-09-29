@@ -91,7 +91,7 @@ describe('documentProject', () => {
     it('regenerates each section in README order, passing on the allowed licences', async () => {
         await project.writeFiles({ 'config.json': JSON.stringify({ id: 'dpuse-shared' }) });
 
-        await documentProject({ allowedLicenses: 'Apache-2.0;MIT' });
+        await documentProject('Apache-2.0;MIT');
 
         expect(calls).toEqual(['opening', 'usage', 'dependencies', 'qualitySecurity', 'contributingLicense']);
         expect(documentDependencies).toHaveBeenCalledWith('Apache-2.0;MIT');
@@ -101,7 +101,7 @@ describe('documentProject', () => {
     it('documents bundle sizes, between dependencies and quality and security, once a build has written its report', async () => {
         await project.writeFiles({ 'config.json': JSON.stringify({ id: 'dpuse-shared' }), 'bundle-analysis-reports/sonda/index.json': '{}' });
 
-        await documentProject({ moduleLevel: true });
+        await documentProject('MIT', true);
 
         expect(calls).toEqual(['opening', 'usage', 'dependencies', 'bundleSizes', 'qualitySecurity', 'contributingLicense']);
         expect(documentBundleSizes).toHaveBeenCalledWith({ moduleLevel: true });

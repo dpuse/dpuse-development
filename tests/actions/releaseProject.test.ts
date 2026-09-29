@@ -79,10 +79,10 @@ describe('releaseProject', () => {
     it('regenerates the README after the build and before staging, with the options it is given', async () => {
         await project.writeFiles({ 'package.json': JSON.stringify({ name: '@dpuse/dpuse-shared', version: '1.2.3' }), 'config.json': JSON.stringify({ id: 'dpuse-shared' }) });
 
-        await releaseProject({ allowedLicenses: 'Apache-2.0;MIT', moduleLevel: true });
+        await releaseProject('Apache-2.0;MIT', true);
 
         const documentOrder = vi.mocked(documentProject).mock.invocationCallOrder[0] ?? 0;
-        expect(documentProject).toHaveBeenCalledWith({ allowedLicenses: 'Apache-2.0;MIT', moduleLevel: true });
+        expect(documentProject).toHaveBeenCalledWith('Apache-2.0;MIT', true);
         expect(vi.mocked(spawnCommand).mock.invocationCallOrder[0]).toBeLessThan(documentOrder);
         expect(documentOrder).toBeLessThan(vi.mocked(execCommand).mock.invocationCallOrder[0] ?? 0);
     });

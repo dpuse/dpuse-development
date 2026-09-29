@@ -79,7 +79,7 @@ _Note: Sonda's Vite reports currently exclude CSS files, since Vite does not gen
 | Chunk/Module/File                                                                                | Composition                  |
 | :----------------------------------------------------------------------------------------------- | :--------------------------- |
 | dist/dpuse-development.es.js                                                                     | 44.7 kB · gzip 14.4 kB       |
-| &nbsp;&nbsp;&nbsp;&nbsp;src                                                                      | `██████████░░░░░░░░░░` 52.0% |
+| &nbsp;&nbsp;&nbsp;&nbsp;src                                                                      | `██████████░░░░░░░░░░` 51.9% |
 | &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;documentQualitySecurity.ts                       | `███░░░░░░░░░░░░░░░░░` 13.1% |
 | &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;documentDependencies.ts                          | `██░░░░░░░░░░░░░░░░░░` 8.1%  |
 | &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;documentBundleSizes.ts                           | `█░░░░░░░░░░░░░░░░░░░` 5.9%  |

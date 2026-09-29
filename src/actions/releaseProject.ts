@@ -5,6 +5,7 @@ import type { PackageJson } from 'type-fest';
 import type { ModuleConfig } from '@dpuse/dpuse-shared/component/module';
 
 // ── Local Framework
+import { documentProject } from '@/actions/documentProject';
 import { registerModule } from '@/actions/publishProject';
 import {
     buildModuleConfig,
@@ -17,12 +18,11 @@ import {
     readJSONFile,
     spawnCommand
 } from '@/utilities';
-import { type DocumentOptions, documentProject } from '@/actions/documentProject';
 
 // ── Actions ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 /** Bump version, builds config, builds project, regenerates the README, synchronise with GitHub and publish to npm or Cloudflare. */
-export async function releaseProject(documentOptions: DocumentOptions = {}): Promise<void> {
+export async function releaseProject(allowedLicenses = 'MIT', isModuleLevel = false): Promise<void> {
     try {
         logOperationHeader('Release Project');
 
@@ -39,7 +39,7 @@ export async function releaseProject(documentOptions: DocumentOptions = {}): Pro
         // After the build, so the bundle sizes are the released bundle's, and before staging, so the README is committed
         // with the release. Its governance step runs the tests, so a failing test stops the release before anything is pushed.
         logStepHeader('4️⃣  Regenerate README');
-        await documentProject(documentOptions);
+        await documentProject(allowedLicenses, isModuleLevel);
 
         await execCommand('5️⃣  Stage changes', 'git', ['add', '.']);
 

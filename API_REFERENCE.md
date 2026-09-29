@@ -12,14 +12,14 @@ Every export, grouped by import path. This file is updated each time `npm run do
     > Builds the package using Vite. Output to '/dist' directory. Builds bundle analysis reports.
 - **`checkProject`**`()`
     > Checks the configuration files against the DPUse templates, then lists outdated dependencies.
-- **`documentProject`**`({ allowedLicenses, moduleLevel }?: DocumentOptions)`
+- **`documentProject`**`(allowedLicenses?: string, isModuleLevel?: boolean)`
     > Regenerates every generated section of the README, in the order they appear, then the API reference where the project keeps one.
 - **`formatCode`**`()`
     > Uses prettier to enforce formatting style rules.
 - **`lintCode`**`()`
     > Uses eslint to check the code for potential errors and enforces coding style rules.
 - **`publishProject`**`()`
-- **`releaseProject`**`(documentOptions?: DocumentOptions)`
+- **`releaseProject`**`(allowedLicenses?: string, isModuleLevel?: boolean)`
     > Bump version, builds config, builds project, regenerates the README, synchronise with GitHub and publish to npm or Cloudflare.
 - **`syncProjectWithGitHub`**`()`
     > Synchronise the local repository with the main GitHub repository.
