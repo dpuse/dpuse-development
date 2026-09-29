@@ -13,10 +13,8 @@ import type { Dirent, ObjectEncodingOptions, Stats } from 'node:fs';
 import { execFile, spawn } from 'node:child_process';
 
 // ── DPUse Framework
-import type { ModuleConfig } from '@dpuse/dpuse-shared/component/module';
-import type { ConnectorActionName, ConnectorConfig } from '@dpuse/dpuse-shared/component/module/connector';
-import { connectorConfigSchema, determineConnectorUsageId } from '@dpuse/dpuse-shared/component/module/connector';
-import { type PresenterActionName, type PresenterConfig, presenterConfigSchema } from '@dpuse/dpuse-shared/component/module/presenter';
+import type { ConnectorActionName, ConnectorConfig, ModuleConfig, PresenterActionName, PresenterConfig } from '@dpuse/dpuse-shared';
+import { connectorConfigSchema, determineConnectorUsageId, presenterConfigSchema } from '@dpuse/dpuse-shared';
 
 // ── Types ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -375,6 +373,5 @@ function substituteText(originalText: string, substituteText: string, startMarke
     const trimmedSubstitute = substituteText.trim();
     return `${originalText.slice(0, Math.max(0, startIndex + startMarker.length))}\n\n${trimmedSubstitute}\n\n${originalText.slice(Math.max(0, endIndex))}`;
 }
-
 
 /* eslint-enable security/detect-non-literal-fs-filename -- All paths come from package.json scripts, not user input. */

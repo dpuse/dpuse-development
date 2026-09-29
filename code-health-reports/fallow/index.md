@@ -12,7 +12,7 @@
 | Cyclomatic units | Functions: 218, module scopes: 0, templates: 0 |
 | Dead Files | 0.0% |
 | Dead Exports | 0.0% |
-| Maintainability (avg) | 92.6 |
+| Maintainability (avg) | 92.5 |
 | Hotspots (since 6 months) | 4 |
 | Circular Deps | 0 |
 | Unused Deps | 0 |
@@ -25,7 +25,7 @@
 | `src/actions/documentQualitySecurity.ts` | 91.8 | 1 | 1 | 0% | 0.18 | 17.0 |
 | `src/utilities/apiReference.ts` | 83.1 | 1 | 1 | 0% | 0.47 | 12.0 |
 | `src/actions/documentDependencies.ts` | 88.8 | 1 | 1 | 0% | 0.28 | 9.6 |
-| `src/utilities/index.ts` | 93.1 | 21 | 0 | 0% | 0.23 | 8.0 |
+| `src/utilities/index.ts` | 92.8 | 21 | 0 | 0% | 0.24 | 8.0 |
 | `src/actions/documentBundleSizes.ts` | 89.1 | 1 | 1 | 0% | 0.27 | 7.0 |
 | `src/actions/checkConfigFiles.ts` | 90.3 | 1 | 1 | 0% | 0.23 | 7.0 |
 | `src/utilities/cloudflare.ts` | 90.6 | 2 | 1 | 0% | 0.22 | 7.0 |
@@ -41,34 +41,34 @@
 | `src/actions/documentActions.ts` | 95.4 | 1 | 1 | 0% | 0.06 | 3.0 |
 | `src/actions/documentApiReference.ts` | 94.4 | 1 | 2 | 0% | 0.08 | 2.0 |
 | `src/actions/formatCode.ts` | 94.8 | 1 | 1 | 0% | 0.16 | 2.0 |
-| `src/actions/auditDependencies.ts` | 96.0 | 1 | 1 | 0% | 0.11 | 2.0 |
+| `src/actions/auditDependencies.ts` | 96.0 | 1 | 1 | 0% | 0.09 | 2.0 |
 | `src/actions/buildProject.ts` | 96.0 | 1 | 1 | 0% | 0.11 | 2.0 |
 | `src/actions/lintCode.ts` | 96.0 | 1 | 1 | 0% | 0.11 | 2.0 |
 | `vite.config.ts` | 99.3 | 0 | 0 | 0% | 0.03 | 2.0 |
 | `src/actions/checkProject.ts` | 95.0 | 1 | 2 | 0% | 0.08 | 1.0 |
 
-**Average maintainability index:** 92.6/100
+**Average maintainability index:** 92.5/100
 
 ### Hotspots (16 files, since 6 months)
 
 | File | Score | Commits | Churn | Density | Fan-in | Trend |
 |:-----|:------|:--------|:------|:--------|:-------|:------|
-| `src/actions/documentBundleSizes.ts` | 87.5 | 35 | 1188 | 0.27 | 1 | cooling |
-| `src/actions/checkConfigFiles.ts` | 82.1 | 40 | 483 | 0.23 | 1 | cooling |
-| `src/utilities/index.ts` | 76.4 | 33 | 486 | 0.23 | 21 | cooling |
-| `src/actions/documentDependencies.ts` | 63.6 | 23 | 445 | 0.28 | 1 | cooling |
-| `src/actions/documentUsage.ts` | 37.6 | 15 | 328 | 0.18 | 1 | accelerating |
-| `src/actions/documentOpening.ts` | 33.8 | 16 | 243 | 0.17 | 1 | stable |
-| `src/actions/checkDependencies.ts` | 21.2 | 14 | 156 | 0.14 | 1 | stable |
-| `src/actions/documentApiReference.ts` | 16.1 | 13 | 772 | 0.08 | 1 | cooling |
-| `src/utilities/cloudflare.ts` | 15.0 | 9 | 43 | 0.22 | 2 | cooling |
-| `src/actions/documentQualitySecurity.ts` | 14.0 | 5 | 590 | 0.18 | 1 | cooling |
-| `src/actions/formatCode.ts` | 12.2 | 7 | 38 | 0.16 | 1 | stable |
-| `src/actions/documentProject.ts` | 6.8 | 4 | 83 | 0.11 | 2 | cooling |
-| `src/actions/auditDependencies.ts` | 6.7 | 6 | 30 | 0.11 | 1 | cooling |
-| `src/actions/lintCode.ts` | 6.7 | 6 | 30 | 0.11 | 1 | cooling |
-| `src/actions/documentActions.ts` | 5.2 | 8 | 88 | 0.06 | 1 | cooling |
-| `vite.config.ts` | 5.0 | 17 | 106 | 0.03 | 0 | cooling |
+| `src/actions/documentBundleSizes.ts` | 83.9 | 35 | 1188 | 0.27 | 1 | cooling |
+| `src/actions/checkConfigFiles.ts` | 82.1 | 41 | 485 | 0.23 | 1 | cooling |
+| `src/utilities/index.ts` | 76.4 | 33 | 486 | 0.24 | 21 | cooling |
+| `src/actions/documentDependencies.ts` | 61.0 | 23 | 445 | 0.28 | 1 | cooling |
+| `src/actions/documentUsage.ts` | 36.1 | 15 | 328 | 0.18 | 1 | accelerating |
+| `src/actions/documentOpening.ts` | 32.4 | 16 | 243 | 0.17 | 1 | stable |
+| `src/actions/checkDependencies.ts` | 20.3 | 14 | 156 | 0.14 | 1 | stable |
+| `src/actions/documentApiReference.ts` | 15.4 | 13 | 772 | 0.08 | 1 | cooling |
+| `src/utilities/cloudflare.ts` | 14.4 | 9 | 43 | 0.22 | 2 | cooling |
+| `src/actions/documentQualitySecurity.ts` | 13.4 | 5 | 590 | 0.18 | 1 | cooling |
+| `src/actions/formatCode.ts` | 11.7 | 7 | 38 | 0.16 | 1 | stable |
+| `src/actions/documentProject.ts` | 6.6 | 4 | 83 | 0.11 | 2 | cooling |
+| `src/actions/lintCode.ts` | 6.4 | 6 | 30 | 0.11 | 1 | cooling |
+| `src/actions/auditDependencies.ts` | 5.3 | 6 | 30 | 0.09 | 1 | cooling |
+| `src/actions/documentActions.ts` | 5.0 | 8 | 88 | 0.06 | 1 | cooling |
+| `vite.config.ts` | 4.8 | 17 | 106 | 0.03 | 0 | cooling |
 
 *8 files excluded (< 3 commits)*
 

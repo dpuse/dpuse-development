@@ -310,7 +310,7 @@ function formatEndpointBadge(owner: string, repo: string, label: string, badgePa
 function buildChecksContent(owner: string, repo: string, { coveragePercent, fallowHealth, securitySettings: settings }: ChecksResults): string {
     const repoURL = `https://github.com/${owner}/${repo}`;
 
-    const ciNote = (isInCI: boolean): string => (isInCI ? ` Part of the [CI workflow](${repoURL}/actions/workflows/ci.yml) on every push to \`main\`.` : '');
+    const ciNote = (isInCI: boolean): string => (isInCI ? ` Part of the [CI workflow](${repoURL}/actions/workflows/ci.yml) on every push and pull request to \`main\`.` : '');
 
     const testingRows = [
         ['Unit tests', formatStatus(settings.testsInCI), `[Vitest](https://vitest.dev) runs the unit tests.${ciNote(settings.testsInCI)}`],
@@ -374,7 +374,7 @@ function buildChecksContent(owner: string, repo: string, { coveragePercent, fall
             'Vulnerability audit',
             formatStatus(settings.npmAuditInCI),
             settings.npmAuditLevel === undefined
-                ? `[npm audit](https://docs.npmjs.com/cli/commands/npm-audit) fails when any dependency has a known vulnerability.${ciNote(settings.npmAuditInCI)}`
+                ? `[npm audit](https://docs.npmjs.com/cli/commands/npm-audit) fails when a shipped dependency has any known vulnerability, or a development dependency has a high or critical one.${ciNote(settings.npmAuditInCI)}`
                 : `[npm audit](https://docs.npmjs.com/cli/commands/npm-audit) fails when a dependency has a known vulnerability of ${settings.npmAuditLevel} severity or above.${ciNote(settings.npmAuditInCI)}`
         ],
         [

@@ -1,5 +1,5 @@
 // ── External Dependencies & Registrations
-import type { ModuleConfig } from '@dpuse/dpuse-shared/component/module';
+import type { ModuleConfig } from '@dpuse/dpuse-shared';
 import type { PackageJson } from 'type-fest';
 
 // ── Local Framework

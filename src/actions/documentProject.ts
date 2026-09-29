@@ -1,5 +1,5 @@
 // ── DPUse Framework
-import type { ModuleConfig } from '@dpuse/dpuse-shared/component/module';
+import type { ModuleConfig } from '@dpuse/dpuse-shared';
 
 // ── Local Framework
 import { documentActions } from '@/actions/documentActions';

@@ -55,7 +55,7 @@ describe('checkDependencies', () => {
             'npm install-scripts approve fsevents @scope/tool',
             'npm install-scripts prune',
             'npm rebuild fsevents @scope/tool --no-strict-allow-scripts',
-            'npm install --strict-allow-scripts'
+            'npm install --strict-allow-scripts --no-audit --no-fund'
         ]);
     });
 
@@ -65,7 +65,7 @@ describe('checkDependencies', () => {
 
         await checkDependencies();
 
-        expect(spawnedCommands()).toEqual(['npm outdated', 'npm install --prefer-online --no-strict-allow-scripts', 'npm install --strict-allow-scripts']);
+        expect(spawnedCommands()).toEqual(['npm outdated', 'npm install --prefer-online --no-strict-allow-scripts', 'npm install --strict-allow-scripts --no-audit --no-fund']);
     });
 
     it('works without an npm-check-updates config or any approvals', async () => {
@@ -86,11 +86,11 @@ describe('checkDependencies', () => {
 
 describe('single-command actions', () => {
     it.each([
-        ['auditDependencies', auditDependencies, 'npm audit'],
-        ['lintCode', lintCode, 'eslint .']
-    ])('%s runs its command', async (_name, action, command) => {
+        ['auditDependencies', auditDependencies, ['npm audit --omit=dev', 'npm audit --audit-level=high']],
+        ['lintCode', lintCode, ['eslint .']]
+    ])('%s runs its commands', async (_name, action, commands) => {
         await action();
-        expect(spawnedCommands()).toEqual([command]);
+        expect(spawnedCommands()).toEqual(commands);
     });
 
     it('formats the root files, and the app, src and tests folders only where they exist', async () => {

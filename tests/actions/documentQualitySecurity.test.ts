@@ -158,7 +158,7 @@ describe('documentQualitySecurity', () => {
         const coverageBadge = `![Coverage](https://img.shields.io/endpoint?url=${encodeURIComponent('https://raw.githubusercontent.com/dpuse/dpuse-shared/main/code-health-reports/vitest/badge.json')})`;
         const fallowBadge = `![Fallow code health](https://img.shields.io/endpoint?url=${encodeURIComponent('https://raw.githubusercontent.com/dpuse/dpuse-shared/main/code-health-reports/fallow/badge.json')})`;
 
-        const ciNote = ` Part of the [CI workflow](${repoURL}/actions/workflows/ci.yml) on every push to \`main\`.`;
+        const ciNote = ` Part of the [CI workflow](${repoURL}/actions/workflows/ci.yml) on every push and pull request to \`main\`.`;
         expect(readme).not.toContain('[![CI]');
 
         const testing = sectionOf(readme, 'Testing');
@@ -183,7 +183,7 @@ describe('documentQualitySecurity', () => {
 
         const dependencies = sectionOf(readme, 'Dependencies');
         expect(dependencies).toContain(
-            `|Vulnerability audit|✅ On|[npm audit](https://docs.npmjs.com/cli/commands/npm-audit) fails when any dependency has a known vulnerability.${ciNote}|`
+            `|Vulnerability audit|✅ On|[npm audit](https://docs.npmjs.com/cli/commands/npm-audit) fails when a shipped dependency has any known vulnerability, or a development dependency has a high or critical one.${ciNote}|`
         );
         expect(dependencies).toContain('|Supply chain risk|✅ On|[Socket](https://socket.dev) flags');
         expect(dependencies).toContain('|Security alerts|✅ On|[Dependabot]');

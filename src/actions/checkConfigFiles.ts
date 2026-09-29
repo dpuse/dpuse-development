@@ -4,7 +4,7 @@ import type { PackageJson } from 'type-fest';
 import path from 'node:path';
 
 // ── DPUse Framework
-import type { ModuleConfig } from '@dpuse/dpuse-shared/component/module';
+import type { ModuleConfig } from '@dpuse/dpuse-shared';
 
 // ── Local Framework
 import { getModuleConfig, logOperationHeader, logOperationSuccess, logStepHeader, ModuleTypeConfig, readJSONFile, readTextFile } from '@/utilities';

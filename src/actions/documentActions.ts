@@ -1,6 +1,6 @@
 // ── DPUse Framework
-import type { ConnectorActionName, ConnectorUsageId } from '@dpuse/dpuse-shared/component/module/connector';
-import { determineConnectorUsageId, getConnectorActionsTable } from '@dpuse/dpuse-shared/component/module/connector';
+import type { ConnectorActionName, ConnectorUsageId } from '@dpuse/dpuse-shared';
+import { determineConnectorUsageId, getConnectorActionsTable } from '@dpuse/dpuse-shared';
 
 // ── Local Framework
 import { logOperationHeader, logOperationSuccess, logStepHeader, readJSONFile, writeReadmeSection } from '@/utilities';

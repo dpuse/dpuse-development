@@ -53,8 +53,8 @@ export async function checkDependencies(): Promise<void> {
         }
 
         // The same check a plain 'npm install' makes, which 'npm install-scripts ls' does not always agree with. Fails listing any
-        // install scripts still awaiting review.
-        await spawnCommand('7️⃣  Confirm every install script is reviewed', 'npm', ['install', '--strict-allow-scripts']);
+        // install scripts still awaiting review. Step 3 has already reported the audit and funding summaries.
+        await spawnCommand('7️⃣  Confirm every install script is reviewed', 'npm', ['install', '--strict-allow-scripts', '--no-audit', '--no-fund']);
 
         logOperationSuccess('Dependencies checked');
     } catch (error) {
