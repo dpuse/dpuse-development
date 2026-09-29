@@ -1,7 +1,7 @@
 {
   "metadata": {
     "version": "0.14.0",
-    "generatedAt": "2026-09-29T14:02:03.724Z",
+    "generatedAt": "2026-09-29T14:53:03.686Z",
     "integration": "vite",
     "sources": false,
     "gzip": true,
@@ -21,7 +21,7 @@
       "name": "[unassigned]",
       "type": "other",
       "format": "other",
-      "uncompressed": 6144,
+      "uncompressed": 6147,
       "gzip": 1414,
       "brotli": 0,
       "parent": "dist/dpuse-development.es.js"
@@ -58,8 +58,8 @@
       "kind": "asset",
       "name": "dist/dpuse-development.es.js",
       "type": "script",
-      "uncompressed": 46373,
-      "gzip": 14886,
+      "uncompressed": 46389,
+      "gzip": 14888,
       "brotli": 0
     },
     {
@@ -160,14 +160,14 @@
       "name": "src/actions/checkDependencies.ts",
       "type": "script",
       "format": "esm",
-      "uncompressed": 2509
+      "uncompressed": 2525
     },
     {
       "kind": "chunk",
       "name": "src/actions/checkDependencies.ts",
       "type": "script",
       "format": "esm",
-      "uncompressed": 1557,
+      "uncompressed": 1570,
       "gzip": 547,
       "brotli": 0,
       "parent": "dist/dpuse-development.es.js"

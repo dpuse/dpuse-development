@@ -57,11 +57,11 @@
 | `src/actions/documentBundleSizes.ts` | 80.5 | 35 | 1188 | 0.27 | 1 | cooling |
 | `src/utilities/index.ts` | 76.7 | 34 | 493 | 0.24 | 21 | cooling |
 | `src/actions/documentDependencies.ts` | 58.5 | 23 | 445 | 0.28 | 1 | cooling |
-| `src/actions/documentOpening.ts` | 37.4 | 17 | 245 | 0.19 | 1 | stable |
+| `src/actions/documentOpening.ts` | 40.2 | 18 | 274 | 0.19 | 1 | accelerating |
 | `src/actions/documentUsage.ts` | 37.2 | 16 | 330 | 0.18 | 1 | accelerating |
 | `src/actions/checkDependencies.ts` | 21.5 | 15 | 160 | 0.14 | 1 | stable |
-| `src/utilities/cloudflare.ts` | 16.9 | 10 | 45 | 0.22 | 2 | cooling |
-| `src/actions/documentQualitySecurity.ts` | 15.4 | 6 | 594 | 0.18 | 1 | cooling |
+| `src/utilities/cloudflare.ts` | 17.0 | 10 | 45 | 0.22 | 2 | cooling |
+| `src/actions/documentQualitySecurity.ts` | 15.5 | 6 | 594 | 0.18 | 1 | cooling |
 | `src/actions/documentApiReference.ts` | 14.8 | 13 | 772 | 0.08 | 1 | cooling |
 | `src/actions/formatCode.ts` | 11.2 | 7 | 38 | 0.16 | 1 | stable |
 | `src/actions/documentProject.ts` | 7.9 | 5 | 85 | 0.11 | 2 | cooling |

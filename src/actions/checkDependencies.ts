@@ -26,7 +26,7 @@ export async function checkDependencies(): Promise<void> {
         await runNpmCheckUpdates({ interactive: true, upgrade: true, dep: 'dev,prod,peer,optional', install: 'never', ...rcOptions });
 
         // Not strict here, otherwise an upgraded package with a pinned approval fails the install before step 4 can move its pin.
-        await spawnCommand('3️⃣  Install updated dependencies', 'npm', ['install', '--prefer-online', '--no-strict-allow-scripts']);
+        await spawnCommand('3️⃣  Install updated dependencies', 'npm', ['install', '--prefer-online', '--no-strict-allow-scripts', '--no-fund']);
 
         // Only packages already approved are re-approved, so a newly added install script still waits for review in step 7.
         // Name-only approvals already cover every version, so only pinned ones need moving. Runs before prune, which would
@@ -53,7 +53,7 @@ export async function checkDependencies(): Promise<void> {
         }
 
         // The same check a plain 'npm install' makes, which 'npm install-scripts ls' does not always agree with. Fails listing any
-        // install scripts still awaiting review. Step 3 has already reported the audit and funding summaries.
+        // install scripts still awaiting review. Step 3 has already reported the audit summary.
         await spawnCommand('7️⃣  Confirm every install script is reviewed', 'npm', ['install', '--strict-allow-scripts', '--no-audit', '--no-fund']);
 
         logOperationSuccess('Dependencies checked');

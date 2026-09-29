@@ -51,7 +51,7 @@ describe('checkDependencies', () => {
         expect(runNpmCheckUpdates).toHaveBeenCalledWith(expect.objectContaining({ upgrade: true, install: 'never', reject: ['typescript'] }));
         expect(spawnedCommands()).toEqual([
             'npm outdated',
-            'npm install --prefer-online --no-strict-allow-scripts',
+            'npm install --prefer-online --no-strict-allow-scripts --no-fund',
             'npm install-scripts approve fsevents @scope/tool',
             'npm install-scripts prune',
             'npm rebuild fsevents @scope/tool --no-strict-allow-scripts',
@@ -65,7 +65,7 @@ describe('checkDependencies', () => {
 
         await checkDependencies();
 
-        expect(spawnedCommands()).toEqual(['npm outdated', 'npm install --prefer-online --no-strict-allow-scripts', 'npm install --strict-allow-scripts --no-audit --no-fund']);
+        expect(spawnedCommands()).toEqual(['npm outdated', 'npm install --prefer-online --no-strict-allow-scripts --no-fund', 'npm install --strict-allow-scripts --no-audit --no-fund']);
     });
 
     it('works without an npm-check-updates config or any approvals', async () => {
