@@ -177,6 +177,32 @@ Every export, grouped by import path. This file is updated each time \`npm run d
 - **\`SettingsConfig\`** (extends \`Omit<BaseConfig, 'id'>\`)`);
     });
 
+    it('lists a single entry point by source folder once its exports span three or more folders', async () => {
+        await project.writeFiles({
+            'package.json': JSON.stringify({ name: '@dpuse/dpuse-example', exports: { '.': { types: './dist/types/src/index.d.ts' } } }),
+            'tsconfig.json': TSCONFIG,
+            'src/index.ts': "export type BaseConfig = { id: string };\nexport * from './errors';\nexport * from './locale';\nexport * from './component/dataView';\n",
+            'src/errors/index.ts': 'export function formatError(error: unknown): string { return String(error); }\n',
+            'src/locale/index.ts': "export const DEFAULT_LOCALE_ID = 'en';\n",
+            'src/component/dataView/index.ts': 'export interface DataViewConfig { id: string }\n'
+        });
+
+        await documentAPIReference();
+
+        const reference = await project.readFile('API_REFERENCE.md');
+        expect(reference.match(/^#{2,4} .+$/gm)).toEqual([
+            '## @dpuse/dpuse-example',
+            '### General',
+            '#### Types',
+            '### Component › Data View',
+            '#### Types',
+            '### Errors',
+            '#### Functions',
+            '### Locale',
+            '#### Constants'
+        ]);
+    });
+
     it('names a default class by its declared name', async () => {
         await project.writeFiles({
             'package.json': JSON.stringify({ name: '@dpuse/dpuse-connector-example', exports: { '.': { types: './dist/types/src/index.d.ts' } } }),

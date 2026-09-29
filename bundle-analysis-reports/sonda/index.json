@@ -1,7 +1,7 @@
 {
   "metadata": {
     "version": "0.14.0",
-    "generatedAt": "2026-09-29T09:07:38.540Z",
+    "generatedAt": "2026-09-29T10:01:16.346Z",
     "integration": "vite",
     "sources": false,
     "gzip": true,
@@ -21,7 +21,7 @@
       "name": "[unassigned]",
       "type": "other",
       "format": "other",
-      "uncompressed": 6129,
+      "uncompressed": 6127,
       "gzip": 1414,
       "brotli": 0,
       "parent": "dist/dpuse-development.es.js"
@@ -31,10 +31,10 @@
       "name": "[unassigned]",
       "type": "other",
       "format": "other",
-      "uncompressed": 386,
-      "gzip": 161,
+      "uncompressed": 422,
+      "gzip": 172,
       "brotli": 0,
-      "parent": "dist/apiReference-CDT825AK.js"
+      "parent": "dist/apiReference-CnXXTvff.js"
     },
     {
       "kind": "chunk",
@@ -48,18 +48,18 @@
     },
     {
       "kind": "asset",
-      "name": "dist/apiReference-CDT825AK.js",
+      "name": "dist/apiReference-CnXXTvff.js",
       "type": "script",
-      "uncompressed": 7883,
-      "gzip": 2892,
+      "uncompressed": 8627,
+      "gzip": 3162,
       "brotli": 0
     },
     {
       "kind": "asset",
       "name": "dist/dpuse-development.es.js",
       "type": "script",
-      "uncompressed": 45763,
-      "gzip": 14724,
+      "uncompressed": 45751,
+      "gzip": 14721,
       "brotli": 0
     },
     {
@@ -92,7 +92,7 @@
       "name": "node_modules/@dpuse/dpuse-shared/dist/dpuse-shared-componentModuleConnector.es.js",
       "type": "script",
       "format": "esm",
-      "uncompressed": 3684
+      "uncompressed": 3652
     },
     {
       "kind": "chunk",
@@ -201,14 +201,14 @@
       "name": "src/actions/checkConfigFiles.ts",
       "type": "script",
       "format": "esm",
-      "uncompressed": 6544
+      "uncompressed": 6532
     },
     {
       "kind": "chunk",
       "name": "src/actions/checkConfigFiles.ts",
       "type": "script",
       "format": "esm",
-      "uncompressed": 3704,
+      "uncompressed": 3694,
       "gzip": 872,
       "brotli": 0,
       "parent": "dist/dpuse-development.es.js"
@@ -277,7 +277,7 @@
       "type": "script",
       "format": "esm",
       "uncompressed": 308,
-      "gzip": 182,
+      "gzip": 181,
       "brotli": 0,
       "parent": "dist/dpuse-development.es.js"
     },
@@ -328,7 +328,7 @@
       "type": "script",
       "format": "esm",
       "uncompressed": 6216,
-      "gzip": 1888,
+      "gzip": 1887,
       "brotli": 0,
       "parent": "dist/dpuse-development.es.js"
     },
@@ -514,17 +514,17 @@
       "name": "src/utilities/apiReference.ts",
       "type": "script",
       "format": "esm",
-      "uncompressed": 12915
+      "uncompressed": 14168
     },
     {
       "kind": "chunk",
       "name": "src/utilities/apiReference.ts",
       "type": "script",
       "format": "esm",
-      "uncompressed": 7497,
-      "gzip": 2731,
+      "uncompressed": 8205,
+      "gzip": 2990,
       "brotli": 0,
-      "parent": "dist/apiReference-CDT825AK.js"
+      "parent": "dist/apiReference-CnXXTvff.js"
     },
     {
       "kind": "filesystem",
@@ -539,7 +539,7 @@
       "type": "script",
       "format": "esm",
       "uncompressed": 1570,
-      "gzip": 518,
+      "gzip": 517,
       "brotli": 0,
       "parent": "dist/dpuse-development.es.js"
     },
@@ -582,7 +582,7 @@
     },
     {
       "kind": "entrypoint",
-      "source": "dist/apiReference-CDT825AK.js",
+      "source": "dist/apiReference-CnXXTvff.js",
       "target": "src/utilities/apiReference.ts",
       "original": null
     }

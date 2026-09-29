@@ -6,13 +6,13 @@
 
 | Metric | Value |
 |:-------|------:|
-| Total LOC | 2764 |
-| Avg Cyclomatic | 3.0 |
+| Total LOC | 2810 |
+| Avg Cyclomatic | 2.9 |
 | P90 Cyclomatic | 6 |
-| Cyclomatic units | Functions: 208, module scopes: 0, templates: 0 |
+| Cyclomatic units | Functions: 218, module scopes: 0, templates: 0 |
 | Dead Files | 0.0% |
 | Dead Exports | 0.0% |
-| Maintainability (avg) | 92.5 |
+| Maintainability (avg) | 92.6 |
 | Hotspots (since 6 months) | 4 |
 | Circular Deps | 0 |
 | Unused Deps | 0 |
@@ -23,7 +23,7 @@
 | File | Maintainability | Fan-in | Fan-out | Dead Code | Density | Risk |
 |:-----|:---------------|:-------|:--------|:----------|:--------|:-----|
 | `src/actions/documentQualitySecurity.ts` | 91.8 | 1 | 1 | 0% | 0.18 | 17.0 |
-| `src/utilities/apiReference.ts` | 82.2 | 1 | 1 | 0% | 0.50 | 12.0 |
+| `src/utilities/apiReference.ts` | 83.1 | 1 | 1 | 0% | 0.47 | 12.0 |
 | `src/actions/documentDependencies.ts` | 88.8 | 1 | 1 | 0% | 0.28 | 9.6 |
 | `src/utilities/index.ts` | 93.1 | 21 | 0 | 0% | 0.23 | 8.0 |
 | `src/actions/documentBundleSizes.ts` | 89.1 | 1 | 1 | 0% | 0.27 | 7.0 |
@@ -47,7 +47,7 @@
 | `vite.config.ts` | 99.3 | 0 | 0 | 0% | 0.03 | 2.0 |
 | `src/actions/checkProject.ts` | 95.0 | 1 | 2 | 0% | 0.08 | 1.0 |
 
-**Average maintainability index:** 92.5/100
+**Average maintainability index:** 92.6/100
 
 ### Hotspots (16 files, since 6 months)
 
@@ -64,10 +64,10 @@
 | `src/utilities/cloudflare.ts` | 15.0 | 9 | 43 | 0.22 | 2 | cooling |
 | `src/actions/documentQualitySecurity.ts` | 14.0 | 5 | 590 | 0.18 | 1 | cooling |
 | `src/actions/formatCode.ts` | 12.2 | 7 | 38 | 0.16 | 1 | stable |
+| `src/actions/documentProject.ts` | 6.8 | 4 | 83 | 0.11 | 2 | cooling |
 | `src/actions/auditDependencies.ts` | 6.7 | 6 | 30 | 0.11 | 1 | cooling |
 | `src/actions/lintCode.ts` | 6.7 | 6 | 30 | 0.11 | 1 | cooling |
 | `src/actions/documentActions.ts` | 5.2 | 8 | 88 | 0.06 | 1 | cooling |
-| `src/actions/documentProject.ts` | 5.1 | 3 | 70 | 0.11 | 2 | cooling |
 | `vite.config.ts` | 5.0 | 17 | 106 | 0.03 | 0 | cooling |
 
 *8 files excluded (< 3 commits)*

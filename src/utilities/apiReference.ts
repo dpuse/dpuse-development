@@ -1,5 +1,6 @@
 // ── External Dependencies & Registrations
 import type { PackageJson } from 'type-fest';
+import path from 'node:path';
 import ts from 'typescript';
 
 // ── Local Framework
@@ -13,11 +14,19 @@ interface ExportEntry {
     kind: ExportKind;
     name: string;
     origin: string;
+    topic: string; // The folder the export is declared in, such as 'Component › Module › Connector'.
 }
 
 type ExportKind = 'Classes' | 'Constants' | 'Functions' | 'Schemas' | 'Types';
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+// An import path whose exports come from at least this many folders is listed by folder, so a package with one entry
+// point for everything still reads as topics rather than one long list.
+const TOPIC_GROUPING_MINIMUM = 3;
+
+// Declared directly in the source folder, rather than in a topic folder within it.
+const GENERAL_TOPIC = 'General';
 
 // In the order each import path's section lists them.
 const EXPORT_KINDS: ExportKind[] = ['Functions', 'Classes', 'Constants', 'Schemas', 'Types'];
@@ -36,17 +45,19 @@ export async function writeAPIReference(stepIcon: string, apiReferencePath: stri
     const entryPoints = resolveEntryPoints(packageJSON);
     if (entryPoints.length === 0) throw new Error("package.json 'exports' must name at least one import path with types to document the API reference.");
 
+    // Absolute paths, as TypeScript keeps the working directory it first saw, so relative ones could resolve against a
+    // folder the process has since left.
     const program = ts.createProgram(
-        entryPoints.map(({ sourcePath }) => sourcePath),
+        entryPoints.map(({ sourcePath }) => path.resolve(sourcePath)),
         readCompilerOptions()
     );
     const checker = program.getTypeChecker();
     const fieldGroupOwners = mapFieldGroupOwners(program, checker);
 
     const sections = entryPoints.map(({ importPath, sourcePath }) => {
-        const sourceFile = program.getSourceFile(sourcePath);
+        const sourceFile = program.getSourceFile(path.resolve(sourcePath));
         if (sourceFile === undefined) throw new Error(`Unable to read '${sourcePath}', the source of '${importPath}'.`);
-        return buildSection(importPath, groupExports(checker, sourceFile, fieldGroupOwners));
+        return buildSection(importPath, listExports(checker, sourceFile, fieldGroupOwners));
     });
 
     await writeTextFile(apiReferencePath, `# API Reference\n\n${API_REFERENCE_INTRO}\n\n${sections.join('\n\n')}\n`);
@@ -79,19 +90,34 @@ function readCompilerOptions(): ts.CompilerOptions {
     return ts.parseJsonConfigFileContent(config, ts.sys, process.cwd()).options;
 }
 
-function groupExports(checker: ts.TypeChecker, sourceFile: ts.SourceFile, fieldGroupOwners: Map<ts.ObjectLiteralExpression, string>): Map<ExportKind, ExportEntry[]> {
-    const groups = new Map<ExportKind, ExportEntry[]>(EXPORT_KINDS.map((kind) => [kind, []]));
+function listExports(checker: ts.TypeChecker, sourceFile: ts.SourceFile, fieldGroupOwners: Map<ts.ObjectLiteralExpression, string>): ExportEntry[] {
     const moduleSymbol = checker.getSymbolAtLocation(sourceFile);
     const exportedSymbols = moduleSymbol === undefined ? [] : checker.getExportsOfModule(moduleSymbol);
 
-    for (const exportedSymbol of exportedSymbols) {
+    const entries = exportedSymbols.flatMap((exportedSymbol) => {
         const symbol = resolveAlias(checker, exportedSymbol);
         const entry = describeExport(checker, formatExportName(exportedSymbol, symbol), symbol, fieldGroupOwners);
-        if (entry !== undefined) groups.get(entry.kind)?.push({ ...entry, description: readDescription(checker, symbol) });
-    }
+        return entry === undefined ? [] : [{ ...entry, description: readDescription(checker, symbol), topic: readTopic(symbol) }];
+    });
+    return entries.toSorted((a, b) => a.name.localeCompare(b.name));
+}
 
-    for (const entries of groups.values()) entries.sort((a, b) => a.name.localeCompare(b.name));
-    return groups;
+// Named from the folders between 'src' and the file declaring the export: 'component/module/connector' reads as
+// 'Component › Module › Connector', with camel-case names split into words.
+function readTopic(symbol: ts.Symbol): string {
+    const fileName = symbol.declarations?.[0]?.getSourceFile().fileName;
+    if (fileName === undefined) return GENERAL_TOPIC;
+
+    // TypeScript reports files with symbolic links resolved (on macOS, '/var' is really '/private/var'), so the source
+    // folder is resolved the same way before the two are compared.
+    const resolvePath = (unresolvedPath: string): string => ts.sys.realpath?.(unresolvedPath) ?? unresolvedPath;
+    const folder = path.relative(resolvePath(path.join(process.cwd(), 'src')), resolvePath(path.dirname(fileName)));
+    return folder === '' || folder.startsWith('..')
+        ? GENERAL_TOPIC
+        : folder
+              .split(path.sep)
+              .map((segment) => segment.replaceAll(/([a-z])([A-Z])/g, '$1 $2').replace(/^./, (letter) => letter.toUpperCase()))
+              .join(' › ');
 }
 
 // Functions include constants holding a function, as with arrow functions. Schemas are the constants named '…Schema'.
@@ -100,7 +126,7 @@ function describeExport(
     name: string,
     symbol: ts.Symbol,
     fieldGroupOwners: Map<ts.ObjectLiteralExpression, string>
-): Omit<ExportEntry, 'description'> | undefined {
+): Omit<ExportEntry, 'description' | 'topic'> | undefined {
     const isValue = (symbol.flags & (ts.SymbolFlags.Function | ts.SymbolFlags.Variable)) !== 0;
     const [signature] = isValue ? checker.getSignaturesOfType(checker.getTypeOfSymbol(symbol), ts.SignatureKind.Call) : [];
     const isSchema = name.endsWith('Schema');
@@ -287,13 +313,33 @@ function formatTypeNode(typeNode: ts.TypeNode): string {
     return typeNode.getText().replaceAll(/\s+/g, ' ');
 }
 
-function buildSection(importPath: string, groups: Map<ExportKind, ExportEntry[]>): string {
-    const lists = EXPORT_KINDS.flatMap((kind) => {
-        const entries = groups.get(kind) ?? [];
-        const items = entries.map((entry) => formatEntry(entry));
-        return entries.length === 0 ? [] : [`### ${kind}\n\n${items.join('\n')}`];
+function buildSection(importPath: string, entries: ExportEntry[]): string {
+    const topics = [...new Set(entries.map((entry) => entry.topic))].toSorted(compareTopics);
+    if (topics.length < TOPIC_GROUPING_MINIMUM) return [`## ${importPath}`, ...buildKindLists(entries, '###')].join('\n\n');
+
+    const topicSections = topics.map((topic) =>
+        [
+            `### ${topic}`,
+            ...buildKindLists(
+                entries.filter((entry) => entry.topic === topic),
+                '####'
+            )
+        ].join('\n\n')
+    );
+    return [`## ${importPath}`, ...topicSections].join('\n\n');
+}
+
+// General comes first, as it holds what the whole package shares; the rest are alphabetical.
+function compareTopics(a: string, b: string): number {
+    const isEitherGeneral = a === GENERAL_TOPIC || b === GENERAL_TOPIC;
+    return isEitherGeneral ? Number(b === GENERAL_TOPIC) - Number(a === GENERAL_TOPIC) : a.localeCompare(b);
+}
+
+function buildKindLists(entries: ExportEntry[], headingLevel: string): string[] {
+    return EXPORT_KINDS.flatMap((kind) => {
+        const items = entries.filter((entry) => entry.kind === kind).map((entry) => formatEntry(entry));
+        return items.length === 0 ? [] : [`${headingLevel} ${kind}\n\n${items.join('\n')}`];
     });
-    return [`## ${importPath}`, ...lists].join('\n\n');
 }
 
 // The name and what follows it are code, shown on a shaded background, with only the name bold so it stands out from
