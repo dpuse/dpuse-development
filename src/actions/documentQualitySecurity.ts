@@ -310,7 +310,7 @@ function formatEndpointBadge(owner: string, repo: string, label: string, badgePa
 function buildChecksContent(owner: string, repo: string, { coveragePercent, fallowHealth, securitySettings: settings }: ChecksResults): string {
     const repoURL = `https://github.com/${owner}/${repo}`;
 
-    const ciNote = (isInCI: boolean): string => (isInCI ? ` Runs in the [CI workflow](${repoURL}/actions/workflows/ci.yml) on every push to \`main\`.` : '');
+    const ciNote = (isInCI: boolean): string => (isInCI ? ` Part of the [CI workflow](${repoURL}/actions/workflows/ci.yml) on every push to \`main\`.` : '');
 
     const testingRows = [
         ['Unit tests', formatStatus(settings.testsInCI), `[Vitest](https://vitest.dev) runs the unit tests.${ciNote(settings.testsInCI)}`],

@@ -59,7 +59,7 @@ describe('getModuleConfig', () => {
 });
 
 describe('extractOperationsFromSource', () => {
-    it('lists public method names, leaving out the constructor and private methods', () => {
+    it('lists public method names, leaving out the constructor and private methods', async () => {
         const source = `
             export default class Connector {
                 constructor() {}
@@ -68,15 +68,15 @@ describe('extractOperationsFromSource', () => {
                 private helper(): void {}
             }
         `;
-        expect(extractOperationsFromSource(source)).toEqual(['listNodes', 'retrieveRecords']);
+        expect(await extractOperationsFromSource(source)).toEqual(['listNodes', 'retrieveRecords']);
     });
 
-    it('finds methods in every class in the source', () => {
-        expect(extractOperationsFromSource('class A { one() {} }\nclass B { two() {} }')).toEqual(['one', 'two']);
+    it('finds methods in every class in the source', async () => {
+        expect(await extractOperationsFromSource('class A { one() {} }\nclass B { two() {} }')).toEqual(['one', 'two']);
     });
 
-    it('lists nothing when there are no classes', () => {
-        expect(extractOperationsFromSource('export const value = 1;')).toEqual([]);
+    it('lists nothing when there are no classes', async () => {
+        expect(await extractOperationsFromSource('export const value = 1;')).toEqual([]);
     });
 });
 

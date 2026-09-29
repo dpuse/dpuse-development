@@ -11,9 +11,14 @@ import { buildReadme, useTemporaryProject } from '../support/temporaryProject';
 // ── Mocks ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 // The licence checker and 'npm ls' write the two files the README is built from, so the mocks write fixtures instead.
-const licenseChecker = vi.hoisted((): { licenses: object; error: Error | undefined } => ({ licenses: {}, error: undefined }));
+const licenseChecker = vi.hoisted((): { licenses: object; error: Error | undefined; options: { excludePackages?: string } } => ({
+    licenses: {},
+    error: undefined,
+    options: {}
+}));
 vi.mock('license-checker-rseidelsohn', () => ({
-    init: (_options: unknown, callback: (error: Error | undefined) => void) => {
+    init: (options: { excludePackages?: string }, callback: (error: Error | undefined) => void) => {
+        licenseChecker.options = options;
         void fs.mkdir('licenses', { recursive: true }).then(async () => {
             await fs.writeFile('licenses/licenses.json', JSON.stringify(licenseChecker.licenses), 'utf-8');
             callback(licenseChecker.error);
@@ -68,6 +73,33 @@ describe('documentDependencies', () => {
         const readme = await project.readFile('README.md');
         expect(readme).toContain('## Dependency Licenses');
         expect(readme).toContain('@dpuse/dpuse-development is a development-only tool and is never part of a production release.');
+    });
+
+    it('leaves out packages npm marks as never shipped, such as an optional peer used only in development', async () => {
+        await project.writeFiles({
+            'package.json': JSON.stringify({ name: '@dpuse/dpuse-shared' }),
+            'package-lock.json': JSON.stringify({
+                packages: {
+                    '': { name: '@dpuse/dpuse-shared' },
+                    'node_modules/valibot': { version: '1.5.0' },
+                    'node_modules/typescript': { version: '6.0.3', devOptional: true },
+                    'node_modules/vitest': { version: '5.0.2', dev: true },
+                    'node_modules/shared-both-ways': { version: '1.0.0', dev: true },
+                    'node_modules/valibot/node_modules/shared-both-ways': { version: '1.0.0' }
+                }
+            }),
+            'README.md': buildReadme('DEPENDENCY_LICENSES')
+        });
+        licenseChecker.licenses = { 'valibot@1.5.0': { licenses: 'MIT' } };
+        licenseTree.tree = { dependencies: { valibot: { version: '1.5.0', dependencies: { typescript: { version: '6.0.3' } } } } };
+        stubRegistry({});
+
+        await documentDependencies();
+
+        expect(licenseChecker.options.excludePackages).toBe('@dpuse/dpuse-shared;typescript@6.0.3;vitest@5.0.2');
+        const readme = await project.readFile('README.md');
+        expect(readme).toContain('- **[valibot](https://www.npmjs.com/package/valibot)** 1.5.0');
+        expect(readme).not.toContain('typescript');
     });
 
     it('lists each production dependency with its licence, and flags outdated and ageing packages in the tree', async () => {

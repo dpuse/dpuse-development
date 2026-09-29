@@ -1,6 +1,6 @@
 {
     "name": "@dpuse/dpuse-development",
-    "version": "0.3.787",
+    "version": "0.3.788",
     "private": false,
     "description": "Actions for managing DPUse projects.",
     "license": "MIT",
@@ -80,10 +80,13 @@
     "peerDependencies": {
         "typescript": "^6.0.3"
     },
+    "peerDependenciesMeta": {
+        "typescript": {
+            "optional": true
+        }
+    },
     "dependencies": {
         "@dpuse/dpuse-shared": "^0.3.851",
-        "acorn": "^8.18.0",
-        "acorn-typescript": "^1.4.13",
         "license-checker-rseidelsohn": "^5.0.1",
         "npm-check-updates": "^23.1.0",
         "valibot": "^1.5.0"

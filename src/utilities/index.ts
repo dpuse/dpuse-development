@@ -3,16 +3,14 @@
 // 'ℹ️|⚠️|❌|1️⃣|2️⃣|3️⃣|4️⃣|5️⃣|6️⃣|7️⃣|8️⃣|✅|▶️' icon search regex.
 
 // ── External Dependencies & Registrations
-import acornTypeScript from 'acorn-typescript';
 import { promises as fs } from 'node:fs';
 import type { PackageJson } from 'type-fest';
-import { Parser } from 'acorn';
 import path from 'node:path';
 import { promisify } from 'node:util';
 import { safeParse } from 'valibot';
+import type TypeScript from 'typescript';
 import type { Dirent, ObjectEncodingOptions, Stats } from 'node:fs';
 import { execFile, spawn } from 'node:child_process';
-import type { MethodDefinition, Node } from 'acorn';
 
 // ── DPUse Framework
 import type { ModuleConfig } from '@dpuse/dpuse-shared/component/module';
@@ -284,24 +282,21 @@ export async function bumpPackageVersion(stepIcon: string, packageJSON: PackageJ
 
 // ── Actions - Source ─────────────────────────────────────────────────────────────────────────────────────────────────
 
-export function extractOperationsFromSource<T>(source: string): T[] {
-    // @ts-expect-error - acorn-typescript runtime mismatch is fine.
-    const TSParser = Parser.extend(acornTypeScript());
-    const ast = TSParser.parse(source, {
-        ecmaVersion: 'latest',
-        sourceType: 'module',
-        locations: true
-    });
+// The public methods of every class in the source: the actions a connector or presenter implements. TypeScript is an
+// optional peer, loaded only here, so projects that never read their source this way don't need it.
+export async function extractOperationsFromSource<T>(source: string): Promise<T[]> {
+    const { default: ts } = await import('typescript');
+    const sourceFile = ts.createSourceFile('index.ts', source, ts.ScriptTarget.Latest, true); // 'true' links each node to its parent, which the class check reads.
     const operations: T[] = [];
-    traverseAST(ast, (node) => {
-        if (node.type !== 'MethodDefinition') return;
-        const md = node as MethodDefinition & { accessibility?: string };
-        const key = md.key;
-        if (key.type !== 'Identifier') return;
-        const name = key.name;
-        if (!name || name === 'constructor' || md.accessibility === 'private') return;
-        operations.push(name as T);
-    });
+    const visit = (node: TypeScript.Node): void => {
+        // A constructor isn't a method declaration, and a method written inside an object literal has no class as parent.
+        if (ts.isMethodDeclaration(node) && ts.isClassLike(node.parent) && ts.isIdentifier(node.name)) {
+            const isPrivate = node.modifiers?.some((modifier) => modifier.kind === ts.SyntaxKind.PrivateKeyword) ?? false;
+            if (!isPrivate) operations.push(node.name.text as T);
+        }
+        ts.forEachChild(node, visit);
+    };
+    visit(sourceFile);
     return operations;
 }
 
@@ -319,7 +314,7 @@ async function buildConnectorProjectConfig(stepIcon: string, packageJSON: Packag
         throw new Error('Configuration is invalid');
     }
 
-    const operations = extractOperationsFromSource<ConnectorActionName>(indexCode);
+    const operations = await extractOperationsFromSource<ConnectorActionName>(indexCode);
     const usageId = determineConnectorUsageId(operations);
 
     return await processOperations<ConnectorConfig>(packageJSON, configJSON, operations, usageId);
@@ -337,7 +332,7 @@ async function buildPresenterProjectConfig(stepIcon: string, packageJSON: Packag
         throw new Error('Configuration is invalid');
     }
 
-    const operations = extractOperationsFromSource<PresenterActionName>(indexCode);
+    const operations = await extractOperationsFromSource<PresenterActionName>(indexCode);
     return await processOperations<PresenterConfig>(packageJSON, configJSON, operations);
 }
 
@@ -381,20 +376,5 @@ function substituteText(originalText: string, substituteText: string, startMarke
     return `${originalText.slice(0, Math.max(0, startIndex + startMarker.length))}\n\n${trimmedSubstitute}\n\n${originalText.slice(Math.max(0, endIndex))}`;
 }
 
-function traverseAST(node: Node, doIt: (node: Node) => void): void {
-    doIt(node);
-    for (const [key, value_] of Object.entries(node)) {
-        if (['loc', 'range', 'start', 'end', 'comments'].includes(key)) continue;
-        const value = value_ as Node | undefined;
-        if (Array.isArray(value)) {
-            for (const child_ of value) {
-                const child = child_ as Node | undefined;
-                if (child && typeof child.type === 'string') traverseAST(child, doIt);
-            }
-        } else if (value && typeof value === 'object' && typeof value.type === 'string') {
-            traverseAST(value, doIt);
-        }
-    }
-}
 
 /* eslint-enable security/detect-non-literal-fs-filename -- All paths come from package.json scripts, not user input. */

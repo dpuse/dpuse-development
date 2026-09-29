@@ -78,39 +78,42 @@ _Note: Sonda's Vite reports currently exclude CSS files, since Vite does not gen
 
 | Chunk/Module/File                                                                                | Composition                  |
 | :----------------------------------------------------------------------------------------------- | :--------------------------- |
-| dist/dpuse-development.es.js                                                                     | 332.6 kB · gzip 85.6 kB      |
-| &nbsp;&nbsp;&nbsp;&nbsp;acorn → dist/acorn.mjs                                                   | `████████░░░░░░░░░░░░` 39.3% |
-| &nbsp;&nbsp;&nbsp;&nbsp;acorn-typescript → lib/index.mjs                                         | `███████░░░░░░░░░░░░░` 34.4% |
-| &nbsp;&nbsp;&nbsp;&nbsp;src                                                                      | `███░░░░░░░░░░░░░░░░░` 16.1% |
-| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;documentQualitySecurity.ts                       | `█░░░░░░░░░░░░░░░░░░░` 2.9%  |
-| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;index.ts                                         | `░░░░░░░░░░░░░░░░░░░░` 2.4%  |
-| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;documentApiReference.ts                          | `░░░░░░░░░░░░░░░░░░░░` 2.3%  |
-| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;documentDependencies.ts                          | `░░░░░░░░░░░░░░░░░░░░` 1.7%  |
-| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;documentBundleSizes.ts                           | `░░░░░░░░░░░░░░░░░░░░` 1.3%  |
-| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;checkConfigFiles.ts                              | `░░░░░░░░░░░░░░░░░░░░` 1.1%  |
-| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;documentUsage.ts                                 | `░░░░░░░░░░░░░░░░░░░░` 0.8%  |
-| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;documentActions.ts                               | `░░░░░░░░░░░░░░░░░░░░` 0.5%  |
-| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;cloudflare.ts                                    | `░░░░░░░░░░░░░░░░░░░░` 0.5%  |
-| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;checkDependencies.ts                             | `░░░░░░░░░░░░░░░░░░░░` 0.4%  |
-| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;documentOpening.ts                               | `░░░░░░░░░░░░░░░░░░░░` 0.4%  |
-| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;documentContributingLicense.ts                   | `░░░░░░░░░░░░░░░░░░░░` 0.4%  |
-| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;releaseProject.ts                                | `░░░░░░░░░░░░░░░░░░░░` 0.3%  |
-| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;testProject.ts                                   | `░░░░░░░░░░░░░░░░░░░░` 0.2%  |
-| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;publishProject.ts                                | `░░░░░░░░░░░░░░░░░░░░` 0.2%  |
-| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;documentProject.ts                               | `░░░░░░░░░░░░░░░░░░░░` 0.2%  |
-| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;syncProjectWithGitHub.ts                         | `░░░░░░░░░░░░░░░░░░░░` 0.2%  |
-| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;formatCode.ts                                    | `░░░░░░░░░░░░░░░░░░░░` 0.1%  |
-| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;auditDependencies.ts                             | `░░░░░░░░░░░░░░░░░░░░` 0.1%  |
-| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;buildProject.ts                                  | `░░░░░░░░░░░░░░░░░░░░` 0.1%  |
-| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;lintCode.ts                                      | `░░░░░░░░░░░░░░░░░░░░` 0.1%  |
-| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;checkProject.ts                                  | `░░░░░░░░░░░░░░░░░░░░` 0.0%  |
-| &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON)                                      | `█░░░░░░░░░░░░░░░░░░░` 6.6%  |
-| &nbsp;&nbsp;&nbsp;&nbsp;@dpuse/dpuse-shared                                                      | `█░░░░░░░░░░░░░░░░░░░` 3.4%  |
-| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;dist/componentConfig.schema-DT3mO5rS.js          | `█░░░░░░░░░░░░░░░░░░░` 2.6%  |
-| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;dist/dpuse-shared-componentModuleConnector.es.js | `░░░░░░░░░░░░░░░░░░░░` 0.7%  |
-| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;dist/moduleConfig.schema-aYmFWSrn.js             | `░░░░░░░░░░░░░░░░░░░░` 0.1%  |
-| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;dist/dpuse-shared-componentModulePresenter.es.js | `░░░░░░░░░░░░░░░░░░░░` 0.1%  |
-| &nbsp;&nbsp;&nbsp;&nbsp;valibot → dist/index.mjs                                                 | `░░░░░░░░░░░░░░░░░░░░` 0.1%  |
+| dist/dpuse-development.es.js                                                                     | 44.7 kB · gzip 14.4 kB       |
+| &nbsp;&nbsp;&nbsp;&nbsp;src                                                                      | `██████████░░░░░░░░░░` 52.0% |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;documentQualitySecurity.ts                       | `███░░░░░░░░░░░░░░░░░` 13.1% |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;documentDependencies.ts                          | `██░░░░░░░░░░░░░░░░░░` 8.1%  |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;documentBundleSizes.ts                           | `█░░░░░░░░░░░░░░░░░░░` 5.9%  |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;checkConfigFiles.ts                              | `█░░░░░░░░░░░░░░░░░░░` 4.9%  |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;documentUsage.ts                                 | `█░░░░░░░░░░░░░░░░░░░` 3.6%  |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;documentActions.ts                               | `░░░░░░░░░░░░░░░░░░░░` 2.3%  |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;cloudflare.ts                                    | `░░░░░░░░░░░░░░░░░░░░` 2.1%  |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;checkDependencies.ts                             | `░░░░░░░░░░░░░░░░░░░░` 2.0%  |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;documentOpening.ts                               | `░░░░░░░░░░░░░░░░░░░░` 1.7%  |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;documentContributingLicense.ts                   | `░░░░░░░░░░░░░░░░░░░░` 1.6%  |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;releaseProject.ts                                | `░░░░░░░░░░░░░░░░░░░░` 1.3%  |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;testProject.ts                                   | `░░░░░░░░░░░░░░░░░░░░` 1.0%  |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;publishProject.ts                                | `░░░░░░░░░░░░░░░░░░░░` 1.0%  |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;documentProject.ts                               | `░░░░░░░░░░░░░░░░░░░░` 0.9%  |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;syncProjectWithGitHub.ts                         | `░░░░░░░░░░░░░░░░░░░░` 0.8%  |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;formatCode.ts                                    | `░░░░░░░░░░░░░░░░░░░░` 0.4%  |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;documentApiReference.ts                          | `░░░░░░░░░░░░░░░░░░░░` 0.4%  |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;auditDependencies.ts                             | `░░░░░░░░░░░░░░░░░░░░` 0.3%  |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;buildProject.ts                                  | `░░░░░░░░░░░░░░░░░░░░` 0.3%  |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;lintCode.ts                                      | `░░░░░░░░░░░░░░░░░░░░` 0.2%  |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;checkProject.ts                                  | `░░░░░░░░░░░░░░░░░░░░` 0.1%  |
+| &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON)                                      | `██░░░░░░░░░░░░░░░░░░` 8.0%  |
+| dist/utilities-CPg6O2rR.js                                                                       | 22.1 kB · gzip 6.1 kB        |
+| &nbsp;&nbsp;&nbsp;&nbsp;@dpuse/dpuse-shared                                                      | `███░░░░░░░░░░░░░░░░░` 15.0% |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;dist/componentConfig.schema-DT3mO5rS.js          | `██░░░░░░░░░░░░░░░░░░` 11.3% |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;dist/dpuse-shared-componentModuleConnector.es.js | `█░░░░░░░░░░░░░░░░░░░` 3.1%  |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;dist/moduleConfig.schema-aYmFWSrn.js             | `░░░░░░░░░░░░░░░░░░░░` 0.4%  |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;dist/dpuse-shared-componentModulePresenter.es.js | `░░░░░░░░░░░░░░░░░░░░` 0.3%  |
+| &nbsp;&nbsp;&nbsp;&nbsp;src → index.ts                                                           | `██░░░░░░░░░░░░░░░░░░` 10.2% |
+| &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON)                                      | `█░░░░░░░░░░░░░░░░░░░` 3.9%  |
+| &nbsp;&nbsp;&nbsp;&nbsp;valibot → dist/index.mjs                                                 | `░░░░░░░░░░░░░░░░░░░░` 0.5%  |
+| dist/apiReference-CDT825AK.js                                                                    | 7.7 kB · gzip 2.8 kB         |
+| &nbsp;&nbsp;&nbsp;&nbsp;src → apiReference.ts                                                    | `██░░░░░░░░░░░░░░░░░░` 9.8%  |
+| &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON)                                      | `░░░░░░░░░░░░░░░░░░░░` 0.5%  |
 
 (bundler output, whitespace & JSON) = bytes Sonda can't trace to a source file: whitespace (indentation and line breaks), code the bundler generates (region comments, the combined import/export lines, its small runtime helper and wrappers), and imported JSON such as `config.json`, which the bundler doesn't map. The JSON and the generated code are real bytes that ship; the whitespace mostly disappears once compressed.
 
@@ -126,8 +129,8 @@ This section is updated each time `npm run document` is run. Settings come from 
 
 | Check                | Status | What it does                                                                                                                                                                                                                                                                                                |
 | :------------------- | :----- | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Unit tests           | ✅ On  | [Vitest](https://vitest.dev) runs the unit tests. Runs in the [CI workflow](https://github.com/dpuse/dpuse-development/actions/workflows/ci.yml) on every push to `main`.                                                                                                                                   |
-| Property-based tests | ✅ On  | [fast-check](https://fast-check.dev) runs many random inputs per test to find edge cases, alongside the unit tests. Runs in the [CI workflow](https://github.com/dpuse/dpuse-development/actions/workflows/ci.yml) on every push to `main`.                                                                 |
+| Unit tests           | ✅ On  | [Vitest](https://vitest.dev) runs the unit tests. Part of the [CI workflow](https://github.com/dpuse/dpuse-development/actions/workflows/ci.yml) on every push to `main`.                                                                                                                                   |
+| Property-based tests | ✅ On  | [fast-check](https://fast-check.dev) runs many random inputs per test to find edge cases, alongside the unit tests. Part of the [CI workflow](https://github.com/dpuse/dpuse-development/actions/workflows/ci.yml) on every push to `main`.                                                                 |
 | Test coverage        | ✅ On  | ![Coverage](https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2Fdpuse%2Fdpuse-development%2Fmain%2Fcode-health-reports%2Fvitest%2Fbadge.json) [Vitest's V8 coverage](https://vitest.dev/guide/coverage) measures the share of source lines the unit tests run. The target is 80%. |
 
 ### Code Quality
@@ -136,7 +139,7 @@ This section is updated each time `npm run document` is run. Settings come from 
 | :------------ | :----- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Code health   | ✅ On  | [![Fallow code health](https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2Fdpuse%2Fdpuse-development%2Fmain%2Fcode-health-reports%2Ffallow%2Fbadge.json)](./code-health-reports/fallow/index.md) [Fallow](https://github.com/fallow-rs/fallow) finds unused code, duplication, complexity and dependency problems. |
 | Code analysis | ✅ On  | [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=dpuse_dpuse-development&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=dpuse_dpuse-development) [SonarCloud](https://sonarcloud.io) checks every push for bugs, code smells and vulnerabilities.                                           |
-| Linting       | ✅ On  | [ESLint](https://eslint.org) checks the code for errors and style problems. Runs in the [CI workflow](https://github.com/dpuse/dpuse-development/actions/workflows/ci.yml) on every push to `main`.                                                                                                                                          |
+| Linting       | ✅ On  | [ESLint](https://eslint.org) checks the code for errors and style problems. Part of the [CI workflow](https://github.com/dpuse/dpuse-development/actions/workflows/ci.yml) on every push to `main`.                                                                                                                                          |
 
 ### Security Analysis
 
@@ -150,7 +153,7 @@ This section is updated each time `npm run document` is run. Settings come from 
 
 | Check               | Status | What it does                                                                                                                                                                                                                            |
 | :------------------ | :----- | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Vulnerability audit | ✅ On  | [npm audit](https://docs.npmjs.com/cli/commands/npm-audit) fails when any dependency has a known vulnerability. Runs in the [CI workflow](https://github.com/dpuse/dpuse-development/actions/workflows/ci.yml) on every push to `main`. |
+| Vulnerability audit | ✅ On  | [npm audit](https://docs.npmjs.com/cli/commands/npm-audit) fails when any dependency has a known vulnerability. Part of the [CI workflow](https://github.com/dpuse/dpuse-development/actions/workflows/ci.yml) on every push to `main`. |
 | Supply chain risk   | ✅ On  | [Socket](https://socket.dev) flags malicious packages, typosquatting and suspicious behaviour that may not yet have a CVE.                                                                                                              |
 | Security alerts     | ✅ On  | [Dependabot](https://docs.github.com/en/code-security/dependabot) alerts when a dependency has a known vulnerability, using the GitHub Advisory Database.                                                                               |
 | Security updates    | ❌ Off | [Dependabot](https://docs.github.com/en/code-security/dependabot) opens pull requests that update vulnerable dependencies. These are handled manually.                                                                                  |

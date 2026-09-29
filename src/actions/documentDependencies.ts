@@ -3,7 +3,7 @@ import { init as initLicenseChecker } from 'license-checker-rseidelsohn';
 import type { InitOpts } from 'license-checker-rseidelsohn';
 
 // ── Local Framework
-import { clearDirectory, logOperationHeader, logOperationSuccess, logStepHeader, readJSONFile, spawnCommandToFile, writeReadmeSection } from '@/utilities';
+import { clearDirectory, logOperationHeader, logOperationSuccess, logStepHeader, readJSONFile, readTextFileOrNull, spawnCommandToFile, writeReadmeSection } from '@/utilities';
 
 // ── Types ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -26,6 +26,10 @@ interface ProductionPackageLicense {
     email?: string;
     path?: string;
     licenseFile?: string;
+}
+
+interface PackageLock {
+    packages?: Record<string, { name?: string; version?: string; dev?: boolean; devOptional?: boolean }>;
 }
 
 interface NpmPackageTree {
@@ -60,6 +64,7 @@ export async function documentDependencies(allowedLicenses = 'MIT'): Promise<voi
         }
 
         await clearDirectory('1️⃣  Clear downloaded licenses', 'licenses/downloads');
+        const unshippedPackages = await listUnshippedPackages();
 
         logStepHeader('2️⃣  Identify production licenses');
         await new Promise<void>((resolve, reject) => {
@@ -71,7 +76,7 @@ export async function documentDependencies(allowedLicenses = 'MIT'): Promise<voi
                 relativeModulePath: true,
                 relativeLicensePath: true,
                 onlyAllow: allowedLicenses,
-                excludePackages: rootPackage.name ?? '',
+                excludePackages: [rootPackage.name ?? '', ...unshippedPackages].join(';'),
                 out: 'licenses/licenses.json'
             };
             initLicenseChecker(options, (error: Error | undefined) => {
@@ -85,7 +90,7 @@ export async function documentDependencies(allowedLicenses = 'MIT'): Promise<voi
 
         await spawnCommandToFile('3️⃣  Identify transitive dependencies', 'npm', ['ls', '--all', '--json', '--omit=dev'], 'licenses/licenseTree.json');
 
-        await insertLicensesIntoReadme('4️⃣ ', allowedLicenses);
+        await insertLicensesIntoReadme('4️⃣ ', allowedLicenses, new Set(unshippedPackages));
 
         logOperationSuccess('Dependencies documented');
     } catch (error) {
@@ -104,7 +109,7 @@ async function skipDependencyDocumentation(name: string): Promise<void> {
     await writeReadmeSection(`${LICENSES_HEADING}\n\n${message}`, START_MARKER, END_MARKER);
 }
 
-async function insertLicensesIntoReadme(stepIcon: string, allowedLicenses: string): Promise<void> {
+async function insertLicensesIntoReadme(stepIcon: string, allowedLicenses: string, unshippedPackages: Set<string>): Promise<void> {
     logStepHeader(`${stepIcon} Insert licenses into 'README.md'`);
 
     const [licenses, licenseTree] = await Promise.all([
@@ -134,11 +139,30 @@ async function insertLicensesIntoReadme(stepIcon: string, allowedLicenses: strin
 
     const treeItems: string[] = [];
     if (licenseTree.dependencies != null) {
-        walkTreeList(licenseTree.dependencies, licensesByKey, treeItems, 0);
+        walkTreeList(licenseTree.dependencies, licensesByKey, unshippedPackages, treeItems, 0);
     }
     const treeContent = `${DEPENDENCY_TREE_INTRO}\n\n${treeItems.join('\n')}`;
 
     await writeReadmeSection(`${LICENSES_HEADING}\n\n${licensesContent.trimEnd()}\n\n### Dependency Tree\n\n${treeContent}`, START_MARKER, END_MARKER);
+}
+
+// Packages installed but never shipped, as 'name@version'. npm's lock file marks these 'dev' or 'devOptional', the latter
+// for a package needed only by development or as an optional extra, such as TypeScript as valibot's optional peer. The
+// licence checker follows optional peer links, so without this it would count such a package as a production one. A
+// package installed at the same version for a shipped reason as well is kept.
+async function listUnshippedPackages(): Promise<string[]> {
+    const lockText = await readTextFileOrNull('package-lock.json');
+    const packages = lockText === null ? {} : ((JSON.parse(lockText) as PackageLock).packages ?? {});
+    const shipped = new Set<string>();
+    const unshipped = new Set<string>();
+    for (const [lockPath, entry] of Object.entries(packages)) {
+        if (lockPath === '' || entry.version === undefined) continue;
+        const name = entry.name ?? lockPath.slice(lockPath.lastIndexOf('node_modules/') + 'node_modules/'.length);
+        const packageKey = `${name}@${entry.version}`;
+        if (entry.dev === true || entry.devOptional === true) unshipped.add(packageKey);
+        else shipped.add(packageKey);
+    }
+    return unshipped.values().filter((packageKey) => !shipped.has(packageKey)).toArray();
 }
 
 function buildLicensesIntro(allowedLicenses: string): string {
@@ -191,16 +215,17 @@ function formatLicenseRow(license: License): string {
     return `|[${license.name}](${license.repository})|${license.installedVersion}|${license.licenseTypes}|${licenseLink}|\n`;
 }
 
-function walkTreeList(dependencies: Record<string, NpmPackageTree>, licensesByKey: Map<string, License>, items: string[], depth: number): void {
+function walkTreeList(dependencies: Record<string, NpmPackageTree>, licensesByKey: Map<string, License>, unshippedPackages: Set<string>, items: string[], depth: number): void {
     const indent = '  '.repeat(depth);
     for (const [name, node] of Object.entries(dependencies)) {
         const version = node.version ?? '';
+        if (unshippedPackages.has(`${name}@${version}`)) continue;
         const license = licensesByKey.get(`${name}@${version}`);
         const nameLink = license == null ? name : `[${name}](${license.repository})`;
         const versionDetail = formatVersionDetail(license);
         items.push(`${indent}- **${nameLink}** ${version}${versionDetail}`);
         if (node.dependencies != null) {
-            walkTreeList(node.dependencies, licensesByKey, items, depth + 1);
+            walkTreeList(node.dependencies, licensesByKey, unshippedPackages, items, depth + 1);
         }
     }
 }

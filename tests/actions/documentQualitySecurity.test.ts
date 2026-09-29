@@ -158,7 +158,7 @@ describe('documentQualitySecurity', () => {
         const coverageBadge = `![Coverage](https://img.shields.io/endpoint?url=${encodeURIComponent('https://raw.githubusercontent.com/dpuse/dpuse-shared/main/code-health-reports/vitest/badge.json')})`;
         const fallowBadge = `![Fallow code health](https://img.shields.io/endpoint?url=${encodeURIComponent('https://raw.githubusercontent.com/dpuse/dpuse-shared/main/code-health-reports/fallow/badge.json')})`;
 
-        const ciNote = ` Runs in the [CI workflow](${repoURL}/actions/workflows/ci.yml) on every push to \`main\`.`;
+        const ciNote = ` Part of the [CI workflow](${repoURL}/actions/workflows/ci.yml) on every push to \`main\`.`;
         expect(readme).not.toContain('[![CI]');
 
         const testing = sectionOf(readme, 'Testing');
@@ -204,7 +204,7 @@ describe('documentQualitySecurity', () => {
         await documentQualitySecurity();
 
         const readme = await project.readFile('README.md');
-        expect(readme).not.toContain('Runs in the [CI workflow]');
+        expect(readme).not.toContain('Part of the [CI workflow]');
         expect(readme).not.toContain('[![CodeQL]');
         expect(readme).not.toContain('[![Quality Gate Status]');
         expect(readme).toContain('|Code analysis|❌ Off|[SonarCloud](https://sonarcloud.io) checks');
@@ -305,7 +305,7 @@ describe('documentQualitySecurity', () => {
         expect(readme).toContain('|Code analysis|❌ Off|');
         expect(readme).toContain('|Supply chain risk|❌ Off|');
         expect(readme).toContain(
-            '[npm audit](https://docs.npmjs.com/cli/commands/npm-audit) fails when a dependency has a known vulnerability of high severity or above. Runs in the [CI workflow]'
+            '[npm audit](https://docs.npmjs.com/cli/commands/npm-audit) fails when a dependency has a known vulnerability of high severity or above. Part of the [CI workflow]'
         );
         expect(readme).toContain('See [SECURITY.md](./SECURITY.md) for how to report one privately');
         expect(readme).not.toContain('OpenSSF Best Practices](https://www.bestpractices.dev/projects/');

@@ -18,10 +18,6 @@ export default defineConfig({
         },
         rollupOptions: {
             external: ['node:child_process', 'node:fs', 'node:path', 'node:readline', 'node:url', 'node:util', 'node:zlib', 'license-checker-rseidelsohn', 'npm-check-updates', 'typescript'],
-            onwarn(warning, warn) {
-                if (warning.code === 'INVALID_ANNOTATION' && warning.id?.includes('acorn-typescript')) return;
-                warn(warning);
-            },
             plugins: [Sonda({ filename: 'index', format: 'json', brotli: false, gzip: true, open: false, outputDir: './bundle-analysis-reports/sonda' })]
         },
         sourcemap: 'hidden',
