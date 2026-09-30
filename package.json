@@ -1,6 +1,6 @@
 {
     "name": "@dpuse/dpuse-development",
-    "version": "0.3.799",
+    "version": "0.3.800",
     "private": false,
     "description": "Actions for managing DPUse projects.",
     "license": "MIT",
@@ -27,9 +27,10 @@
     "files": [
         ".editorconfig",
         ".gitattributes",
+        ".github/dependabot.private.rust.yml",
         ".github/dependabot.private.yml",
+        ".github/dependabot.rust.yml",
         ".github/dependabot.yml",
-        ".github/publish.cloudflare.yml",
         ".github/workflows",
         ".gitignore_default",
         ".markdownlint.json",
@@ -38,6 +39,7 @@
         "dist",
         "eslint.config.default.js",
         "LICENSE",
+        "rust-toolchain.toml",
         "scripts/tsconfig.json",
         "SECURITY.md",
         "tsconfig.json",

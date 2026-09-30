@@ -7,7 +7,17 @@ import path from 'node:path';
 import type { ModuleConfig } from '@dpuse/dpuse-shared';
 
 // ── Local Framework
-import { getModuleConfig, logOperationHeader, logOperationSuccess, logStepHeader, ModuleTypeConfig, readJSONFile, readTextFile } from '@/utilities';
+import {
+    getModuleConfig,
+    logOperationHeader,
+    logOperationSuccess,
+    logStepHeader,
+    ModuleTypeConfig,
+    readJSONFile,
+    readTextFile,
+    readTextFileOrNull,
+    RUST_WORKSPACE_PATH
+} from '@/utilities';
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -38,11 +48,15 @@ export async function checkConfigFiles(): Promise<void> {
         await checkViteConfig(moduleTypeConfig, moduleDirectory);
         await checkVitestConfig(moduleTypeConfig, moduleDirectory);
         checkPrettierConfig(moduleTypeConfig, packageJSON);
-        await checkConfigFile(moduleDirectory, '.github/dependabot.yml', [isPrivate ? '.github/dependabot.private.yml' : '.github/dependabot.yml']);
+        // Projects with Rust code pin their Rust version, and have Dependabot watch Cargo as well.
+        const hasRust = (await readTextFileOrNull(RUST_WORKSPACE_PATH)) !== null;
+        if (hasRust) await checkConfigFile(moduleDirectory, 'rust-toolchain.toml');
+        const dependabotTemplate = `.github/dependabot${isPrivate ? '.private' : ''}${hasRust ? '.rust' : ''}.yml`;
+        await checkConfigFile(moduleDirectory, '.github/dependabot.yml', [dependabotTemplate]);
         if (isPrivate) {
             console.info("ℹ️  GitHub workflows and file 'SECURITY.md' are NOT required by this project");
         } else {
-            await checkWorkflows(moduleTypeConfig, moduleDirectory);
+            await checkWorkflows(moduleDirectory);
             await checkConfigFile(moduleDirectory, 'SECURITY.md', [], (content) => content.replaceAll(TEMPLATE_REPOSITORY_NAME, () => configJSON.id));
         }
 
@@ -117,13 +131,10 @@ async function checkViteConfig(moduleTypeConfig: ModuleTypeConfig, moduleDirecto
         await checkConfigFile(moduleDirectory, 'vite.config.ts', viteConfigTemplates);
     }
 }
-async function checkWorkflows(moduleTypeConfig: ModuleTypeConfig, moduleDirectory: string) {
+async function checkWorkflows(moduleDirectory: string) {
     await checkConfigFile(moduleDirectory, '.github/workflows/ci.yml');
     await checkConfigFile(moduleDirectory, '.github/workflows/codeql.yml');
-    // Packages published to npm use the npm workflow; the rest are published to Cloudflare.
-    await checkConfigFile(moduleDirectory, '.github/workflows/publish.yml', [
-        moduleTypeConfig.publishedTo === 'npm' ? '.github/workflows/publish.yml' : '.github/publish.cloudflare.yml'
-    ]);
+    await checkConfigFile(moduleDirectory, '.github/workflows/publish.yml');
     await checkConfigFile(moduleDirectory, '.github/workflows/scorecard.yml');
 }
 

@@ -55,7 +55,7 @@ describe('checkConfigFiles', () => {
             '.github/dependabot.yml': '.github/dependabot.yml',
             '.github/workflows/ci.yml': '.github/workflows/ci.yml',
             '.github/workflows/codeql.yml': '.github/workflows/codeql.yml',
-            '.github/workflows/publish.yml': '.github/publish.cloudflare.yml',
+            '.github/workflows/publish.yml': '.github/workflows/publish.yml',
             '.github/workflows/scorecard.yml': '.github/workflows/scorecard.yml'
         });
         const securityPolicy = await fs.readFile(path.join(repoDirectory, 'SECURITY.md'), 'utf-8');
@@ -67,7 +67,7 @@ describe('checkConfigFiles', () => {
         expect(output).not.toContain('⚠️');
         expect(output).not.toContain('❌');
         expect(output).toContain("ℹ️  File 'vite.config.ts' is the same as 'vite.config.wasm.ts'");
-        expect(output).toContain("ℹ️  File '.github/workflows/publish.yml' is the same as '.github/publish.cloudflare.yml'");
+        expect(output).toContain("ℹ️  File '.github/workflows/publish.yml' is the same as '.github/workflows/publish.yml'");
         expect(output).toContain("ℹ️  File 'SECURITY.md' is the same as 'SECURITY.md'");
         expect(output).toContain("ℹ️  Prettier configuration is '@dpuse/dpuse-development/prettierrc'");
         expect(output).toContain('✅ Configuration files checked');
@@ -97,7 +97,7 @@ describe('checkConfigFiles', () => {
         expect(output).toContain("❌  File 'vite.config.ts' is NOT the same");
     });
 
-    it('uses the npm publish template for packages published to npm', async () => {
+    it('uses the tool Vite template, and the one publish workflow, for a tool', async () => {
         await writeProject('dpuse-tool-example');
         await copyTemplates({ '.github/workflows/publish.yml': '.github/workflows/publish.yml', 'vite.config.ts': 'vite.config.tool.ts' });
 
@@ -106,6 +106,26 @@ describe('checkConfigFiles', () => {
         const output = collectConsoleOutput();
         expect(output).toContain("ℹ️  File '.github/workflows/publish.yml' is the same as '.github/workflows/publish.yml'");
         expect(output).toContain("ℹ️  File 'vite.config.ts' is the same as 'vite.config.tool.ts'");
+    });
+
+    it('checks the Rust version file and the Rust Dependabot template for a project with Rust code', async () => {
+        await writeProject('dpuse-connector-example');
+        await project.writeFiles({ 'rust/Cargo.toml': '[workspace]\n' });
+        await copyTemplates({ 'rust-toolchain.toml': 'rust-toolchain.toml', '.github/dependabot.yml': '.github/dependabot.rust.yml' });
+
+        await checkConfigFiles();
+
+        const output = collectConsoleOutput();
+        expect(output).toContain("ℹ️  File 'rust-toolchain.toml' is the same as 'rust-toolchain.toml'");
+        expect(output).toContain("ℹ️  File '.github/dependabot.yml' is the same as '.github/dependabot.rust.yml'");
+    });
+
+    it('does not ask for the Rust version file in a project without Rust code', async () => {
+        await writeProject('dpuse-connector-example');
+
+        await checkConfigFiles();
+
+        expect(collectConsoleOutput()).not.toContain('rust-toolchain.toml');
     });
 
     it('uses the presenter Vite template and the shared tsconfig for a presenter', async () => {

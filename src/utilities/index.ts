@@ -47,6 +47,9 @@ const GOVERNANCE_START_MARKER = '<!-- GOVERNANCE_START -->';
 export const QUALITY_SECURITY_END_MARKER = '<!-- QUALITY_SECURITY_END -->';
 export const QUALITY_SECURITY_START_MARKER = '<!-- QUALITY_SECURITY_START -->';
 
+// Rust — a project has Rust code when it has this workspace file; its templates and checks then include Rust.
+export const RUST_WORKSPACE_PATH = 'rust/Cargo.toml';
+
 const MODULE_TYPE_CONFIGS: ModuleTypeConfig[] = [
     { idPrefix: 'dpuse-app', typeId: 'app', publishedTo: 'app', uploadGroupName: undefined },
     { idPrefix: 'dpuse-api', typeId: 'api', publishedTo: 'api', uploadGroupName: undefined },

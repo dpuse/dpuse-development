@@ -5,6 +5,7 @@ import type { PackageJson } from 'type-fest';
 import type { ModuleConfig } from '@dpuse/dpuse-shared';
 
 // ── Local Framework
+import { bundleProject } from '@/actions/buildProject';
 import { documentProject } from '@/actions/documentProject';
 import { registerModule } from '@/actions/publishProject';
 import {
@@ -34,7 +35,7 @@ export async function releaseProject(allowedLicenses = 'MIT', isModuleLevel = fa
 
         const builtConfigJSON = await buildModuleConfig('2️⃣ ', packageJSON, moduleTypeConfig);
 
-        await spawnCommand('3️⃣  Bundle project', 'vite', ['build']);
+        await bundleProject('3️⃣ ', packageJSON);
 
         // After the build, so the bundle sizes are the released bundle's, and before staging, so the README is committed
         // with the release. Its governance step runs the tests, so a failing test stops the release before anything is pushed.

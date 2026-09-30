@@ -5,11 +5,12 @@ import type { PackageJson } from 'type-fest';
 import type { ModuleConfig } from '@dpuse/dpuse-shared';
 
 // ── Local Framework
-import { getModuleConfig, logOperationHeader, logOperationSuccess, logStepHeader, type ModuleTypeConfig, readJSONFile } from '@/utilities';
+import { getModuleConfig, logOperationHeader, logOperationSuccess, logStepHeader, type ModuleTypeConfig, readJSONFile, spawnCommand } from '@/utilities';
 import { putState, uploadModuleConfigToDO, uploadModuleToR2 } from '@/utilities/cloudflare';
 
 // ── Actions ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
+/** Publishes the project to npm, uploads it to DPUse, or both, as its module type requires. Run by the 'publish.yml' workflow. */
 export async function publishProject(): Promise<void> {
     try {
         logOperationHeader('Publish Project');
@@ -18,7 +19,15 @@ export async function publishProject(): Promise<void> {
         const configJSON = await readJSONFile<ModuleConfig>('config.json');
         const moduleTypeConfig = getModuleConfig(configJSON.id);
 
-        await registerModule('1️⃣ ', packageJSON, configJSON, moduleTypeConfig);
+        // Where a module goes is set by its type, so every project calls this the same way. Tools go to both places: npm
+        // first, so the app is never told of a version whose npm publish failed.
+        if (moduleTypeConfig.publishedTo === 'npm') {
+            await spawnCommand('1️⃣  Publish to npm', 'npm', ['publish', '--provenance']);
+        } else {
+            logStepHeader('1️⃣  Publishing to npm NOT required');
+        }
+
+        await registerModule('2️⃣ ', packageJSON, configJSON, moduleTypeConfig);
 
         logOperationSuccess(`Project version '${packageJSON.version ?? 'unknown'}' published.`);
     } catch (error) {

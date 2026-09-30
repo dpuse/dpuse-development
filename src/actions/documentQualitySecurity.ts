@@ -17,6 +17,7 @@ import {
     readJSONFile,
     readTextFileOrNull,
     resolveOwnerAndRepo,
+    RUST_WORKSPACE_PATH,
     spawnCommand,
     spawnCommandToFile,
     writeJSONFile,
@@ -194,10 +195,11 @@ async function writeFallowBadge(health: FallowHealth): Promise<void> {
 // Read from the repository itself each time, so the README states what is actually switched on rather than what was
 // intended. Workflow and Dependabot files are read locally; repository settings come from the GitHub API through 'gh'.
 async function readSecuritySettings(owner: string, repo: string, packageJSON: PackageJson): Promise<SecuritySettings> {
-    const [ciWorkflow, codeQLWorkflow, dependabotConfig] = await Promise.all([
+    const [ciWorkflow, codeQLWorkflow, dependabotConfig, rustWorkspace] = await Promise.all([
         readTextFileOrNull('.github/workflows/ci.yml'),
         readTextFileOrNull('.github/workflows/codeql.yml'),
-        readTextFileOrNull('.github/dependabot.yml')
+        readTextFileOrNull('.github/dependabot.yml'),
+        readTextFileOrNull(RUST_WORKSPACE_PATH)
     ]);
     const [repoDetails, privateVulnerabilityReporting, vulnerabilityAlerts, checkRuns] = await Promise.all([
         readGitHubAPI(`repos/${owner}/${repo}`),
@@ -217,6 +219,7 @@ async function readSecuritySettings(owner: string, repo: string, packageJSON: Pa
     return {
         codeQLLanguages: (codeQLWorkflow ?? '')
             .matchAll(/- language: ([\w-]+)/g)
+            .filter(([, language]) => language !== 'rust' || rustWorkspace !== null) // The workflow lists Rust for every project, but skips its scan where there is none.
             .map(([, language = '']) => CODEQL_LANGUAGE_NAMES[language] ?? language)
             .toArray(),
         codeQLQueries: /queries: ([\w-]+)/.exec(codeQLWorkflow ?? '')?.[1],

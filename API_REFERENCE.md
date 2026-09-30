@@ -19,6 +19,7 @@ Every export, grouped by import path. This file is updated each time `npm run do
 - **`lintCode`**`()`
     > Uses eslint to check the code for potential errors and enforces coding style rules.
 - **`publishProject`**`()`
+    > Publishes the project to npm, uploads it to DPUse, or both, as its module type requires. Run by the 'publish.yml' workflow.
 - **`releaseProject`**`(allowedLicenses?: string, isModuleLevel?: boolean)`
     > Bump version, builds config, builds project, regenerates the README, synchronise with GitHub and publish to npm or Cloudflare.
 - **`syncProjectWithGitHub`**`()`

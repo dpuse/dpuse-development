@@ -325,6 +325,20 @@ describe('documentQualitySecurity', () => {
         );
     });
 
+    it('lists Rust among the languages CodeQL scans only where the project has Rust code', async () => {
+        const codeQLWorkflow = 'matrix:\n  include:\n    - language: javascript-typescript\n    - language: rust\n';
+        await writeProject({}, { '.github/workflows/codeql.yml': codeQLWorkflow });
+        stubGitHub();
+        stubOpenSSF();
+
+        await documentQualitySecurity();
+        expect(await project.readFile('README.md')).toContain('[CodeQL](https://codeql.github.com) scans JavaScript/TypeScript for security vulnerabilities');
+
+        await writeProject({}, { '.github/workflows/codeql.yml': codeQLWorkflow, 'rust/Cargo.toml': '[workspace]\n' });
+        await documentQualitySecurity();
+        expect(await project.readFile('README.md')).toContain('[CodeQL](https://codeql.github.com) scans JavaScript/TypeScript and Rust for security vulnerabilities');
+    });
+
     it('explains the Scorecard gaps only when every one is down to how a solo project is run', async () => {
         await writeProject();
         stubGitHub();
