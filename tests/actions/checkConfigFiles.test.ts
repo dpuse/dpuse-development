@@ -54,7 +54,6 @@ describe('checkConfigFiles', () => {
             'vitest.config.ts': 'vitest.config.ts',
             '.github/dependabot.yml': '.github/dependabot.yml',
             '.github/workflows/ci.yml': '.github/workflows/ci.yml',
-            '.github/workflows/cleanup.yml': '.github/workflows/cleanup.yml',
             '.github/workflows/codeql.yml': '.github/workflows/codeql.yml',
             '.github/workflows/publish.yml': '.github/publish.cloudflare.yml',
             '.github/workflows/scorecard.yml': '.github/workflows/scorecard.yml'
