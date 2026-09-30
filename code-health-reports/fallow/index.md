@@ -6,7 +6,7 @@
 
 | Metric | Value |
 |:-------|------:|
-| Total LOC | 2829 |
+| Total LOC | 2835 |
 | Avg Cyclomatic | 2.9 |
 | P90 Cyclomatic | 6 |
 | Cyclomatic units | Functions: 219, module scopes: 0, templates: 0 |
@@ -30,7 +30,7 @@
 | `src/actions/checkConfigFiles.ts` | 90.3 | 1 | 1 | 0% | 0.23 | 7.0 |
 | `src/utilities/cloudflare.ts` | 90.6 | 2 | 1 | 0% | 0.22 | 7.0 |
 | `src/actions/documentContributingLicense.ts` | 92.4 | 1 | 1 | 0% | 0.16 | 7.0 |
-| `src/actions/checkDependencies.ts` | 93.0 | 1 | 1 | 0% | 0.14 | 7.0 |
+| `src/actions/checkDependencies.ts` | 93.3 | 1 | 1 | 0% | 0.13 | 7.0 |
 | `src/actions/testProject.ts` | 93.6 | 1 | 1 | 0% | 0.12 | 7.0 |
 | `src/actions/documentProject.ts` | 87.5 | 2 | 9 | 0% | 0.11 | 6.0 |
 | `src/actions/documentUsage.ts` | 91.8 | 1 | 1 | 0% | 0.18 | 6.0 |
@@ -59,9 +59,9 @@
 | `src/actions/documentDependencies.ts` | 58.5 | 23 | 445 | 0.28 | 1 | cooling |
 | `src/actions/documentOpening.ts` | 40.2 | 18 | 274 | 0.19 | 1 | accelerating |
 | `src/actions/documentUsage.ts` | 37.2 | 16 | 330 | 0.18 | 1 | accelerating |
-| `src/actions/checkDependencies.ts` | 21.5 | 15 | 160 | 0.14 | 1 | stable |
-| `src/utilities/cloudflare.ts` | 17.0 | 10 | 45 | 0.22 | 2 | cooling |
-| `src/actions/documentQualitySecurity.ts` | 15.5 | 6 | 594 | 0.18 | 1 | cooling |
+| `src/actions/checkDependencies.ts` | 21.8 | 16 | 164 | 0.13 | 1 | stable |
+| `src/utilities/cloudflare.ts` | 16.2 | 9 | 41 | 0.22 | 2 | stable |
+| `src/actions/documentQualitySecurity.ts` | 15.4 | 6 | 594 | 0.18 | 1 | cooling |
 | `src/actions/documentApiReference.ts` | 14.8 | 13 | 772 | 0.08 | 1 | cooling |
 | `src/actions/formatCode.ts` | 11.2 | 7 | 38 | 0.16 | 1 | stable |
 | `src/actions/documentProject.ts` | 7.9 | 5 | 85 | 0.11 | 2 | cooling |
