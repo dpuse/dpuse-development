@@ -76,9 +76,12 @@ jobs:
 
             # One step for every project: the action publishes to npm, uploads to DPUse, or both, as the module type requires.
             # Called directly rather than through a package.json script, as a script named 'publish' would be run again by
-            # 'npm publish' itself.
+            # 'npm publish' itself. The project's own commands, such as 'wrangler', are put on the path first, which
+            # 'npm run' would otherwise have done.
             - name: Publish
-              run: node -e "import('@dpuse/dpuse-development').then(m => m.publishProject())"
+              run: |
+                  export PATH="$PWD/node_modules/.bin:$PATH"
+                  node -e "import('@dpuse/dpuse-development').then(m => m.publishProject())"
               env:
                   CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
                   CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}

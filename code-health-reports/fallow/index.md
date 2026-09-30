@@ -49,29 +49,31 @@
 
 **Average maintainability index:** 92.5/100
 
-### Hotspots (17 files, since 6 months)
+### Hotspots (19 files, since 6 months)
 
 | File | Score | Commits | Churn | Density | Fan-in | Trend |
 |:-----|:------|:--------|:------|:--------|:-------|:------|
-| `src/actions/checkConfigFiles.ts` | 75.0 | 45 | 511 | 0.21 | 1 | cooling |
-| `src/actions/documentBundleSizes.ts` | 71.8 | 35 | 1188 | 0.27 | 1 | cooling |
-| `src/utilities/index.ts` | 65.6 | 34 | 493 | 0.23 | 21 | cooling |
-| `src/actions/documentDependencies.ts` | 52.2 | 23 | 445 | 0.28 | 1 | cooling |
-| `src/actions/documentOpening.ts` | 35.8 | 18 | 274 | 0.19 | 1 | accelerating |
-| `src/actions/documentUsage.ts` | 33.2 | 16 | 330 | 0.18 | 1 | accelerating |
-| `src/actions/checkDependencies.ts` | 21.1 | 17 | 194 | 0.13 | 1 | stable |
-| `src/utilities/cloudflare.ts` | 14.4 | 9 | 41 | 0.22 | 2 | stable |
-| `src/actions/documentQualitySecurity.ts` | 13.8 | 6 | 594 | 0.18 | 1 | cooling |
-| `src/actions/documentApiReference.ts` | 13.2 | 13 | 772 | 0.08 | 1 | cooling |
-| `src/actions/formatCode.ts` | 10.0 | 7 | 38 | 0.16 | 1 | stable |
-| `src/actions/documentProject.ts` | 7.0 | 5 | 85 | 0.11 | 2 | cooling |
-| `src/actions/auditDependencies.ts` | 5.7 | 7 | 37 | 0.09 | 1 | stable |
-| `src/actions/lintCode.ts` | 5.5 | 6 | 30 | 0.11 | 1 | cooling |
-| `src/actions/documentActions.ts` | 5.0 | 9 | 92 | 0.06 | 1 | stable |
-| `vite.config.ts` | 4.1 | 17 | 106 | 0.03 | 0 | cooling |
-| `src/actions/releaseProject.ts` | 3.5 | 3 | 73 | 0.09 | 1 | accelerating |
+| `src/actions/checkConfigFiles.ts` | 75.0 | 46 | 538 | 0.21 | 1 | cooling |
+| `src/actions/documentBundleSizes.ts` | 69.3 | 35 | 1188 | 0.27 | 1 | cooling |
+| `src/utilities/index.ts` | 66.2 | 35 | 496 | 0.23 | 21 | cooling |
+| `src/actions/documentDependencies.ts` | 50.4 | 23 | 445 | 0.28 | 1 | cooling |
+| `src/actions/documentOpening.ts` | 34.6 | 18 | 274 | 0.19 | 1 | accelerating |
+| `src/actions/documentUsage.ts` | 32.0 | 16 | 330 | 0.18 | 1 | accelerating |
+| `src/actions/checkDependencies.ts` | 20.4 | 17 | 194 | 0.13 | 1 | stable |
+| `src/actions/documentQualitySecurity.ts` | 15.5 | 7 | 601 | 0.18 | 1 | cooling |
+| `src/utilities/cloudflare.ts` | 13.9 | 9 | 41 | 0.22 | 2 | stable |
+| `src/actions/documentApiReference.ts` | 12.7 | 13 | 772 | 0.08 | 1 | cooling |
+| `src/actions/formatCode.ts` | 9.7 | 7 | 38 | 0.16 | 1 | stable |
+| `src/actions/documentProject.ts` | 6.8 | 5 | 85 | 0.11 | 2 | cooling |
+| `src/actions/publishProject.ts` | 5.9 | 3 | 62 | 0.16 | 2 | cooling |
+| `src/actions/auditDependencies.ts` | 5.4 | 7 | 37 | 0.09 | 1 | stable |
+| `src/actions/lintCode.ts` | 5.3 | 6 | 30 | 0.11 | 1 | cooling |
+| `src/actions/buildProject.ts` | 5.2 | 3 | 56 | 0.14 | 2 | cooling |
+| `src/actions/documentActions.ts` | 4.9 | 9 | 92 | 0.06 | 1 | stable |
+| `src/actions/releaseProject.ts` | 4.4 | 4 | 76 | 0.09 | 1 | cooling |
+| `vite.config.ts` | 4.0 | 17 | 106 | 0.03 | 0 | cooling |
 
-*7 files excluded (< 3 commits)*
+*5 files excluded (< 3 commits)*
 
 ---
 
