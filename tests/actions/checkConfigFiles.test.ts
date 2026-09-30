@@ -49,7 +49,7 @@ describe('checkConfigFiles', () => {
             'eslint.config.js': 'eslint.config.default.js',
             LICENSE: 'LICENSE',
             'tsconfig.json': 'tsconfig.json',
-            'tsconfig.scripts.json': 'tsconfig.scripts.json',
+            'scripts/tsconfig.json': 'scripts/tsconfig.json',
             'vite.config.ts': 'vite.config.wasm.ts',
             'vitest.config.ts': 'vitest.config.ts',
             '.github/dependabot.yml': '.github/dependabot.yml',
@@ -108,8 +108,19 @@ describe('checkConfigFiles', () => {
         expect(output).toContain("ℹ️  File 'vite.config.ts' is the same as 'vite.config.tool.ts'");
     });
 
+    it('uses the presenter Vite template and the shared tsconfig for a presenter', async () => {
+        await writeProject('dpuse-presenter-example');
+        await copyTemplates({ 'tsconfig.json': 'tsconfig.json', 'vite.config.ts': 'vite.config.presenter.ts' });
+
+        await checkConfigFiles();
+
+        const output = collectConsoleOutput();
+        expect(output).toContain("ℹ️  File 'tsconfig.json' is the same as 'tsconfig.json'");
+        expect(output).toContain("ℹ️  File 'vite.config.ts' is the same as 'vite.config.presenter.ts'");
+    });
+
     it('checks only Dependabot, against the private template, for a private package', async () => {
-        await writeProject('dpuse-presenter-example', { private: true });
+        await writeProject('dpuse-cookbook-example', { private: true });
         await copyTemplates({ '.github/dependabot.yml': '.github/dependabot.private.yml', 'vite.config.ts': 'vite.config.default.ts' });
 
         await checkConfigFiles();
@@ -150,7 +161,7 @@ describe('checkConfigFiles', () => {
         const output = collectConsoleOutput();
         expect(output).toContain("ℹ️  File 'eslint.config.js' is NOT required by this project");
         expect(output).toContain("ℹ️  File 'tsconfig.json' is NOT required by this project");
-        expect(output).toContain("ℹ️  File 'tsconfig.scripts.json' is NOT required by this project");
+        expect(output).toContain("ℹ️  File 'scripts/tsconfig.json' is NOT required by this project");
         expect(output).toContain("ℹ️  File 'vite.config.ts' is NOT required by this project");
         expect(output).toContain("ℹ️  File 'vitest.config.ts' is NOT required by this project");
     });

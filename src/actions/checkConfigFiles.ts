@@ -79,7 +79,7 @@ function checkPrettierConfig(moduleTypeConfig: ModuleTypeConfig, packageJSON: Pa
 async function checkTSConfig(moduleTypeConfig: ModuleTypeConfig, moduleDirectory: string) {
     if (['github'].includes(moduleTypeConfig.typeId)) {
         console.info("ℹ️  File 'tsconfig.json' is NOT required by this project");
-    } else if (['connector', 'development', 'engine', 'shared', 'tool'].includes(moduleTypeConfig.typeId)) {
+    } else if (['connector', 'development', 'engine', 'presenter', 'shared', 'tool'].includes(moduleTypeConfig.typeId)) {
         await checkConfigFile(moduleDirectory, 'tsconfig.json');
     } else {
         console.info("⚠️  File 'tsconfig.json' is UNIQUE to this project");
@@ -88,9 +88,9 @@ async function checkTSConfig(moduleTypeConfig: ModuleTypeConfig, moduleDirectory
 
 async function checkTSConfigScripts(moduleTypeConfig: ModuleTypeConfig, moduleDirectory: string) {
     if (['github'].includes(moduleTypeConfig.typeId)) {
-        console.info("ℹ️  File 'tsconfig.scripts.json' is NOT required by this project");
+        console.info("ℹ️  File 'scripts/tsconfig.json' is NOT required by this project");
     } else {
-        await checkConfigFile(moduleDirectory, 'tsconfig.scripts.json');
+        await checkConfigFile(moduleDirectory, 'scripts/tsconfig.json'); // Type-checks the 'scripts' folder, whose files Node runs directly.
     }
 }
 
@@ -101,9 +101,19 @@ async function checkViteConfig(moduleTypeConfig: ModuleTypeConfig, moduleDirecto
         console.info("⚠️  File 'vite.config.ts' is UNIQUE to this project");
     } else {
         let viteConfigTemplates: string[];
-        if (moduleTypeConfig.typeId === 'connector') viteConfigTemplates = ['vite.config.default.ts', 'vite.config.wasm.ts'];
-        else if (moduleTypeConfig.typeId === 'tool') viteConfigTemplates = ['vite.config.tool.ts'];
-        else viteConfigTemplates = ['vite.config.default.ts'];
+        switch (moduleTypeConfig.typeId) {
+            case 'connector':
+                viteConfigTemplates = ['vite.config.default.ts', 'vite.config.wasm.ts'];
+                break;
+            case 'presenter':
+                viteConfigTemplates = ['vite.config.presenter.ts'];
+                break;
+            case 'tool':
+                viteConfigTemplates = ['vite.config.tool.ts'];
+                break;
+            default:
+                viteConfigTemplates = ['vite.config.default.ts'];
+        }
         await checkConfigFile(moduleDirectory, 'vite.config.ts', viteConfigTemplates);
     }
 }

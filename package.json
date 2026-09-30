@@ -1,6 +1,6 @@
 {
     "name": "@dpuse/dpuse-development",
-    "version": "0.3.795",
+    "version": "0.3.796",
     "private": false,
     "description": "Actions for managing DPUse projects.",
     "license": "MIT",
@@ -38,10 +38,11 @@
         "dist",
         "eslint.config.default.js",
         "LICENSE",
+        "scripts/tsconfig.json",
         "SECURITY.md",
         "tsconfig.json",
-        "tsconfig.scripts.json",
         "vite.config.default.ts",
+        "vite.config.presenter.ts",
         "vite.config.tool.ts",
         "vite.config.wasm.ts",
         "vitest.config.ts"
