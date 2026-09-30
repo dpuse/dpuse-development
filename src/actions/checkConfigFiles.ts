@@ -119,6 +119,7 @@ async function checkViteConfig(moduleTypeConfig: ModuleTypeConfig, moduleDirecto
 }
 async function checkWorkflows(moduleTypeConfig: ModuleTypeConfig, moduleDirectory: string) {
     await checkConfigFile(moduleDirectory, '.github/workflows/ci.yml');
+    await checkConfigFile(moduleDirectory, '.github/workflows/cleanup.yml');
     await checkConfigFile(moduleDirectory, '.github/workflows/codeql.yml');
     // Packages published to npm use the npm workflow; the rest are published to Cloudflare.
     await checkConfigFile(moduleDirectory, '.github/workflows/publish.yml', [

@@ -1,6 +1,6 @@
 {
     "name": "@dpuse/dpuse-development",
-    "version": "0.3.796",
+    "version": "0.3.797",
     "private": false,
     "description": "Actions for managing DPUse projects.",
     "license": "MIT",
@@ -93,9 +93,9 @@
         "valibot": "^1.5.0"
     },
     "devDependencies": {
-        "@dpuse/eslint-config-dpuse": "^1.0.123",
+        "@dpuse/eslint-config-dpuse": "^1.0.124",
         "@types/node": "^26.6.3",
-        "@vitest/coverage-v8": "^5.0.2",
+        "@vitest/coverage-v8": "^5.0.3",
         "eslint": "^10.11.0",
         "fallow": "^3.30.0",
         "fast-check": "^4.10.2",
@@ -106,6 +106,6 @@
         "vite": "^8.3.1",
         "vite-plugin-dts": "^5.1.1",
         "vite-plugin-wasm": "^3.6.0",
-        "vitest": "^5.0.2"
+        "vitest": "^5.0.3"
     }
 }
