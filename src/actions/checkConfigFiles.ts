@@ -93,7 +93,7 @@ function checkPrettierConfig(moduleTypeConfig: ModuleTypeConfig, packageJSON: Pa
 async function checkTSConfig(moduleTypeConfig: ModuleTypeConfig, moduleDirectory: string) {
     if (['github'].includes(moduleTypeConfig.typeId)) {
         console.info("ℹ️  File 'tsconfig.json' is NOT required by this project");
-    } else if (['connector', 'development', 'engine', 'presenter', 'shared', 'tool'].includes(moduleTypeConfig.typeId)) {
+    } else if (['connector', 'cookbook', 'development', 'engine', 'presenter', 'shared', 'tool'].includes(moduleTypeConfig.typeId)) {
         await checkConfigFile(moduleDirectory, 'tsconfig.json');
     } else {
         console.info("⚠️  File 'tsconfig.json' is UNIQUE to this project");
