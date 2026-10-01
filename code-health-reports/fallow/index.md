@@ -6,7 +6,7 @@
 
 | Metric | Value |
 |:-------|------:|
-| Total LOC | 2881 |
+| Total LOC | 2883 |
 | Avg Cyclomatic | 2.9 |
 | P90 Cyclomatic | 6 |
 | Cyclomatic units | Functions: 221, module scopes: 0, templates: 0 |
@@ -26,7 +26,7 @@
 | `src/utilities/apiReference.ts` | 83.1 | 1 | 1 | 0% | 0.47 | 12.0 |
 | `src/actions/documentDependencies.ts` | 88.8 | 1 | 1 | 0% | 0.28 | 9.6 |
 | `src/utilities/index.ts` | 93.1 | 21 | 0 | 0% | 0.23 | 8.0 |
-| `src/actions/documentBundleSizes.ts` | 88.8 | 1 | 1 | 0% | 0.28 | 7.0 |
+| `src/actions/documentBundleSizes.ts` | 89.1 | 1 | 1 | 0% | 0.27 | 7.0 |
 | `src/utilities/cloudflare.ts` | 90.6 | 2 | 1 | 0% | 0.22 | 7.0 |
 | `src/actions/checkConfigFiles.ts` | 90.9 | 1 | 1 | 0% | 0.21 | 7.0 |
 | `src/actions/documentContributingLicense.ts` | 92.4 | 1 | 1 | 0% | 0.16 | 7.0 |
@@ -54,7 +54,7 @@
 | File | Score | Commits | Churn | Density | Fan-in | Trend |
 |:-----|:------|:--------|:------|:--------|:-------|:------|
 | `src/actions/checkConfigFiles.ts` | 75.0 | 47 | 540 | 0.21 | 1 | cooling |
-| `src/actions/documentBundleSizes.ts` | 72.8 | 36 | 1245 | 0.28 | 1 | cooling |
+| `src/actions/documentBundleSizes.ts` | 73.5 | 37 | 1290 | 0.27 | 1 | cooling |
 | `src/utilities/index.ts` | 63.9 | 35 | 496 | 0.23 | 21 | cooling |
 | `src/actions/documentDependencies.ts` | 48.7 | 23 | 445 | 0.28 | 1 | cooling |
 | `src/actions/documentOpening.ts` | 32.0 | 19 | 283 | 0.17 | 1 | accelerating |

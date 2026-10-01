@@ -80,17 +80,17 @@ _Note: Sonda's Vite reports currently exclude CSS files, since Vite does not gen
 | Chunk/Module/File                                                                | Composition                                 |
 | :------------------------------------------------------------------------------- | :------------------------------------------ |
 | **dist/dpuse-development.es.js**                                                 | 45.9 kB · gzip 14.8 kB · 59.8% of the build |
-| &nbsp;&nbsp;&nbsp;&nbsp;src                                                      | `█████████████████░░░` 86.8% · 39.8 kB      |
-| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;↳ documentQualitySecurity.ts     | `████░░░░░░░░░░░░░░░░` 21.5% · 9.9 kB       |
-| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;↳ documentDependencies.ts        | `███░░░░░░░░░░░░░░░░░` 13.2% · 6.1 kB       |
-| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;↳ documentBundleSizes.ts         | `██░░░░░░░░░░░░░░░░░░` 9.5% · 4.4 kB        |
-| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;↳ checkConfigFiles.ts            | `██░░░░░░░░░░░░░░░░░░` 8.0% · 3.7 kB        |
-| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;↳ documentUsage.ts               | `█░░░░░░░░░░░░░░░░░░░` 5.9% · 2.7 kB        |
-| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;↳ documentActions.ts             | `█░░░░░░░░░░░░░░░░░░░` 3.8% · 1.7 kB        |
-| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;↳ checkDependencies.ts           | `█░░░░░░░░░░░░░░░░░░░` 3.7% · 1.7 kB        |
-| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;↳ cloudflare.ts                  | `█░░░░░░░░░░░░░░░░░░░` 3.3% · 1.5 kB        |
-| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;↳ documentOpening.ts             | `█░░░░░░░░░░░░░░░░░░░` 3.2% · 1.5 kB        |
-| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;↳ documentContributingLicense.ts | `█░░░░░░░░░░░░░░░░░░░` 2.7% · 1.2 kB        |
+| &nbsp;&nbsp;&nbsp;&nbsp;src                                                      | `█████████████████░░░` 86.8% · 39.9 kB      |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;↳ documentQualitySecurity.ts     | `▒▒▒▒░░░░░░░░░░░░░░░░` 21.5% · 9.9 kB       |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;↳ documentDependencies.ts        | `▒▒▒░░░░░░░░░░░░░░░░░` 13.2% · 6.1 kB       |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;↳ documentBundleSizes.ts         | `▒▒░░░░░░░░░░░░░░░░░░` 9.6% · 4.4 kB        |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;↳ checkConfigFiles.ts            | `▒▒░░░░░░░░░░░░░░░░░░` 8.0% · 3.7 kB        |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;↳ documentUsage.ts               | `▒░░░░░░░░░░░░░░░░░░░` 5.9% · 2.7 kB        |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;↳ documentActions.ts             | `▒░░░░░░░░░░░░░░░░░░░` 3.8% · 1.7 kB        |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;↳ checkDependencies.ts           | `▒░░░░░░░░░░░░░░░░░░░` 3.7% · 1.7 kB        |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;↳ cloudflare.ts                  | `▒░░░░░░░░░░░░░░░░░░░` 3.3% · 1.5 kB        |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;↳ documentOpening.ts             | `▒░░░░░░░░░░░░░░░░░░░` 3.2% · 1.5 kB        |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;↳ documentContributingLicense.ts | `▒░░░░░░░░░░░░░░░░░░░` 2.7% · 1.2 kB        |
 | &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;↳ releaseProject.ts              | `░░░░░░░░░░░░░░░░░░░░` 2.1% · 969 B         |
 | &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;↳ publishProject.ts              | `░░░░░░░░░░░░░░░░░░░░` 1.9% · 894 B         |
 | &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;↳ testProject.ts                 | `░░░░░░░░░░░░░░░░░░░░` 1.7% · 799 B         |

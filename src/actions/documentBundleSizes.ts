@@ -42,6 +42,8 @@ const BUNDLE_START_MARKER = '<!-- BUNDLE_START -->';
 const BUNDLE_END_MARKER = '<!-- BUNDLE_END -->';
 const INDENT = '&nbsp;&nbsp;&nbsp;&nbsp;';
 const BAR_WIDTH = 20;
+const BAR_CHARACTER = '█';
+const PART_BAR_CHARACTER = '▒'; // Lighter, so a '↳' row reads as part of the row above. Markdown has no colour that also shows on npm.
 
 const BUNDLE_ANALYSIS_INTRO = `This report is updated with each release, from the bundle the release builds, using [Sonda](https://sonda.dev/), which analyses final source maps to reveal the actual effects of tree-shaking and minification rather than relying on pre-build estimates.\n\n_Note: Sonda's Vite reports currently exclude CSS files, since Vite does not generate source maps for CSS._`;
 
@@ -129,12 +131,12 @@ function renderGroupRows(sortedGroups: GroupEntry[], fileTotal: number, isModule
 
 function renderFileRows(files: Map<string, Sizes>, fileTotal: number): string[] {
     const sortedFiles = [...files].toSorted((a, b) => b[1].uncompressed - a[1].uncompressed);
-    return sortedFiles.map(([fileName, fileSizes]) => `| ${INDENT}${INDENT}↳ ${fileName} | ${composition(fileSizes.uncompressed, fileTotal)} |`);
+    return sortedFiles.map(([fileName, fileSizes]) => `| ${INDENT}${INDENT}↳ ${fileName} | ${composition(fileSizes.uncompressed, fileTotal, PART_BAR_CHARACTER)} |`);
 }
 
 // A bar and percentage of the output file, then the size, so the share and the bytes behind it read together.
-function composition(bytes: number, fileTotal: number): string {
-    return `${bar(fileTotal > 0 ? (bytes / fileTotal) * 100 : 0)} · ${formatBytes(bytes)}`;
+function composition(bytes: number, fileTotal: number, barCharacter = BAR_CHARACTER): string {
+    return `${bar(fileTotal > 0 ? (bytes / fileTotal) * 100 : 0, barCharacter)} · ${formatBytes(bytes)}`;
 }
 
 // A group with no file name, such as the untraced bytes, is shown on its own rather than as 'group → '.
@@ -201,9 +203,9 @@ function chunkSizes(sizes: Sizes): string {
     return `${formatBytes(sizes.uncompressed)} · gzip ${formatBytes(sizes.gzip)}`;
 }
 
-function bar(pct: number): string {
+function bar(pct: number, barCharacter = BAR_CHARACTER): string {
     const count = Math.round((pct / 100) * BAR_WIDTH);
-    return `\`${'█'.repeat(count)}${'░'.repeat(BAR_WIDTH - count)}\` ${pct.toFixed(1)}%`;
+    return `\`${barCharacter.repeat(count)}${'░'.repeat(BAR_WIDTH - count)}\` ${pct.toFixed(1)}%`;
 }
 
 function zero(): Sizes {
