@@ -45,6 +45,9 @@ const BAR_WIDTH = 20;
 
 const BUNDLE_ANALYSIS_INTRO = `This report is updated with each release, from the bundle the release builds, using [Sonda](https://sonda.dev/), which analyses final source maps to reveal the actual effects of tree-shaking and minification rather than relying on pre-build estimates.\n\n_Note: Sonda's Vite reports currently exclude CSS files, since Vite does not generate source maps for CSS._`;
 
+const BAR_NOTE = `Bars show each row's share of its output file.`;
+const PART_ROW_NOTE = '↳ rows are part of the row above.'; // Only where the table has such rows, which module level leaves out.
+
 const UNTRACED_LABEL = '(bundler output, whitespace & JSON)';
 const UNTRACED_NOTE = `${UNTRACED_LABEL} = bytes Sonda can't trace to a source file: whitespace (indentation and line breaks), code the bundler generates (region comments, the combined import/export lines, its small runtime helper and wrappers), and imported JSON such as \`config.json\`, which the bundler doesn't map. The JSON and the generated code are real bytes that ship; the whitespace mostly disappears once compressed.`;
 
@@ -59,8 +62,9 @@ export async function documentBundleSizes(options?: { moduleLevel?: boolean }): 
 
         logStepHeader(`2️⃣  Insert table into 'README.md'`);
         const bundleTable = buildBundleTable(json, options?.moduleLevel ?? false);
+        const rowNote = bundleTable.includes('↳') ? `${BAR_NOTE} ${PART_ROW_NOTE}` : BAR_NOTE;
 
-        await writeReadmeSection(`## Bundle Analysis\n\n${BUNDLE_ANALYSIS_INTRO}\n\n${bundleTable}\n\n${UNTRACED_NOTE}`, BUNDLE_START_MARKER, BUNDLE_END_MARKER);
+        await writeReadmeSection(`## Bundle Analysis\n\n${BUNDLE_ANALYSIS_INTRO}\n\n${bundleTable}\n\n${rowNote}\n\n${UNTRACED_NOTE}`, BUNDLE_START_MARKER, BUNDLE_END_MARKER);
 
         logOperationSuccess('Bundle sizes documented');
     } catch (error) {
@@ -71,8 +75,9 @@ export async function documentBundleSizes(options?: { moduleLevel?: boolean }): 
 
 // ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-// Each output file is broken down on its own, so its bars add up to 100% of that file, and its heading gives its share of
-// the whole build. Rows marked '↳' split the row above them, so they show a share of that row rather than a bar.
+// Each output file is broken down on its own, so its top-level bars add up to 100% of that file, and its heading gives its
+// share of the whole build. Rows marked '↳' are part of the row above; their bars use the same scale, so every bar in a
+// file can be compared with every other.
 function buildBundleTable(json: SondaJson, isModuleLevel: boolean): string {
     const assetGroups = buildAssetGroups(json);
     const buildTotal = assetGroups
@@ -85,45 +90,51 @@ function buildBundleTable(json: SondaJson, isModuleLevel: boolean): string {
         .map((asset): [string, Sizes] => [asset.name, resourceSizes(asset)])
         .toSorted((a, b) => b[1].uncompressed - a[1].uncompressed);
 
-    const lines = ['|Chunk/Module/File|Size|Composition|', '|:------ |------:|:-----------|'];
+    const lines = ['|Chunk/Module/File|Composition|', '|:------ |:-----------|'];
 
     for (const [file, sizes] of assets) {
         const groups = assetGroups.get(file) ?? new Map<string, GroupData>();
-        const sortedGroups = [...groups].toSorted((a, b) => b[1].sizes.uncompressed - a[1].sizes.uncompressed);
+        const sortedGroups = [...groups].toSorted(compareGroups);
         const fileTotal = sortedGroups.reduce((sum, [, group]) => sum + group.sizes.uncompressed, 0);
 
-        const buildShare = fileTotal > 0 && buildTotal > 0 ? `${formatPercent(fileTotal, buildTotal)} of the build` : '';
-        lines.push(`| **${file}** | ${chunkSizes(sizes)} | ${buildShare} |`, ...renderGroupRows(sortedGroups, fileTotal, isModuleLevel));
+        const buildShare = fileTotal > 0 && buildTotal > 0 ? ` · ${formatPercent(fileTotal, buildTotal)} of the build` : '';
+        lines.push(`| **${file}** | ${chunkSizes(sizes)}${buildShare} |`, ...renderGroupRows(sortedGroups, fileTotal, isModuleLevel));
     }
 
     return lines.join('\n');
+}
+
+// Largest first, except the untraced bytes, which always come last as what is left over once the modules are listed.
+function compareGroups(a: GroupEntry, b: GroupEntry): number {
+    if ((a[0] === UNTRACED_LABEL) !== (b[0] === UNTRACED_LABEL)) return a[0] === UNTRACED_LABEL ? 1 : -1;
+    return b[1].sizes.uncompressed - a[1].sizes.uncompressed;
 }
 
 function renderGroupRows(sortedGroups: GroupEntry[], fileTotal: number, isModuleLevel: boolean): string[] {
     const lines: string[] = [];
 
     for (const [groupName, { sizes: groupSizes, files }] of sortedGroups) {
-        const groupPct = fileTotal > 0 ? (groupSizes.uncompressed / fileTotal) * 100 : 0;
-
         if (files.size === 1) {
             const fileName = getSoleFileName(files);
-            lines.push(`| ${INDENT}${formatGroupLabel(groupName, fileName)} | ${formatBytes(groupSizes.uncompressed)} | ${bar(groupPct)} |`);
+            lines.push(`| ${INDENT}${formatGroupLabel(groupName, fileName)} | ${composition(groupSizes.uncompressed, fileTotal)} |`);
             continue;
         }
 
-        lines.push(`| ${INDENT}${groupName} | ${formatBytes(groupSizes.uncompressed)} | ${bar(groupPct)} |`);
-        if (!isModuleLevel) lines.push(...renderFileRows(files, groupName, groupSizes.uncompressed));
+        lines.push(`| ${INDENT}${groupName} | ${composition(groupSizes.uncompressed, fileTotal)} |`);
+        if (!isModuleLevel) lines.push(...renderFileRows(files, fileTotal));
     }
 
     return lines;
 }
 
-function renderFileRows(files: Map<string, Sizes>, groupName: string, groupTotal: number): string[] {
+function renderFileRows(files: Map<string, Sizes>, fileTotal: number): string[] {
     const sortedFiles = [...files].toSorted((a, b) => b[1].uncompressed - a[1].uncompressed);
-    return sortedFiles.map(([fileName, fileSizes]) => {
-        const share = groupTotal > 0 ? `${formatPercent(fileSizes.uncompressed, groupTotal)} of ${groupName}` : '';
-        return `| ${INDENT}${INDENT}↳ ${fileName} | ${formatBytes(fileSizes.uncompressed)} | ${share} |`;
-    });
+    return sortedFiles.map(([fileName, fileSizes]) => `| ${INDENT}${INDENT}↳ ${fileName} | ${composition(fileSizes.uncompressed, fileTotal)} |`);
+}
+
+// A bar and percentage of the output file, then the size, so the share and the bytes behind it read together.
+function composition(bytes: number, fileTotal: number): string {
+    return `${bar(fileTotal > 0 ? (bytes / fileTotal) * 100 : 0)} · ${formatBytes(bytes)}`;
 }
 
 // A group with no file name, such as the untraced bytes, is shown on its own rather than as 'group → '.

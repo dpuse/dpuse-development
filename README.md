@@ -77,40 +77,42 @@ This report is updated with each release, from the bundle the release builds, us
 
 _Note: Sonda's Vite reports currently exclude CSS files, since Vite does not generate source maps for CSS._
 
-| Chunk/Module/File                                                                |                   Size | Composition                  |
-| :------------------------------------------------------------------------------- | ---------------------: | :--------------------------- |
-| **dist/dpuse-development.es.js**                                                 | 45.8 kB · gzip 14.7 kB | 59.8% of the build           |
-| &nbsp;&nbsp;&nbsp;&nbsp;src                                                      |                39.7 kB | `█████████████████░░░` 86.7% |
-| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;↳ documentQualitySecurity.ts     |                 9.9 kB | 24.9% of src                 |
-| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;↳ documentDependencies.ts        |                 6.1 kB | 15.3% of src                 |
-| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;↳ documentBundleSizes.ts         |                 4.2 kB | 10.7% of src                 |
-| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;↳ checkConfigFiles.ts            |                 3.7 kB | 9.3% of src                  |
-| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;↳ documentUsage.ts               |                 2.7 kB | 6.8% of src                  |
-| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;↳ documentActions.ts             |                 1.7 kB | 4.4% of src                  |
-| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;↳ checkDependencies.ts           |                 1.7 kB | 4.3% of src                  |
-| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;↳ cloudflare.ts                  |                 1.5 kB | 3.9% of src                  |
-| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;↳ documentOpening.ts             |                 1.5 kB | 3.7% of src                  |
-| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;↳ documentContributingLicense.ts |                 1.2 kB | 3.1% of src                  |
-| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;↳ releaseProject.ts              |                  969 B | 2.4% of src                  |
-| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;↳ publishProject.ts              |                  894 B | 2.2% of src                  |
-| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;↳ testProject.ts                 |                  799 B | 2.0% of src                  |
-| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;↳ documentProject.ts             |                  663 B | 1.6% of src                  |
-| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;↳ syncProjectWithGitHub.ts       |                  593 B | 1.5% of src                  |
-| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;↳ auditDependencies.ts           |                  392 B | 1.0% of src                  |
-| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;↳ buildProject.ts                |                  378 B | 0.9% of src                  |
-| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;↳ formatCode.ts                  |                  315 B | 0.8% of src                  |
-| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;↳ documentApiReference.ts        |                  308 B | 0.8% of src                  |
-| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;↳ lintCode.ts                    |                  185 B | 0.5% of src                  |
-| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;↳ checkProject.ts                |                   48 B | 0.1% of src                  |
-| &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON)                      |                 6.1 kB | `███░░░░░░░░░░░░░░░░░` 13.3% |
-| **dist/utilities-Bo8LfncX.js**                                                   |  22.4 kB · gzip 6.2 kB | 29.2% of the build           |
-| &nbsp;&nbsp;&nbsp;&nbsp;@dpuse/dpuse-shared → dist/dpuse-shared.es.js            |                11.8 kB | `██████████░░░░░░░░░░` 52.5% |
-| &nbsp;&nbsp;&nbsp;&nbsp;src → index.ts                                           |                 7.6 kB | `███████░░░░░░░░░░░░░` 34.0% |
-| &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON)                      |                 2.6 kB | `██░░░░░░░░░░░░░░░░░░` 11.7% |
-| &nbsp;&nbsp;&nbsp;&nbsp;valibot → dist/index.mjs                                 |                  413 B | `░░░░░░░░░░░░░░░░░░░░` 1.8%  |
-| **dist/apiReference-BazeHifT.js**                                                |   8.4 kB · gzip 3.1 kB | 11.0% of the build           |
-| &nbsp;&nbsp;&nbsp;&nbsp;src → apiReference.ts                                    |                 8.0 kB | `███████████████████░` 95.1% |
-| &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON)                      |                  422 B | `█░░░░░░░░░░░░░░░░░░░` 4.9%  |
+| Chunk/Module/File                                                                | Composition                                 |
+| :------------------------------------------------------------------------------- | :------------------------------------------ |
+| **dist/dpuse-development.es.js**                                                 | 45.9 kB · gzip 14.8 kB · 59.8% of the build |
+| &nbsp;&nbsp;&nbsp;&nbsp;src                                                      | `█████████████████░░░` 86.8% · 39.8 kB      |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;↳ documentQualitySecurity.ts     | `████░░░░░░░░░░░░░░░░` 21.5% · 9.9 kB       |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;↳ documentDependencies.ts        | `███░░░░░░░░░░░░░░░░░` 13.2% · 6.1 kB       |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;↳ documentBundleSizes.ts         | `██░░░░░░░░░░░░░░░░░░` 9.5% · 4.4 kB        |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;↳ checkConfigFiles.ts            | `██░░░░░░░░░░░░░░░░░░` 8.0% · 3.7 kB        |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;↳ documentUsage.ts               | `█░░░░░░░░░░░░░░░░░░░` 5.9% · 2.7 kB        |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;↳ documentActions.ts             | `█░░░░░░░░░░░░░░░░░░░` 3.8% · 1.7 kB        |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;↳ checkDependencies.ts           | `█░░░░░░░░░░░░░░░░░░░` 3.7% · 1.7 kB        |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;↳ cloudflare.ts                  | `█░░░░░░░░░░░░░░░░░░░` 3.3% · 1.5 kB        |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;↳ documentOpening.ts             | `█░░░░░░░░░░░░░░░░░░░` 3.2% · 1.5 kB        |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;↳ documentContributingLicense.ts | `█░░░░░░░░░░░░░░░░░░░` 2.7% · 1.2 kB        |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;↳ releaseProject.ts              | `░░░░░░░░░░░░░░░░░░░░` 2.1% · 969 B         |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;↳ publishProject.ts              | `░░░░░░░░░░░░░░░░░░░░` 1.9% · 894 B         |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;↳ testProject.ts                 | `░░░░░░░░░░░░░░░░░░░░` 1.7% · 799 B         |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;↳ documentProject.ts             | `░░░░░░░░░░░░░░░░░░░░` 1.4% · 663 B         |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;↳ syncProjectWithGitHub.ts       | `░░░░░░░░░░░░░░░░░░░░` 1.3% · 593 B         |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;↳ auditDependencies.ts           | `░░░░░░░░░░░░░░░░░░░░` 0.8% · 392 B         |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;↳ buildProject.ts                | `░░░░░░░░░░░░░░░░░░░░` 0.8% · 378 B         |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;↳ formatCode.ts                  | `░░░░░░░░░░░░░░░░░░░░` 0.7% · 315 B         |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;↳ documentApiReference.ts        | `░░░░░░░░░░░░░░░░░░░░` 0.7% · 308 B         |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;↳ lintCode.ts                    | `░░░░░░░░░░░░░░░░░░░░` 0.4% · 185 B         |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;↳ checkProject.ts                | `░░░░░░░░░░░░░░░░░░░░` 0.1% · 48 B          |
+| &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON)                      | `███░░░░░░░░░░░░░░░░░` 13.2% · 6.1 kB       |
+| **dist/utilities-Bo8LfncX.js**                                                   | 22.4 kB · gzip 6.2 kB · 29.2% of the build  |
+| &nbsp;&nbsp;&nbsp;&nbsp;@dpuse/dpuse-shared → dist/dpuse-shared.es.js            | `██████████░░░░░░░░░░` 52.5% · 11.8 kB      |
+| &nbsp;&nbsp;&nbsp;&nbsp;src → index.ts                                           | `███████░░░░░░░░░░░░░` 34.0% · 7.6 kB       |
+| &nbsp;&nbsp;&nbsp;&nbsp;valibot → dist/index.mjs                                 | `░░░░░░░░░░░░░░░░░░░░` 1.8% · 413 B         |
+| &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON)                      | `██░░░░░░░░░░░░░░░░░░` 11.7% · 2.6 kB       |
+| **dist/apiReference-BazeHifT.js**                                                | 8.4 kB · gzip 3.1 kB · 11.0% of the build   |
+| &nbsp;&nbsp;&nbsp;&nbsp;src → apiReference.ts                                    | `███████████████████░` 95.1% · 8.0 kB       |
+| &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON)                      | `█░░░░░░░░░░░░░░░░░░░` 4.9% · 422 B         |
+
+Bars show each row's share of its output file. ↳ rows are part of the row above.
 
 (bundler output, whitespace & JSON) = bytes Sonda can't trace to a source file: whitespace (indentation and line breaks), code the bundler generates (region comments, the combined import/export lines, its small runtime helper and wrappers), and imported JSON such as `config.json`, which the bundler doesn't map. The JSON and the generated code are real bytes that ship; the whitespace mostly disappears once compressed.
 
