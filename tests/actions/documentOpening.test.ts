@@ -10,7 +10,7 @@ import { buildReadme, useTemporaryProject } from '../support/temporaryProject';
 
 const project = useTemporaryProject();
 
-async function writeProject(packageJSON: object, description: unknown = ['First paragraph.', 'Second paragraph.'], id = 'dpuse-shared'): Promise<void> {
+async function writeProject(packageJSON: object, description: string | undefined = 'First paragraph.\n\nSecond paragraph.', id = 'dpuse-shared'): Promise<void> {
     await project.writeFiles({
         'config.json': JSON.stringify({ id, description: { en: description } }),
         'package.json': JSON.stringify({ license: 'Apache-2.0', name: '@dpuse/dpuse-shared', repository: 'git+https://github.com/dpuse/dpuse-shared.git', ...packageJSON }),
@@ -31,6 +31,14 @@ describe('documentOpening', () => {
         expect(readme).toContain('## About DPUse');
         expect(readme).toContain('## Introduction\n\nFirst paragraph.\n\nSecond paragraph.');
         expect(readme).not.toContain('Fallow code health');
+    });
+
+    it('leaves out the Introduction when the config has no description', async () => {
+        await writeProject({}, '');
+
+        await documentOpening();
+
+        expect(await project.readFile('README.md')).not.toContain('## Introduction');
     });
 
     it('puts the package description under the links, and leaves it out when there is none', async () => {

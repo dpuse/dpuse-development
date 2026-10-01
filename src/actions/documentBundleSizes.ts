@@ -71,9 +71,11 @@ export async function documentBundleSizes(options?: { moduleLevel?: boolean }): 
 
 // ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
+// Each output file is broken down on its own, so its bars add up to 100% of that file, and its heading gives its share of
+// the whole build. Rows marked '↳' split the row above them, so they show a share of that row rather than a bar.
 function buildBundleTable(json: SondaJson, isModuleLevel: boolean): string {
     const assetGroups = buildAssetGroups(json);
-    const bundlerTotal = assetGroups
+    const buildTotal = assetGroups
         .values()
         .flatMap((groups) => groups.values().toArray())
         .reduce((sum, group) => sum + group.sizes.uncompressed, 0);
@@ -83,73 +85,50 @@ function buildBundleTable(json: SondaJson, isModuleLevel: boolean): string {
         .map((asset): [string, Sizes] => [asset.name, resourceSizes(asset)])
         .toSorted((a, b) => b[1].uncompressed - a[1].uncompressed);
 
-    const lines = ['|Chunk/Module/File|Composition|', '|:------ |:-----------|'];
+    const lines = ['|Chunk/Module/File|Size|Composition|', '|:------ |------:|:-----------|'];
 
     for (const [file, sizes] of assets) {
         const groups = assetGroups.get(file) ?? new Map<string, GroupData>();
         const sortedGroups = [...groups].toSorted((a, b) => b[1].sizes.uncompressed - a[1].sizes.uncompressed);
+        const fileTotal = sortedGroups.reduce((sum, [, group]) => sum + group.sizes.uncompressed, 0);
 
-        const sectionLines =
-            sortedGroups.length === 1
-                ? renderSingleGroupSection(file, sizes, getSoleEntry(sortedGroups), bundlerTotal, isModuleLevel)
-                : renderMultiGroupSection(file, sizes, sortedGroups, bundlerTotal, isModuleLevel);
-
-        lines.push(...sectionLines);
+        const buildShare = fileTotal > 0 && buildTotal > 0 ? `${formatPercent(fileTotal, buildTotal)} of the build` : '';
+        lines.push(`| **${file}** | ${chunkSizes(sizes)} | ${buildShare} |`, ...renderGroupRows(sortedGroups, fileTotal, isModuleLevel));
     }
 
     return lines.join('\n');
 }
 
-function renderSingleGroupSection(file: string, sizes: Sizes, group: GroupEntry, bundlerTotal: number, isModuleLevel: boolean): string[] {
-    const [groupName, { sizes: groupSizes, files }] = group;
-    const groupPct = bundlerTotal > 0 ? (groupSizes.uncompressed / bundlerTotal) * 100 : 0;
-
-    if (files.size === 1) {
-        const fileName = getSoleFileName(files);
-        return [`| ${file} → ${formatGroupLabel(groupName, fileName)} | ${chunkSizes(sizes)} · ${bar(groupPct)} |`];
-    }
-
-    const lines = [`| ${file} → ${groupName} | ${chunkSizes(sizes)} · ${bar(groupPct)} |`];
-    if (!isModuleLevel) lines.push(...renderFileRows(files, INDENT, bundlerTotal));
-    return lines;
-}
-
-function renderMultiGroupSection(file: string, sizes: Sizes, sortedGroups: GroupEntry[], bundlerTotal: number, isModuleLevel: boolean): string[] {
-    const lines = [`| ${file} | ${chunkSizes(sizes)} |`];
+function renderGroupRows(sortedGroups: GroupEntry[], fileTotal: number, isModuleLevel: boolean): string[] {
+    const lines: string[] = [];
 
     for (const [groupName, { sizes: groupSizes, files }] of sortedGroups) {
-        const groupPct = bundlerTotal > 0 ? (groupSizes.uncompressed / bundlerTotal) * 100 : 0;
+        const groupPct = fileTotal > 0 ? (groupSizes.uncompressed / fileTotal) * 100 : 0;
 
         if (files.size === 1) {
             const fileName = getSoleFileName(files);
-            lines.push(`| ${INDENT}${formatGroupLabel(groupName, fileName)} | ${bar(groupPct)} |`);
+            lines.push(`| ${INDENT}${formatGroupLabel(groupName, fileName)} | ${formatBytes(groupSizes.uncompressed)} | ${bar(groupPct)} |`);
             continue;
         }
 
-        lines.push(`| ${INDENT}${groupName} | ${bar(groupPct)} |`);
-        if (!isModuleLevel) lines.push(...renderFileRows(files, `${INDENT}${INDENT}`, bundlerTotal));
+        lines.push(`| ${INDENT}${groupName} | ${formatBytes(groupSizes.uncompressed)} | ${bar(groupPct)} |`);
+        if (!isModuleLevel) lines.push(...renderFileRows(files, groupName, groupSizes.uncompressed));
     }
 
     return lines;
 }
 
-function renderFileRows(files: Map<string, Sizes>, indent: string, bundlerTotal: number): string[] {
+function renderFileRows(files: Map<string, Sizes>, groupName: string, groupTotal: number): string[] {
     const sortedFiles = [...files].toSorted((a, b) => b[1].uncompressed - a[1].uncompressed);
     return sortedFiles.map(([fileName, fileSizes]) => {
-        const filePct = bundlerTotal > 0 ? (fileSizes.uncompressed / bundlerTotal) * 100 : 0;
-        return `| ${indent}${fileName} | ${bar(filePct)} |`;
+        const share = groupTotal > 0 ? `${formatPercent(fileSizes.uncompressed, groupTotal)} of ${groupName}` : '';
+        return `| ${INDENT}${INDENT}↳ ${fileName} | ${formatBytes(fileSizes.uncompressed)} | ${share} |`;
     });
 }
 
 // A group with no file name, such as the untraced bytes, is shown on its own rather than as 'group → '.
 function formatGroupLabel(groupName: string, fileName: string): string {
     return fileName === '' ? groupName : `${groupName} → ${fileName}`;
-}
-
-function getSoleEntry<T>(entries: T[]): T {
-    const [entry] = entries;
-    if (entry === undefined) throw new Error('Expected exactly one entry');
-    return entry;
 }
 
 function getSoleFileName(files: Map<string, Sizes>): string {
@@ -223,6 +202,10 @@ function zero(): Sizes {
 function addTo(target: Sizes, source: Sizes): void {
     target.uncompressed += source.uncompressed;
     target.gzip += source.gzip;
+}
+
+function formatPercent(part: number, whole: number): string {
+    return `${((part / whole) * 100).toFixed(1)}%`;
 }
 
 function formatBytes(bytes: number): string {

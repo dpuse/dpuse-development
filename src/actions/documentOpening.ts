@@ -53,12 +53,11 @@ function resolvePackageName(packageJSON: PackageJson): string {
     return name;
 }
 
-// 'description.en' holds the introduction's paragraphs. The schema types it as one string, but config files list the
-// paragraphs in an array, so both are accepted. With no paragraphs, the Introduction section is left out.
+// 'description.en' holds the introduction as one string, with a blank line between paragraphs. With none, the
+// Introduction section is left out.
 function resolveIntroduction(configJSON: ModuleConfig): string | undefined {
-    const value: unknown = configJSON.description.en;
-    const paragraphs = (Array.isArray(value) ? value : [value]).filter((paragraph): paragraph is string => typeof paragraph === 'string' && paragraph !== '');
-    return paragraphs.length === 0 ? undefined : paragraphs.join('\n\n');
+    const introduction = configJSON.description.en?.trim();
+    return introduction === undefined || introduction === '' ? undefined : introduction;
 }
 
 // The package description is optional, so a project without one simply has no summary under the links. Only projects

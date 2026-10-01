@@ -42,22 +42,26 @@ describe('documentBundleSizes', () => {
 
         const readme = await project.readFile('README.md');
         expect(readme).toContain('## Bundle Analysis');
-        expect(readme).toContain('|Chunk/Module/File|Composition|');
-        expect(readme).toContain('| main.js | 2.9 kB · gzip 900 B |');
-        expect(readme).toContain('| &nbsp;&nbsp;&nbsp;&nbsp;src | `███████░░░░░░░░░░░░░` 33.3% |');
-        expect(readme).toContain('| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;index.ts | `█████░░░░░░░░░░░░░░░` 26.7% |');
-        expect(readme).toContain('| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;helpers.ts | `█░░░░░░░░░░░░░░░░░░░` 6.7% |');
-        expect(readme).toContain('| &nbsp;&nbsp;&nbsp;&nbsp;valibot → dist/index.js | `████░░░░░░░░░░░░░░░░` 20.0% |');
-        expect(readme).toContain('| &nbsp;&nbsp;&nbsp;&nbsp;@scope/pkg | `█░░░░░░░░░░░░░░░░░░░` 6.7% |');
-        expect(readme).toContain('| &nbsp;&nbsp;&nbsp;&nbsp;wasm → parser_bg.wasm | `█░░░░░░░░░░░░░░░░░░░` 4.0% |');
-        expect(readme).toContain('| &nbsp;&nbsp;&nbsp;&nbsp;(runtime) → commonjsHelpers.js |');
-        expect(readme).toContain('| &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON) |');
-        expect(readme).toContain('| worker.js → src → worker.ts | 500 B · gzip 200 B · `███████░░░░░░░░░░░░░` 33.3% |');
+        expect(readme).toContain('|Chunk/Module/File|Size|Composition|');
+        // Bars are a share of their own output file (main.js traces 1,000 bytes); the heading gives the file's share of
+        // the build (1,500 bytes traced across both files).
+        expect(readme).toContain('| **main.js** | 2.9 kB · gzip 900 B | 66.7% of the build |');
+        expect(readme).toContain('| &nbsp;&nbsp;&nbsp;&nbsp;src | 500 B | `██████████░░░░░░░░░░` 50.0% |');
+        expect(readme).toContain('| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;↳ index.ts | 400 B | 80.0% of src |');
+        expect(readme).toContain('| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;↳ helpers.ts | 100 B | 20.0% of src |');
+        expect(readme).toContain('| &nbsp;&nbsp;&nbsp;&nbsp;valibot → dist/index.js | 300 B | `██████░░░░░░░░░░░░░░` 30.0% |');
+        expect(readme).toContain('| &nbsp;&nbsp;&nbsp;&nbsp;@scope/pkg | 100 B | `██░░░░░░░░░░░░░░░░░░` 10.0% |');
+        expect(readme).toContain('| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;↳ lib/a.js | 50 B | 50.0% of @scope/pkg |');
+        expect(readme).toContain('| &nbsp;&nbsp;&nbsp;&nbsp;wasm → parser_bg.wasm | 60 B | `█░░░░░░░░░░░░░░░░░░░` 6.0% |');
+        expect(readme).toContain('| &nbsp;&nbsp;&nbsp;&nbsp;(runtime) → commonjsHelpers.js | 20 B | `░░░░░░░░░░░░░░░░░░░░` 2.0% |');
+        expect(readme).toContain('| &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON) | 20 B | `░░░░░░░░░░░░░░░░░░░░` 2.0% |');
+        expect(readme).toContain('| **worker.js** | 500 B · gzip 200 B | 33.3% of the build |');
+        expect(readme).toContain('| &nbsp;&nbsp;&nbsp;&nbsp;src → worker.ts | 500 B | `████████████████████` 100.0% |');
         // An asset with no traced chunks still gets a row, and chunks without a parent file are left out.
-        expect(readme).toContain('| types.d.ts | 100 B · gzip 0 B |');
+        expect(readme).toContain('| **types.d.ts** | 100 B · gzip 0 B |  |');
         expect(readme).not.toContain('orphan');
         // Largest output file first.
-        expect(readme.indexOf('| main.js')).toBeLessThan(readme.indexOf('| worker.js'));
+        expect(readme.indexOf('| **main.js**')).toBeLessThan(readme.indexOf('| **worker.js**'));
     });
 
     it('leaves out the per-file rows at module level', async () => {
@@ -66,9 +70,8 @@ describe('documentBundleSizes', () => {
         await documentBundleSizes({ moduleLevel: true });
 
         const readme = await project.readFile('README.md');
-        expect(readme).toContain('| &nbsp;&nbsp;&nbsp;&nbsp;src |');
-        expect(readme).not.toContain('index.ts |');
-        expect(readme).not.toContain('helpers.ts |');
+        expect(readme).toContain('| &nbsp;&nbsp;&nbsp;&nbsp;src | 500 B |');
+        expect(readme).not.toContain('↳');
     });
 
     it('lists the files under a single group that holds several of them', async () => {
@@ -85,9 +88,10 @@ describe('documentBundleSizes', () => {
         await documentBundleSizes();
 
         const readme = await project.readFile('README.md');
-        expect(readme).toContain('| main.js → src | 200 B · gzip 50 B · `████████████████████` 100.0% |');
-        expect(readme).toContain('| &nbsp;&nbsp;&nbsp;&nbsp;a.ts | `███████████████░░░░░` 75.0% |');
-        expect(readme).toContain('| &nbsp;&nbsp;&nbsp;&nbsp;b.ts | `█████░░░░░░░░░░░░░░░` 25.0% |');
+        expect(readme).toContain('| **main.js** | 200 B · gzip 50 B | 100.0% of the build |');
+        expect(readme).toContain('| &nbsp;&nbsp;&nbsp;&nbsp;src | 200 B | `████████████████████` 100.0% |');
+        expect(readme).toContain('| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;↳ a.ts | 150 B | 75.0% of src |');
+        expect(readme).toContain('| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;↳ b.ts | 50 B | 25.0% of src |');
 
         await documentBundleSizes({ moduleLevel: true });
         expect(await project.readFile('README.md')).not.toContain('a.ts');
