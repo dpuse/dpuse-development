@@ -53,11 +53,11 @@
 
 | File | Score | Commits | Churn | Density | Fan-in | Trend |
 |:-----|:------|:--------|:------|:--------|:-------|:------|
-| `src/actions/documentBundleSizes.ts` | 79.6 | 38 | 1302 | 0.29 | 1 | cooling |
+| `src/actions/documentBundleSizes.ts` | 83.0 | 39 | 1340 | 0.29 | 1 | cooling |
 | `src/actions/checkConfigFiles.ts` | 72.4 | 47 | 540 | 0.21 | 1 | cooling |
 | `src/utilities/index.ts` | 61.7 | 35 | 496 | 0.23 | 21 | cooling |
 | `src/actions/documentDependencies.ts` | 47.0 | 23 | 445 | 0.28 | 1 | cooling |
-| `src/actions/documentOpening.ts` | 30.9 | 19 | 283 | 0.17 | 1 | accelerating |
+| `src/actions/documentOpening.ts` | 30.8 | 19 | 283 | 0.17 | 1 | accelerating |
 | `src/actions/documentUsage.ts` | 29.9 | 16 | 330 | 0.18 | 1 | accelerating |
 | `src/actions/checkDependencies.ts` | 19.0 | 17 | 194 | 0.13 | 1 | stable |
 | `src/actions/documentQualitySecurity.ts` | 14.5 | 7 | 601 | 0.18 | 1 | cooling |
