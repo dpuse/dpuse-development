@@ -44,6 +44,8 @@ const INDENT = '&nbsp;&nbsp;&nbsp;&nbsp;';
 const BAR_WIDTH = 20;
 const BAR_CHARACTER = '█';
 const PART_BAR_CHARACTER = '▒'; // Lighter, so a '↳' row reads as part of the row above. Markdown has no colour that also shows on npm.
+const MIN_VISIBLE_PERCENT = 100 / BAR_WIDTH / 2; // Below this a bar rounds to no characters at all.
+const SMALL_FILES_MAX_PERCENT = 100 / BAR_WIDTH; // The combined row for small files stays within one bar character.
 
 const BUNDLE_ANALYSIS_INTRO = `This report is updated with each release, from the bundle the release builds, using [Sonda](https://sonda.dev/), which analyses final source maps to reveal the actual effects of tree-shaking and minification rather than relying on pre-build estimates.\n\n_Note: Sonda's Vite reports currently exclude CSS files, since Vite does not generate source maps for CSS._`;
 
@@ -131,7 +133,31 @@ function renderGroupRows(sortedGroups: GroupEntry[], fileTotal: number, isModule
 
 function renderFileRows(files: Map<string, Sizes>, fileTotal: number): string[] {
     const sortedFiles = [...files].toSorted((a, b) => b[1].uncompressed - a[1].uncompressed);
-    return sortedFiles.map(([fileName, fileSizes]) => `| ${INDENT}${INDENT}↳ ${fileName} | ${composition(fileSizes.uncompressed, fileTotal, PART_BAR_CHARACTER)} |`);
+    const smallCount = countSmallFiles(sortedFiles, fileTotal);
+    const namedFiles = smallCount > 0 ? sortedFiles.slice(0, -smallCount) : sortedFiles;
+
+    const rows = namedFiles.map(([fileName, fileSizes]) => `| ${INDENT}${INDENT}↳ ${fileName} | ${composition(fileSizes.uncompressed, fileTotal, PART_BAR_CHARACTER)} |`);
+    if (smallCount > 0) {
+        const smallBytes = sortedFiles.slice(-smallCount).reduce((sum, [, fileSizes]) => sum + fileSizes.uncompressed, 0);
+        rows.push(`| ${INDENT}${INDENT}↳ ${String(smallCount)} smaller files | ${composition(smallBytes, fileTotal, PART_BAR_CHARACTER)} |`);
+    }
+    return rows;
+}
+
+// Files too small to show any bar are combined into one row, smallest first, stopping before that row would pass one bar
+// character, so it never hides much. A lone small file keeps its name, as combining one file would hide it for nothing.
+function countSmallFiles(sortedFiles: [string, Sizes][], fileTotal: number): number {
+    if (fileTotal <= 0) return 0;
+    let count = 0;
+    let bytes = 0;
+    for (const [, fileSizes] of sortedFiles.toReversed()) {
+        const isTooSmallToShow = (fileSizes.uncompressed / fileTotal) * 100 < MIN_VISIBLE_PERCENT;
+        const isCombinedRowStillSmall = ((bytes + fileSizes.uncompressed) / fileTotal) * 100 <= SMALL_FILES_MAX_PERCENT;
+        if (!isTooSmallToShow || !isCombinedRowStillSmall) break;
+        count++;
+        bytes += fileSizes.uncompressed;
+    }
+    return count >= 2 ? count : 0;
 }
 
 // A bar and percentage of the output file, then the size, so the share and the bytes behind it read together.
@@ -188,7 +214,15 @@ function resolveModule(path: string, dependencyPaths: DependencyPath[]): { group
     }
     if (path === '[unassigned]') return { group: UNTRACED_LABEL, file: '' }; // Sonda's marker for chunk bytes it can't trace back to a source module.
     if (path.startsWith('\u{0}')) return { group: '(runtime)', file: path.slice(1) };
-    return { group: path.startsWith('rust/') || path.includes('vite-plugin-wasm') ? 'wasm' : 'src', file: lastPathSegment(path) };
+    if (path.startsWith('rust/')) return { group: 'wasm', file: shortenCrateFileName(path) };
+    return { group: path.includes('vite-plugin-wasm') ? 'wasm' : 'src', file: lastPathSegment(path) };
+}
+
+// wasm-pack names every generated file after the crate, so the shared part is shortened to '…', leaving what differs.
+function shortenCrateFileName(path: string): string {
+    const crateName = path.split('/', 2)[1] ?? '';
+    const fileName = lastPathSegment(path);
+    return crateName !== '' && fileName.startsWith(crateName) ? `…${fileName.slice(crateName.length)}` : fileName;
 }
 
 function lastPathSegment(path: string): string {

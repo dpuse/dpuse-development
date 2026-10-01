@@ -52,7 +52,7 @@ describe('documentBundleSizes', () => {
         expect(readme).toContain('| &nbsp;&nbsp;&nbsp;&nbsp;valibot → dist/index.js | `██████░░░░░░░░░░░░░░` 30.0% · 300 B |');
         expect(readme).toContain('| &nbsp;&nbsp;&nbsp;&nbsp;@scope/pkg | `██░░░░░░░░░░░░░░░░░░` 10.0% · 100 B |');
         expect(readme).toContain('| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;↳ lib/a.js | `▒░░░░░░░░░░░░░░░░░░░` 5.0% · 50 B |');
-        expect(readme).toContain('| &nbsp;&nbsp;&nbsp;&nbsp;wasm → parser_bg.wasm | `█░░░░░░░░░░░░░░░░░░░` 6.0% · 60 B |');
+        expect(readme).toContain('| &nbsp;&nbsp;&nbsp;&nbsp;wasm → …_bg.wasm | `█░░░░░░░░░░░░░░░░░░░` 6.0% · 60 B |');
         expect(readme).toContain('| &nbsp;&nbsp;&nbsp;&nbsp;(runtime) → commonjsHelpers.js | `░░░░░░░░░░░░░░░░░░░░` 2.0% · 20 B |');
         expect(readme).toContain('| &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON) | `░░░░░░░░░░░░░░░░░░░░` 2.0% · 20 B |');
         expect(readme).toContain('| **worker.js** | 500 B · gzip 200 B · 33.3% of the build |');
@@ -100,6 +100,64 @@ describe('documentBundleSizes', () => {
 
         await documentBundleSizes({ moduleLevel: true });
         expect(await project.readFile('README.md')).not.toContain('a.ts');
+    });
+
+    it('combines files too small to show a bar, keeping the combined row within one bar character', async () => {
+        // One large file and ten of 1% each: the five smallest fit within 5% and are combined; the other five stay named.
+        const smallFiles = Array.from({ length: 10 }, (_, index) => ({ kind: 'chunk', name: `src/small${String(index)}.ts`, uncompressed: 10, parent: 'main.js' }));
+        const report = {
+            resources: [
+                { kind: 'asset', name: 'main.js', uncompressed: 1000, gzip: 300 },
+                { kind: 'chunk', name: 'src/large.ts', uncompressed: 900, parent: 'main.js' },
+                ...smallFiles
+            ],
+            dependencies: []
+        };
+        await project.writeFiles({ 'bundle-analysis-reports/sonda/index.json': JSON.stringify(report), 'README.md': buildReadme('BUNDLE') });
+
+        await documentBundleSizes();
+
+        const readme = await project.readFile('README.md');
+        expect(readme).toContain('| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;↳ large.ts | `▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒░░` 90.0% · 900 B |');
+        expect(readme).toContain('| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;↳ 5 smaller files | `▒░░░░░░░░░░░░░░░░░░░` 5.0% · 50 B |');
+        expect(readme.match(/↳ small\d\.ts/g)).toHaveLength(5);
+    });
+
+    it('keeps a lone small file named rather than combining it', async () => {
+        const report = {
+            resources: [
+                { kind: 'asset', name: 'main.js', uncompressed: 1000, gzip: 300 },
+                { kind: 'chunk', name: 'src/large.ts', uncompressed: 990, parent: 'main.js' },
+                { kind: 'chunk', name: 'src/tiny.ts', uncompressed: 10, parent: 'main.js' }
+            ],
+            dependencies: []
+        };
+        await project.writeFiles({ 'bundle-analysis-reports/sonda/index.json': JSON.stringify(report), 'README.md': buildReadme('BUNDLE') });
+
+        await documentBundleSizes();
+
+        const readme = await project.readFile('README.md');
+        expect(readme).toContain('| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;↳ tiny.ts | `░░░░░░░░░░░░░░░░░░░░` 1.0% · 10 B |');
+        expect(readme).not.toContain('smaller files');
+    });
+
+    it('shortens WebAssembly file names to the part after the crate name', async () => {
+        const report = {
+            resources: [
+                { kind: 'asset', name: 'core.js', uncompressed: 300 },
+                { kind: 'chunk', name: 'rust/my_crate/pkg/my_crate_bg.wasm?url', uncompressed: 200, parent: 'core.js' },
+                { kind: 'chunk', name: 'rust/my_crate/pkg/my_crate_bg.js', uncompressed: 100, parent: 'core.js' }
+            ],
+            dependencies: []
+        };
+        await project.writeFiles({ 'bundle-analysis-reports/sonda/index.json': JSON.stringify(report), 'README.md': buildReadme('BUNDLE') });
+
+        await documentBundleSizes();
+
+        const readme = await project.readFile('README.md');
+        expect(readme).toContain('| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;↳ …_bg.wasm?url |');
+        expect(readme).toContain('| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;↳ …_bg.js |');
+        expect(readme).not.toContain('my_crate_bg');
     });
 
     it('exits when there is no bundle analysis report', async () => {
