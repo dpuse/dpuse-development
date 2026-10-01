@@ -39,6 +39,17 @@ describe('syncProjectWithGitHub', () => {
         expect(executedCommands()).toEqual(['git add .', 'git commit -m v0.3.10', 'git push origin main:main']);
     });
 
+    it("writes the config's keys as 'id', 'label' and 'description', then the rest alphabetically", async () => {
+        await project.writeFiles({
+            'package.json': JSON.stringify({ name: '@dpuse/dpuse-shared', version: '0.3.9' }),
+            'config.json': JSON.stringify({ version: '0.3.9', typeId: 'shared', description: { en: 'Text.' }, iconDark: null, id: 'dpuse-shared', label: { en: 'Shared' } })
+        });
+
+        await syncProjectWithGitHub();
+
+        expect(Object.keys(await project.readJSON('config.json'))).toEqual(['id', 'label', 'description', 'icon', 'iconDark', 'typeId', 'version']);
+    });
+
     it('starts the version at 0.0.001 when there is none', async () => {
         await project.writeFiles({ 'package.json': JSON.stringify({ name: '@dpuse/dpuse-shared' }), 'config.json': JSON.stringify({ id: 'dpuse-shared' }) });
 

@@ -7,10 +7,10 @@ import { logOperationHeader, logOperationSuccess, logStepHeader, readJSONFile, w
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-const START_MARKER = '<!-- CONNECTOR_ACTIONS_START -->';
-const END_MARKER = '<!-- CONNECTOR_ACTIONS_END -->';
+const START_MARKER = '<!-- SUPPORTED_ACTIONS_START -->';
+const END_MARKER = '<!-- SUPPORTED_ACTIONS_END -->';
 
-const CONNECTOR_ACTIONS_INTRO =
+const SUPPORTED_ACTIONS_INTRO =
     'Connectors conform to a unified interface contract by implementing a specific subset of standard actions. These standardised actions allow the DPUse application to interact with any underlying data source in the same way, enabling Connectors to be built independently and loaded dynamically at runtime.';
 
 const CONNECTOR_USAGE_DESCRIPTIONS: Record<ConnectorUsageId, string> = {
@@ -23,7 +23,7 @@ const CONNECTOR_USAGE_DESCRIPTIONS: Record<ConnectorUsageId, string> = {
         'This connector does not yet implement any read or write actions, so its type cannot be determined. Connectors function as a Source (read-only), a Destination (write-only), or Bidirectional (read/write), depending on the actions they support.'
 };
 
-const CONNECTOR_ACTIONS_TABLE_LEAD_IN = 'The table below lists all connector actions and highlights those supported by this connector.';
+const SUPPORTED_ACTIONS_TABLE_LEAD_IN = 'The table below lists all connector actions and highlights those supported by this connector.';
 
 // ── Actions ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -38,7 +38,7 @@ export async function documentActions(): Promise<void> {
         const usageId = determineConnectorUsageId(actionNames);
         const table = getConnectorActionsTable(actionNames);
 
-        const block = `${CONNECTOR_ACTIONS_INTRO}\n\n${CONNECTOR_USAGE_DESCRIPTIONS[usageId]} ${CONNECTOR_ACTIONS_TABLE_LEAD_IN}\n\n${table}`;
+        const block = `## Supported Actions\n\n${SUPPORTED_ACTIONS_INTRO}\n\n${CONNECTOR_USAGE_DESCRIPTIONS[usageId]} ${SUPPORTED_ACTIONS_TABLE_LEAD_IN}\n\n${table}`;
 
         await writeReadmeSection(block, START_MARKER, END_MARKER);
 

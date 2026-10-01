@@ -345,7 +345,7 @@ async function buildProjectConfig(stepIcon: string, packageJSON: PackageJson): P
     if (packageJSON.version != null) configJSON.version = packageJSON.version;
     configJSON.icon ??= await readTextFileOrNull('logo.svg');
     configJSON.iconDark ??= await readTextFileOrNull('logoDark.svg');
-    await writeJSONFile('config.json', configJSON);
+    await writeJSONFile('config.json', orderConfigKeys(configJSON));
 
     return configJSON;
 }
@@ -364,9 +364,19 @@ async function processOperations<T extends OperationConfig>(packageJSON: Package
     configJSON.actionNames = operations;
     if (usageId !== undefined) configJSON.usageId = usageId;
 
-    await writeJSONFile('config.json', configJSON);
+    await writeJSONFile('config.json', orderConfigKeys(configJSON));
 
     return configJSON;
+}
+
+// Every module's config.json lists 'id', 'label' and 'description' first, then the other keys alphabetically, so configs
+// read the same across modules and a newly added key lands in a predictable place rather than at the end.
+function orderConfigKeys<T extends object>(configJSON: T): T {
+    const leadingKeys = ['id', 'label', 'description'];
+    const entries = Object.entries(configJSON);
+    const leading = leadingKeys.flatMap((key) => entries.filter(([entryKey]) => entryKey === key));
+    const rest = entries.filter(([key]) => !leadingKeys.includes(key)).toSorted(([a], [b]) => a.localeCompare(b, 'en', { sensitivity: 'base' }));
+    return Object.fromEntries([...leading, ...rest]) as T;
 }
 
 function substituteText(originalText: string, substituteText: string, startMarker: string, endMarker: string): string {
