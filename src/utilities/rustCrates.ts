@@ -7,7 +7,7 @@ import path from 'node:path';
 import satisfies from 'spdx-satisfies';
 
 // ── Local Framework
-import { readJSONFile, readTextFile, readTextFileOrNull, RUST_WORKSPACE_PATH, spawnCommandToFile } from '@/utilities';
+import { logStepHeader, readJSONFile, readTextFile, readTextFileOrNull, RUST_WORKSPACE_PATH, spawnCommandToFile } from '@/utilities';
 
 // ── Types ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -45,6 +45,7 @@ interface CratesIOResponse {
 const CARGO_METADATA_PATH = 'licenses/cargoMetadata.json';
 const CARGO_TREE_PATH = 'licenses/cargoTree.txt';
 const CRATES_IO_REQUEST_INTERVAL = 1000; // crates.io asks automated clients for no more than one request a second.
+const CRATES_IO_REQUEST_TIMEOUT = 10_000; // Without one, a request crates.io never answers would hang the release.
 const CRATES_IO_USER_AGENT = 'dpuse-development (https://github.com/dpuse/dpuse-development)'; // crates.io refuses requests without one.
 const LICENSE_FILE_PATTERN = /^(?:copying|licen[cs]e|unlicense)/i;
 const WASM_TARGET = 'wasm32-unknown-unknown';
@@ -86,7 +87,7 @@ export async function documentRustCrates(stepLabel: string, allowedLicenses: str
 
     checkCrateLicenses(crates, allowedLicenses);
     for (const crate of crates) crate.licenseFiles = await copyLicenseFiles(crate, metadata);
-    await addReleaseDetails(crates);
+    await addReleaseDetails(stepLabel, crates);
 
     return { crates, treeItems: treeLines.map(({ name, version, depth, isOwn }) => ({ name, version, depth, isOwn })) };
 }
@@ -156,11 +157,16 @@ async function copyLicenseFiles(crate: RustCrate, metadata: CargoMetadata): Prom
 }
 
 // One request at a time, as crates.io asks. A crate it cannot answer for is shown without dates.
-async function addReleaseDetails(crates: RustCrate[]): Promise<void> {
+async function addReleaseDetails(stepLabel: string, crates: RustCrate[]): Promise<void> {
+    logStepHeader(`${stepLabel} - fetch release dates from crates.io`);
     for (const [index, crate] of crates.entries()) {
         if (index > 0) await delay(CRATES_IO_REQUEST_INTERVAL);
+        console.info(`⚙️ Fetching '${crate.name}' (${String(index + 1)} of ${String(crates.length)})...`);
         try {
-            const response = await fetch(`https://crates.io/api/v1/crates/${encodeURIComponent(crate.name)}`, { headers: { 'User-Agent': CRATES_IO_USER_AGENT } });
+            const response = await fetch(`https://crates.io/api/v1/crates/${encodeURIComponent(crate.name)}`, {
+                headers: { 'User-Agent': CRATES_IO_USER_AGENT },
+                signal: AbortSignal.timeout(CRATES_IO_REQUEST_TIMEOUT)
+            });
             if (!response.ok) continue;
             const data = (await response.json()) as CratesIOResponse;
             const releaseDates = new Map((data.versions ?? []).map((version) => [version.num, version.created_at]));
@@ -168,7 +174,7 @@ async function addReleaseDetails(crates: RustCrate[]): Promise<void> {
             crate.publishedDate = releaseDates.get(crate.version) ?? '';
             crate.latestPublishedDate = crate.latestVersion === crate.version ? '' : (releaseDates.get(crate.latestVersion) ?? '');
         } catch {
-            // Ignore network errors.
+            // Ignore network errors and timeouts.
         }
     }
 }

@@ -67,7 +67,13 @@ async function setUpRustProject(): Promise<void> {
         'fetch',
         vi.fn((url: string) => {
             if (!url.endsWith('/csv-core')) return Promise.resolve(new Response('', { status: 404 }));
-            const data = { crate: { max_stable_version: '0.1.14' }, versions: [{ num: '0.1.14', created_at: '2026-09-01T00:00:00Z' }, { num: '0.1.13', created_at: '2025-10-17T00:00:00Z' }] };
+            const data = {
+                crate: { max_stable_version: '0.1.14' },
+                versions: [
+                    { num: '0.1.14', created_at: '2026-09-01T00:00:00Z' },
+                    { num: '0.1.13', created_at: '2025-10-17T00:00:00Z' }
+                ]
+            };
             return Promise.resolve(Response.json(data));
         })
     );
@@ -126,11 +132,12 @@ describe('documentRustCrates', () => {
 
         const result = await documentRustCrates('Identify', 'MIT');
 
-        expect(result?.crates[0]).toEqual(
-            expect.objectContaining({ publishedDate: '2025-10-17T00:00:00Z', latestVersion: '0.1.14', latestPublishedDate: '2026-09-01T00:00:00Z' })
-        );
+        expect(result?.crates[0]).toEqual(expect.objectContaining({ publishedDate: '2025-10-17T00:00:00Z', latestVersion: '0.1.14', latestPublishedDate: '2026-09-01T00:00:00Z' }));
         expect(result?.crates[1]).toEqual(expect.objectContaining({ publishedDate: '', latestVersion: '' }));
-        expect(fetch).toHaveBeenCalledWith('https://crates.io/api/v1/crates/csv-core', { headers: { 'User-Agent': expect.stringContaining('dpuse-development') as string } });
+        expect(fetch).toHaveBeenCalledWith('https://crates.io/api/v1/crates/csv-core', {
+            headers: { 'User-Agent': expect.stringContaining('dpuse-development') as string },
+            signal: expect.any(AbortSignal) as AbortSignal
+        });
     });
 
     describe('licences', () => {
