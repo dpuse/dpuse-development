@@ -3,9 +3,11 @@ import { init as initLicenseChecker } from 'license-checker-rseidelsohn';
 import type { InitOpts } from 'license-checker-rseidelsohn';
 
 // ── Local Framework
+import { documentRustCrates } from '@/utilities/rustCrates';
 import { SHIPPED_PACKAGES_FILE_NAME } from '@/vite';
 import type { ShippedPackagesRecord } from '@/vite';
 import { clearDirectory, logOperationHeader, logOperationSuccess, logStepHeader, readJSONFile, readTextFileOrNull, spawnCommandToFile, writeReadmeSection } from '@/utilities';
+import type { RustCrate, RustCrateTreeItem } from '@/utilities/rustCrates';
 
 // ── Types ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -18,7 +20,7 @@ interface License {
     latestPublishedDate: string;
     author: string;
     publishedDate: string;
-    licenseFileLink?: string;
+    licenseFiles: { label: string; path: string }[]; // Relative to the 'licenses' folder.
 }
 
 interface ProductionPackageLicense {
@@ -51,6 +53,13 @@ interface RootPackage {
     dependencies?: Record<string, string>;
     optionalDependencies?: Record<string, string>;
     peerDependencies?: Record<string, string>;
+}
+
+interface ShippedReadmeContext {
+    allowedLicenses: string;
+    productionNames: Set<string>;
+    rustCrates: { crates: RustCrate[]; treeItems: RustCrateTreeItem[] } | null;
+    shippedKeys: Set<string>;
 }
 
 interface ShippedTreeContext {
@@ -115,7 +124,9 @@ export async function documentDependencies(allowedLicenses = 'MIT'): Promise<voi
             // The whole installed tree, as a shipped package may be listed for development. Problems npm reports in the
             // development tools' part of it do not stop the tree being written.
             await spawnCommandToFile('3️⃣  Identify transitive dependencies', 'npm', ['ls', '--all', '--json'], LICENSE_TREE_PATH, true);
-            await insertShippedLicensesIntoReadme('4️⃣ ', allowedLicenses, shippedKeys, listProductionNames(rootPackage));
+            const rustCrates = await documentRustCrates('4️⃣  Identify Rust crates compiled into the WebAssembly', allowedLicenses);
+            const readmeContext = { allowedLicenses, productionNames: listProductionNames(rootPackage), rustCrates, shippedKeys };
+            await insertShippedLicensesIntoReadme(rustCrates === null ? '4️⃣ ' : '5️⃣ ', readmeContext);
         }
 
         logOperationSuccess('Dependencies documented');
@@ -156,16 +167,18 @@ async function insertDeclaredLicensesIntoReadme(stepIcon: string, allowedLicense
     await writeReadmeSection(`${LICENSES_HEADING}\n\n${licensesContent.trimEnd()}\n\n### Dependency Tree\n\n${treeContent}`, START_MARKER, END_MARKER);
 }
 
-// A table of exactly what the build ships, and the tree showing how each package is reached, with its release.
-async function insertShippedLicensesIntoReadme(stepIcon: string, allowedLicenses: string, shippedKeys: Set<string>, productionNames: Set<string>): Promise<void> {
+// A table of exactly what the build ships, npm packages and Rust crates together, and the tree showing how each is
+// reached, with its release.
+async function insertShippedLicensesIntoReadme(stepIcon: string, context: ShippedReadmeContext): Promise<void> {
     logStepHeader(`${stepIcon} Insert licenses into 'README.md'`);
 
+    const { allowedLicenses, productionNames, rustCrates, shippedKeys } = context;
     const licensesByKey = await readLicenses();
-    const sortedLicenses = licensesByKey
-        .values()
-        .toArray()
-        .toSorted((a, b) => a.name.localeCompare(b.name, 'en') || a.installedVersion.localeCompare(b.installedVersion, 'en'));
-    let licensesContent = `${buildLicensesIntro(allowedLicenses, true)}\n\n|Dependency|Version|License(s)|Document|\n|:-|:-:|:-|:-|\n`;
+    const crateLicensesByKey = new Map((rustCrates?.crates ?? []).map((crate) => [`${crate.name}@${crate.version}`, convertCrateToLicense(crate)]));
+    const sortedLicenses = [...licensesByKey.values(), ...crateLicensesByKey.values()].toSorted(
+        (a, b) => a.name.localeCompare(b.name, 'en') || a.installedVersion.localeCompare(b.installedVersion, 'en')
+    );
+    let licensesContent = `${buildLicensesIntro(allowedLicenses, true, rustCrates !== null)}\n\n|Dependency|Version|License(s)|Document|\n|:-|:-:|:-|:-|\n`;
     for (const license of sortedLicenses) {
         licensesContent += formatLicenseRow(license);
     }
@@ -175,9 +188,33 @@ async function insertShippedLicensesIntoReadme(stepIcon: string, allowedLicenses
     const rootEntries = Object.entries(licenseTree.dependencies ?? {}).toSorted(([a], [b]) => Number(!productionNames.has(a)) - Number(!productionNames.has(b)));
     const treeItems: string[] = [];
     walkShippedTree(rootEntries, { licensesByKey, shippedKeys, shownKeys: new Set() }, treeItems, 0, false);
+    const crateTreeItems = rustCrates?.treeItems ?? [];
+    for (const item of crateTreeItems) treeItems.push(formatCrateTreeItem(item, crateLicensesByKey));
     const treeContent = `${SHIPPED_TREE_INTRO}\n\n${treeItems.join('\n')}`;
 
     await writeReadmeSection(`${LICENSES_HEADING}\n\n${licensesContent.trimEnd()}\n\n### Dependency Tree\n\n${treeContent}`, START_MARKER, END_MARKER);
+}
+
+function convertCrateToLicense(crate: RustCrate): License {
+    return {
+        name: crate.name,
+        repository: crate.repository,
+        licenseTypes: crate.licenseExpression,
+        installedVersion: crate.version,
+        latestVersion: crate.latestVersion,
+        latestPublishedDate: crate.latestPublishedDate,
+        author: '',
+        publishedDate: crate.publishedDate,
+        licenseFiles: crate.licenseFiles
+    };
+}
+
+// The project's own crates head their part of the tree; they are this project's code, so have no licence row.
+function formatCrateTreeItem(item: RustCrateTreeItem, crateLicensesByKey: Map<string, License>): string {
+    const indent = '  '.repeat(item.depth);
+    return item.isOwn
+        ? `${indent}- **${item.name}** ${item.version} — this project's Rust code, compiled into its WebAssembly`
+        : formatTreeItem(item.name, item.version, crateLicensesByKey.get(`${item.name}@${item.version}`), indent);
 }
 
 function listProductionNames(rootPackage: RootPackage): Set<string> {
@@ -327,12 +364,20 @@ function resolveLockPath(packages: Record<string, PackageLockEntry>, fromPath: s
     }
 }
 
-function buildLicensesIntro(allowedLicenses: string, isFromBuild: boolean): string {
+function buildLicensesIntro(allowedLicenses: string, isFromBuild: boolean, hasRustCrates = false): string {
     const licenseListText = formatLicenseListText(allowedLicenses.split(';'));
+    const tools = hasRustCrates
+        ? '[license-checker](https://github.com/RSeidelsohn/license-checker-rseidelsohn) and [cargo tree](https://doc.rust-lang.org/cargo/commands/cargo-tree.html)'
+        : '[license-checker](https://github.com/RSeidelsohn/license-checker-rseidelsohn)';
+    const buildScope =
+        "The following table lists every package whose code, styles or assets are included in this project's build, as recorded by the build itself. Modules loaded at run time are not included; each documents its own.";
+    const rustScope =
+        ' It also lists every Rust crate compiled into its WebAssembly, as resolved by Cargo; macros and other crates used only while compiling put none of their code in it, so are left out.';
+    const fromBuildScope = hasRustCrates ? `${buildScope}${rustScope}` : buildScope;
     const scope = isFromBuild
-        ? "The following table lists every package whose code, styles or assets are included in this project's build, as recorded by the build itself. Modules loaded at run time are not included; each documents its own."
+        ? fromBuildScope
         : 'The following table lists all production dependencies. This project has no build record, so the list is taken from its declared dependencies.';
-    return `License data is updated each time \`npm run document\` is run, using [license-checker](https://github.com/RSeidelsohn/license-checker-rseidelsohn). ${scope} These dependencies have been checked and confirmed to use ${licenseListText}, all of which allow commercial use. All are used unmodified, so any licence conditions that apply only to modified versions are not triggered. Developers cloning this repository should independently verify development dependencies.`;
+    return `License data is updated each time \`npm run document\` is run, using ${tools}. ${scope} These dependencies have been checked and confirmed to use ${licenseListText}, all of which allow commercial use. All are used unmodified, so any licence conditions that apply only to modified versions are not triggered. Developers cloning this repository should independently verify development dependencies.`;
 }
 
 function formatLicenseListText(licenses: string[]): string {
@@ -353,7 +398,7 @@ function parseLicenseEntry(key: string, value: ProductionPackageLicense): Licens
         latestVersion: '',
         latestPublishedDate: '',
         publishedDate: '',
-        ...(value.licenseFile != null && { licenseFileLink: value.licenseFile })
+        licenseFiles: value.licenseFile == null ? [] : [{ label: 'LICENSE', path: value.licenseFile }]
     };
 }
 
@@ -376,7 +421,8 @@ async function fetchNpmData(name: string, version: string): Promise<{ latestVers
 }
 
 function formatLicenseRow(license: License): string {
-    const licenseLink = license.licenseFileLink == null || license.licenseFileLink === '' ? '⚠️  No license file' : `[LICENSE](licenses/${license.licenseFileLink})`;
+    const licenseLink =
+        license.licenseFiles.length === 0 ? '⚠️  No license file' : license.licenseFiles.map((licenseFile) => `[${licenseFile.label}](licenses/${licenseFile.path})`).join(' ');
     return `|[${license.name}](${license.repository})|${license.installedVersion}|${license.licenseTypes}|${licenseLink}|\n`;
 }
 

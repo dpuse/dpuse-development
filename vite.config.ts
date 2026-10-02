@@ -23,11 +23,13 @@ export default defineConfig({
                 'node:fs',
                 'node:path',
                 'node:readline',
+                'node:timers/promises',
                 'node:url',
                 'node:util',
                 'node:zlib',
                 'license-checker-rseidelsohn',
                 'npm-check-updates',
+                'spdx-satisfies',
                 'typescript'
             ],
             plugins: [Sonda({ filename: 'index', format: 'json', brotli: false, gzip: true, open: false, outputDir: './bundle-analysis-reports/sonda' })]

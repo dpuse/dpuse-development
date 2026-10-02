@@ -18,4 +18,6 @@ export { syncProjectWithGitHub } from './actions/syncProjectWithGitHub';
 
 export { testProject } from './actions/testProject';
 
+export { triggerGitHubRelease } from './actions/triggerGitHubRelease';
+
 export { uploadDirectoryToR2 } from './utilities/cloudflare';

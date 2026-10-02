@@ -34,6 +34,10 @@ vi.mock('@/utilities', async (importOriginal) => ({
     })
 }));
 
+// Listing Rust crates runs Cargo and is tested on its own; here it returns whatever crates a test sets.
+const rustCrates = vi.hoisted((): { result: unknown } => ({ result: null }));
+vi.mock('@/utilities/rustCrates', () => ({ documentRustCrates: vi.fn(() => Promise.resolve(rustCrates.result)) }));
+
 // ── Tests ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const project = useTemporaryProject();
@@ -246,6 +250,51 @@ describe('documentDependencies', () => {
             expect(readme).not.toContain('- **vue**');
             expect(readme).not.toContain('plugin-vue');
             expect(readme).not.toContain('compiler-dom');
+        });
+
+        it('adds the Rust crates compiled into the WebAssembly to the table and the tree, under the project’s own crate', async () => {
+            await project.writeFiles({
+                'package.json': JSON.stringify({ name: 'dpuse-app' }),
+                'package-lock.json': lockFile,
+                'bundle-analysis-reports/shipped-packages.json': JSON.stringify({ packages: ['vue-router@5.3.1'], external: [] }),
+                'README.md': buildReadme('DEPENDENCY_LICENSES')
+            });
+            licenseChecker.licenses = { 'vue-router@5.3.1': { licenses: 'MIT' } };
+            licenseTree.tree = {};
+            rustCrates.result = {
+                crates: [
+                    {
+                        name: 'csv-core',
+                        version: '0.1.13',
+                        licenseExpression: 'Unlicense/MIT',
+                        repository: 'https://github.com/BurntSushi/rust-csv',
+                        licenseFiles: [
+                            { label: 'LICENSE-MIT', path: 'downloads/csv-core@0.1.13-LICENSE-MIT' },
+                            { label: 'UNLICENSE', path: 'downloads/csv-core@0.1.13-UNLICENSE' }
+                        ],
+                        publishedDate: '2026-09-01T00:00:00Z',
+                        latestVersion: '0.1.13',
+                        latestPublishedDate: ''
+                    }
+                ],
+                treeItems: [
+                    { name: 'example-core', version: '0.1.0', depth: 0, isOwn: true },
+                    { name: 'csv-core', version: '0.1.13', depth: 1, isOwn: false }
+                ]
+            };
+            stubRegistry({});
+
+            await documentDependencies('MIT');
+            rustCrates.result = null;
+
+            const readme = await project.readFile('README.md');
+            expect(readme).toContain('It also lists every Rust crate compiled into its WebAssembly');
+            expect(readme).toContain(
+                '|[csv-core](https://github.com/BurntSushi/rust-csv)|0.1.13|Unlicense/MIT|[LICENSE-MIT](licenses/downloads/csv-core@0.1.13-LICENSE-MIT) [UNLICENSE](licenses/downloads/csv-core@0.1.13-UNLICENSE)|'
+            );
+            expect(readme).toContain(
+                "- **example-core** 0.1.0 — this project's Rust code, compiled into its WebAssembly\n  - **[csv-core](https://github.com/BurntSushi/rust-csv)** 0.1.13 — this month: 2026-09-01"
+            );
         });
 
         it('includes a package the build leaves to be installed by name, with what that package brings', async () => {
