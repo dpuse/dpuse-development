@@ -11,13 +11,13 @@ import { buildReadme, useTemporaryProject } from '../support/temporaryProject';
 // ── Mocks ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 // The licence checker and 'npm ls' write the two files the README is built from, so the mocks write fixtures instead.
-const licenseChecker = vi.hoisted((): { licenses: object; error: Error | undefined; options: { excludePackages?: string } } => ({
+const licenseChecker = vi.hoisted((): { licenses: object; error: Error | undefined; options: { excludePackages?: string; production?: boolean } } => ({
     licenses: {},
     error: undefined,
     options: {}
 }));
 vi.mock('license-checker-rseidelsohn', () => ({
-    init: (options: { excludePackages?: string }, callback: (error: Error | undefined) => void) => {
+    init: (options: { excludePackages?: string; production?: boolean }, callback: (error: Error | undefined) => void) => {
         licenseChecker.options = options;
         void fs.mkdir('licenses', { recursive: true }).then(async () => {
             await fs.writeFile('licenses/licenses.json', JSON.stringify(licenseChecker.licenses), 'utf-8');
@@ -151,6 +151,94 @@ describe('documentDependencies', () => {
         await documentDependencies();
 
         expect(licenseChecker.options.excludePackages).toBe('@dpuse/dpuse-shared');
+    });
+
+    it('leaves out of the tree optional peers that are not installed, which npm lists with no version', async () => {
+        await project.writeFiles({ 'package.json': JSON.stringify({ name: '@dpuse/dpuse-shared' }), 'README.md': buildReadme('DEPENDENCY_LICENSES') });
+        licenseChecker.licenses = { 'valibot@1.5.0': { licenses: 'MIT' } };
+        licenseTree.tree = { dependencies: { valibot: { version: '1.5.0', dependencies: { '@opentelemetry/api': {} } } } };
+        stubRegistry({});
+
+        await documentDependencies();
+
+        const readme = await project.readFile('README.md');
+        expect(readme).toContain('- **[valibot](https://www.npmjs.com/package/valibot)** 1.5.0');
+        expect(readme).not.toContain('@opentelemetry/api');
+    });
+
+    describe('with a build record', () => {
+        // The app ships vue-router and an icon set listed for development; Vite and vue-router's build tools do not ship.
+        const lockFile = JSON.stringify({
+            packages: {
+                '': { name: 'dpuse-app', dependencies: { 'vue-router': '^5.0.0' }, devDependencies: { '@lucide/vue': '^1.0.0', vite: '^8.0.0' } },
+                'node_modules/vue-router': { version: '5.3.1', dependencies: { chokidar: '^5.0.0' } },
+                'node_modules/chokidar': { version: '5.0.0' },
+                'node_modules/@lucide/vue': { version: '1.49.0', dev: true },
+                'node_modules/vite': { version: '8.3.2', dev: true }
+            }
+        });
+
+        it('checks exactly the packages the build recorded, including one listed for development, in one table', async () => {
+            await project.writeFiles({
+                'package.json': JSON.stringify({ name: 'dpuse-app' }),
+                'package-lock.json': lockFile,
+                'bundle-analysis-reports/shipped-packages.json': JSON.stringify({ packages: ['@lucide/vue@1.49.0', 'vue-router@5.3.1'], external: [] }),
+                'licenses/licenseTree.json': '{}',
+                'README.md': buildReadme('DEPENDENCY_LICENSES')
+            });
+            licenseChecker.licenses = { 'vue-router@5.3.1': { licenses: 'MIT' }, '@lucide/vue@1.49.0': { licenses: 'ISC' } };
+            stubRegistry({ 'vue-router': { latest: '5.3.1', time: { '5.3.1': '2026-09-01T00:00:00Z' } } });
+
+            await documentDependencies('ISC;MIT');
+
+            expect(licenseChecker.options.excludePackages).toBe('dpuse-app;chokidar@5.0.0;vite@8.3.2');
+            expect(licenseChecker.options.production).toBe(false);
+            const readme = await project.readFile('README.md');
+            expect(readme).toContain("every package whose code, styles or assets are included in this project's build");
+            expect(readme).toContain('|Dependency|Version|Release|License(s)|Document|');
+            expect(readme).toContain('|[@lucide/vue](https://www.npmjs.com/package/@lucide/vue)|1.49.0|');
+            expect(readme).toContain('|[vue-router](https://www.npmjs.com/package/vue-router)|5.3.1|this month: 2026-09-01|MIT|');
+            expect(readme).not.toContain('### Dependency Tree');
+            await expect(fs.access('licenses/licenseTree.json')).rejects.toThrow();
+        });
+
+        it('includes a package the build leaves to be installed by name, with what that package brings', async () => {
+            await project.writeFiles({
+                'package.json': JSON.stringify({ name: 'dpuse-app' }),
+                'package-lock.json': lockFile,
+                'bundle-analysis-reports/shipped-packages.json': JSON.stringify({ packages: [], external: ['vue-router'] }),
+                'README.md': buildReadme('DEPENDENCY_LICENSES')
+            });
+            stubRegistry({});
+
+            await documentDependencies();
+
+            expect(licenseChecker.options.excludePackages).toBe('dpuse-app;@lucide/vue@1.49.0;vite@8.3.2');
+        });
+
+        it('warns of a recorded package that is not installed, as its licence cannot be checked', async () => {
+            await project.writeFiles({
+                'package.json': JSON.stringify({ name: 'dpuse-app' }),
+                'package-lock.json': lockFile,
+                'bundle-analysis-reports/shipped-packages.json': JSON.stringify({ packages: ['vue-router@5.3.1', 'gone@1.0.0'], external: [] }),
+                'README.md': buildReadme('DEPENDENCY_LICENSES')
+            });
+            stubRegistry({});
+
+            await documentDependencies();
+
+            expect(console.warn).toHaveBeenCalledWith('⚠️   Not installed, so not checked; rebuild to refresh the record: gone@1.0.0');
+        });
+    });
+
+    it('says the table comes from declared dependencies when the project has no build record', async () => {
+        await project.writeFiles({ 'package.json': JSON.stringify({ name: '@dpuse/dpuse-shared' }), 'README.md': buildReadme('DEPENDENCY_LICENSES') });
+        stubRegistry({});
+
+        await documentDependencies();
+
+        expect(licenseChecker.options.production).toBe(true);
+        expect(await project.readFile('README.md')).toContain('This project has no build record, so the list is taken from its declared dependencies.');
     });
 
     it('lists each production dependency with its licence, and flags outdated and ageing packages in the tree', async () => {

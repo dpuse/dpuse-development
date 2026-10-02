@@ -11,13 +11,25 @@ import config from './config.json' with { type: 'json' };
 
 export default defineConfig({
     build: {
+        // Two entry points: the actions, and the build plugin for Vite configs, which must load without the actions.
         lib: {
-            entry: fileURLToPath(new URL('src/index.ts', import.meta.url)),
-            fileName: (format) => `${config.id}.${format}.js`,
+            entry: { [config.id]: fileURLToPath(new URL('src/index.ts', import.meta.url)), vite: fileURLToPath(new URL('src/vite.ts', import.meta.url)) },
+            fileName: (format, entryName) => `${entryName}.${format}.js`,
             formats: ['es']
         },
         rollupOptions: {
-            external: ['node:child_process', 'node:fs', 'node:path', 'node:readline', 'node:url', 'node:util', 'node:zlib', 'license-checker-rseidelsohn', 'npm-check-updates', 'typescript'],
+            external: [
+                'node:child_process',
+                'node:fs',
+                'node:path',
+                'node:readline',
+                'node:url',
+                'node:util',
+                'node:zlib',
+                'license-checker-rseidelsohn',
+                'npm-check-updates',
+                'typescript'
+            ],
             plugins: [Sonda({ filename: 'index', format: 'json', brotli: false, gzip: true, open: false, outputDir: './bundle-analysis-reports/sonda' })]
         },
         sourcemap: 'hidden',

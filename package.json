@@ -1,6 +1,6 @@
 {
     "name": "@dpuse/dpuse-development",
-    "version": "0.3.812",
+    "version": "0.3.813",
     "private": false,
     "description": "Actions for managing DPUse projects.",
     "license": "MIT",
@@ -22,7 +22,11 @@
             "import": "./dist/dpuse-development.es.js",
             "types": "./dist/types/src/index.d.ts"
         },
-        "./prettierrc": "./.prettierrc.json"
+        "./prettierrc": "./.prettierrc.json",
+        "./vite": {
+            "import": "./dist/vite.es.js",
+            "types": "./dist/types/src/vite.d.ts"
+        }
     },
     "files": [
         ".editorconfig",

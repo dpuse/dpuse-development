@@ -1,8 +1,11 @@
 // ── External Dependencies & Registrations
+import { promises as fs } from 'node:fs';
 import { init as initLicenseChecker } from 'license-checker-rseidelsohn';
 import type { InitOpts } from 'license-checker-rseidelsohn';
 
 // ── Local Framework
+import { SHIPPED_PACKAGES_FILE_NAME } from '@/vite';
+import type { ShippedPackagesRecord } from '@/vite';
 import { clearDirectory, logOperationHeader, logOperationSuccess, logStepHeader, readJSONFile, readTextFileOrNull, spawnCommandToFile, writeReadmeSection } from '@/utilities';
 
 // ── Types ────────────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -53,6 +56,8 @@ interface NpmPackageTree {
 const START_MARKER = '<!-- DEPENDENCY_LICENSES_START -->';
 const END_MARKER = '<!-- DEPENDENCY_LICENSES_END -->';
 const LICENSES_HEADING = '## Dependency Licenses';
+const SHIPPED_PACKAGES_RECORD_PATH = `bundle-analysis-reports/${SHIPPED_PACKAGES_FILE_NAME}`; // Written by the 'recordShippedPackages' build plugin.
+const LICENSE_TREE_PATH = 'licenses/licenseTree.json';
 
 const DEPENDENCY_TREE_INTRO =
     "The dependency tree below lists every package in this project — direct and transitive — along with its installed version, release date, and update status. Packages flagged ❗ have a newer version available; ⚠️ indicates a package that hasn't been updated in the last 6 months or longer. Neither flag necessarily indicates a problem: we let new releases stabilise before upgrading, and some packages are mature and stable (have limited or no dependencies), so they require no active development.";
@@ -75,33 +80,26 @@ export async function documentDependencies(allowedLicenses = 'MIT'): Promise<voi
         }
 
         await clearDirectory('1️⃣  Clear downloaded licenses', 'licenses/downloads');
-        const unshippedPackages = await listUnshippedPackages();
+        const lockPackages = await readLockPackages();
+        const shippedRecord = await readShippedRecord();
 
-        logStepHeader('2️⃣  Identify production licenses');
-        await new Promise<void>((resolve, reject) => {
-            const options: InitOpts & { files: string; relativeModulePath: boolean } = {
-                start: process.cwd(),
-                production: true,
-                json: true,
-                files: 'licenses/downloads',
-                relativeModulePath: true,
-                relativeLicensePath: true,
-                onlyAllow: allowedLicenses,
-                excludePackages: [rootPackage.name ?? '', ...unshippedPackages].join(';'),
-                out: 'licenses/licenses.json'
-            };
-            initLicenseChecker(options, (error: Error | undefined) => {
-                if (error == null) {
-                    resolve();
-                } else {
-                    reject(error);
-                }
-            });
-        });
-
-        await spawnCommandToFile('3️⃣  Identify transitive dependencies', 'npm', ['ls', '--all', '--json', '--omit=dev'], 'licenses/licenseTree.json');
-
-        await insertLicensesIntoReadme('4️⃣ ', allowedLicenses, new Set(unshippedPackages));
+        if (shippedRecord === null) {
+            // No build record, such as for a project not built with Vite: fall back to the declared dependencies.
+            const unshippedPackages = listUnshippedPackages(lockPackages);
+            await checkLicenses('2️⃣  Identify production licenses', allowedLicenses, [rootPackage.name ?? '', ...unshippedPackages], true);
+            await spawnCommandToFile('3️⃣  Identify transitive dependencies', 'npm', ['ls', '--all', '--json', '--omit=dev'], LICENSE_TREE_PATH);
+            await insertDeclaredLicensesIntoReadme('4️⃣ ', allowedLicenses, new Set(unshippedPackages));
+        } else {
+            const shippedKeys = collectShippedKeys(shippedRecord, lockPackages);
+            const installedKeys = listInstalledKeys(lockPackages);
+            const notShipped = installedKeys.filter((packageKey) => !shippedKeys.has(packageKey));
+            // Not limited to production dependencies: a package listed for development, such as an icon set, still ships
+            // when the build bundles it.
+            await checkLicenses('2️⃣  Identify shipped licenses', allowedLicenses, [rootPackage.name ?? '', ...notShipped], false);
+            warnOfMissingPackages(shippedKeys, new Set(installedKeys));
+            await fs.rm(LICENSE_TREE_PATH, { force: true }); // The installed tree describes something else, so is no longer kept.
+            await insertShippedLicensesIntoReadme('3️⃣ ', allowedLicenses);
+        }
 
         logOperationSuccess('Dependencies documented');
     } catch (error) {
@@ -120,29 +118,13 @@ async function skipDependencyDocumentation(name: string): Promise<void> {
     await writeReadmeSection(`${LICENSES_HEADING}\n\n${message}`, START_MARKER, END_MARKER);
 }
 
-async function insertLicensesIntoReadme(stepIcon: string, allowedLicenses: string, unshippedPackages: Set<string>): Promise<void> {
+async function insertDeclaredLicensesIntoReadme(stepIcon: string, allowedLicenses: string, unshippedPackages: Set<string>): Promise<void> {
     logStepHeader(`${stepIcon} Insert licenses into 'README.md'`);
 
-    const [licenses, licenseTree] = await Promise.all([
-        readJSONFile<Record<string, ProductionPackageLicense>>('licenses/licenses.json'),
-        readJSONFile<NpmPackageTree>('licenses/licenseTree.json')
-    ]);
+    const licenseTree = await readJSONFile<NpmPackageTree>(LICENSE_TREE_PATH);
+    const licensesByKey = await readLicenses();
 
-    const licensesByKey = new Map<string, License>();
-    for (const [key, value] of Object.entries(licenses)) {
-        licensesByKey.set(key, parseLicenseEntry(key, value));
-    }
-
-    await Promise.all(
-        licensesByKey.values().map(async (license) => {
-            const data = await fetchNpmData(license.name, license.installedVersion);
-            license.latestVersion = data.latestVersion;
-            license.latestPublishedDate = data.latestPublishedDate;
-            license.publishedDate = data.publishedDate;
-        })
-    );
-
-    const licensesIntro = buildLicensesIntro(allowedLicenses);
+    const licensesIntro = buildLicensesIntro(allowedLicenses, false);
     let licensesContent = `${licensesIntro}\n\n|Dependency|Version|License(s)|Document|\n|:-|:-:|:-|:-|\n`;
     for (const license of licensesByKey.values()) {
         licensesContent += formatLicenseRow(license);
@@ -157,22 +139,120 @@ async function insertLicensesIntoReadme(stepIcon: string, allowedLicenses: strin
     await writeReadmeSection(`${LICENSES_HEADING}\n\n${licensesContent.trimEnd()}\n\n### Dependency Tree\n\n${treeContent}`, START_MARKER, END_MARKER);
 }
 
+// One table of exactly what the build ships, each package with its release and whether a newer one is out.
+async function insertShippedLicensesIntoReadme(stepIcon: string, allowedLicenses: string): Promise<void> {
+    logStepHeader(`${stepIcon} Insert licenses into 'README.md'`);
+
+    const licensesByKey = await readLicenses();
+    const sortedLicenses = licensesByKey
+        .values()
+        .toArray()
+        .toSorted((a, b) => a.name.localeCompare(b.name, 'en') || a.installedVersion.localeCompare(b.installedVersion, 'en'));
+    let licensesContent = `${buildLicensesIntro(allowedLicenses, true)}\n\n|Dependency|Version|Release|License(s)|Document|\n|:-|:-:|:-|:-|:-|\n`;
+    for (const license of sortedLicenses) {
+        licensesContent += formatShippedLicenseRow(license);
+    }
+
+    await writeReadmeSection(`${LICENSES_HEADING}\n\n${licensesContent.trimEnd()}`, START_MARKER, END_MARKER);
+}
+
+async function readLicenses(): Promise<Map<string, License>> {
+    const licenses = await readJSONFile<Record<string, ProductionPackageLicense>>('licenses/licenses.json');
+    const licensesByKey = new Map<string, License>();
+    for (const [key, value] of Object.entries(licenses)) {
+        licensesByKey.set(key, parseLicenseEntry(key, value));
+    }
+    await Promise.all(
+        licensesByKey.values().map(async (license) => {
+            const data = await fetchNpmData(license.name, license.installedVersion);
+            license.latestVersion = data.latestVersion;
+            license.latestPublishedDate = data.latestPublishedDate;
+            license.publishedDate = data.publishedDate;
+        })
+    );
+    return licensesByKey;
+}
+
+async function checkLicenses(stepLabel: string, allowedLicenses: string, excludedKeys: string[], isProductionOnly: boolean): Promise<void> {
+    logStepHeader(stepLabel);
+    await new Promise<void>((resolve, reject) => {
+        const options: InitOpts & { files: string; relativeModulePath: boolean } = {
+            start: process.cwd(),
+            production: isProductionOnly,
+            json: true,
+            files: 'licenses/downloads',
+            relativeModulePath: true,
+            relativeLicensePath: true,
+            onlyAllow: allowedLicenses,
+            excludePackages: excludedKeys.join(';'),
+            out: 'licenses/licenses.json'
+        };
+        initLicenseChecker(options, (error: Error | undefined) => {
+            if (error == null) {
+                resolve();
+            } else {
+                reject(error);
+            }
+        });
+    });
+}
+
+async function readLockPackages(): Promise<Record<string, PackageLockEntry>> {
+    const lockText = await readTextFileOrNull('package-lock.json');
+    return lockText === null ? {} : ((JSON.parse(lockText) as PackageLock).packages ?? {});
+}
+
+async function readShippedRecord(): Promise<ShippedPackagesRecord | null> {
+    const recordText = await readTextFileOrNull(SHIPPED_PACKAGES_RECORD_PATH);
+    return recordText === null ? null : (JSON.parse(recordText) as ShippedPackagesRecord);
+}
+
+// The recorded packages, plus each package the build leaves to be installed by name, with whatever that one brings.
+function collectShippedKeys(record: ShippedPackagesRecord, lockPackages: Record<string, PackageLockEntry>): Set<string> {
+    const shippedKeys = new Set(record.packages);
+    for (const externalName of record.external) {
+        const lockPath = resolveLockPath(lockPackages, '', externalName);
+        if (lockPath === undefined) continue;
+        for (const shippedPath of [lockPath, ...findShippedPaths(lockPackages, lockPath)]) {
+            const entry = lockPackages[shippedPath];
+            if (entry?.version !== undefined) shippedKeys.add(formatPackageKey(shippedPath, entry));
+        }
+    }
+    return shippedKeys;
+}
+
+function listInstalledKeys(lockPackages: Record<string, PackageLockEntry>): string[] {
+    const installedKeys = new Set<string>();
+    for (const [lockPath, entry] of Object.entries(lockPackages)) {
+        if (lockPath !== '' && entry.version !== undefined) installedKeys.add(formatPackageKey(lockPath, entry));
+    }
+    return [...installedKeys];
+}
+
+// A recorded package that is not installed means the record is from an older build, so its licence goes unchecked.
+function warnOfMissingPackages(shippedKeys: Set<string>, installedKeys: Set<string>): void {
+    const missingKeys = [...shippedKeys.difference(installedKeys)];
+    if (missingKeys.length > 0) console.warn(`⚠️   Not installed, so not checked; rebuild to refresh the record: ${missingKeys.join(', ')}`);
+}
+
+function formatPackageKey(lockPath: string, entry: PackageLockEntry): string {
+    const name = entry.name ?? lockPath.slice(lockPath.lastIndexOf('node_modules/') + 'node_modules/'.length);
+    return `${name}@${String(entry.version)}`;
+}
+
 // Packages installed but never shipped, as 'name@version'. A package ships when the project's own dependencies reach it
 // through dependencies, optional dependencies or required peers. Optional peers are not followed: TypeScript as
 // valibot's optional peer, or Vite as vue-router's, is installed only because a development tool needs it. The tree is
 // walked rather than npm's 'dev' flags trusted, as npm marks some packages under a development-only one as merely
 // 'optional', such as lightningcss's platform binary under Vite. The licence checker follows every link, so without
 // this it would count such packages as shipped. A package also installed, at the same version, for a shipped reason is kept.
-async function listUnshippedPackages(): Promise<string[]> {
-    const lockText = await readTextFileOrNull('package-lock.json');
-    const packages = lockText === null ? {} : ((JSON.parse(lockText) as PackageLock).packages ?? {});
-    const shippedPaths = findShippedPaths(packages);
+function listUnshippedPackages(lockPackages: Record<string, PackageLockEntry>): string[] {
+    const shippedPaths = findShippedPaths(lockPackages, '');
     const shipped = new Set<string>();
     const unshipped = new Set<string>();
-    for (const [lockPath, entry] of Object.entries(packages)) {
+    for (const [lockPath, entry] of Object.entries(lockPackages)) {
         if (lockPath === '' || entry.version === undefined) continue;
-        const name = entry.name ?? lockPath.slice(lockPath.lastIndexOf('node_modules/') + 'node_modules/'.length);
-        const packageKey = `${name}@${entry.version}`;
+        const packageKey = formatPackageKey(lockPath, entry);
         if (shippedPaths.has(lockPath)) shipped.add(packageKey);
         else unshipped.add(packageKey);
     }
@@ -182,10 +262,10 @@ async function listUnshippedPackages(): Promise<string[]> {
         .toArray();
 }
 
-// The lock file paths reached from the project's own entry, following the links that ship with a package.
-function findShippedPaths(packages: Record<string, PackageLockEntry>): Set<string> {
+// The lock file paths reached from a starting entry, the project's own by default, following the links that ship with a package.
+function findShippedPaths(packages: Record<string, PackageLockEntry>, startPath: string): Set<string> {
     const shippedPaths = new Set<string>();
-    const pendingPaths = [''];
+    const pendingPaths = [startPath];
     while (pendingPaths.length > 0) {
         const fromPath = pendingPaths.pop() ?? '';
         const entry = packages[fromPath];
@@ -219,9 +299,12 @@ function resolveLockPath(packages: Record<string, PackageLockEntry>, fromPath: s
     }
 }
 
-function buildLicensesIntro(allowedLicenses: string): string {
+function buildLicensesIntro(allowedLicenses: string, isFromBuild: boolean): string {
     const licenseListText = formatLicenseListText(allowedLicenses.split(';'));
-    return `License data is updated each time \`npm run document\` is run, using [license-checker](https://github.com/RSeidelsohn/license-checker-rseidelsohn). The following table lists all production dependencies. These dependencies (including transitive ones) have been checked and confirmed to use ${licenseListText}, all of which allow commercial use. All are used unmodified, so any licence conditions that apply only to modified versions are not triggered. These checks cover the dependencies of the published library; developers cloning this repository should independently verify development dependencies.`;
+    const scope = isFromBuild
+        ? "The following table lists every package whose code, styles or assets are included in this project's build, as recorded by the build itself. Modules loaded at run time are not included; each documents its own."
+        : 'The following table lists all production dependencies. This project has no build record, so the list is taken from its declared dependencies.';
+    return `License data is updated each time \`npm run document\` is run, using [license-checker](https://github.com/RSeidelsohn/license-checker-rseidelsohn). ${scope} These dependencies have been checked and confirmed to use ${licenseListText}, all of which allow commercial use. All are used unmodified, so any licence conditions that apply only to modified versions are not triggered. Developers cloning this repository should independently verify development dependencies.`;
 }
 
 function formatLicenseListText(licenses: string[]): string {
@@ -269,10 +352,17 @@ function formatLicenseRow(license: License): string {
     return `|[${license.name}](${license.repository})|${license.installedVersion}|${license.licenseTypes}|${licenseLink}|\n`;
 }
 
+function formatShippedLicenseRow(license: License): string {
+    const licenseLink = license.licenseFileLink == null || license.licenseFileLink === '' ? '⚠️  No license file' : `[LICENSE](licenses/${license.licenseFileLink})`;
+    return `|[${license.name}](${license.repository})|${license.installedVersion}|${formatVersionDetail(license).replace(/^ — /, '')}|${license.licenseTypes}|${licenseLink}|\n`;
+}
+
 function walkTreeList(dependencies: Record<string, NpmPackageTree>, licensesByKey: Map<string, License>, unshippedPackages: Set<string>, items: string[], depth: number): void {
     const indent = '  '.repeat(depth);
     for (const [name, node] of Object.entries(dependencies)) {
-        const version = node.version ?? '';
+        // npm lists optional peers that nothing installs, such as '@opentelemetry/api' for '@tanstack/ai', with no version.
+        if (node.version === undefined) continue;
+        const version = node.version;
         if (unshippedPackages.has(`${name}@${version}`)) continue;
         const license = licensesByKey.get(`${name}@${version}`);
         const nameLink = license == null ? name : `[${name}](${license.repository})`;

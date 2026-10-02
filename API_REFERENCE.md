@@ -27,3 +27,19 @@ Every export, grouped by import path. This file is updated each time `npm run do
 - **`testProject`**`(testTypeIds?: TestTypeId[])`
     > Runs the requested types of test, skipping any type this project has not configured.
 - **`uploadDirectoryToR2`**`(sourceDirectory: string, uploadDirectory: string)`
+
+## @dpuse/dpuse-development/vite
+
+### Functions
+
+- **`recordShippedPackages`**`()`
+    > Records which installed packages a build ships, read from the bundler's own list of what it put in each output file. Modules loaded at run time by URL are not part of the build, so are not recorded; each reports its own. A bundled package that publishes its own record, as DPUse packages do, adds the packages bundled inside it.
+
+### Constants
+
+- **`SHIPPED_PACKAGES_FILE_NAME`**`: string`
+
+### Types
+
+- **`ShippedPackagesRecord`**
+    > What a build ships: the installed packages whose code, styles or assets are in its output, as 'name@version', and the packages its output still imports by name, which whoever installs it also receives.
