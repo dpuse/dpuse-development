@@ -183,10 +183,10 @@ describe('documentDependencies', () => {
                 'package.json': JSON.stringify({ name: 'dpuse-app' }),
                 'package-lock.json': lockFile,
                 'bundle-analysis-reports/shipped-packages.json': JSON.stringify({ packages: ['@lucide/vue@1.49.0', 'vue-router@5.3.1'], external: [] }),
-                'licenses/licenseTree.json': '{}',
                 'README.md': buildReadme('DEPENDENCY_LICENSES')
             });
             licenseChecker.licenses = { 'vue-router@5.3.1': { licenses: 'MIT' }, '@lucide/vue@1.49.0': { licenses: 'ISC' } };
+            licenseTree.tree = {};
             stubRegistry({ 'vue-router': { latest: '5.3.1', time: { '5.3.1': '2026-09-01T00:00:00Z' } } });
 
             await documentDependencies('ISC;MIT');
@@ -198,8 +198,54 @@ describe('documentDependencies', () => {
             expect(readme).toContain('|Dependency|Version|Release|License(s)|Document|');
             expect(readme).toContain('|[@lucide/vue](https://www.npmjs.com/package/@lucide/vue)|1.49.0|');
             expect(readme).toContain('|[vue-router](https://www.npmjs.com/package/vue-router)|5.3.1|this month: 2026-09-01|MIT|');
-            expect(readme).not.toContain('### Dependency Tree');
-            await expect(fs.access('licenses/licenseTree.json')).rejects.toThrow();
+        });
+
+        it('lists in the tree only what ships, putting what ships beneath a package that does not in its place', async () => {
+            await project.writeFiles({
+                'package.json': JSON.stringify({ name: 'dpuse-app', dependencies: { vue: '^3.5.0' }, devDependencies: { '@vitejs/plugin-vue': '^6.0.0' } }),
+                'package-lock.json': JSON.stringify({
+                    packages: {
+                        '': { name: 'dpuse-app', dependencies: { vue: '^3.5.0' }, devDependencies: { '@vitejs/plugin-vue': '^6.0.0' } },
+                        'node_modules/vue': { version: '3.5.43', dependencies: { '@vue/runtime-dom': '3.5.43', '@vue/compiler-dom': '3.5.43' } },
+                        'node_modules/@vue/runtime-dom': { version: '3.5.43', dependencies: { '@vue/shared': '3.5.43' } },
+                        'node_modules/@vue/compiler-dom': { version: '3.5.43', dependencies: { '@vue/shared': '3.5.43' } },
+                        'node_modules/@vue/shared': { version: '3.5.43' },
+                        'node_modules/@vitejs/plugin-vue': { version: '6.0.1', dev: true }
+                    }
+                }),
+                'bundle-analysis-reports/shipped-packages.json': JSON.stringify({ packages: ['@vue/runtime-dom@3.5.43', '@vue/shared@3.5.43'], external: [] }),
+                'README.md': buildReadme('DEPENDENCY_LICENSES')
+            });
+            licenseChecker.licenses = { '@vue/runtime-dom@3.5.43': { licenses: 'MIT' }, '@vue/shared@3.5.43': { licenses: 'MIT' } };
+            // npm lists the development tool first; the production dependency is still walked first.
+            licenseTree.tree = {
+                dependencies: {
+                    '@vitejs/plugin-vue': { version: '6.0.1', dependencies: { '@vue/shared': { version: '3.5.43' } } },
+                    vue: {
+                        version: '3.5.43',
+                        dependencies: {
+                            '@vue/compiler-dom': { version: '3.5.43', dependencies: { '@vue/shared': { version: '3.5.43' } } },
+                            '@vue/runtime-dom': { version: '3.5.43', dependencies: { '@vue/shared': { version: '3.5.43' } } }
+                        }
+                    }
+                }
+            };
+            stubRegistry({});
+
+            await documentDependencies();
+
+            const readme = await project.readFile('README.md');
+            expect(readme).toContain('### Dependency Tree');
+            expect(readme).toContain(
+                [
+                    '- **[@vue/shared](https://www.npmjs.com/package/@vue/shared)** 3.5.43',
+                    '- **[@vue/runtime-dom](https://www.npmjs.com/package/@vue/runtime-dom)** 3.5.43',
+                    '  - **[@vue/shared](https://www.npmjs.com/package/@vue/shared)** 3.5.43\n'
+                ].join('\n')
+            );
+            expect(readme).not.toContain('- **vue**');
+            expect(readme).not.toContain('plugin-vue');
+            expect(readme).not.toContain('compiler-dom');
         });
 
         it('includes a package the build leaves to be installed by name, with what that package brings', async () => {

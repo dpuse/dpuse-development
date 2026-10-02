@@ -1,5 +1,4 @@
 // ── External Dependencies & Registrations
-import { promises as fs } from 'node:fs';
 import { init as initLicenseChecker } from 'license-checker-rseidelsohn';
 import type { InitOpts } from 'license-checker-rseidelsohn';
 
@@ -46,6 +45,20 @@ interface PackageLockEntry {
     peerDependenciesMeta?: Record<string, { optional?: boolean }>;
 }
 
+interface RootPackage {
+    name?: string;
+    version?: string;
+    dependencies?: Record<string, string>;
+    optionalDependencies?: Record<string, string>;
+    peerDependencies?: Record<string, string>;
+}
+
+interface ShippedTreeContext {
+    licensesByKey: Map<string, License>;
+    shippedKeys: Set<string>;
+    shownKeys: Set<string>;
+}
+
 interface NpmPackageTree {
     version?: string;
     dependencies?: Record<string, NpmPackageTree>;
@@ -59,8 +72,10 @@ const LICENSES_HEADING = '## Dependency Licenses';
 const SHIPPED_PACKAGES_RECORD_PATH = `bundle-analysis-reports/${SHIPPED_PACKAGES_FILE_NAME}`; // Written by the 'recordShippedPackages' build plugin.
 const LICENSE_TREE_PATH = 'licenses/licenseTree.json';
 
-const DEPENDENCY_TREE_INTRO =
-    "The dependency tree below lists every package in this project — direct and transitive — along with its installed version, release date, and update status. Packages flagged ❗ have a newer version available; ⚠️ indicates a package that hasn't been updated in the last 6 months or longer. Neither flag necessarily indicates a problem: we let new releases stabilise before upgrading, and some packages are mature and stable (have limited or no dependencies), so they require no active development.";
+const DEPENDENCY_TREE_FLAGS =
+    "Packages flagged ❗ have a newer version available; ⚠️ indicates a package that hasn't been updated in the last 6 months or longer. Neither flag necessarily indicates a problem: we let new releases stabilise before upgrading, and some packages are mature and stable (have limited or no dependencies), so they require no active development.";
+const DEPENDENCY_TREE_INTRO = `The dependency tree below lists every package in this project — direct and transitive — along with its installed version, release date, and update status. ${DEPENDENCY_TREE_FLAGS}`;
+const SHIPPED_TREE_INTRO = `The dependency tree below shows how each package in the table above is reached — direct and transitive — along with its installed version, release date, and update status. A package that does not ship itself, such as one whose parts are bundled separately, is left out and what ships beneath it is shown in its place. ${DEPENDENCY_TREE_FLAGS}`;
 
 // ── Actions ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -71,7 +86,7 @@ export async function documentDependencies(allowedLicenses = 'MIT'): Promise<voi
     try {
         logOperationHeader('Document Dependencies');
 
-        const rootPackage = await readJSONFile<{ name?: string; version?: string }>('package.json');
+        const rootPackage = await readJSONFile<RootPackage>('package.json');
 
         if (rootPackage.name === '@dpuse/dpuse-development' || rootPackage.name === '@dpuse/eslint-config-dpuse') {
             await skipDependencyDocumentation(rootPackage.name);
@@ -97,8 +112,10 @@ export async function documentDependencies(allowedLicenses = 'MIT'): Promise<voi
             // when the build bundles it.
             await checkLicenses('2️⃣  Identify shipped licenses', allowedLicenses, [rootPackage.name ?? '', ...notShipped], false);
             warnOfMissingPackages(shippedKeys, new Set(installedKeys));
-            await fs.rm(LICENSE_TREE_PATH, { force: true }); // The installed tree describes something else, so is no longer kept.
-            await insertShippedLicensesIntoReadme('3️⃣ ', allowedLicenses);
+            // The whole installed tree, as a shipped package may be listed for development. Problems npm reports in the
+            // development tools' part of it do not stop the tree being written.
+            await spawnCommandToFile('3️⃣  Identify transitive dependencies', 'npm', ['ls', '--all', '--json'], LICENSE_TREE_PATH, true);
+            await insertShippedLicensesIntoReadme('4️⃣ ', allowedLicenses, shippedKeys, listProductionNames(rootPackage));
         }
 
         logOperationSuccess('Dependencies documented');
@@ -139,8 +156,9 @@ async function insertDeclaredLicensesIntoReadme(stepIcon: string, allowedLicense
     await writeReadmeSection(`${LICENSES_HEADING}\n\n${licensesContent.trimEnd()}\n\n### Dependency Tree\n\n${treeContent}`, START_MARKER, END_MARKER);
 }
 
-// One table of exactly what the build ships, each package with its release and whether a newer one is out.
-async function insertShippedLicensesIntoReadme(stepIcon: string, allowedLicenses: string): Promise<void> {
+// A table of exactly what the build ships, each package with its release and whether a newer one is out, and the tree
+// showing how each is reached.
+async function insertShippedLicensesIntoReadme(stepIcon: string, allowedLicenses: string, shippedKeys: Set<string>, productionNames: Set<string>): Promise<void> {
     logStepHeader(`${stepIcon} Insert licenses into 'README.md'`);
 
     const licensesByKey = await readLicenses();
@@ -153,7 +171,18 @@ async function insertShippedLicensesIntoReadme(stepIcon: string, allowedLicenses
         licensesContent += formatShippedLicenseRow(license);
     }
 
-    await writeReadmeSection(`${LICENSES_HEADING}\n\n${licensesContent.trimEnd()}`, START_MARKER, END_MARKER);
+    // Production dependencies first, so a package reached both ways is placed under the one that ships it.
+    const licenseTree = await readJSONFile<NpmPackageTree>(LICENSE_TREE_PATH);
+    const rootEntries = Object.entries(licenseTree.dependencies ?? {}).toSorted(([a], [b]) => Number(!productionNames.has(a)) - Number(!productionNames.has(b)));
+    const treeItems: string[] = [];
+    walkShippedTree(rootEntries, { licensesByKey, shippedKeys, shownKeys: new Set() }, treeItems, 0, false);
+    const treeContent = `${SHIPPED_TREE_INTRO}\n\n${treeItems.join('\n')}`;
+
+    await writeReadmeSection(`${LICENSES_HEADING}\n\n${licensesContent.trimEnd()}\n\n### Dependency Tree\n\n${treeContent}`, START_MARKER, END_MARKER);
+}
+
+function listProductionNames(rootPackage: RootPackage): Set<string> {
+    return new Set([...Object.keys(rootPackage.dependencies ?? {}), ...Object.keys(rootPackage.optionalDependencies ?? {}), ...Object.keys(rootPackage.peerDependencies ?? {})]);
 }
 
 async function readLicenses(): Promise<Map<string, License>> {
@@ -364,14 +393,35 @@ function walkTreeList(dependencies: Record<string, NpmPackageTree>, licensesByKe
         if (node.version === undefined) continue;
         const version = node.version;
         if (unshippedPackages.has(`${name}@${version}`)) continue;
-        const license = licensesByKey.get(`${name}@${version}`);
-        const nameLink = license == null ? name : `[${name}](${license.repository})`;
-        const versionDetail = formatVersionDetail(license);
-        items.push(`${indent}- **${nameLink}** ${version}${versionDetail}`);
+        items.push(formatTreeItem(name, version, licensesByKey.get(`${name}@${version}`), indent));
         if (node.dependencies != null) {
             walkTreeList(node.dependencies, licensesByKey, unshippedPackages, items, depth + 1);
         }
     }
+}
+
+// Lists each shipped package where it is reached. A package that does not ship, such as 'vue' whose '@vue/*' parts are
+// bundled, or a development tool, is passed over and what ships beneath it is listed in its place. A package reached
+// that way is listed once only, as it is already listed wherever a shipped package reaches it.
+function walkShippedTree(entries: [string, NpmPackageTree][], context: ShippedTreeContext, items: string[], depth: number, isPassedOver: boolean): void {
+    for (const [name, node] of entries) {
+        if (node.version === undefined) continue;
+        const packageKey = `${name}@${node.version}`;
+        const childEntries = Object.entries(node.dependencies ?? {});
+        if (!context.shippedKeys.has(packageKey)) {
+            walkShippedTree(childEntries, context, items, depth, true);
+            continue;
+        }
+        if (isPassedOver && context.shownKeys.has(packageKey)) continue;
+        context.shownKeys.add(packageKey);
+        items.push(formatTreeItem(name, node.version, context.licensesByKey.get(packageKey), '  '.repeat(depth)));
+        walkShippedTree(childEntries, context, items, depth + 1, false);
+    }
+}
+
+function formatTreeItem(name: string, version: string, license: License | undefined, indent: string): string {
+    const nameLink = license == null ? name : `[${name}](${license.repository})`;
+    return `${indent}- **${nameLink}** ${version}${formatVersionDetail(license)}`;
 }
 
 function formatVersionDetail(license: License | undefined): string {

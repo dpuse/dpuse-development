@@ -6,10 +6,10 @@
 
 | Metric | Value |
 |:-------|------:|
-| Total LOC | 3231 |
+| Total LOC | 3281 |
 | Avg Cyclomatic | 2.9 |
 | P90 Cyclomatic | 6 |
-| Cyclomatic units | Functions: 257, module scopes: 0, templates: 0 |
+| Cyclomatic units | Functions: 261, module scopes: 0, templates: 0 |
 | Dead Files | 0.0% |
 | Dead Exports | 0.0% |
 | Maintainability (avg) | 92.3 |
@@ -57,12 +57,12 @@
 | `src/actions/documentBundleSizes.ts` | 78.0 | 40 | 1343 | 0.28 | 1 | cooling |
 | `src/actions/checkConfigFiles.ts` | 70.0 | 48 | 543 | 0.21 | 1 | cooling |
 | `src/utilities/index.ts` | 62.8 | 36 | 510 | 0.24 | 21 | stable |
-| `src/actions/documentDependencies.ts` | 53.7 | 25 | 517 | 0.30 | 1 | cooling |
+| `src/actions/documentDependencies.ts` | 57.0 | 26 | 717 | 0.30 | 1 | cooling |
 | `src/actions/documentOpening.ts` | 28.8 | 19 | 283 | 0.17 | 1 | accelerating |
 | `src/actions/documentUsage.ts` | 27.9 | 16 | 330 | 0.18 | 1 | accelerating |
 | `src/actions/checkDependencies.ts` | 17.8 | 17 | 194 | 0.13 | 1 | stable |
-| `src/actions/documentQualitySecurity.ts` | 13.6 | 7 | 601 | 0.18 | 1 | cooling |
-| `src/utilities/cloudflare.ts` | 12.1 | 9 | 41 | 0.22 | 2 | stable |
+| `src/actions/documentQualitySecurity.ts` | 13.5 | 7 | 601 | 0.18 | 1 | cooling |
+| `src/utilities/cloudflare.ts` | 12.2 | 9 | 41 | 0.22 | 2 | stable |
 | `src/actions/documentApiReference.ts` | 11.1 | 13 | 772 | 0.08 | 1 | cooling |
 | `src/actions/formatCode.ts` | 8.4 | 7 | 38 | 0.16 | 1 | stable |
 | `src/actions/documentProject.ts` | 5.9 | 5 | 85 | 0.11 | 2 | cooling |
@@ -72,9 +72,9 @@
 | `src/actions/lintCode.ts` | 4.6 | 6 | 30 | 0.11 | 1 | cooling |
 | `src/actions/buildProject.ts` | 4.5 | 3 | 56 | 0.14 | 2 | cooling |
 | `src/actions/releaseProject.ts` | 3.9 | 4 | 76 | 0.09 | 1 | cooling |
-| `vite.config.ts` | 2.3 | 17 | 106 | 0.02 | 0 | cooling |
+| `vite.config.ts` | 2.5 | 18 | 124 | 0.02 | 0 | cooling |
 
-*5 files excluded (< 3 commits)*
+*6 files excluded (< 3 commits)*
 
 ---
 
