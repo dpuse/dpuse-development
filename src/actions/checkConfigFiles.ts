@@ -116,9 +116,6 @@ async function checkViteConfig(moduleTypeConfig: ModuleTypeConfig, moduleDirecto
     } else {
         let viteConfigTemplates: string[];
         switch (moduleTypeConfig.typeId) {
-            case 'connector':
-                viteConfigTemplates = ['vite.config.default.ts', 'vite.config.wasm.ts'];
-                break;
             case 'presenter':
                 viteConfigTemplates = ['vite.config.presenter.ts'];
                 break;

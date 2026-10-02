@@ -50,7 +50,7 @@ describe('checkConfigFiles', () => {
             LICENSE: 'LICENSE',
             'tsconfig.json': 'tsconfig.json',
             'scripts/tsconfig.json': 'scripts/tsconfig.json',
-            'vite.config.ts': 'vite.config.wasm.ts',
+            'vite.config.ts': 'vite.config.default.ts',
             'vitest.config.ts': 'vitest.config.ts',
             '.github/dependabot.yml': '.github/dependabot.yml',
             '.github/workflows/ci.yml': '.github/workflows/ci.yml',
@@ -66,7 +66,7 @@ describe('checkConfigFiles', () => {
         const output = collectConsoleOutput();
         expect(output).not.toContain('⚠️');
         expect(output).not.toContain('❌');
-        expect(output).toContain("ℹ️  File 'vite.config.ts' is the same as 'vite.config.wasm.ts'");
+        expect(output).toContain("ℹ️  File 'vite.config.ts' is the same as 'vite.config.default.ts'");
         expect(output).toContain("ℹ️  File '.github/workflows/publish.yml' is the same as '.github/workflows/publish.yml'");
         expect(output).toContain("ℹ️  File 'SECURITY.md' is the same as 'SECURITY.md'");
         expect(output).toContain("ℹ️  Prettier configuration is '@dpuse/dpuse-development/prettierrc'");

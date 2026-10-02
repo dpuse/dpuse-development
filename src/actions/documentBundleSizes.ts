@@ -214,8 +214,7 @@ function resolveModule(path: string, dependencyPaths: DependencyPath[]): { group
     }
     if (path === '[unassigned]') return { group: UNTRACED_LABEL, file: '' }; // Sonda's marker for chunk bytes it can't trace back to a source module.
     if (path.startsWith('\u{0}')) return { group: '(runtime)', file: path.slice(1) };
-    if (path.startsWith('rust/')) return { group: 'wasm', file: shortenCrateFileName(path) };
-    return { group: path.includes('vite-plugin-wasm') ? 'wasm' : 'src', file: lastPathSegment(path) };
+    return path.startsWith('rust/') ? { group: 'wasm', file: shortenCrateFileName(path) } : { group: 'src', file: lastPathSegment(path) };
 }
 
 // wasm-pack names every generated file after the crate, so the shared part is shortened to '…', leaving what differs.
