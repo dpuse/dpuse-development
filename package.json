@@ -79,7 +79,7 @@
         "document": "node -e \"import('./dist/dpuse-development.es.js').then(m => m.documentProject(''))\"",
         "format": "node -e \"import('./dist/dpuse-development.es.js').then(m => m.formatCode())\"",
         "lint": "node -e \"import('./dist/dpuse-development.es.js').then(m => m.lintCode())\"",
-        "release": "npm run build && npm run document && npm run sync && gh release create \"v$(npm pkg get version | tr -d '\"')\" --target \"$(git rev-parse HEAD)\" --generate-notes --latest",
+        "release": "npm run build && npm run document && npm run sync && node -e \"import('./dist/dpuse-development.es.js').then(m => m.triggerGitHubRelease())\"",
         "sync": "node -e \"import('./dist/dpuse-development.es.js').then(m => m.syncProjectWithGitHub())\"",
         "test": "node -e \"import('./dist/dpuse-development.es.js').then(m => m.testProject())\""
     },
