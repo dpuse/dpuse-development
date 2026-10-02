@@ -156,8 +156,7 @@ async function insertDeclaredLicensesIntoReadme(stepIcon: string, allowedLicense
     await writeReadmeSection(`${LICENSES_HEADING}\n\n${licensesContent.trimEnd()}\n\n### Dependency Tree\n\n${treeContent}`, START_MARKER, END_MARKER);
 }
 
-// A table of exactly what the build ships, each package with its release and whether a newer one is out, and the tree
-// showing how each is reached.
+// A table of exactly what the build ships, and the tree showing how each package is reached, with its release.
 async function insertShippedLicensesIntoReadme(stepIcon: string, allowedLicenses: string, shippedKeys: Set<string>, productionNames: Set<string>): Promise<void> {
     logStepHeader(`${stepIcon} Insert licenses into 'README.md'`);
 
@@ -166,9 +165,9 @@ async function insertShippedLicensesIntoReadme(stepIcon: string, allowedLicenses
         .values()
         .toArray()
         .toSorted((a, b) => a.name.localeCompare(b.name, 'en') || a.installedVersion.localeCompare(b.installedVersion, 'en'));
-    let licensesContent = `${buildLicensesIntro(allowedLicenses, true)}\n\n|Dependency|Version|Release|License(s)|Document|\n|:-|:-:|:-|:-|:-|\n`;
+    let licensesContent = `${buildLicensesIntro(allowedLicenses, true)}\n\n|Dependency|Version|License(s)|Document|\n|:-|:-:|:-|:-|\n`;
     for (const license of sortedLicenses) {
-        licensesContent += formatShippedLicenseRow(license);
+        licensesContent += formatLicenseRow(license);
     }
 
     // Production dependencies first, so a package reached both ways is placed under the one that ships it.
@@ -379,11 +378,6 @@ async function fetchNpmData(name: string, version: string): Promise<{ latestVers
 function formatLicenseRow(license: License): string {
     const licenseLink = license.licenseFileLink == null || license.licenseFileLink === '' ? '⚠️  No license file' : `[LICENSE](licenses/${license.licenseFileLink})`;
     return `|[${license.name}](${license.repository})|${license.installedVersion}|${license.licenseTypes}|${licenseLink}|\n`;
-}
-
-function formatShippedLicenseRow(license: License): string {
-    const licenseLink = license.licenseFileLink == null || license.licenseFileLink === '' ? '⚠️  No license file' : `[LICENSE](licenses/${license.licenseFileLink})`;
-    return `|[${license.name}](${license.repository})|${license.installedVersion}|${formatVersionDetail(license).replace(/^ — /, '')}|${license.licenseTypes}|${licenseLink}|\n`;
 }
 
 function walkTreeList(dependencies: Record<string, NpmPackageTree>, licensesByKey: Map<string, License>, unshippedPackages: Set<string>, items: string[], depth: number): void {

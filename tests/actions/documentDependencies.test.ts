@@ -195,9 +195,9 @@ describe('documentDependencies', () => {
             expect(licenseChecker.options.production).toBe(false);
             const readme = await project.readFile('README.md');
             expect(readme).toContain("every package whose code, styles or assets are included in this project's build");
-            expect(readme).toContain('|Dependency|Version|Release|License(s)|Document|');
+            expect(readme).toContain('|Dependency|Version|License(s)|Document|');
             expect(readme).toContain('|[@lucide/vue](https://www.npmjs.com/package/@lucide/vue)|1.49.0|');
-            expect(readme).toContain('|[vue-router](https://www.npmjs.com/package/vue-router)|5.3.1|this month: 2026-09-01|MIT|');
+            expect(readme).toContain('|[vue-router](https://www.npmjs.com/package/vue-router)|5.3.1|MIT|');
         });
 
         it('lists in the tree only what ships, putting what ships beneath a package that does not in its place', async () => {
