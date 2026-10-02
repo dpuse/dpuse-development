@@ -79,10 +79,10 @@ _Note: Sonda's Vite reports currently exclude CSS files, since Vite does not gen
 
 | Chunk/Module/File                                                                | Composition                                 |
 | :------------------------------------------------------------------------------- | :------------------------------------------ |
-| **dist/dpuse-development.es.js**                                                 | 46.6 kB · gzip 15.0 kB · 60.0% of the build |
-| &nbsp;&nbsp;&nbsp;&nbsp;src                                                      | `█████████████████░░░` 86.9% · 40.5 kB      |
+| **dist/dpuse-development.es.js**                                                 | 46.7 kB · gzip 15.1 kB · 60.0% of the build |
+| &nbsp;&nbsp;&nbsp;&nbsp;src                                                      | `█████████████████░░░` 86.9% · 40.6 kB      |
 | &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;↳ documentQualitySecurity.ts     | `▒▒▒▒░░░░░░░░░░░░░░░░` 21.2% · 9.9 kB       |
-| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;↳ documentDependencies.ts        | `▒▒▒░░░░░░░░░░░░░░░░░` 13.0% · 6.1 kB       |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;↳ documentDependencies.ts        | `▒▒▒░░░░░░░░░░░░░░░░░` 13.2% · 6.2 kB       |
 | &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;↳ documentBundleSizes.ts         | `▒▒░░░░░░░░░░░░░░░░░░` 10.8% · 5.1 kB       |
 | &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;↳ checkConfigFiles.ts            | `▒▒░░░░░░░░░░░░░░░░░░` 7.9% · 3.7 kB        |
 | &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;↳ documentUsage.ts               | `▒░░░░░░░░░░░░░░░░░░░` 5.8% · 2.7 kB        |

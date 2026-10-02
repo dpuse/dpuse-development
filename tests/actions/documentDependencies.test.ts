@@ -157,7 +157,8 @@ describe('documentDependencies', () => {
         await documentDependencies('MIT');
 
         const readme = await project.readFile('README.md');
-        expect(readme).toContain('confirmed to use MIT —');
+        expect(readme).toContain('confirmed to use MIT, all of which allow commercial use.');
+        expect(readme).toContain('All are used unmodified, so any licence conditions that apply only to modified versions are not triggered.');
         expect(readme).toContain('- **[undated](https://www.npmjs.com/package/undated)** 1.0.0 — → **latest**: 2.0.0 ❗');
     });
 

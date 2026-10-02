@@ -162,12 +162,15 @@ async function listUnshippedPackages(): Promise<string[]> {
         if (entry.dev === true || entry.devOptional === true) unshipped.add(packageKey);
         else shipped.add(packageKey);
     }
-    return unshipped.values().filter((packageKey) => !shipped.has(packageKey)).toArray();
+    return unshipped
+        .values()
+        .filter((packageKey) => !shipped.has(packageKey))
+        .toArray();
 }
 
 function buildLicensesIntro(allowedLicenses: string): string {
     const licenseListText = formatLicenseListText(allowedLicenses.split(';'));
-    return `License data is updated each time \`npm run document\` is run, using [license-checker](https://github.com/RSeidelsohn/license-checker-rseidelsohn). The following table lists all production dependencies. These dependencies (including transitive ones) have been checked and confirmed to use ${licenseListText} — all permissive, commercially-friendly licenses. Users of the uploaded library are covered by these checks; developers cloning this repository should independently verify development dependencies.`;
+    return `License data is updated each time \`npm run document\` is run, using [license-checker](https://github.com/RSeidelsohn/license-checker-rseidelsohn). The following table lists all production dependencies. These dependencies (including transitive ones) have been checked and confirmed to use ${licenseListText}, all of which allow commercial use. All are used unmodified, so any licence conditions that apply only to modified versions are not triggered. These checks cover the dependencies of the published library; developers cloning this repository should independently verify development dependencies.`;
 }
 
 function formatLicenseListText(licenses: string[]): string {
