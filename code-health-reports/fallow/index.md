@@ -6,10 +6,10 @@
 
 | Metric | Value |
 |:-------|------:|
-| Total LOC | 2926 |
+| Total LOC | 2977 |
 | Avg Cyclomatic | 2.9 |
 | P90 Cyclomatic | 6 |
-| Cyclomatic units | Functions: 229, module scopes: 0, templates: 0 |
+| Cyclomatic units | Functions: 233, module scopes: 0, templates: 0 |
 | Dead Files | 0.0% |
 | Dead Exports | 0.0% |
 | Maintainability (avg) | 92.5 |
@@ -24,7 +24,7 @@
 |:-----|:---------------|:-------|:--------|:----------|:--------|:-----|
 | `src/actions/documentQualitySecurity.ts` | 91.8 | 1 | 1 | 0% | 0.18 | 17.0 |
 | `src/utilities/apiReference.ts` | 83.1 | 1 | 1 | 0% | 0.47 | 12.0 |
-| `src/actions/documentDependencies.ts` | 89.1 | 1 | 1 | 0% | 0.27 | 9.6 |
+| `src/actions/documentDependencies.ts` | 88.5 | 1 | 1 | 0% | 0.29 | 9.6 |
 | `src/utilities/index.ts` | 92.8 | 21 | 0 | 0% | 0.24 | 8.0 |
 | `src/actions/documentBundleSizes.ts` | 88.8 | 1 | 1 | 0% | 0.28 | 7.0 |
 | `src/utilities/cloudflare.ts` | 90.6 | 2 | 1 | 0% | 0.22 | 7.0 |
@@ -53,25 +53,25 @@
 
 | File | Score | Commits | Churn | Density | Fan-in | Trend |
 |:-----|:------|:--------|:------|:--------|:-------|:------|
-| `src/actions/documentBundleSizes.ts` | 83.0 | 39 | 1340 | 0.28 | 1 | cooling |
-| `src/actions/checkConfigFiles.ts` | 75.0 | 47 | 540 | 0.21 | 1 | cooling |
-| `src/utilities/index.ts` | 69.6 | 36 | 510 | 0.24 | 21 | stable |
-| `src/actions/documentDependencies.ts` | 50.2 | 24 | 452 | 0.27 | 1 | cooling |
-| `src/actions/documentOpening.ts` | 32.0 | 19 | 283 | 0.17 | 1 | accelerating |
-| `src/actions/documentUsage.ts` | 30.9 | 16 | 330 | 0.18 | 1 | accelerating |
-| `src/actions/checkDependencies.ts` | 19.7 | 17 | 194 | 0.13 | 1 | stable |
-| `src/actions/documentQualitySecurity.ts` | 15.0 | 7 | 601 | 0.18 | 1 | cooling |
-| `src/utilities/cloudflare.ts` | 13.5 | 9 | 41 | 0.22 | 2 | stable |
-| `src/actions/documentApiReference.ts` | 12.3 | 13 | 772 | 0.08 | 1 | cooling |
-| `src/actions/formatCode.ts` | 9.3 | 7 | 38 | 0.16 | 1 | stable |
-| `src/actions/documentProject.ts` | 6.5 | 5 | 85 | 0.11 | 2 | cooling |
-| `src/actions/publishProject.ts` | 5.7 | 3 | 62 | 0.16 | 2 | cooling |
-| `src/actions/documentActions.ts` | 5.4 | 10 | 102 | 0.06 | 1 | stable |
-| `src/actions/auditDependencies.ts` | 5.3 | 7 | 37 | 0.09 | 1 | stable |
-| `src/actions/lintCode.ts` | 5.1 | 6 | 30 | 0.11 | 1 | cooling |
-| `src/actions/buildProject.ts` | 5.0 | 3 | 56 | 0.14 | 2 | cooling |
-| `src/actions/releaseProject.ts` | 4.3 | 4 | 76 | 0.09 | 1 | cooling |
-| `vite.config.ts` | 3.8 | 17 | 106 | 0.03 | 0 | cooling |
+| `src/actions/documentBundleSizes.ts` | 80.7 | 40 | 1343 | 0.28 | 1 | cooling |
+| `src/actions/checkConfigFiles.ts` | 72.4 | 48 | 543 | 0.21 | 1 | cooling |
+| `src/utilities/index.ts` | 65.0 | 36 | 510 | 0.24 | 21 | stable |
+| `src/actions/documentDependencies.ts` | 50.4 | 24 | 452 | 0.29 | 1 | cooling |
+| `src/actions/documentOpening.ts` | 29.8 | 19 | 283 | 0.17 | 1 | accelerating |
+| `src/actions/documentUsage.ts` | 28.9 | 16 | 330 | 0.18 | 1 | accelerating |
+| `src/actions/checkDependencies.ts` | 18.4 | 17 | 194 | 0.13 | 1 | stable |
+| `src/actions/documentQualitySecurity.ts` | 14.0 | 7 | 601 | 0.18 | 1 | cooling |
+| `src/utilities/cloudflare.ts` | 12.6 | 9 | 41 | 0.22 | 2 | stable |
+| `src/actions/documentApiReference.ts` | 11.5 | 13 | 772 | 0.08 | 1 | cooling |
+| `src/actions/formatCode.ts` | 8.7 | 7 | 38 | 0.16 | 1 | stable |
+| `src/actions/documentProject.ts` | 6.1 | 5 | 85 | 0.11 | 2 | cooling |
+| `src/actions/publishProject.ts` | 5.3 | 3 | 62 | 0.16 | 2 | cooling |
+| `src/actions/documentActions.ts` | 5.1 | 10 | 102 | 0.06 | 1 | stable |
+| `src/actions/auditDependencies.ts` | 4.9 | 7 | 37 | 0.09 | 1 | stable |
+| `src/actions/lintCode.ts` | 4.8 | 6 | 30 | 0.11 | 1 | cooling |
+| `src/actions/buildProject.ts` | 4.7 | 3 | 56 | 0.14 | 2 | cooling |
+| `src/actions/releaseProject.ts` | 4.0 | 4 | 76 | 0.09 | 1 | cooling |
+| `vite.config.ts` | 3.6 | 17 | 106 | 0.03 | 0 | cooling |
 
 *5 files excluded (< 3 commits)*
 

@@ -75,13 +75,18 @@ describe('documentDependencies', () => {
         expect(readme).toContain('@dpuse/dpuse-development is a development-only tool and is never part of a production release.');
     });
 
-    it('leaves out packages npm marks as never shipped, such as an optional peer used only in development', async () => {
+    it('leaves out packages the project does not ship, such as an optional peer used only in development', async () => {
         await project.writeFiles({
             'package.json': JSON.stringify({ name: '@dpuse/dpuse-shared' }),
             'package-lock.json': JSON.stringify({
                 packages: {
-                    '': { name: '@dpuse/dpuse-shared' },
-                    'node_modules/valibot': { version: '1.5.0' },
+                    '': { name: '@dpuse/dpuse-shared', dependencies: { valibot: '^1.5.0' }, devDependencies: { vitest: '^5.0.0', 'shared-both-ways': '^1.0.0' } },
+                    'node_modules/valibot': {
+                        version: '1.5.0',
+                        dependencies: { 'shared-both-ways': '^1.0.0' },
+                        peerDependencies: { typescript: '>=5' },
+                        peerDependenciesMeta: { typescript: { optional: true } }
+                    },
                     'node_modules/typescript': { version: '6.0.3', devOptional: true },
                     'node_modules/vitest': { version: '5.0.2', dev: true },
                     'node_modules/shared-both-ways': { version: '1.0.0', dev: true },
@@ -100,6 +105,52 @@ describe('documentDependencies', () => {
         const readme = await project.readFile('README.md');
         expect(readme).toContain('- **[valibot](https://www.npmjs.com/package/valibot)** 1.5.0');
         expect(readme).not.toContain('typescript');
+    });
+
+    it('leaves out a package npm marks only as optional when it is reached only through a development tool', async () => {
+        // npm marks lightningcss's platform binary under Vite as 'optional' rather than 'devOptional', although Vite is a
+        // development tool reached from the project only through vue-router's optional peer.
+        await project.writeFiles({
+            'package.json': JSON.stringify({ name: 'dpuse-app' }),
+            'package-lock.json': JSON.stringify({
+                packages: {
+                    '': { name: 'dpuse-app', dependencies: { 'vue-router': '^5.0.0' }, devDependencies: { vite: '^8.0.0' } },
+                    'node_modules/vue-router': { version: '5.3.1', peerDependencies: { vite: '^8.0.0' }, peerDependenciesMeta: { vite: { optional: true } } },
+                    'node_modules/vite': { version: '8.3.2', devOptional: true, dependencies: { lightningcss: '^1.33.0' } },
+                    'node_modules/vite/node_modules/lightningcss': { version: '1.33.0', devOptional: true, optionalDependencies: { 'lightningcss-darwin-arm64': '1.33.0' } },
+                    'node_modules/vite/node_modules/lightningcss-darwin-arm64': { version: '1.33.0', optional: true }
+                }
+            }),
+            'README.md': buildReadme('DEPENDENCY_LICENSES')
+        });
+        licenseChecker.licenses = { 'vue-router@5.3.1': { licenses: 'MIT' } };
+        licenseTree.tree = { dependencies: { 'vue-router': { version: '5.3.1' } } };
+        stubRegistry({});
+
+        await documentDependencies();
+
+        expect(licenseChecker.options.excludePackages).toBe('dpuse-app;vite@8.3.2;lightningcss@1.33.0;lightningcss-darwin-arm64@1.33.0');
+    });
+
+    it('keeps a required peer, which ships with the package that needs it', async () => {
+        await project.writeFiles({
+            'package.json': JSON.stringify({ name: '@dpuse/dpuse-shared' }),
+            'package-lock.json': JSON.stringify({
+                packages: {
+                    '': { name: '@dpuse/dpuse-shared', dependencies: { plugin: '^1.0.0' } },
+                    'node_modules/plugin': { version: '1.0.0', peerDependencies: { host: '^2.0.0' } },
+                    'node_modules/host': { version: '2.0.0', peer: true }
+                }
+            }),
+            'README.md': buildReadme('DEPENDENCY_LICENSES')
+        });
+        licenseChecker.licenses = { 'plugin@1.0.0': { licenses: 'MIT' }, 'host@2.0.0': { licenses: 'MIT' } };
+        licenseTree.tree = { dependencies: { plugin: { version: '1.0.0' } } };
+        stubRegistry({});
+
+        await documentDependencies();
+
+        expect(licenseChecker.options.excludePackages).toBe('@dpuse/dpuse-shared');
     });
 
     it('lists each production dependency with its licence, and flags outdated and ageing packages in the tree', async () => {

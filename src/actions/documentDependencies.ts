@@ -29,7 +29,18 @@ interface ProductionPackageLicense {
 }
 
 interface PackageLock {
-    packages?: Record<string, { name?: string; version?: string; dev?: boolean; devOptional?: boolean }>;
+    packages?: Record<string, PackageLockEntry>;
+}
+
+interface PackageLockEntry {
+    name?: string;
+    version?: string;
+    link?: boolean;
+    resolved?: string;
+    dependencies?: Record<string, string>;
+    optionalDependencies?: Record<string, string>;
+    peerDependencies?: Record<string, string>;
+    peerDependenciesMeta?: Record<string, { optional?: boolean }>;
 }
 
 interface NpmPackageTree {
@@ -146,26 +157,66 @@ async function insertLicensesIntoReadme(stepIcon: string, allowedLicenses: strin
     await writeReadmeSection(`${LICENSES_HEADING}\n\n${licensesContent.trimEnd()}\n\n### Dependency Tree\n\n${treeContent}`, START_MARKER, END_MARKER);
 }
 
-// Packages installed but never shipped, as 'name@version'. npm's lock file marks these 'dev' or 'devOptional', the latter
-// for a package needed only by development or as an optional extra, such as TypeScript as valibot's optional peer. The
-// licence checker follows optional peer links, so without this it would count such a package as a production one. A
-// package installed at the same version for a shipped reason as well is kept.
+// Packages installed but never shipped, as 'name@version'. A package ships when the project's own dependencies reach it
+// through dependencies, optional dependencies or required peers. Optional peers are not followed: TypeScript as
+// valibot's optional peer, or Vite as vue-router's, is installed only because a development tool needs it. The tree is
+// walked rather than npm's 'dev' flags trusted, as npm marks some packages under a development-only one as merely
+// 'optional', such as lightningcss's platform binary under Vite. The licence checker follows every link, so without
+// this it would count such packages as shipped. A package also installed, at the same version, for a shipped reason is kept.
 async function listUnshippedPackages(): Promise<string[]> {
     const lockText = await readTextFileOrNull('package-lock.json');
     const packages = lockText === null ? {} : ((JSON.parse(lockText) as PackageLock).packages ?? {});
+    const shippedPaths = findShippedPaths(packages);
     const shipped = new Set<string>();
     const unshipped = new Set<string>();
     for (const [lockPath, entry] of Object.entries(packages)) {
         if (lockPath === '' || entry.version === undefined) continue;
         const name = entry.name ?? lockPath.slice(lockPath.lastIndexOf('node_modules/') + 'node_modules/'.length);
         const packageKey = `${name}@${entry.version}`;
-        if (entry.dev === true || entry.devOptional === true) unshipped.add(packageKey);
-        else shipped.add(packageKey);
+        if (shippedPaths.has(lockPath)) shipped.add(packageKey);
+        else unshipped.add(packageKey);
     }
     return unshipped
         .values()
         .filter((packageKey) => !shipped.has(packageKey))
         .toArray();
+}
+
+// The lock file paths reached from the project's own entry, following the links that ship with a package.
+function findShippedPaths(packages: Record<string, PackageLockEntry>): Set<string> {
+    const shippedPaths = new Set<string>();
+    const pendingPaths = [''];
+    while (pendingPaths.length > 0) {
+        const fromPath = pendingPaths.pop() ?? '';
+        const entry = packages[fromPath];
+        if (entry === undefined) continue;
+        for (const name of listShippedDependencyNames(entry)) {
+            const lockPath = resolveLockPath(packages, fromPath, name);
+            if (lockPath === undefined || shippedPaths.has(lockPath)) continue;
+            shippedPaths.add(lockPath);
+            pendingPaths.push(lockPath);
+        }
+    }
+    return shippedPaths;
+}
+
+function listShippedDependencyNames(entry: PackageLockEntry): string[] {
+    const requiredPeerNames = Object.keys(entry.peerDependencies ?? {}).filter((name) => entry.peerDependenciesMeta?.[name]?.optional !== true);
+    return [...Object.keys(entry.dependencies ?? {}), ...Object.keys(entry.optionalDependencies ?? {}), ...requiredPeerNames];
+}
+
+// Finds a dependency where Node would: in the package's own 'node_modules', then in each enclosing one up to the
+// project's. A linked package, such as a workspace, resolves to the folder it links to.
+function resolveLockPath(packages: Record<string, PackageLockEntry>, fromPath: string, name: string): string | undefined {
+    let basePath = fromPath;
+    for (;;) {
+        const candidatePath = basePath === '' ? `node_modules/${name}` : `${basePath}/node_modules/${name}`;
+        const entry = packages[candidatePath];
+        if (entry !== undefined) return entry.link === true && entry.resolved !== undefined ? entry.resolved : candidatePath;
+        if (basePath === '') return undefined;
+        const parentIndex = basePath.lastIndexOf('/node_modules/');
+        basePath = parentIndex === -1 ? '' : basePath.slice(0, parentIndex);
+    }
 }
 
 function buildLicensesIntro(allowedLicenses: string): string {
