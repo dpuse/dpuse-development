@@ -17,7 +17,7 @@ vi.mock('@/utilities', async (importOriginal) => ({
 
 // ── Tests ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-useTemporaryProject();
+const project = useTemporaryProject();
 
 // An 'npm audit --json' report holding the given advisories, each reached through a second package as npm reports it.
 function auditReport(...advisories: { id: string; name: string; severity: string }[]): string {
@@ -29,7 +29,8 @@ function auditReport(...advisories: { id: string; name: string; severity: string
     return JSON.stringify({ auditReportVersion: 2, vulnerabilities });
 }
 
-beforeEach(() => {
+beforeEach(async () => {
+    await project.writeFiles({ 'package.json': JSON.stringify({ name: '@dpuse/dpuse-connector-example' }) });
     vi.mocked(spawnCommand).mockClear().mockResolvedValue();
     vi.mocked(spawnCommandForOutput).mockClear().mockResolvedValue(auditReport());
     vi.useFakeTimers({ now: new Date('2026-10-03T12:00:00Z'), toFake: ['Date'] });
@@ -46,6 +47,18 @@ describe('auditDependencies', () => {
         expect(spawnedCommands()).toEqual(['npm audit --omit=dev']);
         expect(spawnCommandForOutput).toHaveBeenCalledWith(expect.any(String), 'npm', ['audit', '--json']);
         expect(collectConsoleOutput()).toContain('Dependencies audited');
+    });
+
+    it('checks only every dependency, with the ignored advisories, for a development-only package', async () => {
+        await project.writeFiles({ 'package.json': JSON.stringify({ name: '@dpuse/dpuse-development' }) });
+        vi.mocked(spawnCommandForOutput).mockResolvedValue(auditReport({ id: 'GHSA-ch52-4w7c-c8xp', name: 'http-cache-semantics', severity: 'high' }));
+
+        await auditDependencies();
+
+        const output = collectConsoleOutput();
+        expect(spawnedCommands()).toEqual([]);
+        expect(output).toContain('1️⃣  Shipped dependencies NOT checked: @dpuse/dpuse-development is a development-only tool');
+        expect(output).toContain('Dependencies audited');
     });
 
     it('passes moderate advisories and ignored high ones, naming the ignored ones', async () => {

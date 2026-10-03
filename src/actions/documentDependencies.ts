@@ -10,7 +10,17 @@ import type { InitOpts } from 'license-checker-rseidelsohn';
 import { documentRustCrates } from '@/utilities/rustCrates';
 import { SHIPPED_PACKAGES_FILE_NAME } from '@/vite';
 import type { ShippedPackagesRecord } from '@/vite';
-import { clearDirectory, logOperationHeader, logOperationSuccess, logStepHeader, readJSONFile, readTextFileOrNull, spawnCommandToFile, writeReadmeSection } from '@/utilities';
+import {
+    clearDirectory,
+    DEVELOPMENT_ONLY_PACKAGE_NAMES,
+    logOperationHeader,
+    logOperationSuccess,
+    logStepHeader,
+    readJSONFile,
+    readTextFileOrNull,
+    spawnCommandToFile,
+    writeReadmeSection
+} from '@/utilities';
 import type { RustCrate, RustCrateTreeItem } from '@/utilities/rustCrates';
 
 // ── Types ────────────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -101,8 +111,9 @@ export async function documentDependencies(allowedLicenses = 'MIT'): Promise<voi
 
         const rootPackage = await readJSONFile<RootPackage>('package.json');
 
-        if (rootPackage.name === '@dpuse/dpuse-development' || rootPackage.name === '@dpuse/eslint-config-dpuse') {
-            await skipDependencyDocumentation(rootPackage.name);
+        const packageName = rootPackage.name ?? '';
+        if (DEVELOPMENT_ONLY_PACKAGE_NAMES.has(packageName)) {
+            await skipDependencyDocumentation(packageName);
             logOperationSuccess('Dependencies documented');
             return;
         }

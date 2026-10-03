@@ -90,9 +90,7 @@ describe('checkDependencies', () => {
 });
 
 describe('single-command actions', () => {
-    it.each([
-        ['lintCode', lintCode, ['eslint .']]
-    ])('%s runs its commands', async (_name, action, commands) => {
+    it.each([['lintCode', lintCode, ['eslint .']]])('%s runs its commands', async (_name, action, commands) => {
         await action();
         expect(spawnedCommands()).toEqual(commands);
     });

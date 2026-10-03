@@ -53,7 +53,7 @@ export async function releaseProject(allowedLicenses = 'MIT', isModuleLevel = fa
         // The release triggers the 'publish.yml' workflow, which publishes to npm through trusted publishing, so no token is needed here.
         if (moduleTypeConfig.publishedTo === 'npm') {
             const tagName = `v${packageJSON.version ?? 'unknown'}`;
-            await spawnCommand('9️⃣  Create GitHub release', 'gh', ['release', 'create', tagName, '--target', 'main', '--generate-notes', '--latest']);
+            await spawnCommand('9️⃣  Trigger GitHub release', 'gh', ['release', 'create', tagName, '--target', 'main', '--generate-notes', '--latest']);
         } else {
             logStepHeader(`9️⃣  Publishing NOT required for package with type identifier of '${moduleTypeConfig.typeId}'.`);
         }

@@ -34,6 +34,10 @@ interface OperationConfig {
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
+// Development-only packages — other projects install these only as dev dependencies, so none of their own dependencies
+// ever reach a release.
+export const DEVELOPMENT_ONLY_PACKAGE_NAMES = new Set(['@dpuse/dpuse-development', '@dpuse/eslint-config-dpuse']);
+
 // Fallow — Quality & Security writes these each time it runs; the README's opening badge reads the badge file from the repository.
 export const FALLOW_DIRECTORY = 'code-health-reports/fallow';
 export const FALLOW_BADGE_PATH = `${FALLOW_DIRECTORY}/badge.json`;

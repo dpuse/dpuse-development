@@ -1,9 +1,12 @@
+// ── External Dependencies & Registrations
+import type { PackageJson } from 'type-fest';
+
 // ── Local Framework
 // High or critical advisories in development tools that cannot reach a release or the publish credentials, and have no
 // fix yet. Remove an entry once a fix is released. After an entry's 'reviewBy' date the audit warns, so it is checked
 // again rather than kept by habit.
 import { IGNORED_ADVISORIES } from './auditDependencies_.json';
-import { logOperationHeader, logOperationSuccess, spawnCommand, spawnCommandForOutput } from '@/utilities';
+import { DEVELOPMENT_ONLY_PACKAGE_NAMES, logOperationHeader, logOperationSuccess, logStepHeader, readJSONFile, spawnCommand, spawnCommandForOutput } from '@/utilities';
 
 // ── Types ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -32,11 +35,17 @@ export async function auditDependencies(): Promise<void> {
     try {
         logOperationHeader('Audit Dependencies');
 
-        // Users install these packages, so any vulnerability at all fails the audit, and none is ever ignored.
-        await spawnCommand('1️⃣  Check shipped dependencies for any vulnerability', 'npm', ['audit', '--omit=dev']);
+        // Users install these packages, so any vulnerability at all fails the audit, and none is ever ignored. A
+        // development-only package ships nothing to users, so all its dependencies are checked as dev tools below.
+        const packageJSON = await readJSONFile<PackageJson>('package.json');
+        if (DEVELOPMENT_ONLY_PACKAGE_NAMES.has(packageJSON.name ?? '')) {
+            logStepHeader(`1️⃣  Shipped dependencies NOT checked: ${packageJSON.name ?? ''} is a development-only tool`);
+        } else {
+            await spawnCommand('1️⃣  Check shipped dependencies for any vulnerability', 'npm', ['audit', '--omit=dev']);
+        }
 
         // Dev tools run during publishing, where they could reach the publish credentials, so high and critical flaws
-        // fail. Lesser ones often await an upstream fix, so they pass, as do the advisories listed above.
+        // fail. Lesser ones often await an upstream fix, so they pass, as do the ignored advisories.
         const output = await spawnCommandForOutput('2️⃣  Check all dependencies for high or critical vulnerabilities', 'npm', ['audit', '--json']);
         const report = JSON.parse(output) as AuditReport;
         if (report.error !== undefined) throw new Error(report.error.summary);

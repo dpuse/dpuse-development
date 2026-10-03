@@ -14,7 +14,7 @@ export async function triggerGitHubRelease(): Promise<void> {
         const packageJSON = await readJSONFile<PackageJson>('package.json');
         const tagName = `v${packageJSON.version ?? 'unknown'}`;
 
-        await spawnCommand('1️⃣  Create GitHub release', 'gh', ['release', 'create', tagName, '--target', 'main', '--generate-notes', '--latest']);
+        await spawnCommand('1️⃣  Trigger GitHub release', 'gh', ['release', 'create', tagName, '--target', 'main', '--generate-notes', '--latest']);
 
         logOperationSuccess(`GitHub release '${tagName}' created.`);
     } catch (error) {
