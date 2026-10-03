@@ -59,8 +59,8 @@ export async function documentUsage(): Promise<void> {
 // ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 function resolveCloneURL(packageJSON: PackageJson): string {
-    const repo = packageJSON.repository;
-    const url = typeof repo === 'string' ? repo : repo?.url;
+    const repository = packageJSON.repository;
+    const url = typeof repository === 'string' ? repository : repository?.url;
     if (url == null || url === '') throw new Error("package.json 'repository' field is required to document usage.");
     return url.replace(/^git\+/, '');
 }

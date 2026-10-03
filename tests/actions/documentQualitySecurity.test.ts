@@ -154,11 +154,11 @@ describe('documentQualitySecurity', () => {
         await documentQualitySecurity();
 
         const readme = await project.readFile('README.md');
-        const repoURL = 'https://github.com/dpuse/dpuse-shared';
+        const repositoryURL = 'https://github.com/dpuse/dpuse-shared';
         const coverageBadge = `![Coverage](https://img.shields.io/endpoint?url=${encodeURIComponent('https://raw.githubusercontent.com/dpuse/dpuse-shared/main/code-health-reports/vitest/badge.json')})`;
         const fallowBadge = `![Fallow code health](https://img.shields.io/endpoint?url=${encodeURIComponent('https://raw.githubusercontent.com/dpuse/dpuse-shared/main/code-health-reports/fallow/badge.json')})`;
 
-        const ciNote = ` Part of the [CI workflow](${repoURL}/actions/workflows/ci.yml) on every push and pull request to \`main\`.`;
+        const ciNote = ` Part of the [CI workflow](${repositoryURL}/actions/workflows/ci.yml) on every push and pull request to \`main\`.`;
         expect(readme).not.toContain('[![CI]');
 
         const testing = sectionOf(readme, 'Testing');
@@ -176,7 +176,7 @@ describe('documentQualitySecurity', () => {
 
         const securityAnalysis = sectionOf(readme, 'Security Analysis');
         expect(securityAnalysis).toContain(
-            `|Static analysis|✅ On|[![CodeQL](${repoURL}/actions/workflows/codeql.yml/badge.svg)](${repoURL}/security/code-scanning) [CodeQL](https://codeql.github.com) scans GitHub Actions and JavaScript/TypeScript and swift for security vulnerabilities, using the extended security queries,`
+            `|Static analysis|✅ On|[![CodeQL](${repositoryURL}/actions/workflows/codeql.yml/badge.svg)](${repositoryURL}/security/code-scanning) [CodeQL](https://codeql.github.com) scans GitHub Actions and JavaScript/TypeScript and swift for security vulnerabilities, using the extended security queries,`
         );
         expect(securityAnalysis).toContain('|Secret scanning|✅ On|[GitHub secret scanning]');
         expect(securityAnalysis).toContain('|Push protection|✅ On|[GitHub push protection]');

@@ -5,7 +5,7 @@ import type { PackageJson } from 'type-fest';
 import type { ModuleConfig } from '@dpuse/dpuse-shared';
 
 // ── Local Framework
-import { getModuleConfig, logOperationHeader, logOperationSuccess, logStepHeader, readJSONFile, resolveOwnerAndRepo, writeReadmeSection } from '@/utilities';
+import { getModuleConfig, logOperationHeader, logOperationSuccess, logStepHeader, readJSONFile, resolveOwnerAndRepository, writeReadmeSection } from '@/utilities';
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -23,12 +23,14 @@ export async function documentOpening(): Promise<void> {
         const packageJSON = await readJSONFile<PackageJson>('package.json');
         const configJSON = await readJSONFile<ModuleConfig>('config.json');
 
-        const { owner, repo } = resolveOwnerAndRepo(packageJSON, 'document opening');
+        const { owner, repository } = resolveOwnerAndRepository(packageJSON, 'document opening');
         const license = resolveLicense(packageJSON);
         const introduction = resolveIntroduction(configJSON);
-        const npmPackageName = getModuleConfig(configJSON.id).publishedTo === 'npm' ? resolvePackageName(packageJSON) : undefined;
+        const moduleTypeConfig = getModuleConfig(configJSON.id);
+        const isUploadedToDPUse = moduleTypeConfig.uploadGroupName !== undefined;
+        const npmPackageName = moduleTypeConfig.publishedTo === 'npm' ? resolvePackageName(packageJSON) : undefined;
 
-        const content = buildOpeningContent(owner, repo, license, npmPackageName, packageJSON.description, introduction);
+        const content = buildOpeningContent(owner, repository, license, isUploadedToDPUse, npmPackageName, packageJSON.description, introduction);
 
         await writeReadmeSection(content, START_MARKER, END_MARKER);
 
@@ -60,18 +62,22 @@ function resolveIntroduction(configJSON: ModuleConfig): string | undefined {
     return introduction === undefined || introduction === '' ? undefined : introduction;
 }
 
-// The package description is optional, so a project without one simply has no summary under the links. Only projects
-// published to npm get the npm badge; the rest reach people through DPUse itself.
+// The package description is optional, so a project without one simply has no summary between the badges and the links.
+// Only modules uploaded to DPUse get the DPUse version badge, and only projects published to npm get the npm badge.
 function buildOpeningContent(
     owner: string,
-    repo: string,
+    repository: string,
     license: string,
+    isUploadedToDPUse: boolean,
     npmPackageName: string | undefined,
     description: string | undefined,
     introduction: string | undefined
 ): string {
-    const repoURL = `https://github.com/${owner}/${repo}`;
+    const repositoryURL = `https://github.com/${owner}/${repository}`;
     const badgeLicense = license.replaceAll('-', '--');
+    const dpuseBadge = isUploadedToDPUse
+        ? `\n[![DPUse version](https://img.shields.io/github/v/release/${owner}/${repository}?color=f6821f&label=DPUse)](${repositoryURL}/releases/latest)`
+        : '';
     const npmBadge =
         npmPackageName === undefined
             ? ''
@@ -79,15 +85,14 @@ function buildOpeningContent(
     const summary = description == null || description === '' ? '' : `\n\n${description}`;
     const introductionSection = introduction === undefined ? '' : `\n\n## Introduction\n\n${introduction}`;
 
-    return `[![License: ${license}](https://img.shields.io/badge/License-${badgeLicense}-blue.svg)](./LICENSE)
-[![DPUse version](https://img.shields.io/github/v/release/${owner}/${repo}?color=f6821f&label=DPUse)](${repoURL}/releases/latest)${npmBadge}
-[![CI](${repoURL}/actions/workflows/ci.yml/badge.svg)](${repoURL}/actions/workflows/ci.yml)
+    return `[![License: ${license}](https://img.shields.io/badge/License-${badgeLicense}-blue.svg)](./LICENSE)${dpuseBadge}${npmBadge}
+[![CI](${repositoryURL}/actions/workflows/ci.yml/badge.svg)](${repositoryURL}/actions/workflows/ci.yml)${summary}
 
-[DPUse](https://www.dpuse.app) · [Report a Vulnerability](${repoURL}/security/advisories/new) · [Open an Issue](${repoURL}/issues)${summary}
+[Report a Vulnerability](${repositoryURL}/security/advisories/new) · [Open an Issue](${repositoryURL}/issues)
 
 ## About DPUse
 
-DPUse (Data Positioning & Use) is an in-browser application that positions your data for use through three core activities: sourcing, contextualising, and publishing.
+[DPUse](https://www.dpuse.app) (Data Positioning & Use) is an in-browser application that positions your data for use through three core activities: sourcing, contextualising, and publishing.
 
 **Sourcing** uses a library of [Connectors](https://www.dpuse.app/connectors) to establish [Connections](https://www.dpuse.app) to applications, databases, file stores, and curated datasets; these connections are subsequently used to configure structured [Data Views](https://www.dpuse.app) from the underlying sources.
 

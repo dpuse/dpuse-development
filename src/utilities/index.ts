@@ -253,16 +253,16 @@ export function getModuleConfig(configId: string): ModuleTypeConfig {
 // ── Actions - Package ────────────────────────────────────────────────────────────────────────────────────────────────
 
 // 'purpose' completes the error message, e.g. 'document opening'.
-export function resolveOwnerAndRepo(packageJSON: PackageJson, purpose: string): { owner: string; repo: string } {
-    const repo = packageJSON.repository;
-    const url = typeof repo === 'string' ? repo : repo?.url;
+export function resolveOwnerAndRepository(packageJSON: PackageJson, purpose: string): { owner: string; repository: string } {
+    const repository = packageJSON.repository;
+    const url = typeof repository === 'string' ? repository : repository?.url;
     if (url == null || url === '') throw new Error(`package.json 'repository' field is required to ${purpose}.`);
 
     const cleanedURL = url.replace(/^git\+/, '').replace(/\.git$/, '');
     const match = /github\.com[/:]([^/]+)\/([^/]+)$/.exec(cleanedURL);
     if (match?.[1] == null || match[2] == null) throw new Error(`Unable to parse GitHub owner/repo from '${url}'.`);
 
-    return { owner: match[1], repo: match[2] };
+    return { owner: match[1], repository: match[2] };
 }
 
 // ── Actions - Path ───────────────────────────────────────────────────────────────────────────────────────────────────

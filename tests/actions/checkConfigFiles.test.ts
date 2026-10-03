@@ -13,10 +13,10 @@ import { collectConsoleOutput, useTemporaryProject } from '../support/temporaryP
 
 // The templates are found next to the built package ('dist/..'), so the action is told it runs from this repository's
 // 'dist' folder. The tests then compare against the real templates.
-const repoDirectory = vi.hoisted(() => new URL('../..', import.meta.url).pathname);
+const repositoryDirectory = vi.hoisted(() => new URL('../..', import.meta.url).pathname);
 vi.mock('node:url', async (importOriginal) => ({
     ...(await importOriginal<object>()),
-    fileURLToPath: () => `${repoDirectory}dist/dpuse-development.es.js`
+    fileURLToPath: () => `${repositoryDirectory}dist/dpuse-development.es.js`
 }));
 
 // ── Tests ────────────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -26,7 +26,7 @@ const project = useTemporaryProject();
 async function copyTemplates(files: Record<string, string>): Promise<void> {
     for (const [projectPath, templatePath] of Object.entries(files)) {
         await fs.mkdir(path.dirname(projectPath), { recursive: true });
-        await fs.copyFile(path.join(repoDirectory, templatePath), projectPath);
+        await fs.copyFile(path.join(repositoryDirectory, templatePath), projectPath);
     }
 }
 
@@ -58,7 +58,7 @@ describe('checkConfigFiles', () => {
             '.github/workflows/publish.yml': '.github/workflows/publish.yml',
             '.github/workflows/scorecard.yml': '.github/workflows/scorecard.yml'
         });
-        const securityPolicy = await fs.readFile(path.join(repoDirectory, 'SECURITY.md'), 'utf-8');
+        const securityPolicy = await fs.readFile(path.join(repositoryDirectory, 'SECURITY.md'), 'utf-8');
         await project.writeFiles({ 'SECURITY.md': securityPolicy.replaceAll('dpuse-development', 'dpuse-connector-example') });
 
         await checkConfigFiles();

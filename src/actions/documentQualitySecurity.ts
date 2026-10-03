@@ -16,7 +16,7 @@ import {
     QUALITY_SECURITY_START_MARKER,
     readJSONFile,
     readTextFileOrNull,
-    resolveOwnerAndRepo,
+    resolveOwnerAndRepository,
     RUST_WORKSPACE_PATH,
     spawnCommand,
     spawnCommandToFile,
@@ -43,7 +43,7 @@ interface GitHubCheckRuns {
     check_runs: { app: { slug: string } | null }[];
 }
 
-interface GitHubRepoDetails {
+interface GitHubRepositoryDetails {
     security_and_analysis?: Record<string, { status: string } | undefined>;
 }
 
@@ -117,19 +117,19 @@ export async function documentQualitySecurity(): Promise<void> {
         const coveragePercent = await measureTestCoverage(packageJSON);
         const fallowHealth = await measureCodeHealth(packageJSON, coveragePercent === undefined ? [] : ['--coverage', COVERAGE_FINAL_PATH]);
 
-        const { owner, repo } = resolveOwnerAndRepo(packageJSON, 'document quality and security');
+        const { owner, repository } = resolveOwnerAndRepository(packageJSON, 'document quality and security');
 
         logStepHeader('4️⃣  Read security checks and settings');
-        const securitySettings = await readSecuritySettings(owner, repo, packageJSON);
+        const securitySettings = await readSecuritySettings(owner, repository, packageJSON);
 
         logStepHeader('5️⃣  Look up OpenSSF Best Practices badge and Scorecard results');
         const [bestPracticesProjectId, scorecardResult] = await Promise.all([
-            lookUpBestPracticesProjectId(`https://github.com/${owner}/${repo}`),
-            lookUpScorecardResult(`github.com/${owner}/${repo}`)
+            lookUpBestPracticesProjectId(`https://github.com/${owner}/${repository}`),
+            lookUpScorecardResult(`github.com/${owner}/${repository}`)
         ]);
 
         logStepHeader("6️⃣  Insert quality and security content into 'README.md'");
-        const content = buildQualitySecurityContent(owner, repo, { coveragePercent, fallowHealth, securitySettings }, bestPracticesProjectId, scorecardResult);
+        const content = buildQualitySecurityContent(owner, repository, { coveragePercent, fallowHealth, securitySettings }, bestPracticesProjectId, scorecardResult);
 
         await migrateGovernanceSection();
         await writeReadmeSection(content, QUALITY_SECURITY_START_MARKER, QUALITY_SECURITY_END_MARKER);
@@ -194,21 +194,21 @@ async function writeFallowBadge(health: FallowHealth): Promise<void> {
 
 // Read from the repository itself each time, so the README states what is actually switched on rather than what was
 // intended. Workflow and Dependabot files are read locally; repository settings come from the GitHub API through 'gh'.
-async function readSecuritySettings(owner: string, repo: string, packageJSON: PackageJson): Promise<SecuritySettings> {
-    const [ciWorkflow, codeQLWorkflow, dependabotConfig, rustWorkspace] = await Promise.all([
+async function readSecuritySettings(owner: string, repository: string, packageJSON: PackageJson): Promise<SecuritySettings> {
+    const [ciWorkflow, dependabotConfig, rustWorkspace] = await Promise.all([
         readTextFileOrNull('.github/workflows/ci.yml'),
-        readTextFileOrNull('.github/workflows/codeql.yml'),
         readTextFileOrNull('.github/dependabot.yml'),
         readTextFileOrNull(RUST_WORKSPACE_PATH)
     ]);
-    const [repoDetails, privateVulnerabilityReporting, vulnerabilityAlerts, checkRuns] = await Promise.all([
-        readGitHubAPI(`repos/${owner}/${repo}`),
-        readGitHubAPI(`repos/${owner}/${repo}/private-vulnerability-reporting`),
-        readGitHubAPI(`repos/${owner}/${repo}/vulnerability-alerts`),
-        readGitHubAPI(`repos/${owner}/${repo}/commits/main/check-runs?per_page=100`)
+    const codeQLWorkflow = (await readTextFileOrNull('.github/workflows/codeql.yml')) ?? ''; // Empty when missing, so CodeQL reads as off.
+    const [repositoryDetails, privateVulnerabilityReporting, vulnerabilityAlerts, checkRuns] = await Promise.all([
+        readGitHubAPI(`repos/${owner}/${repository}`),
+        readGitHubAPI(`repos/${owner}/${repository}/private-vulnerability-reporting`),
+        readGitHubAPI(`repos/${owner}/${repository}/vulnerability-alerts`),
+        readGitHubAPI(`repos/${owner}/${repository}/commits/main/check-runs?per_page=100`)
     ]);
 
-    const securityAndAnalysis = repoDetails === undefined ? undefined : (JSON.parse(repoDetails) as GitHubRepoDetails).security_and_analysis;
+    const securityAndAnalysis = repositoryDetails === undefined ? undefined : (JSON.parse(repositoryDetails) as GitHubRepositoryDetails).security_and_analysis;
     const readSetting = (name: string): SettingStatus => (securityAndAnalysis?.[name] === undefined ? undefined : securityAndAnalysis[name].status === 'enabled');
     const checkAppSlugs = new Set((checkRuns === undefined ? [] : (JSON.parse(checkRuns) as GitHubCheckRuns).check_runs).map((checkRun) => checkRun.app?.slug));
 
@@ -217,12 +217,12 @@ async function readSecuritySettings(owner: string, repo: string, packageJSON: Pa
     const pausedEcosystemCount = dependabotConfig?.match(/open-pull-requests-limit: 0\b/g)?.length ?? 0;
 
     return {
-        codeQLLanguages: (codeQLWorkflow ?? '')
+        codeQLLanguages: codeQLWorkflow
             .matchAll(/- language: ([\w-]+)/g)
             .filter(([, language]) => language !== 'rust' || rustWorkspace !== null) // The workflow lists Rust for every project, but skips its scan where there is none.
             .map(([, language = '']) => CODEQL_LANGUAGE_NAMES[language] ?? language)
             .toArray(),
-        codeQLQueries: /queries: ([\w-]+)/.exec(codeQLWorkflow ?? '')?.[1],
+        codeQLQueries: /queries: ([\w-]+)/.exec(codeQLWorkflow)?.[1],
         dependabotAlerts: vulnerabilityAlerts !== undefined, // Answers '204 No Content' when on and '404' when off.
         dependabotSecurityUpdates: readSetting('dependabot_security_updates'),
         dependabotVersionUpdates: ecosystemCount > pausedEcosystemCount,
@@ -251,15 +251,15 @@ async function readGitHubAPI(endpoint: string): Promise<string | undefined> {
     }
 }
 
-// Found by repository URL, as OpenSSF Scorecard does, so a repo shows its badge as soon as it is registered and nothing
+// Found by repository URL, as OpenSSF Scorecard does, so a repository shows its badge as soon as it is registered and nothing
 // needs configuring. Failures throw rather than return nothing, so a network blip can't drop the badge from the README.
-async function lookUpBestPracticesProjectId(repoURL: string): Promise<number | undefined> {
-    const response = await fetch(`https://www.bestpractices.dev/projects.json?url=${encodeURIComponent(repoURL)}`);
+async function lookUpBestPracticesProjectId(repositoryURL: string): Promise<number | undefined> {
+    const response = await fetch(`https://www.bestpractices.dev/projects.json?url=${encodeURIComponent(repositoryURL)}`);
     if (!response.ok) throw new Error(`OpenSSF Best Practices lookup failed with status ${String(response.status)}.`);
 
     // The search also matches home page URLs, so keep only the entry registered for this repository.
     const projects = (await response.json()) as BestPracticesProject[];
-    return projects.find((project) => project.repo_url === repoURL)?.id;
+    return projects.find((project) => project.repo_url === repositoryURL)?.id;
 }
 
 // Answers undefined when Scorecard has no results for the repository yet. Other failures throw, as for the badge.
@@ -301,8 +301,8 @@ ${rows.map((row) => `|${row.join('|')}|`).join('\n')}
 }
 
 // A badge that shields.io draws from a JSON file this action commits, so it shows the latest pushed figure.
-function formatEndpointBadge(owner: string, repo: string, label: string, badgePath: string): string {
-    const badgeSourceURL = encodeURIComponent(`https://raw.githubusercontent.com/${owner}/${repo}/main/${badgePath}`);
+function formatEndpointBadge(owner: string, repository: string, label: string, badgePath: string): string {
+    const badgeSourceURL = encodeURIComponent(`https://raw.githubusercontent.com/${owner}/${repository}/main/${badgePath}`);
     return `![${label}](https://img.shields.io/endpoint?url=${badgeSourceURL})`;
 }
 
@@ -310,10 +310,10 @@ function formatEndpointBadge(owner: string, repo: string, label: string, badgePa
 // push, on every push, then continuously, and alphabetically within each. Status is only ever on, off or unknown. What
 // it does opens with the check's badge where it has one, shown only while the check is on so a badge is never broken,
 // and names and links the product doing the check.
-function buildChecksContent(owner: string, repo: string, { coveragePercent, fallowHealth, securitySettings: settings }: ChecksResults): string {
-    const repoURL = `https://github.com/${owner}/${repo}`;
+function buildChecksContent(owner: string, repository: string, { coveragePercent, fallowHealth, securitySettings: settings }: ChecksResults): string {
+    const repositoryURL = `https://github.com/${owner}/${repository}`;
 
-    const ciNote = (isInCI: boolean): string => (isInCI ? ` Part of the [CI workflow](${repoURL}/actions/workflows/ci.yml) on every push and pull request to \`main\`.` : '');
+    const ciNote = (isInCI: boolean): string => (isInCI ? ` Part of the [CI workflow](${repositoryURL}/actions/workflows/ci.yml) on every push and pull request to \`main\`.` : '');
 
     const testingRows = [
         ['Unit tests', formatStatus(settings.testsInCI), `[Vitest](https://vitest.dev) runs the unit tests.${ciNote(settings.testsInCI)}`],
@@ -327,11 +327,11 @@ function buildChecksContent(owner: string, repo: string, { coveragePercent, fall
         testingRows.push([
             'Test coverage',
             formatStatus(true),
-            `${formatEndpointBadge(owner, repo, 'Coverage', COVERAGE_BADGE_PATH)} [Vitest's V8 coverage](https://vitest.dev/guide/coverage) measures the share of source lines the unit tests run. The target is ${String(COVERAGE_TARGET_PERCENT)}%.`
+            `${formatEndpointBadge(owner, repository, 'Coverage', COVERAGE_BADGE_PATH)} [Vitest's V8 coverage](https://vitest.dev/guide/coverage) measures the share of source lines the unit tests run. The target is ${String(COVERAGE_TARGET_PERCENT)}%.`
         ]);
     }
 
-    const sonarCloudBadge = `[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=${owner}_${repo}&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=${owner}_${repo}) `;
+    const sonarCloudBadge = `[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=${owner}_${repository}&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=${owner}_${repository}) `;
     const codeQualityRows = [
         [
             'Code analysis',
@@ -345,12 +345,12 @@ function buildChecksContent(owner: string, repo: string, { coveragePercent, fall
         codeQualityRows.unshift([
             'Code health',
             formatStatus(true),
-            `[${formatEndpointBadge(owner, repo, 'Fallow code health', FALLOW_BADGE_PATH)}](./${FALLOW_REPORT_PATH}) [Fallow](https://github.com/fallow-rs/fallow) finds unused code, duplication, complexity and dependency problems.`
+            `[${formatEndpointBadge(owner, repository, 'Fallow code health', FALLOW_BADGE_PATH)}](./${FALLOW_REPORT_PATH}) [Fallow](https://github.com/fallow-rs/fallow) finds unused code, duplication, complexity and dependency problems.`
         ]);
     }
 
     const hasCodeQL = settings.codeQLLanguages.length > 0;
-    const codeQLBadge = `[![CodeQL](${repoURL}/actions/workflows/codeql.yml/badge.svg)](${repoURL}/security/code-scanning) `;
+    const codeQLBadge = `[![CodeQL](${repositoryURL}/actions/workflows/codeql.yml/badge.svg)](${repositoryURL}/security/code-scanning) `;
     const codeQLScope = settings.codeQLQueries === 'security-extended' ? 'using the extended security queries' : 'using the default queries';
     const codeQLLanguages = hasCodeQL ? ` ${settings.codeQLLanguages.join(' and ')}` : '';
     const securityAnalysisRows = [
@@ -405,13 +405,13 @@ ${buildTableContent('Testing', testingRows)}${buildTableContent('Code Quality', 
 
 function buildQualitySecurityContent(
     owner: string,
-    repo: string,
+    repository: string,
     checksResults: ChecksResults,
     bestPracticesProjectId: number | undefined,
     scorecardResult: ScorecardResult | undefined
 ): string {
-    const repoURL = `https://github.com/${owner}/${repo}`;
-    const scorecardURI = `github.com/${owner}/${repo}`;
+    const repositoryURL = `https://github.com/${owner}/${repository}`;
+    const scorecardURI = `github.com/${owner}/${repository}`;
     const bestPracticesURL = `https://www.bestpractices.dev/projects/${String(bestPracticesProjectId)}`;
     const scorecardLimitText =
         scorecardResult !== undefined && isScorecardOnlyPracticeLimited(scorecardResult)
@@ -422,12 +422,12 @@ function buildQualitySecurityContent(
     // Without private reporting switched on, the advisory link leads nowhere, so point only at SECURITY.md.
     const reportingText =
         checksResults.securitySettings.privateVulnerabilityReporting === true
-            ? `Use [GitHub private vulnerability reporting](${repoURL}/security/advisories/new) instead. See [SECURITY.md](./SECURITY.md) for the full disclosure policy, contact details, and expected response times.`
+            ? `Use [GitHub private vulnerability reporting](${repositoryURL}/security/advisories/new) instead. See [SECURITY.md](./SECURITY.md) for the full disclosure policy, contact details, and expected response times.`
             : 'See [SECURITY.md](./SECURITY.md) for how to report one privately, the full disclosure policy, and expected response times.';
 
     return `## Quality & Security
 
-${buildChecksContent(owner, repo, checksResults)}### OpenSSF 🚧
+${buildChecksContent(owner, repository, checksResults)}### OpenSSF 🚧
 
 ${bestPracticesBadge}[![OpenSSF Scorecard](https://api.scorecard.dev/projects/${scorecardURI}/badge)](https://scorecard.dev/viewer/?uri=${scorecardURI})
 

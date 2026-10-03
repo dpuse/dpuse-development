@@ -21,10 +21,10 @@
 
 | Metric | Value |
 |:-------|------:|
-| Total LOC | 3652 |
+| Total LOC | 3659 |
 | Avg Cyclomatic | 2.9 |
-| P90 Cyclomatic | 6 |
-| Cyclomatic units | Functions: 287, module scopes: 0, templates: 0 |
+| P90 Cyclomatic | 7 |
+| Cyclomatic units | Functions: 286, module scopes: 0, templates: 0 |
 | Dead Files | 0.0% |
 | Dead Exports | 0.0% |
 | Maintainability (avg) | 92.2 |
@@ -37,7 +37,7 @@
 
 | File | Maintainability | Fan-in | Fan-out | Dead Code | Density | Risk |
 |:-----|:---------------|:-------|:--------|:----------|:--------|:-----|
-| `src/actions/documentQualitySecurity.ts` | 91.8 | 1 | 1 | 0% | 0.18 | 17.0 |
+| `src/actions/documentQualitySecurity.ts` | 91.8 | 1 | 1 | 0% | 0.18 | 16.0 |
 | `src/utilities/rustCrates.ts` | 90.0 | 1 | 1 | 0% | 0.24 | 13.0 |
 | `src/utilities/apiReference.ts` | 83.1 | 1 | 1 | 0% | 0.47 | 12.0 |
 | `src/actions/documentDependencies.ts` | 86.1 | 1 | 3 | 0% | 0.28 | 9.6 |
@@ -53,8 +53,8 @@
 | `src/actions/documentProject.ts` | 87.5 | 2 | 9 | 0% | 0.11 | 6.0 |
 | `src/actions/releaseProject.ts` | 90.9 | 1 | 4 | 0% | 0.09 | 6.0 |
 | `src/actions/documentUsage.ts` | 91.8 | 1 | 1 | 0% | 0.18 | 6.0 |
+| `src/actions/documentOpening.ts` | 92.1 | 1 | 1 | 0% | 0.17 | 6.0 |
 | `src/actions/publishProject.ts` | 90.8 | 2 | 2 | 0% | 0.16 | 5.0 |
-| `src/actions/documentOpening.ts` | 92.1 | 1 | 1 | 0% | 0.17 | 5.0 |
 | `src/actions/syncProjectWithGitHub.ts` | 94.8 | 1 | 1 | 0% | 0.11 | 4.0 |
 | `src/actions/buildProject.ts` | 94.3 | 2 | 1 | 0% | 0.14 | 3.0 |
 | `src/actions/documentActions.ts` | 95.4 | 1 | 1 | 0% | 0.06 | 3.0 |
@@ -78,7 +78,7 @@
 | `src/actions/documentOpening.ts` | 29.9 | 19 | 283 | 0.17 | 1 | accelerating |
 | `src/actions/documentUsage.ts` | 28.9 | 16 | 330 | 0.18 | 1 | accelerating |
 | `src/actions/checkDependencies.ts` | 18.4 | 17 | 194 | 0.13 | 1 | stable |
-| `src/actions/auditDependencies.ts` | 16.9 | 10 | 132 | 0.19 | 1 | stable |
+| `src/actions/auditDependencies.ts` | 17.0 | 10 | 132 | 0.19 | 1 | stable |
 | `src/actions/documentQualitySecurity.ts` | 14.0 | 7 | 601 | 0.18 | 1 | cooling |
 | `src/utilities/cloudflare.ts` | 12.6 | 9 | 41 | 0.22 | 2 | stable |
 | `src/actions/documentApiReference.ts` | 11.5 | 13 | 772 | 0.08 | 1 | cooling |
@@ -89,7 +89,7 @@
 | `src/actions/documentActions.ts` | 5.1 | 10 | 102 | 0.06 | 1 | stable |
 | `src/actions/lintCode.ts` | 4.8 | 6 | 30 | 0.11 | 1 | cooling |
 | `src/actions/buildProject.ts` | 4.7 | 3 | 56 | 0.14 | 2 | cooling |
-| `vite.config.ts` | 2.9 | 19 | 126 | 0.02 | 0 | cooling |
+| `vite.config.ts` | 3.1 | 20 | 130 | 0.02 | 0 | cooling |
 
 *8 files excluded (< 3 commits)*
 

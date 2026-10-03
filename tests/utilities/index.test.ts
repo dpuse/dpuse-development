@@ -9,7 +9,7 @@ import {
     extractOperationsFromSource,
     getModuleConfig,
     readTextFileOrNull,
-    resolveOwnerAndRepo,
+    resolveOwnerAndRepository,
     spawnCommand,
     spawnCommandForOutput,
     spawnCommandToFile,
@@ -22,23 +22,23 @@ import { collectConsoleOutput, useTemporaryProject } from '../support/temporaryP
 
 const project = useTemporaryProject();
 
-describe('resolveOwnerAndRepo', () => {
+describe('resolveOwnerAndRepository', () => {
     it.each([
         ['git+https://github.com/dpuse/dpuse-shared.git', 'dpuse', 'dpuse-shared'],
         ['https://github.com/dpuse/dpuse-shared', 'dpuse', 'dpuse-shared'],
         ['git@github.com:dpuse/dpuse-shared.git', 'dpuse', 'dpuse-shared']
-    ])("reads the owner and repo from '%s'", (url, owner, repo) => {
-        expect(resolveOwnerAndRepo({ repository: { type: 'git', url } }, 'test')).toEqual({ owner, repo });
-        expect(resolveOwnerAndRepo({ repository: url }, 'test')).toEqual({ owner, repo });
+    ])("reads the owner and repo from '%s'", (url, owner, repository) => {
+        expect(resolveOwnerAndRepository({ repository: { type: 'git', url } }, 'test')).toEqual({ owner, repository });
+        expect(resolveOwnerAndRepository({ repository: url }, 'test')).toEqual({ owner, repository });
     });
 
     it('names the purpose when the repository is missing', () => {
-        expect(() => resolveOwnerAndRepo({}, 'document opening')).toThrow("package.json 'repository' field is required to document opening.");
-        expect(() => resolveOwnerAndRepo({ repository: '' }, 'test')).toThrow('is required to test');
+        expect(() => resolveOwnerAndRepository({}, 'document opening')).toThrow("package.json 'repository' field is required to document opening.");
+        expect(() => resolveOwnerAndRepository({ repository: '' }, 'test')).toThrow('is required to test');
     });
 
     it('rejects a repository that is not on GitHub', () => {
-        expect(() => resolveOwnerAndRepo({ repository: 'https://gitlab.com/dpuse/dpuse-shared' }, 'test')).toThrow(
+        expect(() => resolveOwnerAndRepository({ repository: 'https://gitlab.com/dpuse/dpuse-shared' }, 'test')).toThrow(
             "Unable to parse GitHub owner/repo from 'https://gitlab.com/dpuse/dpuse-shared'."
         );
     });

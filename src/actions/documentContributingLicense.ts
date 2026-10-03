@@ -10,7 +10,7 @@ import {
     logStepHeader,
     migrateGovernanceSection,
     readJSONFile,
-    resolveOwnerAndRepo,
+    resolveOwnerAndRepository,
     writeReadmeSection
 } from '@/utilities';
 
@@ -29,14 +29,14 @@ export async function documentContributingLicense(): Promise<void> {
 
         const [packageJSON, configJSON] = await Promise.all([readJSONFile<PackageJson>('package.json'), readJSONFile<LicenseModuleConfig>('config.json')]);
 
-        const { owner, repo } = resolveOwnerAndRepo(packageJSON, 'document contributing and license');
+        const { owner, repository } = resolveOwnerAndRepository(packageJSON, 'document contributing and license');
         const authorName = resolveAuthorName(packageJSON);
         const copyrightYear = resolveCopyrightYear(configJSON.firstCreatedAt);
 
         logStepHeader("1️⃣  Insert contributing and license content into 'README.md'");
 
         await migrateGovernanceSection();
-        await writeReadmeSection(buildContributingLicenseContent(owner, repo, authorName, copyrightYear), CONTRIBUTING_LICENSE_START_MARKER, CONTRIBUTING_LICENSE_END_MARKER);
+        await writeReadmeSection(buildContributingLicenseContent(owner, repository, authorName, copyrightYear), CONTRIBUTING_LICENSE_START_MARKER, CONTRIBUTING_LICENSE_END_MARKER);
 
         logOperationSuccess('Contributing & license documented');
     } catch (error) {
@@ -67,14 +67,14 @@ function resolveCopyrightYear(firstCreatedAt: number | null | undefined): string
     return startYear === currentYear ? String(currentYear) : `${String(startYear)}-present`;
 }
 
-function buildContributingLicenseContent(owner: string, repo: string, authorName: string, copyrightYear: string): string {
-    const repoURL = `https://github.com/${owner}/${repo}`;
+function buildContributingLicenseContent(owner: string, repository: string, authorName: string, copyrightYear: string): string {
+    const repositoryURL = `https://github.com/${owner}/${repository}`;
 
     return `## Contributing
 
 This repository is maintained solely by its owner and does not, at present, accept external contributions into the canonical repo. Its source is published openly under the MIT License — every DPUse project is fully open source except DPUse Engine, which remains closed and proprietary.
 
-For security vulnerabilities, see [Reporting Vulnerabilities](#reporting-vulnerabilities). For bugs, inconsistencies, or other feedback, [open a GitHub issue](${repoURL}/issues) — feedback is read, but responses and fixes are at the maintainer's discretion.
+For security vulnerabilities, see [Reporting Vulnerabilities](#reporting-vulnerabilities). For bugs, inconsistencies, or other feedback, [open a GitHub issue](${repositoryURL}/issues) — feedback is read, but responses and fixes are at the maintainer's discretion.
 
 ## License
 

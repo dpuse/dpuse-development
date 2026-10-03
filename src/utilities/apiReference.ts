@@ -72,13 +72,15 @@ function resolveEntryPoints(packageJSON: PackageJson): { importPath: string; sou
     const exportsField = packageJSON.exports;
     const exportEntries = exportsField != null && typeof exportsField === 'object' && !Array.isArray(exportsField) ? Object.entries(exportsField) : [];
 
-    return exportEntries.flatMap(([subpath, target]) => {
+    const entryPoints: { importPath: string; sourcePath: string }[] = [];
+    for (const [subpath, target] of exportEntries) {
         const typesPath = target != null && typeof target === 'object' && !Array.isArray(target) ? target['types'] : undefined;
-        if (typeof typesPath !== 'string') return [];
+        if (typeof typesPath !== 'string') continue;
         const importPath = subpath === '.' ? packageName : `${packageName}${subpath.slice(1)}`;
         const sourcePath = typesPath.replace(/^\.\/dist\/types\//, '').replace(/\.d\.ts$/, '.ts');
-        return [{ importPath, sourcePath }];
-    });
+        entryPoints.push({ importPath, sourcePath });
+    }
+    return entryPoints;
 }
 
 // Uses the project's own tsconfig, so '@/' and other path aliases resolve as they do in the build.
@@ -97,7 +99,7 @@ function listExports(checker: ts.TypeChecker, sourceFile: ts.SourceFile, fieldGr
     const entries = exportedSymbols.flatMap((exportedSymbol) => {
         const symbol = resolveAlias(checker, exportedSymbol);
         const entry = describeExport(checker, formatExportName(exportedSymbol, symbol), symbol, fieldGroupOwners);
-        return entry === undefined ? [] : [{ ...entry, description: readDescription(checker, symbol), topic: readTopic(symbol) }];
+        return entry === undefined ? [] : { ...entry, description: readDescription(checker, symbol), topic: readTopic(symbol) };
     });
     return entries.toSorted((a, b) => a.name.localeCompare(b.name));
 }
@@ -338,7 +340,7 @@ function compareTopics(a: string, b: string): number {
 function buildKindLists(entries: ExportEntry[], headingLevel: string): string[] {
     return EXPORT_KINDS.flatMap((kind) => {
         const items = entries.filter((entry) => entry.kind === kind).map((entry) => formatEntry(entry));
-        return items.length === 0 ? [] : [`${headingLevel} ${kind}\n\n${items.join('\n')}`];
+        return items.length === 0 ? [] : `${headingLevel} ${kind}\n\n${items.join('\n')}`;
     });
 }
 
