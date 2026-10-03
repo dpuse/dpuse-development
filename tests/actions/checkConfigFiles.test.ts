@@ -165,6 +165,28 @@ describe('checkConfigFiles', () => {
         expect(output).toContain("⚠️  File '.prettierrc.json' is UNIQUE to this project");
     });
 
+    it('checks the shared Vitest configuration, but no Vite configuration, for the ESLint configuration package', async () => {
+        await writeProject('eslint-config-dpuse');
+        await copyTemplates({ 'vitest.config.ts': 'vitest.config.ts' });
+
+        await checkConfigFiles();
+
+        const output = collectConsoleOutput();
+        expect(output).toContain("ℹ️  File 'vite.config.ts' is NOT required by this project");
+        expect(output).toContain("ℹ️  File 'vitest.config.ts' is the same as 'vitest.config.ts'");
+    });
+
+    it("treats the knowledge base's ESLint configuration as its own", async () => {
+        await writeProject('dpuse-kb');
+
+        await checkConfigFiles();
+
+        const output = collectConsoleOutput();
+        expect(output).toContain("⚠️  File 'eslint.config.js' is UNIQUE to this project");
+        expect(output).toContain("ℹ️  File 'vite.config.ts' is NOT required by this project");
+        expect(output).toContain("ℹ️  File 'vitest.config.ts' is NOT required by this project");
+    });
+
     it("reports dpuse-development's Prettier configuration as the template", async () => {
         await writeProject('dpuse-development', { prettier: undefined });
 

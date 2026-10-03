@@ -1,4 +1,8 @@
 // ── External Dependencies & Registrations
+// TODO: 'license-checker-rseidelsohn' is being retired in favour of '@lizenz/checker'. Switch when '@lizenz/checker'
+// reaches 1.0.0, a drop-in replacement: change these two imports and the README link text in 'buildLicensesIntro'.
+// It is BSD-3-Clause, not MIT. Longer term, 'npm sbom --omit dev' could replace it with no extra dependencies, but the
+// allowed-licence check and licence-file lookup would then need writing here.
 import { init as initLicenseChecker } from 'license-checker-rseidelsohn';
 import type { InitOpts } from 'license-checker-rseidelsohn';
 

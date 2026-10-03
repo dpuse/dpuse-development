@@ -131,6 +131,23 @@ export async function spawnCommand(label: string, command: string, arguments_: s
     });
 }
 
+// Resolves with the command's standard output whatever its exit code, for commands such as 'npm audit' that exit with an
+// error whenever they report a finding, leaving the caller to judge the output.
+export async function spawnCommandForOutput(label: string, command: string, arguments_: string[]): Promise<string> {
+    logStepHeader(`${label} - spawn(${command} ${arguments_.join(' ')})`);
+    return new Promise((resolve, reject) => {
+        const child = spawn(command, arguments_, { shell: false, stdio: ['inherit', 'pipe', 'inherit'] });
+        let output = '';
+        child.stdout.on('data', (chunk) => {
+            output += String(chunk);
+        });
+        child.on('error', reject); // The command could not be started at all.
+        child.on('close', () => {
+            resolve(output);
+        });
+    });
+}
+
 export async function spawnCommandToFile(label: string, command: string, arguments_: string[], outputPath: string, isErrorIgnored = false): Promise<void> {
     logStepHeader(`${label} - spawn(${command} ${arguments_.join(' ')}) > ${outputPath}`);
     return new Promise((resolve, reject) => {

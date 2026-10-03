@@ -1,0 +1,14 @@
+{
+    "IGNORED_ADVISORIES": [
+        {
+            "id": "GHSA-ch52-4w7c-c8xp",
+            "reason": "'http-cache-semantics', used by the licence checker, which only reads the npm registry locally, with no shared cache to leak from",
+            "reviewBy": "2026-12-31"
+        },
+        {
+            "id": "GHSA-fx2h-pf6j-xcff",
+            "reason": "'vite', used by VitePress 1.x in dpuse-kb, which affects only the local dev server on Windows",
+            "reviewBy": "2026-12-31"
+        }
+    ]
+}

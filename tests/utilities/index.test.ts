@@ -11,6 +11,7 @@ import {
     readTextFileOrNull,
     resolveOwnerAndRepo,
     spawnCommand,
+    spawnCommandForOutput,
     spawnCommandToFile,
     writeJSONFile,
     writeReadmeSection
@@ -110,6 +111,16 @@ describe('spawnCommand', () => {
 
     it('resolves despite a failure when errors are ignored', async () => {
         await expect(spawnCommand('1️⃣  Run', 'node', ['-e', 'process.exit(2)'], true)).resolves.toBeUndefined();
+    });
+});
+
+describe('spawnCommandForOutput', () => {
+    it('resolves with standard output, even when the command exits with an error', async () => {
+        expect(await spawnCommandForOutput('1️⃣  Run', 'node', ['-e', "process.stdout.write('report'); process.exit(1)"])).toBe('report');
+    });
+
+    it('rejects when the command cannot be started', async () => {
+        await expect(spawnCommandForOutput('1️⃣  Run', 'no-such-command-dpuse', [])).rejects.toThrow('ENOENT');
     });
 });
 

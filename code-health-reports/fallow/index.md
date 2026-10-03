@@ -1,18 +1,33 @@
 ## Fallow: no issues found
 
-## Fallow: no code duplication found
+## Fallow: 1 clone group found (0.4% duplication)
+
+### Duplicates
+
+**Clone group 1** (8 lines, 2 instances)
+
+- `src/utilities/index.ts:137-144`
+- `src/utilities/index.ts:152-159`
+
+### Clone Families
+
+**Family 1** (1 group, 8 lines across `src/utilities/index.ts`)
+
+- Extract shared function (8 lines) from index.ts, index.ts (~8 lines saved)
+
+**Summary:** 16 duplicated lines (0.4%) across 1 file
 
 ## Vital Signs
 
 | Metric | Value |
 |:-------|------:|
-| Total LOC | 3535 |
+| Total LOC | 3624 |
 | Avg Cyclomatic | 2.9 |
 | P90 Cyclomatic | 6 |
-| Cyclomatic units | Functions: 280, module scopes: 0, templates: 0 |
+| Cyclomatic units | Functions: 287, module scopes: 0, templates: 0 |
 | Dead Files | 0.0% |
 | Dead Exports | 0.0% |
-| Maintainability (avg) | 92.3 |
+| Maintainability (avg) | 92.2 |
 | Hotspots (since 6 months) | 4 |
 | Circular Deps | 0 |
 | Unused Deps | 0 |
@@ -38,6 +53,7 @@
 | `src/actions/releaseProject.ts` | 90.9 | 1 | 4 | 0% | 0.09 | 6.0 |
 | `src/actions/documentUsage.ts` | 91.8 | 1 | 1 | 0% | 0.18 | 6.0 |
 | `src/actions/publishProject.ts` | 90.8 | 2 | 2 | 0% | 0.16 | 5.0 |
+| `src/actions/auditDependencies.ts` | 92.1 | 1 | 1 | 0% | 0.17 | 5.0 |
 | `src/actions/documentOpening.ts` | 92.1 | 1 | 1 | 0% | 0.17 | 5.0 |
 | `src/actions/syncProjectWithGitHub.ts` | 94.8 | 1 | 1 | 0% | 0.11 | 4.0 |
 | `src/actions/buildProject.ts` | 94.3 | 2 | 1 | 0% | 0.14 | 3.0 |
@@ -46,11 +62,10 @@
 | `src/actions/documentApiReference.ts` | 94.4 | 1 | 2 | 0% | 0.08 | 2.0 |
 | `src/actions/formatCode.ts` | 94.8 | 1 | 1 | 0% | 0.16 | 2.0 |
 | `src/actions/lintCode.ts` | 96.0 | 1 | 1 | 0% | 0.11 | 2.0 |
-| `src/actions/auditDependencies.ts` | 96.1 | 1 | 1 | 0% | 0.08 | 2.0 |
 | `vite.config.ts` | 99.4 | 0 | 0 | 0% | 0.02 | 2.0 |
 | `src/actions/checkProject.ts` | 95.0 | 1 | 2 | 0% | 0.08 | 1.0 |
 
-**Average maintainability index:** 92.3/100
+**Average maintainability index:** 92.2/100
 
 ### Hotspots (19 files, since 6 months)
 
@@ -66,10 +81,10 @@
 | `src/actions/documentQualitySecurity.ts` | 14.0 | 7 | 601 | 0.18 | 1 | cooling |
 | `src/utilities/cloudflare.ts` | 12.6 | 9 | 41 | 0.22 | 2 | stable |
 | `src/actions/documentApiReference.ts` | 11.5 | 13 | 772 | 0.08 | 1 | cooling |
+| `src/actions/auditDependencies.ts` | 11.2 | 8 | 43 | 0.17 | 1 | stable |
 | `src/actions/formatCode.ts` | 8.7 | 7 | 38 | 0.16 | 1 | stable |
 | `src/actions/documentProject.ts` | 6.1 | 5 | 85 | 0.11 | 2 | cooling |
 | `src/actions/publishProject.ts` | 5.4 | 3 | 62 | 0.16 | 2 | cooling |
-| `src/actions/auditDependencies.ts` | 5.3 | 8 | 43 | 0.08 | 1 | stable |
 | `src/actions/documentActions.ts` | 5.1 | 10 | 102 | 0.06 | 1 | stable |
 | `src/actions/lintCode.ts` | 4.8 | 6 | 30 | 0.11 | 1 | cooling |
 | `src/actions/buildProject.ts` | 4.7 | 3 | 56 | 0.14 | 2 | cooling |

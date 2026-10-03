@@ -70,9 +70,9 @@ export async function checkConfigFiles(): Promise<void> {
 // ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 async function checkESLintConfig(moduleTypeConfig: ModuleTypeConfig, moduleDirectory: string) {
-    if (['github', 'kb'].includes(moduleTypeConfig.typeId)) {
+    if (['github'].includes(moduleTypeConfig.typeId)) {
         console.info("ℹ️  File 'eslint.config.js' is NOT required by this project");
-    } else if (['app', 'api', 'development', 'eslint'].includes(moduleTypeConfig.typeId)) {
+    } else if (['app', 'api', 'development', 'eslint', 'kb'].includes(moduleTypeConfig.typeId)) {
         console.info("⚠️  File 'eslint.config.js' is UNIQUE to this project");
     } else {
         await checkConfigFile(moduleDirectory, 'eslint.config.js', ['eslint.config.default.js']);
@@ -136,7 +136,7 @@ async function checkWorkflows(moduleDirectory: string) {
 }
 
 async function checkVitestConfig(moduleTypeConfig: ModuleTypeConfig, moduleDirectory: string) {
-    if (['app', 'api', 'eslint', 'github', 'kb'].includes(moduleTypeConfig.typeId)) {
+    if (['app', 'api', 'github', 'kb'].includes(moduleTypeConfig.typeId)) {
         console.info("ℹ️  File 'vitest.config.ts' is NOT required by this project");
     } else {
         await checkConfigFile(moduleDirectory, 'vitest.config.ts');

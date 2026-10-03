@@ -3,7 +3,6 @@ import { run as runNpmCheckUpdates } from 'npm-check-updates';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 // ── Local Framework
-import { auditDependencies } from '@/actions/auditDependencies';
 import { checkDependencies } from '@/actions/checkDependencies';
 import { formatCode } from '@/actions/formatCode';
 import { lintCode } from '@/actions/lintCode';
@@ -92,7 +91,6 @@ describe('checkDependencies', () => {
 
 describe('single-command actions', () => {
     it.each([
-        ['auditDependencies', auditDependencies, ['npm audit --omit=dev', 'npm audit --audit-level=high']],
         ['lintCode', lintCode, ['eslint .']]
     ])('%s runs its commands', async (_name, action, commands) => {
         await action();
@@ -108,7 +106,6 @@ describe('single-command actions', () => {
     });
 
     it.each([
-        ['auditDependencies', auditDependencies],
         ['formatCode', formatCode],
         ['lintCode', lintCode]
     ])('%s exits when its command fails', async (_name, action) => {

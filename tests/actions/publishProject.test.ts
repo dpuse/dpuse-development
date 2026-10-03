@@ -82,6 +82,16 @@ describe('publishProject', () => {
         expect(uploadModuleToR2).toHaveBeenCalledWith(expect.objectContaining({ version: '1.0.0' }), 'dpuse-engine-eu/connectors/dropbox');
     });
 
+    it('deploys the knowledge base with its own deploy script', async () => {
+        await project.writeFiles({ 'package.json': JSON.stringify({ version: '1.0.0' }), 'config.json': JSON.stringify({ id: 'dpuse-kb' }) });
+
+        await publishProject();
+
+        expect(spawnedCommands()).toEqual(['npm run deploy']);
+        expect(collectConsoleOutput()).toContain('2️⃣  Registration NOT required');
+        expect(uploadModuleToR2).not.toHaveBeenCalled();
+    });
+
     it('does not upload a tool whose npm publish fails', async () => {
         await project.writeFiles({ 'package.json': JSON.stringify({ version: '1.0.0' }), 'config.json': JSON.stringify({ id: 'dpuse-tool-file-previewer' }) });
         vi.mocked(spawnCommand).mockRejectedValueOnce(new Error('npm failed'));

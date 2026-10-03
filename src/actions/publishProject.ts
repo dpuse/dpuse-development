@@ -29,6 +29,10 @@ export async function publishProject(): Promise<void> {
 
         await registerModule('2️⃣ ', packageJSON, configJSON, moduleTypeConfig);
 
+        // The knowledge base has no module to register. It is published by its own 'deploy' script, which loads the docs into
+        // Cloudflare KV and deploys the site.
+        if (moduleTypeConfig.publishedTo === 'kb') await spawnCommand('3️⃣  Deploy', 'npm', ['run', 'deploy']);
+
         logOperationSuccess(`Project version '${packageJSON.version ?? 'unknown'}' published.`);
     } catch (error) {
         console.error('❌  Error publishing project', error);
