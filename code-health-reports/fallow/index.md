@@ -21,7 +21,7 @@
 
 | Metric | Value |
 |:-------|------:|
-| Total LOC | 3648 |
+| Total LOC | 3652 |
 | Avg Cyclomatic | 2.9 |
 | P90 Cyclomatic | 6 |
 | Cyclomatic units | Functions: 287, module scopes: 0, templates: 0 |
@@ -73,22 +73,22 @@
 |:-----|:------|:--------|:------|:--------|:-------|:------|
 | `src/actions/documentBundleSizes.ts` | 80.9 | 40 | 1343 | 0.28 | 1 | cooling |
 | `src/actions/checkConfigFiles.ts` | 75.0 | 49 | 549 | 0.21 | 1 | cooling |
-| `src/actions/documentDependencies.ts` | 68.0 | 30 | 883 | 0.28 | 1 | stable |
-| `src/utilities/index.ts` | 67.9 | 37 | 527 | 0.24 | 23 | stable |
+| `src/actions/documentDependencies.ts` | 71.2 | 31 | 900 | 0.28 | 1 | stable |
+| `src/utilities/index.ts` | 70.7 | 38 | 531 | 0.24 | 23 | stable |
 | `src/actions/documentOpening.ts` | 29.9 | 19 | 283 | 0.17 | 1 | accelerating |
 | `src/actions/documentUsage.ts` | 28.9 | 16 | 330 | 0.18 | 1 | accelerating |
 | `src/actions/checkDependencies.ts` | 18.4 | 17 | 194 | 0.13 | 1 | stable |
-| `src/actions/auditDependencies.ts` | 14.8 | 9 | 115 | 0.19 | 1 | stable |
+| `src/actions/auditDependencies.ts` | 16.9 | 10 | 132 | 0.19 | 1 | stable |
 | `src/actions/documentQualitySecurity.ts` | 14.0 | 7 | 601 | 0.18 | 1 | cooling |
 | `src/utilities/cloudflare.ts` | 12.6 | 9 | 41 | 0.22 | 2 | stable |
 | `src/actions/documentApiReference.ts` | 11.5 | 13 | 772 | 0.08 | 1 | cooling |
 | `src/actions/formatCode.ts` | 8.7 | 7 | 38 | 0.16 | 1 | stable |
 | `src/actions/publishProject.ts` | 7.2 | 4 | 66 | 0.16 | 2 | cooling |
 | `src/actions/documentProject.ts` | 6.1 | 5 | 85 | 0.11 | 2 | cooling |
+| `src/actions/releaseProject.ts` | 5.1 | 5 | 78 | 0.09 | 1 | cooling |
 | `src/actions/documentActions.ts` | 5.1 | 10 | 102 | 0.06 | 1 | stable |
 | `src/actions/lintCode.ts` | 4.8 | 6 | 30 | 0.11 | 1 | cooling |
 | `src/actions/buildProject.ts` | 4.7 | 3 | 56 | 0.14 | 2 | cooling |
-| `src/actions/releaseProject.ts` | 4.0 | 4 | 76 | 0.09 | 1 | cooling |
 | `vite.config.ts` | 2.9 | 19 | 126 | 0.02 | 0 | cooling |
 
 *8 files excluded (< 3 commits)*

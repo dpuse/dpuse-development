@@ -12,7 +12,7 @@ import config from './config.json' with { type: 'json' };
 
 // ── Vite Configuration ───────────────────────────────────────────────────────────────────────────────────────────────
 
-export default defineConfig({
+const viteConfig = defineConfig({
     base: 'https://engine-eu.dpuse.app/presenters/', // Presenters are served from the engine's domain, and load its shared files from there.
     build: {
         lib: {
@@ -38,3 +38,5 @@ export default defineConfig({
         }
     }
 });
+
+export default viteConfig;

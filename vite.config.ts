@@ -9,7 +9,7 @@ import config from './config.json' with { type: 'json' };
 
 // ── Vite Configuration ───────────────────────────────────────────────────────────────────────────────────────────────
 
-export default defineConfig({
+const viteConfig = defineConfig({
     build: {
         // Two entry points: the actions, and the build plugin for Vite configs, which must load without the actions.
         lib: {
@@ -48,3 +48,5 @@ export default defineConfig({
         }
     }
 });
+
+export default viteConfig;
