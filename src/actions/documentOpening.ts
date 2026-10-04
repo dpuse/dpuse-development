@@ -27,10 +27,10 @@ export async function documentOpening(): Promise<void> {
         const license = resolveLicense(packageJSON);
         const introduction = resolveIntroduction(configJSON);
         const moduleTypeConfig = getModuleConfig(configJSON.id);
-        const isUploadedToDPUse = moduleTypeConfig.uploadGroupName !== undefined;
+        const dpuseModuleId = moduleTypeConfig.uploadGroupName === undefined ? undefined : configJSON.id;
         const npmPackageName = moduleTypeConfig.publishedTo === 'npm' ? resolvePackageName(packageJSON) : undefined;
 
-        const content = buildOpeningContent(owner, repository, license, isUploadedToDPUse, npmPackageName, packageJSON.description, introduction);
+        const content = buildOpeningContent(owner, repository, license, dpuseModuleId, npmPackageName, packageJSON.description, introduction);
 
         await writeReadmeSection(content, START_MARKER, END_MARKER);
 
@@ -63,21 +63,25 @@ function resolveIntroduction(configJSON: ModuleConfig): string | undefined {
 }
 
 // The package description is optional, so a project without one simply has no summary between the badges and the links.
-// Only modules uploaded to DPUse get the DPUse version badge, and only projects published to npm get the npm badge.
+// Only modules uploaded to DPUse get the DPUse version badge, and only projects published to npm get the npm badge. The
+// DPUse badge reads the version registered in DPUse, which is only updated once the upload succeeds, so like the npm
+// badge it shows what was actually published, and it works for private repositories too.
 function buildOpeningContent(
     owner: string,
     repository: string,
     license: string,
-    isUploadedToDPUse: boolean,
+    dpuseModuleId: string | undefined,
     npmPackageName: string | undefined,
     description: string | undefined,
     introduction: string | undefined
 ): string {
     const repositoryURL = `https://github.com/${owner}/${repository}`;
     const badgeLicense = license.replaceAll('-', '--');
-    const dpuseBadge = isUploadedToDPUse
-        ? `\n[![DPUse version](https://img.shields.io/github/v/release/${owner}/${repository}?color=f6821f&label=DPUse)](${repositoryURL}/releases/latest)`
-        : '';
+    const dpuseConfigURL = encodeURIComponent(`https://api.dpuse.app/configs/${dpuseModuleId ?? ''}`);
+    const dpuseBadge =
+        dpuseModuleId === undefined
+            ? ''
+            : `\n[![DPUse version](https://img.shields.io/badge/dynamic/json?url=${dpuseConfigURL}&query=%24.data.version&prefix=v&label=DPUse&color=f6821f)](${repositoryURL}/releases/latest)`;
     const npmBadge =
         npmPackageName === undefined
             ? ''

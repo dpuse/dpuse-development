@@ -70,7 +70,9 @@ describe('documentOpening', () => {
 
         const readme = await project.readFile('README.md');
         expect(readme.match(/\[!\[[^\]]+\]/g)).toEqual(['[![License: Apache-2.0]', '[![DPUse version]', '[![CI]']);
-        expect(readme).toContain('[![DPUse version](https://img.shields.io/github/v/release/dpuse/dpuse-shared?color=f6821f&label=DPUse)]');
+        expect(readme).toContain(
+            '[![DPUse version](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fapi.dpuse.app%2Fconfigs%2Fdpuse-connector-dropbox&query=%24.data.version&prefix=v&label=DPUse&color=f6821f)]'
+        );
     });
 
     it('shows both the DPUse version and npm badges for a tool, which goes to both', async () => {
