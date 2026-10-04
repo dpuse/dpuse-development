@@ -289,11 +289,16 @@ describe('documentDependencies', () => {
 
             const readme = await project.readFile('README.md');
             expect(readme).toContain('It also lists every Rust crate compiled into its WebAssembly');
-            expect(readme).toContain(
-                '|[csv-core](https://github.com/BurntSushi/rust-csv)|0.1.13|Unlicense/MIT|[LICENSE-MIT](licenses/downloads/csv-core@0.1.13-LICENSE-MIT) [UNLICENSE](licenses/downloads/csv-core@0.1.13-UNLICENSE)|'
+            expect(readme).toContain('|Type|Dependency|Version|License(s)|Document|');
+            const javaScriptRow = readme.indexOf('|JavaScript|[vue-router](https://www.npmjs.com/package/vue-router)|5.3.1|MIT|');
+            const rustRow = readme.indexOf(
+                '|Rust|[csv-core](https://github.com/BurntSushi/rust-csv)|0.1.13|Unlicense/MIT|[LICENSE-MIT](licenses/downloads/csv-core@0.1.13-LICENSE-MIT) [UNLICENSE](licenses/downloads/csv-core@0.1.13-UNLICENSE)|'
             );
+            expect(javaScriptRow).toBeGreaterThan(-1);
+            expect(rustRow).toBeGreaterThan(javaScriptRow); // The JavaScript packages come first, although 'csv-core' sorts before 'vue-router'.
+            expect(readme).toContain('#### JavaScript\n\nNone.'); // This test's npm tree is empty.
             expect(readme).toContain(
-                "- **example-core** 0.1.0 — this project's Rust code, compiled into its WebAssembly\n  - **[csv-core](https://github.com/BurntSushi/rust-csv)** 0.1.13 — this month: 2026-09-01"
+                "#### Rust\n\n- **example-core** 0.1.0 — this project's Rust code, compiled into its WebAssembly\n  - **[csv-core](https://github.com/BurntSushi/rust-csv)** 0.1.13 — this month: 2026-09-01"
             );
         });
 
@@ -372,11 +377,11 @@ describe('documentDependencies', () => {
         expect(readme).toContain('|[@scope/current](https://www.npmjs.com/package/@scope/current)|2.0.0|Apache-2.0|');
         expect(readme).toContain('|[old](https://github.com/example/old)|1.0.0|BSD-3-Clause|⚠️  No license file|');
 
-        expect(readme).toContain('- **[valibot](https://github.com/open-circle/valibot)** 1.5.0 — **3 months** ago: 2026-06-01 → **latest**: 1.6.0 — this month: 2026-09-02 ❗');
+        expect(readme).toContain('- **[valibot](https://github.com/open-circle/valibot)** 1.5.0 — 3 mths ago: 2026-06-01 → latest: 1.6.0 — this month: 2026-09-02 ❗');
         expect(readme).toContain('- **[@scope/current](https://www.npmjs.com/package/@scope/current)** 2.0.0 — this month: 2026-09-01');
-        expect(readme).toContain('  - **[old](https://github.com/example/old)** 1.0.0 — **20 months** ago: 2025-01-10 ⚠️');
+        expect(readme).toContain('  - **[old](https://github.com/example/old)** 1.0.0 — 20 mths ago: 2025-01-10 ⚠️');
         expect(readme).toContain('  - **untracked** 0.1.0\n');
-        expect(readme).toContain('- **[lastmonth](https://www.npmjs.com/package/lastmonth)** 1.0.0 — **1 month** ago: 2026-08-10');
+        expect(readme).toContain('- **[lastmonth](https://www.npmjs.com/package/lastmonth)** 1.0.0 — 1 mth ago: 2026-08-10');
         // Without registry data there is nothing to add after the version.
         expect(readme).toContain('- **[unreachable](https://www.npmjs.com/package/unreachable)** 1.0.0\n');
         expect(readme).toContain('- **[broken](https://www.npmjs.com/package/broken)** 1.0.0\n');
@@ -393,7 +398,7 @@ describe('documentDependencies', () => {
         const readme = await project.readFile('README.md');
         expect(readme).toContain('confirmed to use MIT, all of which allow commercial use.');
         expect(readme).toContain('All are used unmodified, so any licence conditions that apply only to modified versions are not triggered.');
-        expect(readme).toContain('- **[undated](https://www.npmjs.com/package/undated)** 1.0.0 — → **latest**: 2.0.0 ❗');
+        expect(readme).toContain('- **[undated](https://www.npmjs.com/package/undated)** 1.0.0 — → latest: 2.0.0 ❗');
     });
 
     it('names two allowed licences with "or"', async () => {

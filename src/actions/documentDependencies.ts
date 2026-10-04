@@ -182,20 +182,23 @@ async function insertDeclaredLicensesIntoReadme(stepIcon: string, allowedLicense
     await writeReadmeSection(`${LICENSES_HEADING}\n\n${licensesContent.trimEnd()}\n\n### Dependency Tree\n\n${treeContent}`, START_MARKER, END_MARKER);
 }
 
-// A table of exactly what the build ships, npm packages and Rust crates together, and the tree showing how each is
-// reached, with its release.
+// A table of exactly what the build ships, and the tree showing how each package is reached, with its release. Where
+// the project has Rust code, the table gains a Type column and lists the npm packages before the Rust crates, and the
+// tree is split in two, as neither kind of dependency can reach the other.
 async function insertShippedLicensesIntoReadme(stepIcon: string, context: ShippedReadmeContext): Promise<void> {
     logStepHeader(`${stepIcon} Insert licenses into 'README.md'`);
 
     const { allowedLicenses, productionNames, rustCrates, shippedKeys } = context;
     const licensesByKey = await readLicenses();
     const crateLicensesByKey = new Map((rustCrates?.crates ?? []).map((crate) => [`${crate.name}@${crate.version}`, convertCrateToLicense(crate)]));
-    const sortedLicenses = [...licensesByKey.values(), ...crateLicensesByKey.values()].toSorted(
-        (a, b) => a.name.localeCompare(b.name, 'en') || a.installedVersion.localeCompare(b.installedVersion, 'en')
-    );
-    let licensesContent = `${buildLicensesIntro(allowedLicenses, true, rustCrates !== null)}\n\n|Dependency|Version|License(s)|Document|\n|:-|:-:|:-|:-|\n`;
-    for (const license of sortedLicenses) {
-        licensesContent += formatLicenseRow(license);
+    const hasRustCrates = rustCrates !== null;
+    const tableHeader = hasRustCrates ? '|Type|Dependency|Version|License(s)|Document|\n|:-|:-|:-:|:-|:-|' : '|Dependency|Version|License(s)|Document|\n|:-|:-:|:-|:-|';
+    let licensesContent = `${buildLicensesIntro(allowedLicenses, true, hasRustCrates)}\n\n${tableHeader}\n`;
+    for (const license of licensesByKey.values().toArray().toSorted(compareLicenses)) {
+        licensesContent += formatLicenseRow(license, hasRustCrates ? 'JavaScript' : undefined);
+    }
+    for (const license of crateLicensesByKey.values().toArray().toSorted(compareLicenses)) {
+        licensesContent += formatLicenseRow(license, 'Rust');
     }
 
     // Production dependencies first, so a package reached both ways is placed under the one that ships it.
@@ -203,11 +206,15 @@ async function insertShippedLicensesIntoReadme(stepIcon: string, context: Shippe
     const rootEntries = Object.entries(licenseTree.dependencies ?? {}).toSorted(([a], [b]) => Number(!productionNames.has(a)) - Number(!productionNames.has(b)));
     const treeItems: string[] = [];
     walkShippedTree(rootEntries, { licensesByKey, shippedKeys, shownKeys: new Set() }, treeItems, 0, false);
-    const crateTreeItems = rustCrates?.treeItems ?? [];
-    for (const item of crateTreeItems) treeItems.push(formatCrateTreeItem(item, crateLicensesByKey));
-    const treeContent = `${SHIPPED_TREE_INTRO}\n\n${treeItems.join('\n')}`;
+    const javaScriptTree = treeItems.length === 0 ? 'None.' : treeItems.join('\n');
+    const rustTree = (rustCrates?.treeItems ?? []).map((item) => formatCrateTreeItem(item, crateLicensesByKey)).join('\n');
+    const treeContent = hasRustCrates ? `${SHIPPED_TREE_INTRO}\n\n#### JavaScript\n\n${javaScriptTree}\n\n#### Rust\n\n${rustTree}` : `${SHIPPED_TREE_INTRO}\n\n${javaScriptTree}`;
 
     await writeReadmeSection(`${LICENSES_HEADING}\n\n${licensesContent.trimEnd()}\n\n### Dependency Tree\n\n${treeContent}`, START_MARKER, END_MARKER);
+}
+
+function compareLicenses(a: License, b: License): number {
+    return a.name.localeCompare(b.name, 'en') || a.installedVersion.localeCompare(b.installedVersion, 'en');
 }
 
 function convertCrateToLicense(crate: RustCrate): License {
@@ -435,10 +442,12 @@ async function fetchNpmData(name: string, version: string): Promise<{ latestVers
     return { latestVersion: '', latestPublishedDate: '', publishedDate: '' };
 }
 
-function formatLicenseRow(license: License): string {
+// The type, 'JavaScript' or 'Rust', is only given where the table holds both.
+function formatLicenseRow(license: License, typeLabel?: string): string {
     const licenseLink =
         license.licenseFiles.length === 0 ? '⚠️  No license file' : license.licenseFiles.map((licenseFile) => `[${licenseFile.label}](licenses/${licenseFile.path})`).join(' ');
-    return `|[${license.name}](${license.repository})|${license.installedVersion}|${license.licenseTypes}|${licenseLink}|\n`;
+    const typeCell = typeLabel === undefined ? '' : `|${typeLabel}`;
+    return `${typeCell}|[${license.name}](${license.repository})|${license.installedVersion}|${license.licenseTypes}|${licenseLink}|\n`;
 }
 
 function walkTreeList(dependencies: Record<string, NpmPackageTree>, licensesByKey: Map<string, License>, unshippedPackages: Set<string>, items: string[], depth: number): void {
@@ -485,7 +494,7 @@ function formatVersionDetail(license: License | undefined): string {
     const isOutdated = license.latestVersion !== '' && license.latestVersion !== license.installedVersion;
     if (!isOutdated) return published === '' ? '' : ` — ${published}`;
     const latestAge = license.latestPublishedDate ? determineLatestAge(license.latestPublishedDate.split('T', 1)[0]) : '';
-    const latestClause = latestAge === '' ? `**latest**: ${license.latestVersion} ❗` : `**latest**: ${license.latestVersion} — ${latestAge} ❗`;
+    const latestClause = latestAge === '' ? `latest: ${license.latestVersion} ❗` : `latest: ${license.latestVersion} — ${latestAge} ❗`;
     return published === '' ? ` — → ${latestClause}` : ` — ${published} → ${latestClause}`;
 }
 
@@ -501,6 +510,6 @@ function determineLatestAge(momentString?: string): string {
     if (now.getDate() < input.getDate()) months -= 1;
 
     if (months === 0) return `this month: ${dateString}`;
-    if (months === 1) return `**1 month** ago: ${dateString}`;
-    return months <= 6 ? `**${String(months)} months** ago: ${dateString}` : `**${String(months)} months** ago: ${dateString} ⚠️`;
+    if (months === 1) return `1 mth ago: ${dateString}`;
+    return months <= 6 ? `${String(months)} mths ago: ${dateString}` : `${String(months)} mths ago: ${dateString} ⚠️`;
 }

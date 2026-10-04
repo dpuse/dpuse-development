@@ -78,14 +78,14 @@ _Note: Sonda's Vite reports currently exclude CSS files, since Vite does not gen
 
 | Chunk/Module/File                                                                | Composition                                 |
 | :------------------------------------------------------------------------------- | :------------------------------------------ |
-| **dist/dpuse-development.es.js**                                                 | 58.2 kB · gzip 18.6 kB · 63.0% of the build |
-| &nbsp;&nbsp;&nbsp;&nbsp;src                                                      | `█████████████████░░░` 87.4% · 50.9 kB      |
-| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;↳ documentDependencies.ts        | `▒▒▒▒░░░░░░░░░░░░░░░░` 19.1% · 11.1 kB      |
-| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;↳ documentQualitySecurity.ts     | `▒▒▒░░░░░░░░░░░░░░░░░` 17.0% · 9.9 kB       |
+| **dist/dpuse-development.es.js**                                                 | 58.5 kB · gzip 18.7 kB · 63.2% of the build |
+| &nbsp;&nbsp;&nbsp;&nbsp;src                                                      | `█████████████████░░░` 87.5% · 51.1 kB      |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;↳ documentDependencies.ts        | `▒▒▒▒░░░░░░░░░░░░░░░░` 19.5% · 11.4 kB      |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;↳ documentQualitySecurity.ts     | `▒▒▒░░░░░░░░░░░░░░░░░` 16.9% · 9.9 kB       |
 | &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;↳ documentBundleSizes.ts         | `▒▒░░░░░░░░░░░░░░░░░░` 8.6% · 5.0 kB        |
-| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;↳ checkConfigFiles.ts            | `▒░░░░░░░░░░░░░░░░░░░` 6.5% · 3.8 kB        |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;↳ checkConfigFiles.ts            | `▒░░░░░░░░░░░░░░░░░░░` 6.4% · 3.8 kB        |
 | &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;↳ rustCrates.ts                  | `▒░░░░░░░░░░░░░░░░░░░` 5.9% · 3.4 kB        |
-| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;↳ documentUsage.ts               | `▒░░░░░░░░░░░░░░░░░░░` 4.7% · 2.7 kB        |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;↳ documentUsage.ts               | `▒░░░░░░░░░░░░░░░░░░░` 4.6% · 2.7 kB        |
 | &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;↳ documentActions.ts             | `▒░░░░░░░░░░░░░░░░░░░` 3.0% · 1.8 kB        |
 | &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;↳ documentOpening.ts             | `▒░░░░░░░░░░░░░░░░░░░` 3.0% · 1.7 kB        |
 | &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;↳ checkDependencies.ts           | `▒░░░░░░░░░░░░░░░░░░░` 2.9% · 1.7 kB        |
@@ -93,16 +93,16 @@ _Note: Sonda's Vite reports currently exclude CSS files, since Vite does not gen
 | &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;↳ auditDependencies.ts           | `░░░░░░░░░░░░░░░░░░░░` 2.5% · 1.5 kB        |
 | &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;↳ documentContributingLicense.ts | `░░░░░░░░░░░░░░░░░░░░` 2.1% · 1.2 kB        |
 | &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;↳ publishProject.ts              | `░░░░░░░░░░░░░░░░░░░░` 1.6% · 974 B         |
-| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;↳ releaseProject.ts              | `░░░░░░░░░░░░░░░░░░░░` 1.6% · 972 B         |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;↳ releaseProject.ts              | `░░░░░░░░░░░░░░░░░░░░` 1.6% · 971 B         |
 | &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;↳ testProject.ts                 | `░░░░░░░░░░░░░░░░░░░░` 1.3% · 799 B         |
 | &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;↳ 8 smaller files                | `▒░░░░░░░░░░░░░░░░░░░` 4.8% · 2.8 kB        |
-| &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON)                      | `███░░░░░░░░░░░░░░░░░` 12.6% · 7.3 kB       |
-| **dist/utilities-BLjGg0iM.js**                                                   | 23.1 kB · gzip 6.4 kB · 25.1% of the build  |
+| &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON)                      | `███░░░░░░░░░░░░░░░░░` 12.5% · 7.3 kB       |
+| **dist/utilities-BLjGg0iM.js**                                                   | 23.1 kB · gzip 6.4 kB · 25.0% of the build  |
 | &nbsp;&nbsp;&nbsp;&nbsp;@dpuse/dpuse-shared → dist/dpuse-shared.es.js            | `██████████░░░░░░░░░░` 50.8% · 11.8 kB      |
 | &nbsp;&nbsp;&nbsp;&nbsp;src → index.ts                                           | `███████░░░░░░░░░░░░░` 35.8% · 8.3 kB       |
 | &nbsp;&nbsp;&nbsp;&nbsp;valibot → dist/index.mjs                                 | `░░░░░░░░░░░░░░░░░░░░` 1.7% · 413 B         |
 | &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON)                      | `██░░░░░░░░░░░░░░░░░░` 11.6% · 2.7 kB       |
-| **dist/apiReference-cMfpNKxR.js**                                                | 8.5 kB · gzip 3.1 kB · 9.2% of the build    |
+| **dist/apiReference-cMfpNKxR.js**                                                | 8.5 kB · gzip 3.1 kB · 9.1% of the build    |
 | &nbsp;&nbsp;&nbsp;&nbsp;src → apiReference.ts                                    | `███████████████████░` 95.1% · 8.0 kB       |
 | &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON)                      | `█░░░░░░░░░░░░░░░░░░░` 4.9% · 427 B         |
 | **dist/vite.es.js**                                                              | 2.5 kB · gzip 1.1 kB · 2.7% of the build    |
