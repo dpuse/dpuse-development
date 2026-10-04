@@ -160,6 +160,67 @@ describe('documentBundleSizes', () => {
         expect(readme).not.toContain('my_crate_bg');
     });
 
+    it('gives an inlined worker and the WebAssembly embedded in it rows of their own, broken down by the worker report', async () => {
+        // The worker text is 100 characters of code plus a 69-character WebAssembly data URL (40 base64 characters, 30 bytes).
+        const workerText = `${'x'.repeat(100)}data:application/wasm;base64,${'AAAA'.repeat(10)}`;
+        const mainContent = `var V = "${workerText}";\nnew Worker("data:text/javascript;charset=utf-8," + encodeURIComponent(V));\n`;
+        const mainReport = {
+            resources: [
+                { kind: 'asset', name: 'main.js', uncompressed: mainContent.length },
+                { kind: 'chunk', name: 'src/index.ts', uncompressed: 100, parent: 'main.js' },
+                { kind: 'chunk', name: '[unassigned]', uncompressed: 200, parent: 'main.js' }
+            ],
+            dependencies: []
+        };
+        // 160 bytes are traced, so the other 9 of the worker's 169 are the escaping added to embed it.
+        const workerReport = {
+            resources: [
+                { kind: 'asset', name: 'worker.js', uncompressed: 160 },
+                { kind: 'chunk', name: 'src/engine.ts', uncompressed: 50, parent: 'worker.js' },
+                { kind: 'chunk', name: 'rust/core/pkg/glue.js', uncompressed: 100, parent: 'worker.js' },
+                { kind: 'chunk', name: '[unassigned]', uncompressed: 10, parent: 'worker.js' }
+            ],
+            dependencies: []
+        };
+        await project.writeFiles({
+            'bundle-analysis-reports/sonda/index.json': JSON.stringify(mainReport),
+            'bundle-analysis-reports/sonda/worker.json': JSON.stringify(workerReport),
+            'main.js': mainContent,
+            'README.md': buildReadme('BUNDLE')
+        });
+
+        await documentBundleSizes();
+
+        const readme = await project.readFile('README.md');
+        expect(readme).toContain('| &nbsp;&nbsp;&nbsp;&nbsp;(inlined worker) | `███████████░░░░░░░░░` 56.3% · 169 B |');
+        expect(readme).toContain('| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;↳ (Rust WebAssembly as base64, 30 B binary) | `▒▒▒▒▒░░░░░░░░░░░░░░░` 23.0% · 69 B |');
+        expect(readme).toContain('| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;↳ engine.ts | `▒▒▒░░░░░░░░░░░░░░░░░` 16.7% · 50 B |');
+        expect(readme).toContain('| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;↳ wasm → glue.js | `▒▒░░░░░░░░░░░░░░░░░░` 10.3% · 31 B |');
+        expect(readme).toContain('| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;↳ (bundler output, whitespace & JSON) | `▒░░░░░░░░░░░░░░░░░░░` 6.3% · 19 B |');
+        expect(readme).toContain('| &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON) | `██░░░░░░░░░░░░░░░░░░` 10.3% · 31 B |');
+        expect(readme).toContain('(inlined worker) = a Web Worker built separately');
+        expect(readme).toContain('(Rust WebAssembly as base64…) = the compiled Rust code');
+    });
+
+    it('takes WebAssembly embedded in the main file out of the wasm-bindgen file that embeds it', async () => {
+        const content = 'const url = new URL("data:application/wasm;base64,AAAAAAAA");\n'; // A 37-character data URL decoding to 6 bytes.
+        const report = {
+            resources: [
+                { kind: 'asset', name: 'core.js', uncompressed: content.length },
+                { kind: 'chunk', name: 'rust/core/pkg/glue.js', uncompressed: 100, parent: 'core.js' }
+            ],
+            dependencies: []
+        };
+        await project.writeFiles({ 'bundle-analysis-reports/sonda/index.json': JSON.stringify(report), 'core.js': content, 'README.md': buildReadme('BUNDLE') });
+
+        await documentBundleSizes();
+
+        const readme = await project.readFile('README.md');
+        expect(readme).toContain('| &nbsp;&nbsp;&nbsp;&nbsp;wasm → glue.js | `█████████████░░░░░░░` 63.0% · 63 B |');
+        expect(readme).toContain('| &nbsp;&nbsp;&nbsp;&nbsp;(Rust WebAssembly as base64, 6 B binary) | `███████░░░░░░░░░░░░░` 37.0% · 37 B |');
+        expect(readme).not.toContain('(inlined worker)');
+    });
+
     it('exits when there is no bundle analysis report', async () => {
         await project.writeFiles({ 'README.md': buildReadme('BUNDLE') });
 

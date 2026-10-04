@@ -21,14 +21,14 @@
 
 | Metric | Value |
 |:-------|------:|
-| Total LOC | 3681 |
+| Total LOC | 3801 |
 | Avg Cyclomatic | 3.0 |
 | P90 Cyclomatic | 7 |
-| Cyclomatic units | Functions: 288, module scopes: 0, templates: 0 |
+| Cyclomatic units | Functions: 301, module scopes: 0, templates: 0 |
 | Dead Files | 0.0% |
 | Dead Exports | 0.0% |
-| Maintainability (avg) | 92.2 |
-| Hotspots (since 6 months) | 0 |
+| Maintainability (avg) | 92.1 |
+| Hotspots (since 6 months) | 1 |
 | Circular Deps | 0 |
 | Unused Deps | 0 |
 
@@ -41,9 +41,9 @@
 | `src/utilities/rustCrates.ts` | 90.0 | 1 | 1 | 0% | 0.24 | 13.0 |
 | `src/utilities/apiReference.ts` | 83.1 | 1 | 1 | 0% | 0.47 | 12.0 |
 | `src/actions/documentDependencies.ts` | 85.8 | 1 | 3 | 0% | 0.29 | 12.0 |
+| `src/actions/documentBundleSizes.ts` | 87.3 | 1 | 1 | 0% | 0.33 | 10.3 |
 | `src/vite.ts` | 91.6 | 1 | 0 | 0% | 0.28 | 8.3 |
 | `src/utilities/index.ts` | 92.8 | 23 | 0 | 0% | 0.24 | 8.0 |
-| `src/actions/documentBundleSizes.ts` | 88.8 | 1 | 1 | 0% | 0.28 | 7.0 |
 | `src/actions/checkConfigFiles.ts` | 90.6 | 1 | 1 | 0% | 0.22 | 7.0 |
 | `src/utilities/cloudflare.ts` | 90.6 | 2 | 1 | 0% | 0.22 | 7.0 |
 | `src/actions/auditDependencies.ts` | 91.5 | 1 | 1 | 0% | 0.19 | 7.0 |
@@ -65,15 +65,15 @@
 | `vite.config.ts` | 99.4 | 0 | 0 | 0% | 0.02 | 2.0 |
 | `src/actions/checkProject.ts` | 95.0 | 1 | 2 | 0% | 0.08 | 1.0 |
 
-**Average maintainability index:** 92.2/100
+**Average maintainability index:** 92.1/100
 
 ### Hotspots (20 files, since 6 months)
 
 | File | Score | Commits | Churn | Density | Fan-in | Trend |
 |:-----|:------|:--------|:------|:--------|:-------|:------|
+| `src/actions/documentBundleSizes.ts` | 55.0 | 40 | 1343 | 0.33 | 1 | cooling |
 | `src/actions/checkConfigFiles.ts` | 46.8 | 50 | 562 | 0.22 | 1 | cooling |
-| `src/actions/documentBundleSizes.ts` | 46.7 | 40 | 1343 | 0.28 | 1 | cooling |
-| `src/actions/documentDependencies.ts` | 42.5 | 31 | 900 | 0.29 | 1 | stable |
+| `src/actions/documentDependencies.ts` | 44.5 | 32 | 941 | 0.29 | 1 | stable |
 | `src/utilities/index.ts` | 42.4 | 39 | 539 | 0.24 | 23 | stable |
 | `src/actions/documentOpening.ts` | 20.7 | 21 | 332 | 0.18 | 1 | accelerating |
 | `src/actions/documentUsage.ts` | 17.9 | 17 | 334 | 0.18 | 1 | accelerating |

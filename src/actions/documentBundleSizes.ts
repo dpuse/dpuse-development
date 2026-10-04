@@ -1,5 +1,5 @@
 // ── Local Framework
-import { logOperationHeader, logOperationSuccess, logStepHeader, readJSONFile, writeReadmeSection } from '@/utilities';
+import { logOperationHeader, logOperationSuccess, logStepHeader, readJSONFile, readTextFileOrNull, writeReadmeSection } from '@/utilities';
 
 // ── Types ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -31,12 +31,18 @@ interface GroupData {
     files: Map<string, Sizes>;
 }
 
+interface WasmSizes {
+    bytes: number; // As embedded, base64 text included.
+    binaryBytes: number; // The WebAssembly the text decodes to.
+}
+
 type GroupEntry = [string, GroupData];
 type DependencyPath = [path: string, name: string];
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 export const BUNDLE_REPORT_PATH = 'bundle-analysis-reports/sonda/index.json'; // Written by Sonda during the Vite build.
+const WORKER_REPORT_PATH = 'bundle-analysis-reports/sonda/worker.json'; // Written for an inlined worker, where the project's build adds one.
 
 const BUNDLE_START_MARKER = '<!-- BUNDLE_START -->';
 const BUNDLE_END_MARKER = '<!-- BUNDLE_END -->';
@@ -53,6 +59,11 @@ const BAR_NOTE = `Bars show each row's share of its output file.`;
 const PART_ROW_NOTE = '↳ rows are part of the row above.'; // Only where the table has such rows, which module level leaves out.
 
 const UNTRACED_LABEL = '(bundler output, whitespace & JSON)';
+const WORKER_LABEL = '(inlined worker)';
+const WORKER_NOTE = `${WORKER_LABEL} = a Web Worker built separately and embedded in its output file as text. Where the build records what it contains, its rows list that; any few bytes over are the escaping needed to embed it.`;
+const WASM_LABEL_PREFIX = '(Rust WebAssembly as base64';
+const WASM_NOTE = `${WASM_LABEL_PREFIX}…) = the compiled Rust code, embedded as base64 text, about a third larger than the binary it decodes to, which is the size given.`;
+
 const UNTRACED_NOTE = `${UNTRACED_LABEL} = bytes Sonda can't trace to a source file: whitespace (indentation and line breaks), code the bundler generates (region comments, the combined import/export lines, its small runtime helper and wrappers), and imported JSON such as \`config.json\`, which the bundler doesn't map. The JSON and the generated code are real bytes that ship; the whitespace mostly disappears once compressed.`;
 
 // ── Actions ──────────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -63,12 +74,20 @@ export async function documentBundleSizes(options?: { moduleLevel?: boolean }): 
 
         logStepHeader('1️⃣  Read bundle analysis report');
         const json = await readJSONFile<SondaJson>(BUNDLE_REPORT_PATH);
+        const workerReport = await readTextFileOrNull(WORKER_REPORT_PATH);
+        const workerJson = workerReport === null ? undefined : (JSON.parse(workerReport) as SondaJson);
+        // The built files, read to find what is embedded in them as text, which Sonda cannot trace.
+        const assetContents = new Map<string, string | null>();
+        for (const resource of json.resources) if (resource.kind === 'asset') assetContents.set(resource.name, await readTextFileOrNull(resource.name));
 
         logStepHeader(`2️⃣  Insert table into 'README.md'`);
-        const bundleTable = buildBundleTable(json, options?.moduleLevel ?? false);
+        const bundleTable = buildBundleTable(json, { assetContents, isModuleLevel: options?.moduleLevel ?? false, workerJson });
         const rowNote = bundleTable.includes('↳') ? `${BAR_NOTE} ${PART_ROW_NOTE}` : BAR_NOTE;
+        const notes = [rowNote, bundleTable.includes(WORKER_LABEL) ? WORKER_NOTE : '', bundleTable.includes(WASM_LABEL_PREFIX) ? WASM_NOTE : '', UNTRACED_NOTE].filter(
+            (note) => note !== ''
+        );
 
-        await writeReadmeSection(`## Bundle Analysis\n\n${BUNDLE_ANALYSIS_INTRO}\n\n${bundleTable}\n\n${rowNote}\n\n${UNTRACED_NOTE}`, BUNDLE_START_MARKER, BUNDLE_END_MARKER);
+        await writeReadmeSection(`## Bundle Analysis\n\n${BUNDLE_ANALYSIS_INTRO}\n\n${bundleTable}\n\n${notes.join('\n\n')}`, BUNDLE_START_MARKER, BUNDLE_END_MARKER);
 
         logOperationSuccess('Bundle sizes documented');
     } catch (error) {
@@ -82,8 +101,14 @@ export async function documentBundleSizes(options?: { moduleLevel?: boolean }): 
 // Each output file is broken down on its own, so its top-level bars add up to 100% of that file, and its heading gives its
 // share of the whole build. Rows marked '↳' are part of the row above; their bars use the same scale, so every bar in a
 // file can be compared with every other.
-function buildBundleTable(json: SondaJson, isModuleLevel: boolean): string {
+function buildBundleTable(json: SondaJson, options: { assetContents: Map<string, string | null>; isModuleLevel: boolean; workerJson: SondaJson | undefined }): string {
+    const { assetContents, isModuleLevel, workerJson } = options;
     const assetGroups = buildAssetGroups(json);
+    const workerGroups = workerJson === undefined ? undefined : buildAssetGroups(workerJson).values().next().value;
+    for (const [file, groups] of assetGroups) {
+        const content = assetContents.get(file);
+        if (content != null) separateEmbeddedContent(groups, content, workerGroups);
+    }
     const buildTotal = assetGroups
         .values()
         .flatMap((groups) => groups.values().toArray())
@@ -106,6 +131,101 @@ function buildBundleTable(json: SondaJson, isModuleLevel: boolean): string {
     }
 
     return lines.join('\n');
+}
+
+// Embedded text is traced to no source, or to the one that embeds it, so it is measured in the built file and given rows
+// of its own: an inlined worker, broken down where its build was recorded, and embedded WebAssembly.
+function separateEmbeddedContent(groups: Map<string, GroupData>, content: string, workerGroups: Map<string, GroupData> | undefined): void {
+    const workerText = findInlinedWorkerText(content);
+    const workerWasm = measureWasm(workerText ?? '');
+    const allWasm = measureWasm(content);
+    separateWasm(groups, { bytes: allWasm.bytes - workerWasm.bytes, binaryBytes: allWasm.binaryBytes - workerWasm.binaryBytes });
+    if (workerText !== undefined) separateWorker(groups, Buffer.byteLength(workerText), workerWasm, workerGroups);
+}
+
+// Vite embeds an inlined worker as a string it passes to 'new Worker(… encodeURIComponent(name))'; this finds that string.
+function findInlinedWorkerText(content: string): string | undefined {
+    if (!content.includes('new Worker(')) return undefined;
+    const variableName = /encodeURIComponent\((\w+)\)/.exec(content)?.[1];
+    if (variableName === undefined) return undefined;
+    // eslint-disable-next-line security/detect-non-literal-regexp -- The name is a JavaScript identifier, matched by '\w+' above.
+    const declaration = new RegExp(String.raw`(?:var|let|const)\s+${variableName}\s*=\s*(["'\`])`).exec(content);
+    const quote = declaration?.[1];
+    if (declaration === null || quote === undefined) return undefined;
+    const start = declaration.index + declaration[0].length;
+    let end = start;
+    while (end < content.length && content[end] !== quote) end += content[end] === '\\' ? 2 : 1;
+    return content.slice(start, end);
+}
+
+function measureWasm(text: string): WasmSizes {
+    const sizes = { bytes: 0, binaryBytes: 0 };
+    for (const match of text.matchAll(/data:application\/wasm;base64,([A-Za-z\d+/]*={0,2})/g)) {
+        const base64 = match[1] ?? '';
+        sizes.bytes += match[0].length;
+        sizes.binaryBytes += Math.floor((base64.length * 3) / 4) - countBase64Padding(base64);
+    }
+    return sizes;
+}
+
+function countBase64Padding(base64: string): number {
+    if (base64.endsWith('==')) return 2;
+    return base64.endsWith('=') ? 1 : 0;
+}
+
+// The WebAssembly is taken from the wasm-bindgen file that embeds it, or failing that from the untraced bytes.
+function separateWasm(groups: Map<string, GroupData>, wasm: WasmSizes): void {
+    if (wasm.bytes <= 0) return;
+    const source = [groups.get('wasm'), groups.get(UNTRACED_LABEL)]
+        .flatMap((group) =>
+            group === undefined
+                ? []
+                : group.files
+                      .entries()
+                      .map(([fileName, sizes]) => ({ group, fileName, sizes }))
+                      .toArray()
+        )
+        .find(({ sizes }) => sizes.uncompressed >= wasm.bytes);
+    if (source === undefined) return;
+    subtractBytes(groups, source.group, source.fileName, source.sizes, wasm.bytes);
+    const label = `${WASM_LABEL_PREFIX}, ${formatBytes(wasm.binaryBytes)} binary)`;
+    groups.set(label, { sizes: { uncompressed: wasm.bytes, gzip: 0 }, files: new Map([['', { uncompressed: wasm.bytes, gzip: 0 }]]) });
+}
+
+function separateWorker(groups: Map<string, GroupData>, workerBytes: number, workerWasm: WasmSizes, workerGroups: Map<string, GroupData> | undefined): void {
+    const untraced = groups.get(UNTRACED_LABEL);
+    const untracedSizes = untraced?.files.get('');
+    if (untraced === undefined || untracedSizes === undefined || untracedSizes.uncompressed < workerBytes) return;
+    subtractBytes(groups, untraced, '', untracedSizes, workerBytes);
+    const files = workerGroups === undefined ? new Map([['', { uncompressed: workerBytes, gzip: 0 }]]) : flattenWorkerGroups(workerGroups, workerBytes, workerWasm);
+    groups.set(WORKER_LABEL, { sizes: { uncompressed: workerBytes, gzip: 0 }, files });
+}
+
+// The worker's own rows: its source files by name, and each dependency, the WebAssembly and its untraced bytes as one.
+function flattenWorkerGroups(workerGroups: Map<string, GroupData>, workerBytes: number, workerWasm: WasmSizes): Map<string, Sizes> {
+    separateWasm(workerGroups, workerWasm);
+    const files = new Map<string, Sizes>();
+    for (const [groupName, group] of workerGroups) {
+        if (groupName === 'src') {
+            for (const [fileName, sizes] of group.files) files.set(fileName, { ...sizes });
+        } else {
+            const label = group.files.size === 1 ? formatGroupLabel(groupName, getSoleFileName(group.files)) : groupName;
+            files.set(label, { ...group.sizes });
+        }
+    }
+    const reportedBytes = files.values().reduce((sum, sizes) => sum + sizes.uncompressed, 0);
+    const untraced = files.get(UNTRACED_LABEL) ?? zero();
+    untraced.uncompressed += Math.max(0, workerBytes - reportedBytes);
+    if (untraced.uncompressed > 0) files.set(UNTRACED_LABEL, untraced);
+    return files;
+}
+
+function subtractBytes(groups: Map<string, GroupData>, group: GroupData, fileName: string, sizes: Sizes, bytes: number): void {
+    sizes.uncompressed -= bytes;
+    group.sizes.uncompressed -= bytes;
+    if (sizes.uncompressed <= 0) group.files.delete(fileName);
+    if (group.sizes.uncompressed > 0) return;
+    for (const [groupName, candidate] of groups) if (candidate === group) groups.delete(groupName);
 }
 
 // Largest first, except the untraced bytes, which always come last as what is left over once the modules are listed.
