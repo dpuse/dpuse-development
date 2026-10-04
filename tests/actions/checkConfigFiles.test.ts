@@ -147,9 +147,22 @@ describe('checkConfigFiles', () => {
 
         const output = collectConsoleOutput();
         expect(output).toContain("ℹ️  File '.github/dependabot.yml' is the same as '.github/dependabot.private.yml'");
-        expect(output).toContain("ℹ️  GitHub workflows and file 'SECURITY.md' are NOT required by this project");
+        expect(output).toContain("ℹ️  CodeQL and Scorecard workflows and file 'SECURITY.md' are NOT required by this project");
         expect(output).toContain("ℹ️  File 'vite.config.ts' is the same as 'vite.config.default.ts'");
         expect(output).not.toContain('ci.yml');
+    });
+
+    it('checks the CI and publish workflows that a private package has', async () => {
+        await writeProject('dpuse-engine', { private: true });
+        await copyTemplates({ '.github/workflows/ci.yml': '.github/workflows/ci.yml' });
+        await project.writeFiles({ '.github/workflows/publish.yml': 'name: Other\n' });
+
+        await checkConfigFiles();
+
+        const output = collectConsoleOutput();
+        expect(output).toContain("ℹ️  File '.github/workflows/ci.yml' is the same as '.github/workflows/ci.yml'");
+        expect(output).toContain("❌  File '.github/workflows/publish.yml' is NOT the same");
+        expect(output).not.toContain('codeql.yml');
     });
 
     it('treats the app, API and development configurations as their own', async () => {

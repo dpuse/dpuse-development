@@ -33,7 +33,7 @@ export async function checkConfigFiles(): Promise<void> {
         logStepHeader('1️⃣  Check individual files');
         const configJSON = await readJSONFile<ModuleConfig>('config.json');
         const packageJSON = await readJSONFile<PackageJson>('package.json');
-        const isPrivate = packageJSON.private === true; // Private packages have no workflows or security policy.
+        const isPrivate = packageJSON.private === true; // Private packages have no CodeQL, Scorecard or security policy.
         const moduleTypeConfig = getModuleConfig(configJSON.id);
         const moduleDirectory = path.dirname(fileURLToPath(import.meta.url));
         await checkConfigFile(moduleDirectory, '.editorconfig');
@@ -54,7 +54,7 @@ export async function checkConfigFiles(): Promise<void> {
         const dependabotTemplate = `.github/dependabot${isPrivate ? '.private' : ''}${hasRust ? '.rust' : ''}.yml`;
         await checkConfigFile(moduleDirectory, '.github/dependabot.yml', [dependabotTemplate]);
         if (isPrivate) {
-            console.info("ℹ️  GitHub workflows and file 'SECURITY.md' are NOT required by this project");
+            await checkPrivateWorkflows(moduleDirectory);
         } else {
             await checkWorkflows(moduleDirectory);
             await checkConfigFile(moduleDirectory, 'SECURITY.md', [], (content) => content.replaceAll(TEMPLATE_REPOSITORY_NAME, () => configJSON.id));
@@ -128,6 +128,15 @@ async function checkViteConfig(moduleTypeConfig: ModuleTypeConfig, moduleDirecto
         await checkConfigFile(moduleDirectory, 'vite.config.ts', viteConfigTemplates);
     }
 }
+// A private repository may still build and publish through GitHub, so the workflows it has are checked. CodeQL and
+// Scorecard only run on public repositories.
+async function checkPrivateWorkflows(moduleDirectory: string) {
+    for (const workflowPath of ['.github/workflows/ci.yml', '.github/workflows/publish.yml']) {
+        if ((await readTextFileOrNull(workflowPath)) !== null) await checkConfigFile(moduleDirectory, workflowPath);
+    }
+    console.info("ℹ️  CodeQL and Scorecard workflows and file 'SECURITY.md' are NOT required by this project");
+}
+
 async function checkWorkflows(moduleDirectory: string) {
     await checkConfigFile(moduleDirectory, '.github/workflows/ci.yml');
     await checkConfigFile(moduleDirectory, '.github/workflows/codeql.yml');
