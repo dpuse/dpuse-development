@@ -1,6 +1,6 @@
 {
     "name": "@dpuse/dpuse-development",
-    "version": "1.0.109",
+    "version": "1.0.110",
     "private": false,
     "description": "Actions for managing DPUse projects.",
     "license": "MIT",
@@ -92,7 +92,7 @@
         }
     },
     "dependencies": {
-        "@dpuse/dpuse-shared": "^1.0.2",
+        "@dpuse/dpuse-shared": "^1.0.106",
         "license-checker-rseidelsohn": "^5.0.1",
         "npm-check-updates": "^23.1.0",
         "spdx-satisfies": "^6.0.0",

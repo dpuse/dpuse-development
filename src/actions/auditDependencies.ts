@@ -60,6 +60,24 @@ export async function auditDependencies(): Promise<void> {
     }
 }
 
+/** Names the high or critical advisories 'npm audit' reports that the CI audit ignores, as npm's own report cannot. */
+export async function reportIgnoredAdvisories(label: string): Promise<void> {
+    const report = JSON.parse(await spawnCommandForOutput(label, 'npm', ['audit', '--json'])) as AuditReport;
+    if (report.error !== undefined) {
+        console.warn(`⚠️  Could not check the allow list: ${report.error.summary}`);
+        return;
+    }
+
+    let ignoredCount = 0;
+    for (const advisory of listAdvisories(report)) {
+        const ignoredAdvisory = BLOCKING_SEVERITIES.has(advisory.severity) ? findIgnoredAdvisory(advisory) : undefined;
+        if (ignoredAdvisory === undefined) continue;
+        console.warn(`⚠️  ${ignoredAdvisory.id} ('${advisory.name}') is on the allow list, so the CI audit ignores it: ${ignoredAdvisory.reason}`);
+        ignoredCount++;
+    }
+    if (ignoredCount === 0) console.info('ℹ️  None of the reported advisories are on the allow list');
+}
+
 // ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 /** Reports each high or critical advisory, as ignored or blocking, and returns the blocking ones. */
@@ -70,19 +88,24 @@ function checkAdvisories(advisories: AuditAdvisory[]): AuditAdvisory[] {
     for (const advisory of advisories) {
         if (!BLOCKING_SEVERITIES.has(advisory.severity)) continue;
 
-        const id = advisory.url.slice(advisory.url.lastIndexOf('/') + 1);
-        const ignoredAdvisory = IGNORED_ADVISORIES.find((ignored) => ignored.id === id);
+        const ignoredAdvisory = findIgnoredAdvisory(advisory);
         if (ignoredAdvisory === undefined) {
             console.error(`❌  ${advisory.severity} '${advisory.name}': ${advisory.title} (${advisory.url})`);
             blockingAdvisories.push(advisory);
         } else if (ignoredAdvisory.reviewBy < today) {
-            console.warn(`⚠️  Ignored ${id}, but its review date ${ignoredAdvisory.reviewBy} has passed: ${ignoredAdvisory.reason}`);
+            console.warn(`⚠️  Ignored ${ignoredAdvisory.id}, but its review date ${ignoredAdvisory.reviewBy} has passed: ${ignoredAdvisory.reason}`);
         } else {
-            console.info(`ℹ️  Ignored ${id}: ${ignoredAdvisory.reason}`);
+            console.info(`ℹ️  Ignored ${ignoredAdvisory.id}: ${ignoredAdvisory.reason}`);
         }
     }
 
     return blockingAdvisories;
+}
+
+// npm names an advisory only by its URL, which ends in the id.
+function findIgnoredAdvisory(advisory: AuditAdvisory): (typeof IGNORED_ADVISORIES)[number] | undefined {
+    const id = advisory.url.slice(advisory.url.lastIndexOf('/') + 1);
+    return IGNORED_ADVISORIES.find((ignored) => ignored.id === id);
 }
 
 /** The distinct advisories in an 'npm audit --json' report. */

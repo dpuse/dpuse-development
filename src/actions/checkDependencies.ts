@@ -4,6 +4,7 @@ import type { RcOptions } from 'npm-check-updates';
 import { run as runNpmCheckUpdates } from 'npm-check-updates';
 
 // ── Local Framework
+import { reportIgnoredAdvisories } from '@/actions/auditDependencies';
 import { logOperationHeader, logOperationSuccess, logStepHeader, readJSONFile, spawnCommand } from '@/utilities';
 
 // ── Actions ──────────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -33,6 +34,7 @@ export async function checkDependencies(): Promise<void> {
         // the pins move in step 5, so a package it upgrades has its pin moved too. npm exits with an error while vulnerabilities
         // it cannot fix remain, such as those waiting on an upstream release, so that is reported without stopping the check.
         await spawnCommand('4️⃣  Fix vulnerabilities where a compatible upgrade exists', 'npm', ['audit', 'fix', '--no-strict-allow-scripts', '--no-fund'], true);
+        await reportIgnoredAdvisories('4️⃣  Name the advisories above that the CI audit ignores');
 
         // Only packages already approved are re-approved, so a newly added install script still waits for review in step 8.
         // Name-only approvals already cover every version, so only pinned ones need moving. Runs before prune, which would

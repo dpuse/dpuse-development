@@ -2,8 +2,8 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 // ── Local Framework
-import { auditDependencies } from '@/actions/auditDependencies';
 import { spawnedCommands } from '../support/projectCommands';
+import { auditDependencies, reportIgnoredAdvisories } from '@/actions/auditDependencies';
 import { collectConsoleOutput, useTemporaryProject } from '../support/temporaryProject';
 import { spawnCommand, spawnCommandForOutput } from '@/utilities';
 
@@ -106,5 +106,41 @@ describe('auditDependencies', () => {
 
         await expect(auditDependencies()).rejects.toThrow('process.exit(1)');
         expect(spawnCommandForOutput).not.toHaveBeenCalled();
+    });
+});
+
+describe('reportIgnoredAdvisories', () => {
+    it('warns about each high or critical advisory on the allow list, with its reason, and nothing else', async () => {
+        vi.mocked(spawnCommandForOutput).mockResolvedValue(
+            auditReport(
+                { id: 'GHSA-vfj7-8cjw-p6xm', name: 'braces', severity: 'high' },
+                { id: 'GHSA-new-high', name: 'leaky', severity: 'high' },
+                { id: 'GHSA-moderate', name: 'slow', severity: 'moderate' }
+            )
+        );
+
+        await reportIgnoredAdvisories('4️⃣  Name ignored advisories');
+
+        expect(console.warn).toHaveBeenCalledTimes(1);
+        expect(console.warn).toHaveBeenCalledWith(
+            expect.stringMatching(/^⚠️ {2}GHSA-vfj7-8cjw-p6xm \('braces'\) is on the allow list, so the CI audit ignores it: 'braces', used by ESLint/u)
+        );
+    });
+
+    it('says so when no reported advisory is on the allow list', async () => {
+        vi.mocked(spawnCommandForOutput).mockResolvedValue(auditReport({ id: 'GHSA-new-high', name: 'leaky', severity: 'high' }));
+
+        await reportIgnoredAdvisories('4️⃣  Name ignored advisories');
+
+        expect(console.warn).not.toHaveBeenCalled();
+        expect(collectConsoleOutput()).toContain('ℹ️  None of the reported advisories are on the allow list');
+    });
+
+    it('warns, without failing, when the audit itself reports an error', async () => {
+        vi.mocked(spawnCommandForOutput).mockResolvedValue(JSON.stringify({ error: { summary: 'registry unreachable' } }));
+
+        await reportIgnoredAdvisories('4️⃣  Name ignored advisories');
+
+        expect(console.warn).toHaveBeenCalledWith('⚠️  Could not check the allow list: registry unreachable');
     });
 });

@@ -6,12 +6,16 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { checkDependencies } from '@/actions/checkDependencies';
 import { formatCode } from '@/actions/formatCode';
 import { lintCode } from '@/actions/lintCode';
-import { spawnCommand } from '@/utilities';
 import { useTemporaryProject } from '../support/temporaryProject';
+import { spawnCommand, spawnCommandForOutput } from '@/utilities';
 
 // ── Mocks ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-vi.mock('@/utilities', async (importOriginal) => ({ ...(await importOriginal<object>()), spawnCommand: vi.fn(() => Promise.resolve()) }));
+vi.mock('@/utilities', async (importOriginal) => ({
+    ...(await importOriginal<object>()),
+    spawnCommand: vi.fn(() => Promise.resolve()),
+    spawnCommandForOutput: vi.fn(() => Promise.resolve('{}'))
+}));
 vi.mock('npm-check-updates', () => ({ run: vi.fn(() => Promise.resolve()) }));
 
 // ── Tests ────────────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -30,6 +34,7 @@ function setPlatform(platform: string): void {
 
 beforeEach(() => {
     vi.mocked(spawnCommand).mockClear().mockResolvedValue();
+    vi.mocked(spawnCommandForOutput).mockClear().mockResolvedValue('{}');
     vi.mocked(runNpmCheckUpdates).mockClear();
     setPlatform('darwin');
 });
@@ -57,6 +62,7 @@ describe('checkDependencies', () => {
             'npm rebuild fsevents @scope/tool --no-strict-allow-scripts',
             'npm install --strict-allow-scripts --no-audit --no-fund'
         ]);
+        expect(spawnCommandForOutput).toHaveBeenCalledWith(expect.any(String), 'npm', ['audit', '--json']);
     });
 
     it('skips moving pins and rebuilding when nothing is pinned, and pruning away from macOS', async () => {
