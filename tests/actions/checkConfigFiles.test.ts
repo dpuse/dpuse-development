@@ -200,6 +200,17 @@ describe('checkConfigFiles', () => {
         expect(output).toContain("ℹ️  File 'vitest.config.ts' is NOT required by this project");
     });
 
+    it('checks the shared Vitest configuration, but no Vite configuration, for the sample data', async () => {
+        await writeProject('dpuse-resources');
+        await copyTemplates({ 'vitest.config.ts': 'vitest.config.ts' });
+
+        await checkConfigFiles();
+
+        const output = collectConsoleOutput();
+        expect(output).toContain("ℹ️  File 'vite.config.ts' is NOT required by this project");
+        expect(output).toContain("ℹ️  File 'vitest.config.ts' is the same as 'vitest.config.ts'");
+    });
+
     it("reports dpuse-development's Prettier configuration as the template", async () => {
         await writeProject('dpuse-development', { prettier: undefined });
 

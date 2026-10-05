@@ -109,7 +109,8 @@ async function checkTSConfigScripts(moduleTypeConfig: ModuleTypeConfig, moduleDi
 }
 
 async function checkViteConfig(moduleTypeConfig: ModuleTypeConfig, moduleDirectory: string) {
-    if (['eslint', 'github', 'kb'].includes(moduleTypeConfig.typeId)) {
+    // The sample data is published as files, so it has nothing to bundle.
+    if (['eslint', 'github', 'kb', 'resources'].includes(moduleTypeConfig.typeId)) {
         console.info("ℹ️  File 'vite.config.ts' is NOT required by this project");
     } else if (['app', 'api', 'development', 'engine'].includes(moduleTypeConfig.typeId)) {
         console.info("⚠️  File 'vite.config.ts' is UNIQUE to this project");

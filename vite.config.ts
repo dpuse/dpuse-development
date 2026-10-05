@@ -21,6 +21,7 @@ const viteConfig = defineConfig({
             external: [
                 'node:child_process',
                 'node:fs',
+                'node:os',
                 'node:path',
                 'node:readline',
                 'node:timers/promises',
