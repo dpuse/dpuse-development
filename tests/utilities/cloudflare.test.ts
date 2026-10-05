@@ -2,9 +2,9 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 // ── Local Framework
-import { execCommand } from '@/utilities';
 import { useTemporaryProject } from '../support/temporaryProject';
-import { putState, uploadDirectoryToR2, uploadModuleConfigToDO, uploadModuleToR2 } from '@/utilities/cloudflare';
+import { execCommand, readJSONFile, readTextFileOrNull } from '@/utilities';
+import { putState, uploadDirectoryToR2, uploadModuleConfigToDO, uploadModuleToR2, uploadSampleDataToR2 } from '@/utilities/cloudflare';
 
 // ── Mocks ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -87,18 +87,76 @@ describe('uploadModuleToR2', () => {
     });
 });
 
+// Each bulk upload's options and the files its list names. The list is read while the call runs, as it is deleted
+// afterwards.
+interface BulkPut {
+    files: { file: string; key: string }[];
+    listFilePath: string;
+    options: string[];
+}
+
+function recordBulkPuts(): BulkPut[] {
+    const bulkPuts: BulkPut[] = [];
+    vi.mocked(execCommand).mockImplementation(async (_label, _command, arguments_) => {
+        expect(arguments_.slice(0, 4)).toEqual(['r2', 'bulk', 'put', 'dpuse-sample-data-eu']);
+        const listFilePath = arguments_[5] ?? '';
+        const files = await readJSONFile<BulkPut['files']>(listFilePath);
+        bulkPuts.push({ files, listFilePath, options: arguments_.slice(6) });
+    });
+    return bulkPuts;
+}
+
 describe('uploadDirectoryToR2', () => {
-    it('uploads every file in the folder and the folders inside it', async () => {
-        await project.writeFiles({ 'public/fileStore/a.csv': '', 'public/fileStore/nested/b.csv': '' });
+    it('uploads a folder and the folders inside it in one bulk call per content type, never with a charset', async () => {
+        await project.writeFiles({
+            'public/fileStore/a.csv': '',
+            'public/fileStore/nested/b.csv': '',
+            'public/fileStore/notes.txt': '',
+            'public/fileStore/chardet/LICENSE': '',
+            'public/fileStore/chardet/koi8r': '',
+            'public/fileStore/.DS_Store': ''
+        });
+        const bulkPuts = recordBulkPuts();
 
         await uploadDirectoryToR2('public', 'fileStore');
 
-        expect(
-            uploads()
-                .map((arguments_) => arguments_[3] ?? '')
-                .toSorted((a, b) => a.localeCompare(b))
-        ).toEqual(['dpuse-sample-data-eu/fileStore/a.csv', 'dpuse-sample-data-eu/fileStore/nested/b.csv']);
-        expect(uploads()[0]).toContain('--file=public/fileStore/a.csv');
+        const uploaded = bulkPuts.map(({ files, options }) => [options.join(' '), files.map(({ key }) => key).toSorted((a, b) => a.localeCompare(b))]);
+        expect(uploaded.toSorted((a, b) => String(a[0]).localeCompare(String(b[0])))).toEqual([
+            ['--content-type application/octet-stream --jurisdiction=eu --remote', ['fileStore/chardet/koi8r']],
+            ['--content-type text/csv --jurisdiction=eu --remote', ['fileStore/a.csv', 'fileStore/nested/b.csv']],
+            ['--content-type text/plain --jurisdiction=eu --remote', ['fileStore/chardet/LICENSE', 'fileStore/notes.txt']]
+        ]);
+        expect(bulkPuts.flatMap(({ files }) => files)).toContainEqual({ file: 'public/fileStore/a.csv', key: 'fileStore/a.csv' });
+        for (const { listFilePath } of bulkPuts) expect(await readTextFileOrNull(listFilePath)).toBeNull();
+    });
+
+    it('uploads nothing when a file has an extension it has no content type for', async () => {
+        await project.writeFiles({ 'public/fileStore/a.csv': '', 'public/fileStore/report.pdf': '' });
+        const bulkPuts = recordBulkPuts();
+
+        await expect(uploadDirectoryToR2('public', 'fileStore')).rejects.toThrow("No content type for 'fileStore/report.pdf'.");
+        expect(bulkPuts).toEqual([]);
+    });
+});
+
+describe('uploadSampleDataToR2', () => {
+    it('uploads the application and file store folders, then their indexes, which are always checked before reuse', async () => {
+        await project.writeFiles({
+            'public/application/people.csv': '',
+            'public/fileStore/a.csv': '',
+            'public/applicationIndex.json': '{}',
+            'public/fileStoreIndex.json': '{}'
+        });
+        const bulkPuts = recordBulkPuts();
+
+        await uploadSampleDataToR2('public');
+
+        expect(bulkPuts.map(({ files }) => files.map(({ key }) => key))).toEqual([
+            ['application/people.csv'],
+            ['fileStore/a.csv'],
+            ['applicationIndex.json', 'fileStoreIndex.json']
+        ]);
+        expect(bulkPuts.at(-1)?.options).toEqual(['--content-type', 'application/json', '--cache-control', 'no-cache', '--jurisdiction=eu', '--remote']);
     });
 });
 

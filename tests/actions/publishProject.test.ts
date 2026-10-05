@@ -6,7 +6,7 @@ import { publishProject } from '@/actions/publishProject';
 import { spawnCommand } from '@/utilities';
 import { spawnedCommands } from '../support/projectCommands';
 import { collectConsoleOutput, useTemporaryProject } from '../support/temporaryProject';
-import { putState, uploadModuleConfigToDO, uploadModuleToR2 } from '@/utilities/cloudflare';
+import { putState, uploadModuleConfigToDO, uploadModuleToR2, uploadSampleDataToR2 } from '@/utilities/cloudflare';
 
 // ── Mocks ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -18,7 +18,8 @@ vi.mock('@/utilities', async (importOriginal) => ({
 vi.mock('@/utilities/cloudflare', () => ({
     putState: vi.fn(() => Promise.resolve()),
     uploadModuleConfigToDO: vi.fn(() => Promise.resolve()),
-    uploadModuleToR2: vi.fn(() => Promise.resolve())
+    uploadModuleToR2: vi.fn(() => Promise.resolve()),
+    uploadSampleDataToR2: vi.fn(() => Promise.resolve())
 }));
 
 // ── Tests ────────────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -30,6 +31,7 @@ beforeEach(() => {
     vi.mocked(putState).mockClear();
     vi.mocked(uploadModuleConfigToDO).mockClear();
     vi.mocked(uploadModuleToR2).mockClear();
+    vi.mocked(uploadSampleDataToR2).mockClear();
 });
 
 describe('publishProject', () => {
@@ -90,6 +92,16 @@ describe('publishProject', () => {
         expect(spawnedCommands()).toEqual(['npm run deploy']);
         expect(collectConsoleOutput()).toContain('2️⃣  Registration NOT required');
         expect(uploadModuleToR2).not.toHaveBeenCalled();
+    });
+
+    it('uploads the sample data to R2, with nothing to publish to npm or register', async () => {
+        await project.writeFiles({ 'package.json': JSON.stringify({ version: '1.0.0' }), 'config.json': JSON.stringify({ id: 'dpuse-resources' }) });
+
+        await publishProject();
+
+        expect(uploadSampleDataToR2).toHaveBeenCalledWith('public');
+        expect(spawnedCommands()).toEqual([]);
+        expect(collectConsoleOutput()).toContain('3️⃣  Upload sample data');
     });
 
     it('does not upload a tool whose npm publish fails', async () => {

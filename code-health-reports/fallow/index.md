@@ -21,10 +21,10 @@
 
 | Metric | Value |
 |:-------|------:|
-| Total LOC | 3826 |
+| Total LOC | 3892 |
 | Avg Cyclomatic | 3.0 |
 | P90 Cyclomatic | 7 |
-| Cyclomatic units | Functions: 303, module scopes: 0, templates: 0 |
+| Cyclomatic units | Functions: 308, module scopes: 0, templates: 0 |
 | Dead Files | 0.0% |
 | Dead Exports | 0.0% |
 | Maintainability (avg) | 92.0 |
@@ -45,16 +45,16 @@
 | `src/vite.ts` | 91.6 | 1 | 0 | 0% | 0.28 | 8.3 |
 | `src/utilities/index.ts` | 92.8 | 23 | 0 | 0% | 0.24 | 8.0 |
 | `src/actions/checkConfigFiles.ts` | 90.6 | 1 | 1 | 0% | 0.22 | 7.0 |
-| `src/utilities/cloudflare.ts` | 90.6 | 2 | 1 | 0% | 0.22 | 7.0 |
 | `src/actions/auditDependencies.ts` | 90.9 | 2 | 1 | 0% | 0.21 | 7.0 |
+| `src/utilities/cloudflare.ts` | 91.2 | 2 | 1 | 0% | 0.20 | 7.0 |
 | `src/actions/checkDependencies.ts` | 91.7 | 1 | 2 | 0% | 0.13 | 7.0 |
 | `src/actions/documentOpening.ts` | 91.8 | 1 | 1 | 0% | 0.18 | 7.0 |
 | `src/actions/documentContributingLicense.ts` | 92.4 | 1 | 1 | 0% | 0.16 | 7.0 |
 | `src/actions/testProject.ts` | 93.6 | 1 | 1 | 0% | 0.12 | 7.0 |
 | `src/actions/documentProject.ts` | 87.5 | 2 | 9 | 0% | 0.11 | 6.0 |
+| `src/actions/publishProject.ts` | 90.8 | 2 | 2 | 0% | 0.16 | 6.0 |
 | `src/actions/releaseProject.ts` | 90.9 | 1 | 4 | 0% | 0.09 | 6.0 |
 | `src/actions/documentUsage.ts` | 91.8 | 1 | 1 | 0% | 0.18 | 6.0 |
-| `src/actions/publishProject.ts` | 90.8 | 2 | 2 | 0% | 0.16 | 5.0 |
 | `src/actions/syncProjectWithGitHub.ts` | 94.8 | 1 | 1 | 0% | 0.11 | 4.0 |
 | `src/actions/buildProject.ts` | 94.3 | 2 | 1 | 0% | 0.14 | 3.0 |
 | `src/actions/documentActions.ts` | 95.4 | 1 | 1 | 0% | 0.06 | 3.0 |
@@ -77,11 +77,11 @@
 | `src/utilities/index.ts` | 42.4 | 39 | 539 | 0.24 | 23 | stable |
 | `src/actions/documentOpening.ts` | 20.7 | 21 | 332 | 0.18 | 1 | accelerating |
 | `src/actions/documentUsage.ts` | 17.9 | 17 | 334 | 0.18 | 1 | accelerating |
-| `src/actions/auditDependencies.ts` | 10.8 | 10 | 132 | 0.21 | 2 | stable |
-| `src/actions/checkDependencies.ts` | 10.6 | 17 | 194 | 0.13 | 1 | stable |
+| `src/actions/auditDependencies.ts` | 12.2 | 11 | 163 | 0.21 | 2 | accelerating |
+| `src/actions/checkDependencies.ts` | 11.5 | 18 | 196 | 0.13 | 1 | stable |
 | `src/actions/documentQualitySecurity.ts` | 9.3 | 8 | 673 | 0.18 | 1 | cooling |
 | `src/utilities/apiReference.ts` | 9.2 | 3 | 404 | 0.47 | 1 | cooling |
-| `src/utilities/cloudflare.ts` | 7.3 | 9 | 41 | 0.22 | 2 | stable |
+| `src/utilities/cloudflare.ts` | 6.6 | 9 | 41 | 0.20 | 2 | stable |
 | `src/actions/documentApiReference.ts` | 6.6 | 13 | 772 | 0.08 | 1 | cooling |
 | `src/actions/formatCode.ts` | 5.0 | 7 | 38 | 0.16 | 1 | stable |
 | `src/actions/publishProject.ts` | 4.2 | 4 | 66 | 0.16 | 2 | cooling |
