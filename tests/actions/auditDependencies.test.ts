@@ -51,7 +51,7 @@ describe('auditDependencies', () => {
 
     it('checks only every dependency, with the ignored advisories, for a development-only package', async () => {
         await project.writeFiles({ 'package.json': JSON.stringify({ name: '@dpuse/dpuse-development' }) });
-        vi.mocked(spawnCommandForOutput).mockResolvedValue(auditReport({ id: 'GHSA-ch52-4w7c-c8xp', name: 'http-cache-semantics', severity: 'high' }));
+        vi.mocked(spawnCommandForOutput).mockResolvedValue(auditReport({ id: 'GHSA-vfj7-8cjw-p6xm', name: 'braces', severity: 'high' }));
 
         await auditDependencies();
 
@@ -63,13 +63,13 @@ describe('auditDependencies', () => {
 
     it('passes moderate advisories and ignored high ones, naming the ignored ones', async () => {
         vi.mocked(spawnCommandForOutput).mockResolvedValue(
-            auditReport({ id: 'GHSA-moderate', name: 'slow', severity: 'moderate' }, { id: 'GHSA-ch52-4w7c-c8xp', name: 'http-cache-semantics', severity: 'high' })
+            auditReport({ id: 'GHSA-moderate', name: 'slow', severity: 'moderate' }, { id: 'GHSA-vfj7-8cjw-p6xm', name: 'braces', severity: 'high' })
         );
 
         await auditDependencies();
 
         const output = collectConsoleOutput();
-        expect(output).toContain('ℹ️  Ignored GHSA-ch52-4w7c-c8xp');
+        expect(output).toContain('ℹ️  Ignored GHSA-vfj7-8cjw-p6xm');
         expect(output).not.toContain('GHSA-moderate');
         expect(output).toContain('Dependencies audited');
     });
