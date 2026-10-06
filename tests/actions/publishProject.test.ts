@@ -84,6 +84,16 @@ describe('publishProject', () => {
         expect(uploadModuleToR2).toHaveBeenCalledWith(expect.objectContaining({ version: '1.0.0' }), 'dpuse-engine-eu/connectors/dropbox');
     });
 
+    it('deploys the API with its own deploy script', async () => {
+        await project.writeFiles({ 'package.json': JSON.stringify({ version: '1.0.0' }), 'config.json': JSON.stringify({ id: 'dpuse-api' }) });
+
+        await publishProject();
+
+        expect(spawnedCommands()).toEqual(['npm run deploy']);
+        expect(collectConsoleOutput()).toContain('1️⃣  Publishing to npm NOT required');
+        expect(uploadModuleToR2).not.toHaveBeenCalled();
+    });
+
     it('deploys the knowledge base with its own deploy script', async () => {
         await project.writeFiles({ 'package.json': JSON.stringify({ version: '1.0.0' }), 'config.json': JSON.stringify({ id: 'dpuse-kb' }) });
 
