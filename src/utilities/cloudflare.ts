@@ -99,6 +99,20 @@ export async function uploadModuleToR2(packageJSON: PackageJson, uploadDirectory
 // ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 // One 'wrangler r2 bulk put' call, which reads the files to upload from a list in a temporary file.
+//
+// TODO: Recheck this on every Wrangler upgrade, as Wrangler marks 'r2 bulk put' as experimental ("🚧 `wrangler r2 bulk
+// put` is an experimental command"), so it may change. As of Wrangler 4.147, the list is a JSON array of
+// '{ key, file }', each entry may carry nothing else, and options such as '--content-type' and '--cache-control' apply
+// to every file in the call, which is why files are grouped by content type. The tests pin the exact arguments, so a
+// changed command shows up there; also check the command's '--help' and the warning it prints. If it is withdrawn,
+// fall back to one 'r2 object put' per file, as before (slow: one Wrangler process per file), or upload through R2's
+// S3-compatible API.
+//
+// TODO: Report to Cloudflare (https://github.com/cloudflare/workers-sdk) that in local mode ('--local'), Wrangler 4.147
+// stores a bulk-put key containing a space with '%20', e.g. 'fileStore/Encoding%20Samples/ascii.txt', because it
+// builds a URL from the key without encoding it (`http://localhost/${entry.key}`). Found in October 2026. Remote mode,
+// which this uses, sends each file through the same function as 'r2 object put' and stores the key correctly, so this
+// only matters when trying the upload against local storage.
 async function bulkPutToR2(files: BulkPutFile[], options: string[]): Promise<void> {
     if (files.length === 0) return;
     const listFolderPath = await fs.mkdtemp(path.join(os.tmpdir(), 'dpuse-r2-bulk-'));
