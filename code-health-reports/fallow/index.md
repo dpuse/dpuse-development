@@ -21,7 +21,7 @@
 
 | Metric | Value |
 |:-------|------:|
-| Total LOC | 3909 |
+| Total LOC | 3911 |
 | Avg Cyclomatic | 3.0 |
 | P90 Cyclomatic | 7 |
 | Cyclomatic units | Functions: 308, module scopes: 0, templates: 0 |
@@ -44,7 +44,7 @@
 | `src/actions/documentBundleSizes.ts` | 87.3 | 1 | 1 | 0% | 0.33 | 10.3 |
 | `src/vite.ts` | 91.6 | 1 | 0 | 0% | 0.28 | 8.3 |
 | `src/utilities/index.ts` | 92.8 | 23 | 0 | 0% | 0.24 | 8.0 |
-| `src/actions/publishProject.ts` | 90.2 | 2 | 2 | 0% | 0.18 | 7.0 |
+| `src/actions/publishProject.ts` | 90.5 | 2 | 2 | 0% | 0.17 | 7.0 |
 | `src/actions/auditDependencies.ts` | 90.9 | 2 | 1 | 0% | 0.21 | 7.0 |
 | `src/actions/checkConfigFiles.ts` | 90.9 | 1 | 1 | 0% | 0.21 | 7.0 |
 | `src/actions/checkDependencies.ts` | 91.7 | 1 | 2 | 0% | 0.13 | 7.0 |
@@ -77,13 +77,13 @@
 | `src/utilities/index.ts` | 41.1 | 39 | 539 | 0.24 | 23 | stable |
 | `src/actions/documentOpening.ts` | 20.0 | 21 | 332 | 0.18 | 1 | accelerating |
 | `src/actions/documentUsage.ts` | 17.3 | 17 | 334 | 0.18 | 1 | accelerating |
-| `src/actions/auditDependencies.ts` | 11.8 | 11 | 163 | 0.21 | 2 | accelerating |
-| `src/actions/checkDependencies.ts` | 11.2 | 18 | 196 | 0.13 | 1 | stable |
+| `src/actions/auditDependencies.ts` | 11.9 | 11 | 163 | 0.21 | 2 | accelerating |
+| `src/actions/checkDependencies.ts` | 11.1 | 18 | 196 | 0.13 | 1 | stable |
 | `src/actions/documentQualitySecurity.ts` | 9.0 | 8 | 673 | 0.18 | 1 | cooling |
 | `src/utilities/apiReference.ts` | 8.9 | 3 | 404 | 0.47 | 1 | cooling |
 | `src/utilities/cloudflare.ts` | 8.1 | 11 | 167 | 0.18 | 2 | stable |
+| `src/actions/publishProject.ts` | 6.5 | 6 | 89 | 0.17 | 2 | stable |
 | `src/actions/documentApiReference.ts` | 6.4 | 13 | 772 | 0.08 | 1 | cooling |
-| `src/actions/publishProject.ts` | 5.7 | 5 | 80 | 0.18 | 2 | cooling |
 | `src/actions/formatCode.ts` | 4.9 | 7 | 38 | 0.16 | 1 | stable |
 | `src/actions/documentProject.ts` | 3.4 | 5 | 85 | 0.11 | 2 | cooling |
 | `src/actions/releaseProject.ts` | 2.8 | 5 | 78 | 0.09 | 1 | cooling |

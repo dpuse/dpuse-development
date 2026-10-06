@@ -84,6 +84,16 @@ describe('publishProject', () => {
         expect(uploadModuleToR2).toHaveBeenCalledWith(expect.objectContaining({ version: '1.0.0' }), 'dpuse-engine-eu/connectors/dropbox');
     });
 
+    it('deploys the app before storing its configuration, so it is never announced before it is live', async () => {
+        await project.writeFiles({ 'package.json': JSON.stringify({ version: '1.0.0' }), 'config.json': JSON.stringify({ id: 'dpuse-app' }) });
+
+        await publishProject();
+
+        expect(spawnedCommands()).toEqual(['npm run deploy']);
+        expect(putState).toHaveBeenCalledOnce();
+        expect(vi.mocked(spawnCommand).mock.invocationCallOrder[0]).toBeLessThan(vi.mocked(putState).mock.invocationCallOrder[0] ?? 0);
+    });
+
     it('deploys the API with its own deploy script', async () => {
         await project.writeFiles({ 'package.json': JSON.stringify({ version: '1.0.0' }), 'config.json': JSON.stringify({ id: 'dpuse-api' }) });
 
@@ -100,7 +110,7 @@ describe('publishProject', () => {
         await publishProject();
 
         expect(spawnedCommands()).toEqual(['npm run deploy']);
-        expect(collectConsoleOutput()).toContain('2️⃣  Registration NOT required');
+        expect(collectConsoleOutput()).toContain('3️⃣  Registration NOT required');
         expect(uploadModuleToR2).not.toHaveBeenCalled();
     });
 

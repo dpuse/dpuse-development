@@ -27,15 +27,17 @@ export async function publishProject(): Promise<void> {
             logStepHeader('1️⃣  Publishing to npm NOT required');
         }
 
-        await registerModule('2️⃣ ', packageJSON, configJSON, moduleTypeConfig);
+        // The API, the app and the knowledge base are published by their own 'deploy' scripts: the API's and the app's
+        // deploy their Workers, the knowledge base's loads the docs into Cloudflare KV and deploys the site. Each deploys
+        // before it is registered, so the app is never told of a version that is not live yet.
+        const isDeployedByScript = ['api', 'app', 'kb'].includes(moduleTypeConfig.publishedTo);
+        if (isDeployedByScript) await spawnCommand('2️⃣  Deploy', 'npm', ['run', 'deploy']);
 
-        // The API, the knowledge base and the sample data have no module to register. The API and the knowledge base are
-        // published by their own 'deploy' scripts: the API's deploys its Worker, the knowledge base's loads the docs into
-        // Cloudflare KV and deploys the site. The sample data's files and indexes go to R2; the workflow has already
-        // built the indexes with 'npm run build'.
-        if (moduleTypeConfig.publishedTo === 'api' || moduleTypeConfig.publishedTo === 'kb') {
-            await spawnCommand('3️⃣  Deploy', 'npm', ['run', 'deploy']);
-        } else if (moduleTypeConfig.publishedTo === 'sampleData') {
+        await registerModule(isDeployedByScript ? '3️⃣ ' : '2️⃣ ', packageJSON, configJSON, moduleTypeConfig);
+
+        // The sample data has no module to register. Its files and indexes go to R2; the workflow has already built the
+        // indexes with 'npm run build'.
+        if (moduleTypeConfig.publishedTo === 'sampleData') {
             logStepHeader('3️⃣  Upload sample data');
             await uploadSampleDataToR2('public');
         }
