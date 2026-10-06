@@ -1,6 +1,6 @@
 {
     "name": "@dpuse/dpuse-development",
-    "version": "1.0.117",
+    "version": "1.0.118",
     "private": false,
     "description": "Actions for managing DPUse projects.",
     "license": "MIT",
