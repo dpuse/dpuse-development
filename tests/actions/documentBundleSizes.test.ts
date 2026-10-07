@@ -46,11 +46,11 @@ describe('documentBundleSizes', () => {
         // Bars are a share of their own output file (main.js traces 1,000 bytes), '↳' rows on the same scale; the heading
         // gives the file's share of the build (1,500 bytes traced across both files).
         expect(readme).toContain('| **main.js** | 2.9 kB · gzip 900 B · 66.7% of the build |');
-        expect(readme).toContain('| &nbsp;&nbsp;&nbsp;&nbsp;src | `██████████░░░░░░░░░░` 50.0% · 500 B |');
+        expect(readme).toContain('| &nbsp;&nbsp;&nbsp;&nbsp;src → index.ts + 1 more | `██████████░░░░░░░░░░` 50.0% · 500 B |');
         expect(readme).toContain('| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;↳ index.ts | `▒▒▒▒▒▒▒▒░░░░░░░░░░░░` 40.0% · 400 B |');
         expect(readme).toContain('| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;↳ helpers.ts | `▒▒░░░░░░░░░░░░░░░░░░` 10.0% · 100 B |');
         expect(readme).toContain('| &nbsp;&nbsp;&nbsp;&nbsp;valibot → dist/index.js | `██████░░░░░░░░░░░░░░` 30.0% · 300 B |');
-        expect(readme).toContain('| &nbsp;&nbsp;&nbsp;&nbsp;@scope/pkg | `██░░░░░░░░░░░░░░░░░░` 10.0% · 100 B |');
+        expect(readme).toContain('| &nbsp;&nbsp;&nbsp;&nbsp;@scope/pkg → lib/a.js + 1 more | `██░░░░░░░░░░░░░░░░░░` 10.0% · 100 B |');
         expect(readme).toContain('| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;↳ lib/a.js | `▒░░░░░░░░░░░░░░░░░░░` 5.0% · 50 B |');
         expect(readme).toContain('| &nbsp;&nbsp;&nbsp;&nbsp;wasm → …_bg.wasm | `█░░░░░░░░░░░░░░░░░░░` 6.0% · 60 B |');
         expect(readme).toContain('| &nbsp;&nbsp;&nbsp;&nbsp;(runtime) → commonjsHelpers.js | `░░░░░░░░░░░░░░░░░░░░` 2.0% · 20 B |');
@@ -74,7 +74,7 @@ describe('documentBundleSizes', () => {
         await documentBundleSizes({ moduleLevel: true });
 
         const readme = await project.readFile('README.md');
-        expect(readme).toContain('| &nbsp;&nbsp;&nbsp;&nbsp;src | `██████████░░░░░░░░░░` 50.0% · 500 B |');
+        expect(readme).toContain('| &nbsp;&nbsp;&nbsp;&nbsp;src → index.ts + 1 more | `██████████░░░░░░░░░░` 50.0% · 500 B |');
         expect(readme).not.toContain('↳');
         expect(readme).toContain("Bars show each row's share of its output file.");
     });
@@ -94,12 +94,12 @@ describe('documentBundleSizes', () => {
 
         const readme = await project.readFile('README.md');
         expect(readme).toContain('| **main.js** | 200 B · gzip 50 B · 100.0% of the build |');
-        expect(readme).toContain('| &nbsp;&nbsp;&nbsp;&nbsp;src | `████████████████████` 100.0% · 200 B |');
+        expect(readme).toContain('| &nbsp;&nbsp;&nbsp;&nbsp;src → a.ts + 1 more | `████████████████████` 100.0% · 200 B |');
         expect(readme).toContain('| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;↳ a.ts | `▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒░░░░░` 75.0% · 150 B |');
         expect(readme).toContain('| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;↳ b.ts | `▒▒▒▒▒░░░░░░░░░░░░░░░` 25.0% · 50 B |');
 
         await documentBundleSizes({ moduleLevel: true });
-        expect(await project.readFile('README.md')).not.toContain('a.ts');
+        expect(await project.readFile('README.md')).not.toContain('b.ts');
     });
 
     it('combines files too small to show a bar, keeping the combined row within one bar character', async () => {
@@ -221,17 +221,16 @@ describe('documentBundleSizes', () => {
         expect(readme).not.toContain('(inlined worker)');
     });
 
-    it('tags a package split across output files with how many of its files each row holds', async () => {
-        // 'd3' is in both files, three files in one and one in the other; 'solo' is in one file only.
+    it('labels a row of several files by its largest, with a count of the rest', async () => {
+        // 'd3' is in both output files, three of its files in one and one in the other.
         const report = {
             resources: [
                 { kind: 'asset', name: 'a.js', uncompressed: 400, gzip: 100 },
                 { kind: 'asset', name: 'b.js', uncompressed: 200, gzip: 50 },
-                { kind: 'chunk', name: 'node_modules/d3/src/x.js', uncompressed: 100, parent: 'a.js' },
-                { kind: 'chunk', name: 'node_modules/d3/src/y.js', uncompressed: 100, parent: 'a.js' },
+                { kind: 'chunk', name: 'node_modules/d3/src/x.js', uncompressed: 150, parent: 'a.js' },
+                { kind: 'chunk', name: 'node_modules/d3/src/y.js', uncompressed: 50, parent: 'a.js' },
                 { kind: 'chunk', name: 'node_modules/d3/src/z.js', uncompressed: 100, parent: 'a.js' },
-                { kind: 'chunk', name: 'node_modules/solo/a.js', uncompressed: 50, parent: 'a.js' },
-                { kind: 'chunk', name: 'node_modules/solo/b.js', uncompressed: 50, parent: 'a.js' },
+                { kind: 'chunk', name: 'node_modules/solo/a.js', uncompressed: 100, parent: 'a.js' },
                 { kind: 'chunk', name: 'node_modules/d3/src/w.js', uncompressed: 200, parent: 'b.js' }
             ],
             dependencies: [
@@ -244,10 +243,10 @@ describe('documentBundleSizes', () => {
         await documentBundleSizes({ moduleLevel: true });
 
         const readme = await project.readFile('README.md');
-        expect(readme).toContain('| &nbsp;&nbsp;&nbsp;&nbsp;d3 (split · 3 files) | `███████████████░░░░░` 75.0% · 300 B |');
+        expect(readme).toContain('| &nbsp;&nbsp;&nbsp;&nbsp;d3 → src/x.js + 2 more | `███████████████░░░░░` 75.0% · 300 B |');
         expect(readme).toContain('| &nbsp;&nbsp;&nbsp;&nbsp;d3 → src/w.js | `████████████████████` 100.0% · 200 B |');
-        expect(readme).toContain('| &nbsp;&nbsp;&nbsp;&nbsp;solo | `█████░░░░░░░░░░░░░░░` 25.0% · 100 B |');
-        expect(readme).toContain('(split · n files) = a package whose files are divided across output files');
+        expect(readme).toContain('| &nbsp;&nbsp;&nbsp;&nbsp;solo → a.js | `█████░░░░░░░░░░░░░░░` 25.0% · 100 B |');
+        expect(readme).toContain('+ n more = the row also holds n more files from the same package or folder');
     });
 
     it('exits when there is no bundle analysis report', async () => {

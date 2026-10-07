@@ -78,11 +78,11 @@ _Note: Sonda's Vite reports currently exclude CSS files, since Vite does not gen
 
 | Chunk/Module/File                                                                | Composition                                 |
 | :------------------------------------------------------------------------------- | :------------------------------------------ |
-| **dist/dpuse-development.es.js**                                                 | 65.0 kB · gzip 20.9 kB · 65.6% of the build |
-| &nbsp;&nbsp;&nbsp;&nbsp;src                                                      | `██████████████████░░` 88.2% · 57.3 kB      |
+| **dist/dpuse-development.es.js**                                                 | 64.8 kB · gzip 20.8 kB · 65.5% of the build |
+| &nbsp;&nbsp;&nbsp;&nbsp;src → documentDependencies.ts + 22 more                  | `██████████████████░░` 88.2% · 57.1 kB      |
 | &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;↳ documentDependencies.ts        | `▒▒▒▒░░░░░░░░░░░░░░░░` 17.6% · 11.4 kB      |
 | &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;↳ documentQualitySecurity.ts     | `▒▒▒░░░░░░░░░░░░░░░░░` 15.3% · 9.9 kB       |
-| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;↳ documentBundleSizes.ts         | `▒▒▒░░░░░░░░░░░░░░░░░` 13.7% · 8.9 kB       |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;↳ documentBundleSizes.ts         | `▒▒▒░░░░░░░░░░░░░░░░░` 13.4% · 8.7 kB       |
 | &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;↳ checkConfigFiles.ts            | `▒░░░░░░░░░░░░░░░░░░░` 5.8% · 3.8 kB        |
 | &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;↳ rustCrates.ts                  | `▒░░░░░░░░░░░░░░░░░░░` 5.3% · 3.4 kB        |
 | &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;↳ cloudflare.ts                  | `▒░░░░░░░░░░░░░░░░░░░` 4.3% · 2.8 kB        |
@@ -93,17 +93,17 @@ _Note: Sonda's Vite reports currently exclude CSS files, since Vite does not gen
 | &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;↳ documentActions.ts             | `▒░░░░░░░░░░░░░░░░░░░` 2.7% · 1.8 kB        |
 | &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;↳ documentContributingLicense.ts | `░░░░░░░░░░░░░░░░░░░░` 1.9% · 1.2 kB        |
 | &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;↳ publishProject.ts              | `░░░░░░░░░░░░░░░░░░░░` 1.7% · 1.1 kB        |
-| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;↳ releaseProject.ts              | `░░░░░░░░░░░░░░░░░░░░` 1.5% · 971 B         |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;↳ releaseProject.ts              | `░░░░░░░░░░░░░░░░░░░░` 1.5% · 972 B         |
 | &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;↳ testProject.ts                 | `░░░░░░░░░░░░░░░░░░░░` 1.2% · 799 B         |
 | &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;↳ 8 smaller files                | `▒░░░░░░░░░░░░░░░░░░░` 4.3% · 2.8 kB        |
 | &nbsp;&nbsp;&nbsp;&nbsp;(inlined worker)                                         | `░░░░░░░░░░░░░░░░░░░░` 0.0% · 17 B          |
-| &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON)                      | `██░░░░░░░░░░░░░░░░░░` 11.7% · 7.6 kB       |
-| **dist/utilities-CjhO3pxf.js**                                                   | 23.1 kB · gzip 6.4 kB · 23.3% of the build  |
+| &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON)                      | `██░░░░░░░░░░░░░░░░░░` 11.8% · 7.6 kB       |
+| **dist/utilities-CjhO3pxf.js**                                                   | 23.1 kB · gzip 6.4 kB · 23.4% of the build  |
 | &nbsp;&nbsp;&nbsp;&nbsp;@dpuse/dpuse-shared → dist/dpuse-shared.es.js            | `██████████░░░░░░░░░░` 50.8% · 11.8 kB      |
 | &nbsp;&nbsp;&nbsp;&nbsp;src → index.ts                                           | `███████░░░░░░░░░░░░░` 35.8% · 8.3 kB       |
 | &nbsp;&nbsp;&nbsp;&nbsp;valibot → dist/index.mjs                                 | `░░░░░░░░░░░░░░░░░░░░` 1.7% · 413 B         |
 | &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON)                      | `██░░░░░░░░░░░░░░░░░░` 11.6% · 2.7 kB       |
-| **dist/apiReference-D4xooSV0.js**                                                | 8.5 kB · gzip 3.1 kB · 8.5% of the build    |
+| **dist/apiReference-D4xooSV0.js**                                                | 8.5 kB · gzip 3.1 kB · 8.6% of the build    |
 | &nbsp;&nbsp;&nbsp;&nbsp;src → apiReference.ts                                    | `███████████████████░` 95.1% · 8.0 kB       |
 | &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON)                      | `█░░░░░░░░░░░░░░░░░░░` 4.9% · 427 B         |
 | **dist/vite.es.js**                                                              | 2.5 kB · gzip 1.1 kB · 2.5% of the build    |
@@ -111,6 +111,8 @@ _Note: Sonda's Vite reports currently exclude CSS files, since Vite does not gen
 | &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON)                      | `███░░░░░░░░░░░░░░░░░` 13.0% · 334 B        |
 
 Bars show each row's share of its output file. ↳ rows are part of the row above.
+
+- n more = the row also holds n more files from the same package or folder, each no larger than the one named. A package can appear under several output files, each holding different files, never the same file twice.
 
 (inlined worker) = a Web Worker built separately and embedded in its output file as text. Where the build records what it contains, its rows list that; any few bytes over are the escaping needed to embed it.
 
