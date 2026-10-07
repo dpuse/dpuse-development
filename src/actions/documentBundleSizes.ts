@@ -53,6 +53,11 @@ const PART_BAR_CHARACTER = '▒'; // Lighter, so a '↳' row reads as part of th
 const MIN_VISIBLE_PERCENT = 100 / BAR_WIDTH / 2; // Below this a bar rounds to no characters at all.
 const SMALL_FILES_MAX_PERCENT = 100 / BAR_WIDTH; // The combined row for small files stays within one bar character.
 
+// GitHub strips CSS from a README, so column widths are steered through the text itself: the composition column has no
+// spaces to break at, and a long label is shortened so the column it gives up stays narrow.
+const LABEL_MAX_LENGTH = 48;
+const LABEL_HEAD_LENGTH = 16; // The rest of a shortened label is kept from its end, where the file name is.
+
 const BUNDLE_ANALYSIS_INTRO = `This report is updated with each release, from the bundle the release builds, using [Sonda](https://sonda.dev/), which analyses final source maps to reveal the actual effects of tree-shaking and minification rather than relying on pre-build estimates.\n\n_Note: Sonda's Vite reports currently exclude CSS files, since Vite does not generate source maps for CSS._`;
 
 const BAR_NOTE = `Bars show each row's share of its output file.`;
@@ -131,7 +136,7 @@ function buildBundleTable(json: SondaJson, options: { assetContents: Map<string,
         const fileTotal = sortedGroups.reduce((sum, [, group]) => sum + group.sizes.uncompressed, 0);
 
         const buildShare = fileTotal > 0 && buildTotal > 0 ? ` · ${formatPercent(fileTotal, buildTotal)} of the build` : '';
-        lines.push(`| **${file}** | ${chunkSizes(sizes)}${buildShare} |`, ...renderGroupRows(sortedGroups, fileTotal, isModuleLevel));
+        lines.push(row(`**${fitLabel(file)}**`, `${chunkSizes(sizes)}${buildShare}`), ...renderGroupRows(sortedGroups, fileTotal, isModuleLevel));
     }
 
     return lines.join('\n');
@@ -246,11 +251,11 @@ function renderGroupRows(sortedGroups: GroupEntry[], fileTotal: number, isModule
     for (const [groupName, { sizes: groupSizes, files }] of sortedGroups) {
         if (files.size === 1) {
             const fileName = getSoleFileName(files);
-            lines.push(`| ${INDENT}${formatGroupLabel(groupName, fileName)} | ${composition(groupSizes.uncompressed, fileTotal)} |`);
+            lines.push(row(`${INDENT}${fitLabel(formatGroupLabel(groupName, fileName))}`, composition(groupSizes.uncompressed, fileTotal)));
             continue;
         }
 
-        lines.push(`| ${INDENT}${formatSeveralFilesLabel(groupName, files)} | ${composition(groupSizes.uncompressed, fileTotal)} |`);
+        lines.push(row(`${INDENT}${formatSeveralFilesLabel(groupName, files)}`, composition(groupSizes.uncompressed, fileTotal)));
         if (!isModuleLevel) lines.push(...renderFileRows(files, fileTotal));
     }
 
@@ -262,10 +267,10 @@ function renderFileRows(files: Map<string, Sizes>, fileTotal: number): string[] 
     const smallCount = countSmallFiles(sortedFiles, fileTotal);
     const namedFiles = smallCount > 0 ? sortedFiles.slice(0, -smallCount) : sortedFiles;
 
-    const rows = namedFiles.map(([fileName, fileSizes]) => `| ${INDENT}${INDENT}↳ ${fileName} | ${composition(fileSizes.uncompressed, fileTotal, PART_BAR_CHARACTER)} |`);
+    const rows = namedFiles.map(([fileName, fileSizes]) => row(`${INDENT}${INDENT}↳ ${fitLabel(fileName)}`, composition(fileSizes.uncompressed, fileTotal, PART_BAR_CHARACTER)));
     if (smallCount > 0) {
         const smallBytes = sortedFiles.slice(-smallCount).reduce((sum, [, fileSizes]) => sum + fileSizes.uncompressed, 0);
-        rows.push(`| ${INDENT}${INDENT}↳ ${String(smallCount)} smaller files | ${composition(smallBytes, fileTotal, PART_BAR_CHARACTER)} |`);
+        rows.push(row(`${INDENT}${INDENT}↳ ${String(smallCount)} smaller files`, composition(smallBytes, fileTotal, PART_BAR_CHARACTER)));
     }
     return rows;
 }
@@ -296,11 +301,25 @@ function formatGroupLabel(groupName: string, fileName: string): string {
     return fileName === '' ? groupName : `${groupName} → ${fileName}`;
 }
 
-// The inlined worker's rows are its own breakdown rather than files, so it keeps its plain label.
+// The inlined worker's rows are its own breakdown rather than files, so it keeps its plain label. The count is left out of
+// any shortening, so it is never the part cut.
 function formatSeveralFilesLabel(groupName: string, files: Map<string, Sizes>): string {
     if (groupName === WORKER_LABEL) return groupName;
     const [largestFileName] = [...files].toSorted((a, b) => b[1].uncompressed - a[1].uncompressed)[0] ?? [''];
-    return `${formatGroupLabel(groupName, largestFileName)} + ${String(files.size - 1)} more`;
+    return `${fitLabel(formatGroupLabel(groupName, largestFileName))} + ${String(files.size - 1)} more`;
+}
+
+// Cut from the middle, keeping where the path starts and the file name it ends with. The full label shows on hover.
+function fitLabel(label: string): string {
+    if (label.length <= LABEL_MAX_LENGTH) return label;
+    const shortened = `${label.slice(0, LABEL_HEAD_LENGTH)}…${label.slice(label.length - (LABEL_MAX_LENGTH - LABEL_HEAD_LENGTH - 1))}`;
+    return `<abbr title="${label.replaceAll('&', '&amp;').replaceAll('"', '&quot;')}">${shortened}</abbr>`;
+}
+
+// The composition's spaces are made non-breaking; its bar is the only code span and holds none, so no entity lands
+// inside one, where it would show as written.
+function row(label: string, composition: string): string {
+    return `| ${label} | ${composition.replaceAll(' ', '&nbsp;')} |`;
 }
 
 function getSoleFileName(files: Map<string, Sizes>): string {
