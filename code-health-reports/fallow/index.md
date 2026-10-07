@@ -21,7 +21,7 @@
 
 | Metric | Value |
 |:-------|------:|
-| Total LOC | 3961 |
+| Total LOC | 3964 |
 | Avg Cyclomatic | 3.0 |
 | P90 Cyclomatic | 7 |
 | Cyclomatic units | Functions: 313, module scopes: 0, templates: 0 |
@@ -71,7 +71,7 @@
 
 | File | Score | Commits | Churn | Density | Fan-in | Trend |
 |:-----|:------|:--------|:------|:--------|:-------|:------|
-| `src/actions/documentBundleSizes.ts` | 59.8 | 43 | 1530 | 0.33 | 1 | cooling |
+| `src/actions/documentBundleSizes.ts` | 62.0 | 44 | 1563 | 0.33 | 1 | cooling |
 | `src/actions/checkConfigFiles.ts` | 44.7 | 51 | 565 | 0.21 | 1 | cooling |
 | `src/actions/documentDependencies.ts` | 43.1 | 32 | 941 | 0.29 | 1 | stable |
 | `src/utilities/index.ts` | 41.1 | 39 | 539 | 0.24 | 23 | stable |

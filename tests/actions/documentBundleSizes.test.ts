@@ -253,7 +253,7 @@ describe('documentBundleSizes', () => {
         expect(readme).toContain('+ n more = the row also holds n more files from the same package or folder');
     });
 
-    it('shortens a long label from the middle, keeping the full label on hover', async () => {
+    it('shortens a long path from its start, keeping any group prefix and the full path on hover', async () => {
         const report = {
             resources: [
                 { kind: 'asset', name: 'dist/client/assets/ContextDescriptorsPanel-D_ZLlLwF.js', uncompressed: 200, gzip: 50 },
@@ -273,10 +273,8 @@ describe('documentBundleSizes', () => {
         await documentBundleSizes({ moduleLevel: true });
 
         const readme = await project.readFile('README.md');
-        expect(readme).toContain('| **<abbr title="dist/client/assets/ContextDescriptorsPanel-D_ZLlLwF.js">dist/client/asse…extDescriptorsPanel-D_ZLlLwF.js</abbr>** |');
-        expect(readme).toContain(
-            '| &nbsp;&nbsp;&nbsp;&nbsp;<abbr title="@vue/runtime-core → dist/runtime-core.esm-bundler.js">@vue/runtime-cor…ist/runtime-core.esm-bundler.js</abbr> + 1 more |'
-        );
+        expect(readme).toContain('| **<abbr title="dist/client/assets/ContextDescriptorsPanel-D_ZLlLwF.js">…ient/assets/ContextDescriptorsPanel-D_ZLlLwF.js</abbr>** |');
+        expect(readme).toContain('| &nbsp;&nbsp;&nbsp;&nbsp;@vue/runtime-core → <abbr title="dist/runtime-core.esm-bundler.js">…runtime-core.esm-bundler.js</abbr> + 1 more |');
         expect(readme).toContain('| &nbsp;&nbsp;&nbsp;&nbsp;src → short.ts |');
     });
 

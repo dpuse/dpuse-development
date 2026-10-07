@@ -78,11 +78,11 @@ _Note: Sonda's Vite reports currently exclude CSS files, since Vite does not gen
 
 | Chunk/Module/File                                                                | Composition                                                                                   |
 | :------------------------------------------------------------------------------- | :-------------------------------------------------------------------------------------------- |
-| **dist/dpuse-development.es.js**                                                 | 65.0&nbsp;kB&nbsp;·&nbsp;gzip&nbsp;20.9&nbsp;kB&nbsp;·&nbsp;65.6%&nbsp;of&nbsp;the&nbsp;build |
-| &nbsp;&nbsp;&nbsp;&nbsp;src → documentDependencies.ts + 22 more                  | `██████████████████░░`&nbsp;88.3%&nbsp;·&nbsp;57.4&nbsp;kB                                    |
+| **dist/dpuse-development.es.js**                                                 | 65.1&nbsp;kB&nbsp;·&nbsp;gzip&nbsp;21.0&nbsp;kB&nbsp;·&nbsp;65.6%&nbsp;of&nbsp;the&nbsp;build |
+| &nbsp;&nbsp;&nbsp;&nbsp;src → documentDependencies.ts + 22 more                  | `██████████████████░░`&nbsp;88.3%&nbsp;·&nbsp;57.5&nbsp;kB                                    |
 | &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;↳ documentDependencies.ts        | `▒▒▒▒░░░░░░░░░░░░░░░░`&nbsp;17.5%&nbsp;·&nbsp;11.4&nbsp;kB                                    |
 | &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;↳ documentQualitySecurity.ts     | `▒▒▒░░░░░░░░░░░░░░░░░`&nbsp;15.2%&nbsp;·&nbsp;9.9&nbsp;kB                                     |
-| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;↳ documentBundleSizes.ts         | `▒▒▒░░░░░░░░░░░░░░░░░`&nbsp;13.8%&nbsp;·&nbsp;9.0&nbsp;kB                                     |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;↳ documentBundleSizes.ts         | `▒▒▒░░░░░░░░░░░░░░░░░`&nbsp;13.9%&nbsp;·&nbsp;9.0&nbsp;kB                                     |
 | &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;↳ checkConfigFiles.ts            | `▒░░░░░░░░░░░░░░░░░░░`&nbsp;5.8%&nbsp;·&nbsp;3.8&nbsp;kB                                      |
 | &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;↳ rustCrates.ts                  | `▒░░░░░░░░░░░░░░░░░░░`&nbsp;5.3%&nbsp;·&nbsp;3.4&nbsp;kB                                      |
 | &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;↳ cloudflare.ts                  | `▒░░░░░░░░░░░░░░░░░░░`&nbsp;4.3%&nbsp;·&nbsp;2.8&nbsp;kB                                      |

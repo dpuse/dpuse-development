@@ -1,7 +1,7 @@
 {
   "metadata": {
     "version": "0.14.0",
-    "generatedAt": "2026-10-07T12:41:29.123Z",
+    "generatedAt": "2026-10-07T14:06:15.617Z",
     "integration": "vite",
     "sources": false,
     "gzip": true,
@@ -21,8 +21,8 @@
       "name": "[unassigned]",
       "type": "other",
       "format": "other",
-      "uncompressed": 7813,
-      "gzip": 1813,
+      "uncompressed": 7812,
+      "gzip": 1812,
       "brotli": 0,
       "parent": "dist/dpuse-development.es.js"
     },
@@ -68,8 +68,8 @@
       "kind": "asset",
       "name": "dist/dpuse-development.es.js",
       "type": "script",
-      "uncompressed": 66600,
-      "gzip": 21440,
+      "uncompressed": 66677,
+      "gzip": 21467,
       "brotli": 0
     },
     {
@@ -253,15 +253,15 @@
       "name": "src/actions/documentBundleSizes.ts",
       "type": "script",
       "format": "esm",
-      "uncompressed": 15174
+      "uncompressed": 15300
     },
     {
       "kind": "chunk",
       "name": "src/actions/documentBundleSizes.ts",
       "type": "script",
       "format": "esm",
-      "uncompressed": 9167,
-      "gzip": 2884,
+      "uncompressed": 9245,
+      "gzip": 2912,
       "brotli": 0,
       "parent": "dist/dpuse-development.es.js"
     },

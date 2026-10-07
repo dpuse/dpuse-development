@@ -56,7 +56,6 @@ const SMALL_FILES_MAX_PERCENT = 100 / BAR_WIDTH; // The combined row for small f
 // GitHub strips CSS from a README, so column widths are steered through the text itself: the composition column has no
 // spaces to break at, and a long label is shortened so the column it gives up stays narrow.
 const LABEL_MAX_LENGTH = 48;
-const LABEL_HEAD_LENGTH = 16; // The rest of a shortened label is kept from its end, where the file name is.
 
 const BUNDLE_ANALYSIS_INTRO = `This report is updated with each release, from the bundle the release builds, using [Sonda](https://sonda.dev/), which analyses final source maps to reveal the actual effects of tree-shaking and minification rather than relying on pre-build estimates.\n\n_Note: Sonda's Vite reports currently exclude CSS files, since Vite does not generate source maps for CSS._`;
 
@@ -309,11 +308,15 @@ function formatSeveralFilesLabel(groupName: string, files: Map<string, Sizes>): 
     return `${fitLabel(formatGroupLabel(groupName, largestFileName))} + ${String(files.size - 1)} more`;
 }
 
-// Cut from the middle, keeping where the path starts and the file name it ends with. The full label shows on hover.
+// A 'group → ' prefix is always kept whole. The path after it loses its start, keeping the file name it ends with, and
+// shows in full on hover.
 function fitLabel(label: string): string {
-    if (label.length <= LABEL_MAX_LENGTH) return label;
-    const shortened = `${label.slice(0, LABEL_HEAD_LENGTH)}…${label.slice(label.length - (LABEL_MAX_LENGTH - LABEL_HEAD_LENGTH - 1))}`;
-    return `<abbr title="${label.replaceAll('&', '&amp;').replaceAll('"', '&quot;')}">${shortened}</abbr>`;
+    const arrowIndex = label.indexOf(' → ');
+    const prefix = arrowIndex === -1 ? '' : label.slice(0, arrowIndex + 3);
+    const path = label.slice(prefix.length);
+    const pathMaxLength = Math.max(LABEL_MAX_LENGTH - prefix.length, 2);
+    const isTooLong = path.length > pathMaxLength;
+    return isTooLong ? `${prefix}<abbr title="${path.replaceAll('&', '&amp;').replaceAll('"', '&quot;')}">…${path.slice(path.length - (pathMaxLength - 1))}</abbr>` : label;
 }
 
 // The composition's spaces are made non-breaking; its bar is the only code span and holds none, so no entity lands
