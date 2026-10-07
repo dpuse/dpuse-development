@@ -30,7 +30,13 @@ export async function documentOpening(): Promise<void> {
         const dpuseModuleId = moduleTypeConfig.uploadGroupName === undefined ? undefined : configJSON.id;
         const npmPackageName = moduleTypeConfig.publishedTo === 'npm' ? resolvePackageName(packageJSON) : undefined;
 
-        const content = buildOpeningContent(owner, repository, license, dpuseModuleId, npmPackageName, packageJSON.description, introduction);
+        const content = buildOpeningContent(owner, repository, license, {
+            description: packageJSON.description,
+            dpuseModuleId,
+            introduction,
+            npmPackageName,
+            version: packageJSON.version
+        });
 
         await writeReadmeSection(content, START_MARKER, END_MARKER);
 
@@ -42,6 +48,13 @@ export async function documentOpening(): Promise<void> {
 }
 
 // ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+// Shields colours the npm badge by version, but a badge reading JSON can only take a fixed colour, so the DPUse badge is
+// given the one Shields would pick, as of this release: orange before 1.0 or for a pre-release, blue otherwise.
+function resolveVersionColor(version: string | undefined): string {
+    if (version === undefined) return 'blue';
+    return /^v?0/.test(version) || /alpha|beta|snapshot|dev|pre|rc/i.test(version) ? 'orange' : 'blue';
+}
 
 function resolveLicense(packageJSON: PackageJson): string {
     const license = packageJSON.license;
@@ -70,22 +83,24 @@ function buildOpeningContent(
     owner: string,
     repository: string,
     license: string,
-    dpuseModuleId: string | undefined,
-    npmPackageName: string | undefined,
-    description: string | undefined,
-    introduction: string | undefined
+    options: {
+        description: string | undefined;
+        dpuseModuleId: string | undefined;
+        introduction: string | undefined;
+        npmPackageName: string | undefined;
+        version: string | undefined;
+    }
 ): string {
+    const { description, dpuseModuleId, introduction, npmPackageName, version } = options;
     const repositoryURL = `https://github.com/${owner}/${repository}`;
     const badgeLicense = license.replaceAll('-', '--');
     const dpuseConfigURL = encodeURIComponent(`https://api.dpuse.app/configs/${dpuseModuleId ?? ''}`);
     const dpuseBadge =
         dpuseModuleId === undefined
             ? ''
-            : `\n[![DPUse version](https://img.shields.io/badge/dynamic/json?url=${dpuseConfigURL}&query=%24.data.version&prefix=v&label=DPUse&color=f6821f)](${repositoryURL}/releases/latest)`;
+            : `\n[![DPUse version](https://img.shields.io/badge/dynamic/json?url=${dpuseConfigURL}&query=%24.data.version&prefix=v&label=DPUse&color=${resolveVersionColor(version)})](${repositoryURL}/releases/latest)`;
     const npmBadge =
-        npmPackageName === undefined
-            ? ''
-            : `\n[![npm version](https://img.shields.io/npm/v/${npmPackageName}?color=cb3837&label=npm)](https://www.npmjs.com/package/${npmPackageName})`;
+        npmPackageName === undefined ? '' : `\n[![npm version](https://img.shields.io/npm/v/${npmPackageName}?label=npm)](https://www.npmjs.com/package/${npmPackageName})`;
     const summary = description == null || description === '' ? '' : `\n\n${description}`;
     const introductionSection = introduction === undefined ? '' : `\n\n## Introduction\n\n${introduction}`;
 

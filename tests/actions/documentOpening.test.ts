@@ -60,7 +60,7 @@ describe('documentOpening', () => {
 
         const readme = await project.readFile('README.md');
         expect(readme.match(/\[!\[[^\]]+\]/g)).toEqual(['[![License: Apache-2.0]', '[![npm version]', '[![CI]']);
-        expect(readme).toContain('[![npm version](https://img.shields.io/npm/v/@dpuse/dpuse-shared?color=cb3837&label=npm)](https://www.npmjs.com/package/@dpuse/dpuse-shared)');
+        expect(readme).toContain('[![npm version](https://img.shields.io/npm/v/@dpuse/dpuse-shared?label=npm)](https://www.npmjs.com/package/@dpuse/dpuse-shared)');
     });
 
     it('shows the DPUse version badge, and no npm badge, for a module uploaded to DPUse only', async () => {
@@ -71,8 +71,20 @@ describe('documentOpening', () => {
         const readme = await project.readFile('README.md');
         expect(readme.match(/\[!\[[^\]]+\]/g)).toEqual(['[![License: Apache-2.0]', '[![DPUse version]', '[![CI]']);
         expect(readme).toContain(
-            '[![DPUse version](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fapi.dpuse.app%2Fconfigs%2Fdpuse-connector-dropbox&query=%24.data.version&prefix=v&label=DPUse&color=f6821f)]'
+            '[![DPUse version](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fapi.dpuse.app%2Fconfigs%2Fdpuse-connector-dropbox&query=%24.data.version&prefix=v&label=DPUse&color=blue)]'
         );
+    });
+
+    it('colours the DPUse version badge by version, as Shields colours the npm badge', async () => {
+        for (const [version, color] of [
+            ['0.4.2', 'orange'],
+            ['1.2.0-rc.1', 'orange'],
+            ['1.2.0', 'blue']
+        ]) {
+            await writeProject({ version }, undefined, 'dpuse-connector-dropbox');
+            await documentOpening();
+            expect(await project.readFile('README.md')).toContain(`label=DPUse&color=${String(color)})`);
+        }
     });
 
     it('shows both the DPUse version and npm badges for a tool, which goes to both', async () => {

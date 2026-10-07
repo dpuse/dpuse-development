@@ -221,6 +221,35 @@ describe('documentBundleSizes', () => {
         expect(readme).not.toContain('(inlined worker)');
     });
 
+    it('tags a package split across output files with how many of its files each row holds', async () => {
+        // 'd3' is in both files, three files in one and one in the other; 'solo' is in one file only.
+        const report = {
+            resources: [
+                { kind: 'asset', name: 'a.js', uncompressed: 400, gzip: 100 },
+                { kind: 'asset', name: 'b.js', uncompressed: 200, gzip: 50 },
+                { kind: 'chunk', name: 'node_modules/d3/src/x.js', uncompressed: 100, parent: 'a.js' },
+                { kind: 'chunk', name: 'node_modules/d3/src/y.js', uncompressed: 100, parent: 'a.js' },
+                { kind: 'chunk', name: 'node_modules/d3/src/z.js', uncompressed: 100, parent: 'a.js' },
+                { kind: 'chunk', name: 'node_modules/solo/a.js', uncompressed: 50, parent: 'a.js' },
+                { kind: 'chunk', name: 'node_modules/solo/b.js', uncompressed: 50, parent: 'a.js' },
+                { kind: 'chunk', name: 'node_modules/d3/src/w.js', uncompressed: 200, parent: 'b.js' }
+            ],
+            dependencies: [
+                { name: 'd3', paths: ['node_modules/d3'] },
+                { name: 'solo', paths: ['node_modules/solo'] }
+            ]
+        };
+        await project.writeFiles({ 'bundle-analysis-reports/sonda/index.json': JSON.stringify(report), 'README.md': buildReadme('BUNDLE') });
+
+        await documentBundleSizes({ moduleLevel: true });
+
+        const readme = await project.readFile('README.md');
+        expect(readme).toContain('| &nbsp;&nbsp;&nbsp;&nbsp;d3 (split · 3 files) | `███████████████░░░░░` 75.0% · 300 B |');
+        expect(readme).toContain('| &nbsp;&nbsp;&nbsp;&nbsp;d3 → src/w.js | `████████████████████` 100.0% · 200 B |');
+        expect(readme).toContain('| &nbsp;&nbsp;&nbsp;&nbsp;solo | `█████░░░░░░░░░░░░░░░` 25.0% · 100 B |');
+        expect(readme).toContain('(split · n files) = a package whose files are divided across output files');
+    });
+
     it('exits when there is no bundle analysis report', async () => {
         await project.writeFiles({ 'README.md': buildReadme('BUNDLE') });
 

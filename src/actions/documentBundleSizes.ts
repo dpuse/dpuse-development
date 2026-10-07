@@ -58,6 +58,9 @@ const BUNDLE_ANALYSIS_INTRO = `This report is updated with each release, from th
 const BAR_NOTE = `Bars show each row's share of its output file.`;
 const PART_ROW_NOTE = '↳ rows are part of the row above.'; // Only where the table has such rows, which module level leaves out.
 
+const SPLIT_TAG = 'split';
+const SPLIT_NOTE = `(${SPLIT_TAG} · n files) = a package whose files are divided across output files; each row lists only the files in that output file, and no file appears in more than one.`;
+
 const UNTRACED_LABEL = '(bundler output, whitespace & JSON)';
 const WORKER_LABEL = '(inlined worker)';
 const WORKER_NOTE = `${WORKER_LABEL} = a Web Worker built separately and embedded in its output file as text. Where the build records what it contains, its rows list that; any few bytes over are the escaping needed to embed it.`;
@@ -83,7 +86,8 @@ export async function documentBundleSizes(options?: { moduleLevel?: boolean }): 
         logStepHeader(`2️⃣  Insert table into 'README.md'`);
         const bundleTable = buildBundleTable(json, { assetContents, isModuleLevel: options?.moduleLevel ?? false, workerJson });
         const rowNote = bundleTable.includes('↳') ? `${BAR_NOTE} ${PART_ROW_NOTE}` : BAR_NOTE;
-        const notes = [rowNote, bundleTable.includes(WORKER_LABEL) ? WORKER_NOTE : '', bundleTable.includes(WASM_LABEL_PREFIX) ? WASM_NOTE : '', UNTRACED_NOTE].filter(
+        const splitNote = bundleTable.includes(`(${SPLIT_TAG} · `) ? SPLIT_NOTE : '';
+        const notes = [rowNote, splitNote, bundleTable.includes(WORKER_LABEL) ? WORKER_NOTE : '', bundleTable.includes(WASM_LABEL_PREFIX) ? WASM_NOTE : '', UNTRACED_NOTE].filter(
             (note) => note !== ''
         );
 
@@ -119,6 +123,7 @@ function buildBundleTable(json: SondaJson, options: { assetContents: Map<string,
         .map((asset): [string, Sizes] => [asset.name, resourceSizes(asset)])
         .toSorted((a, b) => b[1].uncompressed - a[1].uncompressed);
 
+    const splitPackages = findSplitPackages(assetGroups, json.dependencies);
     const lines = ['|Chunk/Module/File|Composition|', '|:------ |:-----------|'];
 
     for (const [file, sizes] of assets) {
@@ -127,7 +132,7 @@ function buildBundleTable(json: SondaJson, options: { assetContents: Map<string,
         const fileTotal = sortedGroups.reduce((sum, [, group]) => sum + group.sizes.uncompressed, 0);
 
         const buildShare = fileTotal > 0 && buildTotal > 0 ? ` · ${formatPercent(fileTotal, buildTotal)} of the build` : '';
-        lines.push(`| **${file}** | ${chunkSizes(sizes)}${buildShare} |`, ...renderGroupRows(sortedGroups, fileTotal, isModuleLevel));
+        lines.push(`| **${file}** | ${chunkSizes(sizes)}${buildShare} |`, ...renderGroupRows(sortedGroups, fileTotal, { isModuleLevel, splitPackages }));
     }
 
     return lines.join('\n');
@@ -234,7 +239,17 @@ function compareGroups(a: GroupEntry, b: GroupEntry): number {
     return b[1].sizes.uncompressed - a[1].sizes.uncompressed;
 }
 
-function renderGroupRows(sortedGroups: GroupEntry[], fileTotal: number, isModuleLevel: boolean): string[] {
+// A package in more than one output file reads as a copy in each unless its rows say otherwise. A row naming its one file
+// already says which part it is; a row for several files says how many it holds.
+function findSplitPackages(assetGroups: Map<string, Map<string, GroupData>>, dependencies: SondaDependency[]): Set<string> {
+    const packageNames = new Set(dependencies.map((dependency) => dependency.name));
+    const counts = new Map<string, number>();
+    for (const groups of assetGroups.values()) for (const groupName of groups.keys()) if (packageNames.has(groupName)) counts.set(groupName, (counts.get(groupName) ?? 0) + 1);
+    return new Set(counts.entries().filter(([, count]) => count > 1).map(([groupName]) => groupName));
+}
+
+function renderGroupRows(sortedGroups: GroupEntry[], fileTotal: number, options: { isModuleLevel: boolean; splitPackages: Set<string> }): string[] {
+    const { isModuleLevel, splitPackages } = options;
     const lines: string[] = [];
 
     for (const [groupName, { sizes: groupSizes, files }] of sortedGroups) {
@@ -244,7 +259,8 @@ function renderGroupRows(sortedGroups: GroupEntry[], fileTotal: number, isModule
             continue;
         }
 
-        lines.push(`| ${INDENT}${groupName} | ${composition(groupSizes.uncompressed, fileTotal)} |`);
+        const label = splitPackages.has(groupName) ? `${groupName} (${SPLIT_TAG} · ${String(files.size)} files)` : groupName;
+        lines.push(`| ${INDENT}${label} | ${composition(groupSizes.uncompressed, fileTotal)} |`);
         if (!isModuleLevel) lines.push(...renderFileRows(files, fileTotal));
     }
 
