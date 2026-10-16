@@ -39,6 +39,13 @@ const SAMPLE_DATA_CONTENT_TYPES: Record<string, string> = {
 
 // ── Actions ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
+// TODO: Send a release secret with these config writes once dpuse-api requires one on its '/configs' write routes,
+// which are open to anyone (found October 2026).
+//
+// TODO: Split 'CLOUDFLARE_PUBLISH_TOKEN' (found October 2026). One token, held by all 28 repos, can edit every Worker
+// and route on all accounts, so a compromised release in any repo could replace the live app. Give module repos an R2
+// only token for this account, give a Workers deploy token only to repos that run 'wrangler deploy', and remove the
+// secret from repos that never touch Cloudflare.
 export async function putState(): Promise<void> {
     const configJSON = await readJSONFile<ModuleConfig>('config.json');
     const options = {
