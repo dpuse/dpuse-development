@@ -21,7 +21,7 @@
 
 | Metric | Value |
 |:-------|------:|
-| Total LOC | 3964 |
+| Total LOC | 3970 |
 | Avg Cyclomatic | 3.0 |
 | P90 Cyclomatic | 7 |
 | Cyclomatic units | Functions: 313, module scopes: 0, templates: 0 |
@@ -78,11 +78,11 @@
 | `src/actions/documentOpening.ts` | 22.4 | 22 | 365 | 0.19 | 1 | accelerating |
 | `src/actions/documentUsage.ts` | 17.3 | 17 | 334 | 0.18 | 1 | accelerating |
 | `src/actions/auditDependencies.ts` | 11.8 | 11 | 163 | 0.21 | 2 | accelerating |
-| `src/actions/checkDependencies.ts` | 11.1 | 18 | 196 | 0.13 | 1 | stable |
+| `src/actions/checkDependencies.ts` | 11.2 | 18 | 196 | 0.13 | 1 | stable |
+| `src/utilities/cloudflare.ts` | 9.4 | 12 | 174 | 0.18 | 2 | stable |
 | `src/actions/documentQualitySecurity.ts` | 9.0 | 8 | 673 | 0.18 | 1 | cooling |
 | `src/utilities/apiReference.ts` | 8.9 | 3 | 404 | 0.47 | 1 | cooling |
 | `src/actions/publishProject.ts` | 8.3 | 8 | 110 | 0.16 | 2 | accelerating |
-| `src/utilities/cloudflare.ts` | 8.1 | 11 | 167 | 0.18 | 2 | stable |
 | `src/actions/documentApiReference.ts` | 6.4 | 13 | 772 | 0.08 | 1 | cooling |
 | `src/actions/formatCode.ts` | 4.9 | 7 | 38 | 0.16 | 1 | stable |
 | `src/actions/documentProject.ts` | 3.4 | 5 | 85 | 0.11 | 2 | cooling |
@@ -93,6 +93,31 @@
 | `vite.config.ts` | 2.0 | 22 | 133 | 0.02 | 0 | stable |
 
 *7 files excluded (< 3 commits)*
+
+### Hidden Change Coupling (9 pairs, since 12 months)
+
+| File A | File B | Degree | Shared | Commits A | Commits B | Strong |
+|:-------|:-------|:-------|:-------|:----------|:----------|:-------|
+| `src/actions/formatCode.ts` | `src/actions/lintCode.ts` | 92% | 6 | 7 | 6 | **strong** |
+| `src/actions/auditDependencies.ts` | `src/actions/lintCode.ts` | 59% | 5 | 11 | 6 | **strong** |
+| `src/actions/auditDependencies.ts` | `src/actions/formatCode.ts` | 56% | 5 | 11 | 7 | **strong** |
+| `src/actions/checkDependencies.ts` | `src/actions/lintCode.ts` | 50% | 6 | 18 | 6 | **strong** |
+| `src/actions/checkDependencies.ts` | `src/actions/formatCode.ts` | 48% | 6 | 18 | 7 |  |
+| `src/actions/auditDependencies.ts` | `src/actions/documentDependencies.ts` | 37% | 8 | 11 | 32 |  |
+| `src/actions/documentDependencies.ts` | `src/actions/formatCode.ts` | 36% | 7 | 32 | 7 |  |
+| `src/actions/documentOpening.ts` | `src/actions/documentUsage.ts` | 36% | 7 | 22 | 17 |  |
+| `src/actions/documentDependencies.ts` | `src/actions/lintCode.ts` | 32% | 6 | 32 | 6 |  |
+
+*Files that change together in the commit history with no import between them.*
+
+### Refactoring Targets (4)
+
+| Efficiency | Category | Effort / Confidence | File | Recommendation |
+|:-----------|:---------|:--------------------|:-----|:---------------|
+| 10.3 | hidden coupling | low / medium | `src/actions/formatCode.ts` | Changes with lintCode.ts in 6 commits (92% coupling) without an import, make the dependency explicit or move the shared logic into one module |
+| 8.3 | hidden coupling | medium / medium | `src/actions/auditDependencies.ts` | Changes with lintCode.ts in 5 commits (59% coupling) without an import, make the dependency explicit or move the shared logic into one module |
+| 8.2 | hidden coupling | low / medium | `src/actions/lintCode.ts` | Changes with formatCode.ts in 6 commits (92% coupling) without an import, make the dependency explicit or move the shared logic into one module |
+| 6.1 | hidden coupling | medium / medium | `src/actions/checkDependencies.ts` | Changes with lintCode.ts in 6 commits (50% coupling) without an import, make the dependency explicit or move the shared logic into one module |
 
 ---
 
@@ -109,6 +134,10 @@
 - **Commits**: commits in the analysis window
 - **Churn**: total lines added + deleted
 - **Trend**: accelerating / stable / cooling
+- **Efficiency**: priority / effort (higher = better quick-win value, default sort)
+- **Category**: recommendation type (churn+complexity, high impact, dead code, complexity, coupling, circular dep)
+- **Effort**: estimated effort (low / medium / high) based on file size, function count, and fan-in
+- **Confidence**: recommendation reliability (high = deterministic analysis, medium = heuristic, low = git-dependent)
 
 [Full metric reference](https://fallow.tools/docs/explanations/health/)
 

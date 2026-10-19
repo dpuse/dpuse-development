@@ -18,6 +18,7 @@
     },
     "icon": "<svg></svg>",
     "iconDark": "<svg></svg>",
+    "itemTypeId": "file",
     "lastUpdatedAt": null,
     "status": null,
     "statusId": "alpha",

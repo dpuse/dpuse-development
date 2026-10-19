@@ -34,10 +34,9 @@ export async function testProject(testTypeIds: TestTypeId[] = ['unit']): Promise
 
         let stepNumber = 0;
         for (const testTypeConfig of TEST_TYPE_CONFIGS) {
-            if (!testTypeIds.includes(testTypeConfig.id)) continue;
-
-            // Without its configuration file the project does not run this type of test, so pass over it quietly.
-            if ((await readTextFileOrNull(testTypeConfig.configFileName)) === null) continue;
+            // Pass quietly over a type that was not requested, or that the project does not run because it has no
+            // configuration file for it.
+            if (!testTypeIds.includes(testTypeConfig.id) || (await readTextFileOrNull(testTypeConfig.configFileName)) === null) continue;
 
             const stepLabel = `${STEP_ICONS[stepNumber] ?? ''} ${testTypeConfig.label}`;
             await spawnCommand(stepLabel, testTypeConfig.command, testTypeConfig.arguments);
