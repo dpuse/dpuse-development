@@ -281,6 +281,18 @@ describe('documentQualitySecurity', () => {
         expect(await project.readFile('README.md')).not.toContain('|Test coverage|');
     });
 
+    it('leaves out the coverage row, and writes no coverage badge, when there is no code to measure', async () => {
+        await writeProject();
+        stubGitHub();
+        stubOpenSSF();
+        reports.coverageSummary = { total: { lines: { total: 0, covered: 0, skipped: 0, pct: 'Unknown' } } };
+
+        await documentQualitySecurity();
+
+        expect(await project.readFile('README.md')).not.toContain('|Test coverage|');
+        await expect(fs.access('code-health-reports/vitest/badge.json')).rejects.toThrow();
+    });
+
     it('reports settings GitHub switches off or does not reveal', async () => {
         await writeProject(
             {},

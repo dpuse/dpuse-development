@@ -32,7 +32,7 @@ interface BestPracticesProject {
 }
 
 interface CoverageSummary {
-    total: { lines: { pct: number } };
+    total: { lines: { pct: number | 'Unknown' } }; // 'Unknown' when there is no code to measure, such as a project with no 'src'.
 }
 
 interface FallowHealth {
@@ -143,7 +143,8 @@ export async function documentQualitySecurity(): Promise<void> {
 
 // ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-// Answers undefined where the coverage provider isn't installed, or the Vitest config doesn't write a coverage summary.
+// Answers undefined where the coverage provider isn't installed, the Vitest config doesn't write a coverage summary, or
+// there is no code to measure.
 async function measureTestCoverage(packageJSON: PackageJson): Promise<number | undefined> {
     if (packageJSON.devDependencies?.['@vitest/coverage-v8'] == null) {
         logStepHeader("1️⃣  Test coverage NOT measured, as '@vitest/coverage-v8' is not installed");
@@ -155,6 +156,7 @@ async function measureTestCoverage(packageJSON: PackageJson): Promise<number | u
     if (summary === null) return undefined;
 
     const coveragePercent = (JSON.parse(summary) as CoverageSummary).total.lines.pct;
+    if (coveragePercent === 'Unknown') return undefined;
     await writeCoverageBadge(coveragePercent);
     return coveragePercent;
 }
