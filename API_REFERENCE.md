@@ -22,6 +22,7 @@ Every export, grouped by import path. This file is updated each time `npm run do
     > Publishes the project to npm, uploads it to DPUse, or both, as its module type requires. Run by the 'publish.yml' workflow.
 - **`releaseProject`**`(allowedLicenses?: string, isModuleLevel?: boolean)`
     > Bump version, builds config, builds project, regenerates the README, synchronise with GitHub and publish to npm or Cloudflare.
+- **`resolveSampleDataContentType`**`(key: string)`
 - **`syncProjectWithGitHub`**`()`
     > Synchronise the local repository with the main GitHub repository.
 - **`testProject`**`(testTypeIds?: TestTypeId[])`

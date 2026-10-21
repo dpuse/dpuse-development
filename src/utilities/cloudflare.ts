@@ -8,7 +8,7 @@ import { promises as fs, type ObjectEncodingOptions } from 'node:fs';
 import type { ModuleConfig } from '@dpuse/dpuse-shared';
 
 // ── Local Framework
-import { execCommand, getDirectoryEntries, getStatsForPath, readJSONFile, writeJSONFile } from '@/utilities';
+import { execCommand, getDirectoryEntries, getStatsForPath, readJSONFile, resolveSampleDataContentType, writeJSONFile } from '@/utilities';
 
 // ── Types ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -21,21 +21,6 @@ interface BulkPutFile {
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const SAMPLE_DATA_BUCKET = 'dpuse-sample-data-eu';
-
-// Sample data content types, by file extension. Never with a charset: many sample files are deliberately not UTF-8,
-// and a charset would tell browsers how to decode them. A file whose extension is missing here stops the upload, so
-// none goes up without a content type.
-const SAMPLE_DATA_CONTENT_TYPES: Record<string, string> = {
-    bin: 'application/octet-stream',
-    csv: 'text/csv',
-    json: 'application/json',
-    md: 'text/markdown',
-    spss: 'application/octet-stream',
-    txt: 'text/plain',
-    xls: 'application/vnd.ms-excel',
-    xlsx: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-    xml: 'application/xml'
-};
 
 // ── Actions ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -146,14 +131,4 @@ async function listFilesRecursively(sourcePath: string, keyPrefix: string): Prom
         else files.push({ file: itemPath, key });
     }
     return files;
-}
-
-// A file without an extension is raw bytes, such as chardet's unit-test files, except a licence, which is text.
-function resolveSampleDataContentType(key: string): string {
-    const name = key.slice(key.lastIndexOf('/') + 1);
-    const dotIndex = name.lastIndexOf('.');
-    if (dotIndex === -1) return name === 'LICENSE' ? 'text/plain' : 'application/octet-stream';
-    const contentType = SAMPLE_DATA_CONTENT_TYPES[name.slice(dotIndex + 1).toLowerCase()];
-    if (contentType === undefined) throw new Error(`No content type for '${key}'. Add its extension to 'SAMPLE_DATA_CONTENT_TYPES'.`);
-    return contentType;
 }

@@ -10,6 +10,7 @@ import {
     getModuleConfig,
     readTextFileOrNull,
     resolveOwnerAndRepository,
+    resolveSampleDataContentType,
     spawnCommand,
     spawnCommandForOutput,
     spawnCommandToFile,
@@ -175,5 +176,21 @@ describe('file helpers', () => {
     it('rejects a README without the markers', async () => {
         await project.writeFiles({ 'README.md': 'No markers' });
         await expect(writeReadmeSection('new', '<!-- A_START -->', '<!-- A_END -->')).rejects.toThrow('Markers <!-- A_START -->-<!-- A_END --> not found in content.');
+    });
+});
+
+describe('resolveSampleDataContentType', () => {
+    it('looks up the content type from the extension, ignoring its case', () => {
+        expect(resolveSampleDataContentType('fileStore/a.csv')).toBe('text/csv');
+        expect(resolveSampleDataContentType('fileStore/nested/REPORT.XLSX')).toBe('application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+    });
+
+    it('treats a file without an extension as raw bytes, except a licence', () => {
+        expect(resolveSampleDataContentType('fileStore/chardet/koi8r')).toBe('application/octet-stream');
+        expect(resolveSampleDataContentType('fileStore/chardet/LICENSE')).toBe('text/plain');
+    });
+
+    it('throws for an extension it has no content type for', () => {
+        expect(() => resolveSampleDataContentType('fileStore/report.pdf')).toThrow("No content type for 'fileStore/report.pdf'.");
     });
 });

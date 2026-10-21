@@ -6,8 +6,8 @@
 
 **Clone group 1** (8 lines, 2 instances)
 
-- `src/utilities/index.ts:141-148`
 - `src/utilities/index.ts:156-163`
+- `src/utilities/index.ts:171-178`
 
 ### Clone Families
 
@@ -21,7 +21,7 @@
 
 | Metric | Value |
 |:-------|------:|
-| Total LOC | 3970 |
+| Total LOC | 3973 |
 | Avg Cyclomatic | 3.0 |
 | P90 Cyclomatic | 7 |
 | Cyclomatic units | Functions: 313, module scopes: 0, templates: 0 |
@@ -43,7 +43,7 @@
 | `src/actions/documentDependencies.ts` | 85.8 | 1 | 3 | 0% | 0.29 | 12.0 |
 | `src/actions/documentBundleSizes.ts` | 87.3 | 1 | 1 | 0% | 0.33 | 11.0 |
 | `src/vite.ts` | 91.6 | 1 | 0 | 0% | 0.28 | 8.3 |
-| `src/utilities/index.ts` | 92.8 | 23 | 0 | 0% | 0.24 | 8.0 |
+| `src/utilities/index.ts` | 93.1 | 24 | 0 | 0% | 0.23 | 8.0 |
 | `src/actions/publishProject.ts` | 90.8 | 2 | 2 | 0% | 0.16 | 7.0 |
 | `src/actions/auditDependencies.ts` | 90.9 | 2 | 1 | 0% | 0.21 | 7.0 |
 | `src/actions/checkConfigFiles.ts` | 90.9 | 1 | 1 | 0% | 0.21 | 7.0 |
@@ -67,14 +67,14 @@
 
 **Average maintainability index:** 92.1/100
 
-### Hotspots (20 files, since 6 months)
+### Hotspots (21 files, since 6 months)
 
 | File | Score | Commits | Churn | Density | Fan-in | Trend |
 |:-----|:------|:--------|:------|:--------|:-------|:------|
 | `src/actions/documentBundleSizes.ts` | 64.2 | 45 | 1576 | 0.33 | 1 | cooling |
 | `src/actions/checkConfigFiles.ts` | 44.7 | 51 | 565 | 0.21 | 1 | cooling |
 | `src/actions/documentDependencies.ts` | 43.1 | 32 | 941 | 0.29 | 1 | stable |
-| `src/utilities/index.ts` | 41.1 | 39 | 539 | 0.24 | 23 | stable |
+| `src/utilities/index.ts` | 39.4 | 39 | 539 | 0.23 | 24 | stable |
 | `src/actions/documentOpening.ts` | 22.4 | 22 | 365 | 0.19 | 1 | accelerating |
 | `src/actions/documentUsage.ts` | 17.3 | 17 | 334 | 0.18 | 1 | accelerating |
 | `src/actions/auditDependencies.ts` | 11.8 | 11 | 163 | 0.21 | 2 | accelerating |
@@ -90,9 +90,10 @@
 | `src/actions/documentActions.ts` | 2.8 | 10 | 102 | 0.06 | 1 | stable |
 | `src/actions/lintCode.ts` | 2.7 | 6 | 30 | 0.11 | 1 | cooling |
 | `src/actions/buildProject.ts` | 2.6 | 3 | 56 | 0.14 | 2 | cooling |
+| `src/actions/testProject.ts` | 2.4 | 3 | 70 | 0.12 | 1 | cooling |
 | `vite.config.ts` | 2.0 | 22 | 133 | 0.02 | 0 | stable |
 
-*7 files excluded (< 3 commits)*
+*6 files excluded (< 3 commits)*
 
 ### Hidden Change Coupling (9 pairs, since 12 months)
 
