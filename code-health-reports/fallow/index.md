@@ -6,8 +6,8 @@
 
 **Clone group 1** (8 lines, 2 instances)
 
-- `src/utilities/index.ts:156-163`
-- `src/utilities/index.ts:171-178`
+- `src/utilities/index.ts:148-155`
+- `src/utilities/index.ts:163-170`
 
 ### Clone Families
 
@@ -21,7 +21,7 @@
 
 | Metric | Value |
 |:-------|------:|
-| Total LOC | 3975 |
+| Total LOC | 3967 |
 | Avg Cyclomatic | 3.0 |
 | P90 Cyclomatic | 7 |
 | Cyclomatic units | Functions: 313, module scopes: 0, templates: 0 |
@@ -74,15 +74,15 @@
 | `src/actions/documentBundleSizes.ts` | 64.2 | 45 | 1576 | 0.33 | 1 | cooling |
 | `src/actions/checkConfigFiles.ts` | 44.7 | 51 | 565 | 0.21 | 1 | cooling |
 | `src/actions/documentDependencies.ts` | 43.1 | 32 | 941 | 0.29 | 1 | stable |
-| `src/utilities/index.ts` | 40.7 | 39 | 545 | 0.23 | 24 | stable |
+| `src/utilities/index.ts` | 40.6 | 39 | 545 | 0.23 | 24 | stable |
 | `src/actions/documentOpening.ts` | 22.4 | 22 | 365 | 0.19 | 1 | accelerating |
 | `src/actions/documentUsage.ts` | 17.3 | 17 | 334 | 0.18 | 1 | accelerating |
 | `src/actions/auditDependencies.ts` | 11.9 | 11 | 163 | 0.21 | 2 | accelerating |
 | `src/actions/checkDependencies.ts` | 11.1 | 18 | 196 | 0.13 | 1 | stable |
+| `src/actions/documentQualitySecurity.ts` | 10.3 | 9 | 679 | 0.18 | 1 | cooling |
 | `src/utilities/cloudflare.ts` | 10.1 | 11 | 197 | 0.18 | 2 | stable |
-| `src/actions/documentQualitySecurity.ts` | 9.0 | 8 | 673 | 0.18 | 1 | cooling |
 | `src/utilities/apiReference.ts` | 8.9 | 3 | 404 | 0.47 | 1 | cooling |
-| `src/actions/publishProject.ts` | 8.3 | 8 | 110 | 0.16 | 2 | accelerating |
+| `src/actions/publishProject.ts` | 8.2 | 8 | 110 | 0.16 | 2 | accelerating |
 | `src/actions/documentApiReference.ts` | 6.4 | 13 | 772 | 0.08 | 1 | cooling |
 | `src/actions/formatCode.ts` | 4.9 | 7 | 38 | 0.16 | 1 | stable |
 | `src/actions/documentProject.ts` | 3.4 | 5 | 85 | 0.11 | 2 | cooling |

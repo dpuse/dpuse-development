@@ -2,7 +2,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 // ── Local Framework
-import { useTemporaryProject } from '../support/temporaryProject';
+import { collectConsoleOutput, useTemporaryProject } from '../support/temporaryProject';
 import { execCommand, readJSONFile, readTextFileOrNull } from '@/utilities';
 import { putState, uploadDirectoryToR2, uploadModuleConfigToDO, uploadModuleToR2, uploadSampleDataToR2 } from '@/utilities/cloudflare';
 
@@ -130,12 +130,17 @@ describe('uploadDirectoryToR2', () => {
         for (const { listFilePath } of bulkPuts) expect(await readTextFileOrNull(listFilePath)).toBeNull();
     });
 
-    it('uploads nothing when a file has an extension it has no content type for', async () => {
+    it('uploads a file with an extension it has no content type for as raw bytes, with a warning', async () => {
         await project.writeFiles({ 'public/fileStore/a.csv': '', 'public/fileStore/report.pdf': '' });
         const bulkPuts = recordBulkPuts();
 
-        await expect(uploadDirectoryToR2('public', 'fileStore')).rejects.toThrow("No content type for 'fileStore/report.pdf'.");
-        expect(bulkPuts).toEqual([]);
+        await uploadDirectoryToR2('public', 'fileStore');
+
+        expect(bulkPuts.map(({ files, options }) => [options.join(' '), files.map(({ key }) => key)])).toContainEqual([
+            '--content-type application/octet-stream --jurisdiction=eu --remote',
+            ['fileStore/report.pdf']
+        ]);
+        expect(collectConsoleOutput()).toContain("No content type for 'fileStore/report.pdf'");
     });
 });
 

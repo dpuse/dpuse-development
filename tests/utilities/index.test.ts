@@ -185,12 +185,15 @@ describe('resolveSampleDataContentType', () => {
         expect(resolveSampleDataContentType('fileStore/nested/REPORT.XLSX')).toBe('application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
     });
 
-    it('treats a file without an extension as raw bytes, except a licence', () => {
-        expect(resolveSampleDataContentType('fileStore/chardet/koi8r')).toBe('application/octet-stream');
+    it('treats a licence as text', () => {
         expect(resolveSampleDataContentType('fileStore/chardet/LICENSE')).toBe('text/plain');
+        expect(collectConsoleOutput()).toBe('');
     });
 
-    it('throws for an extension it has no content type for', () => {
-        expect(() => resolveSampleDataContentType('fileStore/report.pdf')).toThrow("No content type for 'fileStore/report.pdf'.");
+    it('treats a file the table does not cover as raw bytes, and warns so its extension can be added', () => {
+        expect(resolveSampleDataContentType('fileStore/report.pdf')).toBe('application/octet-stream');
+        expect(resolveSampleDataContentType('fileStore/chardet/koi8r')).toBe('application/octet-stream');
+        expect(collectConsoleOutput()).toContain("No content type for 'fileStore/report.pdf'");
+        expect(collectConsoleOutput()).toContain("No content type for 'fileStore/chardet/koi8r'");
     });
 });

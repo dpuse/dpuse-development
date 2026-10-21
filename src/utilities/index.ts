@@ -14,7 +14,14 @@ import { execFile, spawn } from 'node:child_process';
 
 // ── DPUse Framework
 import type { ConnectorActionName, ConnectorConfig, ModuleConfig, PresenterActionName, PresenterConfig } from '@dpuse/dpuse-shared';
-import { connectorConfigSchema, determineConnectorUsageId, presenterConfigSchema } from '@dpuse/dpuse-shared';
+import {
+    connectorConfigSchema,
+    determineConnectorUsageId,
+    extractExtensionFromPath,
+    hasMimeTypeForExtension,
+    lookupMimeTypeForExtension,
+    presenterConfigSchema
+} from '@dpuse/dpuse-shared';
 
 // ── Types ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -53,21 +60,6 @@ export const QUALITY_SECURITY_START_MARKER = '<!-- QUALITY_SECURITY_START -->';
 
 // Rust — a project has Rust code when it has this workspace file; its templates and checks then include Rust.
 export const RUST_WORKSPACE_PATH = 'rust/Cargo.toml';
-
-// Sample data content types, by file extension. Never with a charset: many sample files are deliberately not UTF-8,
-// and a charset would tell browsers how to decode them. An extension missing here stops the upload and the index
-// build, so no file goes up or is listed without a content type.
-const SAMPLE_DATA_CONTENT_TYPES: Record<string, string> = {
-    bin: 'application/octet-stream',
-    csv: 'text/csv',
-    json: 'application/json',
-    md: 'text/markdown',
-    spss: 'application/octet-stream',
-    txt: 'text/plain',
-    xls: 'application/vnd.ms-excel',
-    xlsx: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-    xml: 'application/xml'
-};
 
 const MODULE_TYPE_CONFIGS: ModuleTypeConfig[] = [
     { idPrefix: 'dpuse-app', typeId: 'app', publishedTo: 'app', uploadGroupName: undefined },
@@ -224,15 +216,15 @@ export async function readTextFileOrNull(path: string): Promise<string | null> {
     }
 }
 
-// Looks up a sample data file's content type from its key. A file without an extension is raw bytes, except a licence,
-// which is text.
+// Looks up a sample data file's content type from its key, with dpuse-shared's table, so the bucket and the connectors
+// describe a file the same way. A licence is text. Any other file the table does not cover still goes up, as
+// 'application/octet-stream', with a warning so its extension can be added.
 export function resolveSampleDataContentType(key: string): string {
     const name = key.slice(key.lastIndexOf('/') + 1);
-    const dotIndex = name.lastIndexOf('.');
-    if (dotIndex === -1) return name === 'LICENSE' ? 'text/plain' : 'application/octet-stream';
-    const contentType = SAMPLE_DATA_CONTENT_TYPES[name.slice(dotIndex + 1).toLowerCase()];
-    if (contentType === undefined) throw new Error(`No content type for '${key}'. Add its extension to 'SAMPLE_DATA_CONTENT_TYPES'.`);
-    return contentType;
+    if (name === 'LICENSE') return 'text/plain';
+    const extension = extractExtensionFromPath(name);
+    if (!hasMimeTypeForExtension(extension)) console.warn(`⚠️  No content type for '${key}', so it is treated as 'application/octet-stream'. Add its extension to dpuse-shared.`);
+    return lookupMimeTypeForExtension(extension);
 }
 
 // Creates any missing folders on the way, as a badge or report may be the first file written to its folder.
