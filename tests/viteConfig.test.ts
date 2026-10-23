@@ -16,9 +16,9 @@ describe('vite.config.ts', () => {
         const sourceFileNames = fileNames.filter((fileName) => fileName.endsWith('.ts'));
         const sources = await Promise.all(sourceFileNames.map((fileName) => readTextFile(`src/${fileName}`)));
         const importedBuiltIns = new Set(sources.flatMap((source) => Array.from(source.matchAll(/from '(node:[^']+)'/g), ([, name]) => name)));
-        // Only the list itself is needed, so a narrow type avoids naming Vite's deprecated 'rollupOptions' type.
-        const { build } = viteConfig as { build?: { rollupOptions?: { external?: string[] } } };
-        const external = build?.rollupOptions?.external ?? [];
+        // Only the list itself is needed, so a narrow type keeps the test independent of Vite's full config types.
+        const { build } = viteConfig as { build?: { rolldownOptions?: { external?: string[] } } };
+        const external = build?.rolldownOptions?.external ?? [];
 
         expect([...importedBuiltIns].filter((name) => name !== undefined && !external.includes(name))).toEqual([]);
     });

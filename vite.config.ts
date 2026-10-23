@@ -17,7 +17,7 @@ const viteConfig = defineConfig({
             fileName: (format, entryName) => `${entryName}.${format}.js`,
             formats: ['es']
         },
-        rollupOptions: {
+        rolldownOptions: {
             external: [
                 'node:child_process',
                 'node:fs',
