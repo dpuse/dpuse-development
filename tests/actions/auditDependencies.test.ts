@@ -51,7 +51,7 @@ describe('auditDependencies', () => {
 
     it('checks only every dependency, with the ignored advisories, for a development-only package', async () => {
         await project.writeFiles({ 'package.json': JSON.stringify({ name: '@dpuse/dpuse-development' }) });
-        vi.mocked(spawnCommandForOutput).mockResolvedValue(auditReport({ id: 'GHSA-vfj7-8cjw-p6xm', name: 'braces', severity: 'high' }));
+        vi.mocked(spawnCommandForOutput).mockResolvedValue(auditReport({ id: 'GHSA-fx2h-pf6j-xcff', name: 'vite', severity: 'high' }));
 
         await auditDependencies();
 
@@ -63,13 +63,13 @@ describe('auditDependencies', () => {
 
     it('passes moderate advisories and ignored high ones, naming the ignored ones', async () => {
         vi.mocked(spawnCommandForOutput).mockResolvedValue(
-            auditReport({ id: 'GHSA-moderate', name: 'slow', severity: 'moderate' }, { id: 'GHSA-vfj7-8cjw-p6xm', name: 'braces', severity: 'high' })
+            auditReport({ id: 'GHSA-moderate', name: 'slow', severity: 'moderate' }, { id: 'GHSA-fx2h-pf6j-xcff', name: 'vite', severity: 'high' })
         );
 
         await auditDependencies();
 
         const output = collectConsoleOutput();
-        expect(output).toContain('ℹ️  Ignored GHSA-vfj7-8cjw-p6xm');
+        expect(output).toContain('ℹ️  Ignored GHSA-fx2h-pf6j-xcff');
         expect(output).not.toContain('GHSA-moderate');
         expect(output).toContain('Dependencies audited');
     });
@@ -113,7 +113,7 @@ describe('reportIgnoredAdvisories', () => {
     it('warns about each high or critical advisory on the allow list, with its reason, and nothing else', async () => {
         vi.mocked(spawnCommandForOutput).mockResolvedValue(
             auditReport(
-                { id: 'GHSA-vfj7-8cjw-p6xm', name: 'braces', severity: 'high' },
+                { id: 'GHSA-fx2h-pf6j-xcff', name: 'vite', severity: 'high' },
                 { id: 'GHSA-new-high', name: 'leaky', severity: 'high' },
                 { id: 'GHSA-moderate', name: 'slow', severity: 'moderate' }
             )
@@ -123,7 +123,7 @@ describe('reportIgnoredAdvisories', () => {
 
         expect(console.warn).toHaveBeenCalledTimes(1);
         expect(console.warn).toHaveBeenCalledWith(
-            expect.stringMatching(/^⚠️ {2}GHSA-vfj7-8cjw-p6xm \('braces'\) is on the allow list, so the CI audit ignores it: 'braces', used by ESLint/u)
+            expect.stringMatching(/^⚠️ {2}GHSA-fx2h-pf6j-xcff \('vite'\) is on the allow list, so the CI audit ignores it: 'vite', used by VitePress/u)
         );
     });
 

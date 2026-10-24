@@ -11,10 +11,9 @@ import { useTemporaryProject } from './support/temporaryProject';
 
 const project = useTemporaryProject();
 
-type Hook = (...hookArguments: unknown[]) => void;
-
 // Runs the plugin's build hooks over one bundle, as Vite would, and returns the record written beside the reports.
 async function recordBundle(bundle: Record<string, object>): Promise<ShippedPackagesRecord> {
+    type Hook = (...hookArguments: unknown[]) => void;
     const plugin = recordShippedPackages() as unknown as { configResolved: Hook; generateBundle: Hook; closeBundle: Hook };
     const root = process.cwd();
     plugin.configResolved({ root, build: { outDir: 'dist' } });

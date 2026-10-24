@@ -6,14 +6,14 @@
             "reviewBy": "2026-12-31"
         },
         {
-            "id": "GHSA-vfj7-8cjw-p6xm",
-            "reason": "'braces', used by ESLint's file matching in dpuse-app, which only reads glob patterns from the project's own config",
-            "reviewBy": "2026-12-31"
-        },
-        {
             "id": "GHSA-wq5f-xc86-pv6w",
             "reason": "'sharp', pinned to 0.35.4 by miniflare, Wrangler's local Workers simulator, which runs only during development and is never deployed; remove once miniflare takes 0.35.5",
             "reviewBy": "2026-10-31"
+        },
+        {
+            "id": "GHSA-xjj6-f33q-929c",
+            "reason": "'undici', pinned to 7.29.1 by miniflare, Wrangler's local Workers simulator, which runs only during development and is never deployed; remove once miniflare takes 7.30.1",
+            "reviewBy": "2026-11-30"
         }
     ]
 }

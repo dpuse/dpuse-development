@@ -1,7 +1,7 @@
 {
   "metadata": {
     "version": "0.14.0",
-    "generatedAt": "2026-10-23T14:30:58.411Z",
+    "generatedAt": "2026-10-24T09:32:39.244Z",
     "integration": "vite",
     "sources": false,
     "gzip": true,
@@ -21,8 +21,8 @@
       "name": "[unassigned]",
       "type": "other",
       "format": "other",
-      "uncompressed": 7846,
-      "gzip": 1833,
+      "uncompressed": 7900,
+      "gzip": 1818,
       "brotli": 0,
       "parent": "dist/dpuse-development.es.js"
     },
@@ -68,8 +68,8 @@
       "kind": "asset",
       "name": "dist/dpuse-development.es.js",
       "type": "script",
-      "uncompressed": 66074,
-      "gzip": 21235,
+      "uncompressed": 66128,
+      "gzip": 21215,
       "brotli": 0
     },
     {
@@ -127,7 +127,7 @@
       "name": "src/actions/auditDependencies_.json",
       "type": "script",
       "format": "esm",
-      "uncompressed": 648
+      "uncompressed": 702
     },
     {
       "kind": "filesystem",
@@ -261,7 +261,7 @@
       "type": "script",
       "format": "esm",
       "uncompressed": 9232,
-      "gzip": 2900,
+      "gzip": 2899,
       "brotli": 0,
       "parent": "dist/dpuse-development.es.js"
     },
@@ -295,7 +295,7 @@
       "type": "script",
       "format": "esm",
       "uncompressed": 11665,
-      "gzip": 3208,
+      "gzip": 3207,
       "brotli": 0,
       "parent": "dist/dpuse-development.es.js"
     },
@@ -414,7 +414,7 @@
       "type": "script",
       "format": "esm",
       "uncompressed": 1116,
-      "gzip": 432,
+      "gzip": 431,
       "brotli": 0,
       "parent": "dist/dpuse-development.es.js"
     },
@@ -557,7 +557,7 @@
       "type": "script",
       "format": "esm",
       "uncompressed": 3531,
-      "gzip": 1239,
+      "gzip": 1238,
       "brotli": 0,
       "parent": "dist/dpuse-development.es.js"
     },

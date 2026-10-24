@@ -82,7 +82,7 @@
 | `src/actions/documentQualitySecurity.ts` | 10.3 | 9 | 679 | 0.18 | 1 | cooling |
 | `src/utilities/cloudflare.ts` | 10.1 | 11 | 197 | 0.18 | 2 | stable |
 | `src/utilities/apiReference.ts` | 8.9 | 3 | 404 | 0.47 | 1 | cooling |
-| `src/actions/publishProject.ts` | 8.2 | 8 | 110 | 0.16 | 2 | accelerating |
+| `src/actions/publishProject.ts` | 8.3 | 8 | 110 | 0.16 | 2 | accelerating |
 | `src/actions/documentApiReference.ts` | 6.4 | 13 | 772 | 0.08 | 1 | cooling |
 | `src/actions/formatCode.ts` | 4.9 | 7 | 38 | 0.16 | 1 | stable |
 | `src/actions/documentProject.ts` | 3.4 | 5 | 85 | 0.11 | 2 | cooling |
@@ -91,7 +91,7 @@
 | `src/actions/lintCode.ts` | 2.7 | 6 | 30 | 0.11 | 1 | cooling |
 | `src/actions/buildProject.ts` | 2.6 | 3 | 56 | 0.14 | 2 | cooling |
 | `src/actions/testProject.ts` | 2.4 | 3 | 70 | 0.12 | 1 | cooling |
-| `vite.config.ts` | 2.0 | 22 | 133 | 0.02 | 0 | stable |
+| `vite.config.ts` | 2.1 | 23 | 135 | 0.02 | 0 | stable |
 
 *6 files excluded (< 3 commits)*
 
