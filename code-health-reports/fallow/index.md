@@ -1,5 +1,11 @@
 ## Fallow: no issues found
 
+
+## Redundant config entries
+
+These entries matched, but fallow does the same without them. Remove the entry from the config.
+
+- `ignoreDependencies`: `vite-plugin-wasm` had no effect in this run
 ## Fallow: 1 clone group found (0.4% duplication)
 
 ### Duplicates
