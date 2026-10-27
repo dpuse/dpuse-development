@@ -78,7 +78,7 @@ _Note: Sonda's Vite reports currently exclude CSS files, since Vite does not gen
 
 | Chunk/Module/File                                                                | Composition                                                                                   |
 | :------------------------------------------------------------------------------- | :-------------------------------------------------------------------------------------------- |
-| **dist/dpuse-development.es.js**                                                 | 64.6&nbsp;kB&nbsp;·&nbsp;gzip&nbsp;20.7&nbsp;kB&nbsp;·&nbsp;64.2%&nbsp;of&nbsp;the&nbsp;build |
+| **dist/dpuse-development.es.js**                                                 | 64.6&nbsp;kB&nbsp;·&nbsp;gzip&nbsp;20.7&nbsp;kB&nbsp;·&nbsp;63.4%&nbsp;of&nbsp;the&nbsp;build |
 | &nbsp;&nbsp;&nbsp;&nbsp;src → documentDependencies.ts + 22 more                  | `██████████████████░░`&nbsp;88.1%&nbsp;·&nbsp;56.9&nbsp;kB                                    |
 | &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;↳ documentDependencies.ts        | `▒▒▒▒░░░░░░░░░░░░░░░░`&nbsp;17.6%&nbsp;·&nbsp;11.4&nbsp;kB                                    |
 | &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;↳ documentQualitySecurity.ts     | `▒▒▒░░░░░░░░░░░░░░░░░`&nbsp;15.4%&nbsp;·&nbsp;9.9&nbsp;kB                                     |
@@ -98,12 +98,12 @@ _Note: Sonda's Vite reports currently exclude CSS files, since Vite does not gen
 | &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;↳ 8 smaller files                | `▒░░░░░░░░░░░░░░░░░░░`&nbsp;4.3%&nbsp;·&nbsp;2.8&nbsp;kB                                      |
 | &nbsp;&nbsp;&nbsp;&nbsp;(inlined worker)                                         | `░░░░░░░░░░░░░░░░░░░░`&nbsp;0.0%&nbsp;·&nbsp;17&nbsp;B                                        |
 | &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON)                      | `██░░░░░░░░░░░░░░░░░░`&nbsp;11.9%&nbsp;·&nbsp;7.7&nbsp;kB                                     |
-| **dist/utilities-Czb_kFF1.js**                                                   | 25.0&nbsp;kB&nbsp;·&nbsp;gzip&nbsp;7.0&nbsp;kB&nbsp;·&nbsp;24.9%&nbsp;of&nbsp;the&nbsp;build  |
-| &nbsp;&nbsp;&nbsp;&nbsp;@dpuse/dpuse-shared → dist/dpuse-shared.es.js            | `███████████░░░░░░░░░`&nbsp;53.1%&nbsp;·&nbsp;13.3&nbsp;kB                                    |
-| &nbsp;&nbsp;&nbsp;&nbsp;src → index.ts                                           | `███████░░░░░░░░░░░░░`&nbsp;34.2%&nbsp;·&nbsp;8.6&nbsp;kB                                     |
-| &nbsp;&nbsp;&nbsp;&nbsp;valibot → dist/index.mjs                                 | `░░░░░░░░░░░░░░░░░░░░`&nbsp;1.6%&nbsp;·&nbsp;413&nbsp;B                                       |
-| &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON)                      | `██░░░░░░░░░░░░░░░░░░`&nbsp;11.1%&nbsp;·&nbsp;2.8&nbsp;kB                                     |
-| **dist/apiReference-Daefu3Ye.js**                                                | 8.5&nbsp;kB&nbsp;·&nbsp;gzip&nbsp;3.1&nbsp;kB&nbsp;·&nbsp;8.4%&nbsp;of&nbsp;the&nbsp;build    |
+| **dist/utilities-DwnUjXza.js**                                                   | 26.3&nbsp;kB&nbsp;·&nbsp;gzip&nbsp;7.3&nbsp;kB&nbsp;·&nbsp;25.8%&nbsp;of&nbsp;the&nbsp;build  |
+| &nbsp;&nbsp;&nbsp;&nbsp;@dpuse/dpuse-shared → dist/dpuse-shared.es.js            | `███████████░░░░░░░░░`&nbsp;53.7%&nbsp;·&nbsp;14.1&nbsp;kB                                    |
+| &nbsp;&nbsp;&nbsp;&nbsp;src → index.ts                                           | `███████░░░░░░░░░░░░░`&nbsp;33.7%&nbsp;·&nbsp;8.9&nbsp;kB                                     |
+| &nbsp;&nbsp;&nbsp;&nbsp;valibot → dist/index.mjs                                 | `░░░░░░░░░░░░░░░░░░░░`&nbsp;1.5%&nbsp;·&nbsp;413&nbsp;B                                       |
+| &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON)                      | `██░░░░░░░░░░░░░░░░░░`&nbsp;11.1%&nbsp;·&nbsp;2.9&nbsp;kB                                     |
+| **dist/apiReference-0f_cixNm.js**                                                | 8.5&nbsp;kB&nbsp;·&nbsp;gzip&nbsp;3.1&nbsp;kB&nbsp;·&nbsp;8.3%&nbsp;of&nbsp;the&nbsp;build    |
 | &nbsp;&nbsp;&nbsp;&nbsp;src → apiReference.ts                                    | `███████████████████░`&nbsp;95.1%&nbsp;·&nbsp;8.0&nbsp;kB                                     |
 | &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON)                      | `█░░░░░░░░░░░░░░░░░░░`&nbsp;4.9%&nbsp;·&nbsp;427&nbsp;B                                       |
 | **dist/vite.es.js**                                                              | 2.5&nbsp;kB&nbsp;·&nbsp;gzip&nbsp;1.1&nbsp;kB&nbsp;·&nbsp;2.5%&nbsp;of&nbsp;the&nbsp;build    |

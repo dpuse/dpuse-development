@@ -1,0 +1,14 @@
+{
+    "id": "dpuse-tool-example",
+    "label": {
+        "en": "Example Tool"
+    },
+    "description": {
+        "en": "An example tool."
+    },
+    "icon": null,
+    "iconDark": null,
+    "statusId": "alpha",
+    "typeId": "tool",
+    "version": "0.0.1"
+}

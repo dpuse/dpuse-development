@@ -12,6 +12,7 @@ import { execCommand, spawnCommand } from '@/utilities';
 // Which methods count as actions is tested on 'extractOperationsFromSource' itself; these only need some actions to record.
 export const CONNECTOR_SOURCE = 'export default class Connector {\n    listNodes() {}\n    retrieveRecords() {}\n}\n';
 export const PRESENTER_SOURCE = 'export default class Presenter {\n    list() {}\n    render() {}\n}\n';
+export const TOOL_SOURCE = 'export class Tool {\n    parseStream() {}\n    parseText() {}\n}\n';
 
 // ── Actions ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 

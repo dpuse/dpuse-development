@@ -13,14 +13,15 @@ import type { Dirent, ObjectEncodingOptions, Stats } from 'node:fs';
 import { execFile, spawn } from 'node:child_process';
 
 // ── DPUse Framework
-import type { ConnectorActionName, ConnectorConfig, ModuleConfig, PresenterActionName, PresenterConfig } from '@dpuse/dpuse-shared';
+import type { ConnectorActionName, ConnectorConfig, ModuleConfig, PresenterActionName, PresenterConfig, ToolConfig } from '@dpuse/dpuse-shared';
 import {
     connectorConfigSchema,
     determineConnectorUsageId,
     extractExtensionFromPath,
     hasMimeTypeForExtension,
     lookupMimeTypeForExtension,
-    presenterConfigSchema
+    presenterConfigSchema,
+    toolConfigSchema
 } from '@dpuse/dpuse-shared';
 
 // ── Types ────────────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -35,7 +36,7 @@ export interface ModuleTypeConfig {
 interface OperationConfig {
     id?: string;
     version?: string;
-    actionNames?: string[];
+    actionNames?: string[] | undefined;
     usageId?: string | null;
 }
 
@@ -291,7 +292,7 @@ export async function getStatsForPath(path: string): Promise<Stats> {
 
 // ── Actions - Project ────────────────────────────────────────────────────────────────────────────────────────────────
 
-// Connectors and presenters also record the actions their source implements, so their configuration is built from it.
+// Connectors, presenters and tools also record the actions their source implements, so their configuration is built from it.
 export async function buildModuleConfig(stepIcon: string, packageJSON: PackageJson, moduleTypeConfig: ModuleTypeConfig): Promise<ModuleConfig> {
     switch (moduleTypeConfig.typeId) {
         case 'connector':
@@ -300,6 +301,8 @@ export async function buildModuleConfig(stepIcon: string, packageJSON: PackageJs
         //     return await buildContextProjectConfig(stepIcon, packageJSON);
         case 'presenter':
             return await buildPresenterProjectConfig(stepIcon, packageJSON);
+        case 'tool':
+            return await buildToolProjectConfig(stepIcon, packageJSON);
         default:
             return await buildProjectConfig(stepIcon, packageJSON);
     }
@@ -374,6 +377,22 @@ async function buildPresenterProjectConfig(stepIcon: string, packageJSON: Packag
 
     const operations = await extractOperationsFromSource<PresenterActionName>(indexCode);
     return await processOperations<PresenterConfig>(packageJSON, configJSON, operations);
+}
+
+// Only the 'parser' block is checked, because it is the one part of a tool's configuration that nothing else would catch a
+// typo in. The other fields are not, as the tools' configurations have never carried all the fields the shared schema requires.
+async function buildToolProjectConfig(stepIcon: string, packageJSON: PackageJson): Promise<ToolConfig> {
+    const configJSON = (await buildProjectConfig(stepIcon, packageJSON)) as ToolConfig;
+
+    const response = safeParse(toolConfigSchema.entries.parser, configJSON.parser); // Optional, so a tool with no parser passes.
+    if (!response.success) {
+        console.error("❌  The 'parser' configuration is invalid:");
+        console.table(response.issues);
+        throw new Error('Configuration is invalid');
+    }
+
+    const operations = await extractOperationsFromSource<string>(await readTextFile('src/index.ts'));
+    return await processOperations<ToolConfig>(packageJSON, configJSON, operations);
 }
 
 async function buildProjectConfig(stepIcon: string, packageJSON: PackageJson): Promise<ModuleConfig> {

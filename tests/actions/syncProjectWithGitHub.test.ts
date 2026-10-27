@@ -5,7 +5,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { execCommand } from '@/utilities';
 import { syncProjectWithGitHub } from '@/actions/syncProjectWithGitHub';
 import { collectConsoleOutput, useTemporaryProject } from '../support/temporaryProject';
-import { CONNECTOR_SOURCE, executedCommands, PRESENTER_SOURCE, readFixture } from '../support/projectCommands';
+import { CONNECTOR_SOURCE, executedCommands, PRESENTER_SOURCE, readFixture, TOOL_SOURCE } from '../support/projectCommands';
 
 // ── Mocks ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -99,6 +99,50 @@ describe('syncProjectWithGitHub', () => {
         const config = await project.readJSON('config.json');
         expect(config).toMatchObject({ version: '0.0.2', actionNames: ['list', 'render'] });
         expect(config).not.toHaveProperty('usageId');
+    });
+
+    it('records the actions a tool implements, and keeps its icon from the logo file', async () => {
+        await project.writeFiles({
+            'package.json': JSON.stringify({ name: '@dpuse/dpuse-tool-example', version: '0.0.1' }),
+            'config.json': await readFixture('toolConfig.json'),
+            'logo.svg': '<svg>logo</svg>',
+            'src/index.ts': TOOL_SOURCE
+        });
+
+        await syncProjectWithGitHub();
+
+        const config = await project.readJSON('config.json');
+        expect(config).toMatchObject({ icon: '<svg>logo</svg>', version: '0.0.2', actionNames: ['parseStream', 'parseText'] });
+        expect(config).not.toHaveProperty('parser');
+    });
+
+    it('keeps the data formats a parser tool lists', async () => {
+        const toolConfig = { ...JSON.parse(await readFixture('toolConfig.json')), parser: { dataFormatIds: ['json', 'jsonl'] } } as Record<string, unknown>;
+        await project.writeFiles({
+            'package.json': JSON.stringify({ name: '@dpuse/dpuse-tool-example', version: '0.0.1' }),
+            'config.json': JSON.stringify(toolConfig),
+            'src/index.ts': TOOL_SOURCE
+        });
+
+        await syncProjectWithGitHub();
+
+        expect(await project.readJSON('config.json')).toMatchObject({ parser: { dataFormatIds: ['json', 'jsonl'] } });
+    });
+
+    it.each([
+        ['a data format that does not exist', { dataFormatIds: ['csv'] }],
+        ['no data format', { dataFormatIds: [] }]
+    ])("exits when a tool's parser lists %s", async (_description, parser) => {
+        const toolConfig = { ...JSON.parse(await readFixture('toolConfig.json')), parser } as Record<string, unknown>;
+        await project.writeFiles({
+            'package.json': JSON.stringify({ name: '@dpuse/dpuse-tool-example', version: '0.0.1' }),
+            'config.json': JSON.stringify(toolConfig),
+            'src/index.ts': TOOL_SOURCE
+        });
+
+        await expect(syncProjectWithGitHub()).rejects.toThrow('process.exit(1)');
+        expect(console.error).toHaveBeenCalledWith("❌  The 'parser' configuration is invalid:");
+        expect(executedCommands()).toEqual([]);
     });
 
     it.each([
