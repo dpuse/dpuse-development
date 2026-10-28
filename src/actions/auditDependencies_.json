@@ -14,6 +14,21 @@
             "id": "GHSA-xjj6-f33q-929c",
             "reason": "'undici', pinned to 7.29.1 by miniflare, Wrangler's local Workers simulator, which runs only during development and is never deployed; remove once miniflare takes 7.30.1",
             "reviewBy": "2026-11-30"
+        },
+        {
+            "id": "GHSA-4w7w-5xrc-9h26",
+            "reason": "'undici', pinned to 7.29.1 by miniflare, Wrangler's local Workers simulator, which runs only during development and is never deployed; remove once miniflare takes 7.30.1",
+            "reviewBy": "2026-11-30"
+        },
+        {
+            "id": "GHSA-2m5v-pch6-74hx",
+            "reason": "'undici', pinned to 7.29.1 by miniflare, Wrangler's local Workers simulator, which runs only during development and is never deployed; remove once miniflare takes 7.30.1",
+            "reviewBy": "2026-11-30"
+        },
+        {
+            "id": "GHSA-qrxm-fqhp-jwvm",
+            "reason": "'undici', pinned to 7.29.1 by miniflare, Wrangler's local Workers simulator, which runs only during development and is never deployed; remove once miniflare takes 7.30.1",
+            "reviewBy": "2026-11-30"
         }
     ]
 }
