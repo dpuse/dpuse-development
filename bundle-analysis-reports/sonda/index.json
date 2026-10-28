@@ -1,7 +1,7 @@
 {
   "metadata": {
     "version": "0.14.0",
-    "generatedAt": "2026-10-28T14:58:23.744Z",
+    "generatedAt": "2026-10-28T20:31:34.349Z",
     "integration": "vite",
     "sources": false,
     "gzip": true,
@@ -22,7 +22,7 @@
       "type": "other",
       "format": "other",
       "uncompressed": 8833,
-      "gzip": 1893,
+      "gzip": 1892,
       "brotli": 0,
       "parent": "dist/dpuse-development.es.js"
     },
@@ -42,23 +42,23 @@
       "type": "other",
       "format": "other",
       "uncompressed": 427,
-      "gzip": 172,
+      "gzip": 169,
       "brotli": 0,
-      "parent": "dist/apiReference-sI13y2nG.js"
+      "parent": "dist/apiReference-CdMhhAl1.js"
     },
     {
       "kind": "chunk",
       "name": "[unassigned]",
       "type": "other",
       "format": "other",
-      "uncompressed": 2984,
+      "uncompressed": 2994,
       "gzip": 457,
       "brotli": 0,
-      "parent": "dist/utilities-DzQ2yZXo.js"
+      "parent": "dist/utilities-D98znirs.js"
     },
     {
       "kind": "asset",
-      "name": "dist/apiReference-sI13y2nG.js",
+      "name": "dist/apiReference-CdMhhAl1.js",
       "type": "script",
       "uncompressed": 8667,
       "gzip": 3187,
@@ -69,15 +69,15 @@
       "name": "dist/dpuse-development.es.js",
       "type": "script",
       "uncompressed": 67079,
-      "gzip": 21330,
+      "gzip": 21328,
       "brotli": 0
     },
     {
       "kind": "asset",
-      "name": "dist/utilities-DzQ2yZXo.js",
+      "name": "dist/utilities-D98znirs.js",
       "type": "script",
-      "uncompressed": 26952,
-      "gzip": 7496,
+      "uncompressed": 27188,
+      "gzip": 7559,
       "brotli": 0
     },
     {
@@ -93,17 +93,17 @@
       "name": "node_modules/@dpuse/dpuse-shared/dist/dpuse-shared.es.js",
       "type": "script",
       "format": "esm",
-      "uncompressed": 60542
+      "uncompressed": 60778
     },
     {
       "kind": "chunk",
       "name": "node_modules/@dpuse/dpuse-shared/dist/dpuse-shared.es.js",
       "type": "script",
       "format": "esm",
-      "uncompressed": 14461,
-      "gzip": 3903,
+      "uncompressed": 14687,
+      "gzip": 3963,
       "brotli": 0,
-      "parent": "dist/utilities-DzQ2yZXo.js"
+      "parent": "dist/utilities-D98znirs.js"
     },
     {
       "kind": "filesystem",
@@ -118,9 +118,9 @@
       "type": "script",
       "format": "esm",
       "uncompressed": 413,
-      "gzip": 230,
+      "gzip": 231,
       "brotli": 0,
-      "parent": "dist/utilities-DzQ2yZXo.js"
+      "parent": "dist/utilities-D98znirs.js"
     },
     {
       "kind": "filesystem",
@@ -363,7 +363,7 @@
       "type": "script",
       "format": "esm",
       "uncompressed": 2779,
-      "gzip": 1060,
+      "gzip": 1059,
       "brotli": 0,
       "parent": "dist/dpuse-development.es.js"
     },
@@ -506,9 +506,9 @@
       "type": "script",
       "format": "esm",
       "uncompressed": 8240,
-      "gzip": 3015,
+      "gzip": 3018,
       "brotli": 0,
-      "parent": "dist/apiReference-sI13y2nG.js"
+      "parent": "dist/apiReference-CdMhhAl1.js"
     },
     {
       "kind": "filesystem",
@@ -540,9 +540,9 @@
       "type": "script",
       "format": "esm",
       "uncompressed": 9094,
-      "gzip": 2906,
+      "gzip": 2908,
       "brotli": 0,
-      "parent": "dist/utilities-DzQ2yZXo.js"
+      "parent": "dist/utilities-D98znirs.js"
     },
     {
       "kind": "filesystem",
@@ -606,7 +606,7 @@
     },
     {
       "kind": "entrypoint",
-      "source": "dist/apiReference-sI13y2nG.js",
+      "source": "dist/apiReference-CdMhhAl1.js",
       "target": "src/utilities/apiReference.ts",
       "original": null
     }
