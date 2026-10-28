@@ -35,7 +35,7 @@ beforeEach(() => {
 
 describe('uploadModuleToR2', () => {
     it('uploads each built file under the versioned path, with its content type, skipping source maps and folders', async () => {
-        await project.writeFiles({ 'dist/index.es.js': '', 'dist/index.es.js.map': '', 'dist/style.css': '', 'dist/data.wasm': '', 'dist/types/index.d.ts': '' });
+        await project.writeFiles({ 'dist/index.es.js': '', 'dist/index.es.js.map': '', 'dist/style.css': '', 'dist/data.wasm': '', 'dist/notes.txt': '', 'dist/types/index.d.ts': '' });
 
         await uploadModuleToR2({ version: '1.2.3' }, 'dpuse-engine-eu/connectors/example');
 
@@ -48,7 +48,7 @@ describe('uploadModuleToR2', () => {
                     'dpuse-engine-eu/connectors/example_v1.2.3/data.wasm',
                     '--file=dist/data.wasm',
                     '--content-type',
-                    'application/octet-stream',
+                    'application/wasm',
                     '--jurisdiction=eu',
                     '--remote'
                 ],
@@ -60,6 +60,17 @@ describe('uploadModuleToR2', () => {
                     '--file=dist/index.es.js',
                     '--content-type',
                     'application/javascript',
+                    '--jurisdiction=eu',
+                    '--remote'
+                ],
+                [
+                    'r2',
+                    'object',
+                    'put',
+                    'dpuse-engine-eu/connectors/example_v1.2.3/notes.txt',
+                    '--file=dist/notes.txt',
+                    '--content-type',
+                    'application/octet-stream',
                     '--jurisdiction=eu',
                     '--remote'
                 ],

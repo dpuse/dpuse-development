@@ -20,6 +20,9 @@ interface BulkPutFile {
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
+// A '.wasm' file must be served as 'application/wasm', or browsers refuse to compile it while it downloads and
+// Cloudflare does not compress it.
+const MODULE_CONTENT_TYPES: Record<string, string> = { '.css': 'text/css', '.js': 'application/javascript', '.wasm': 'application/wasm' };
 const SAMPLE_DATA_BUCKET = 'dpuse-sample-data-eu';
 
 // ── Actions ──────────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -79,8 +82,7 @@ export async function uploadModuleToR2(packageJSON: PackageJson, uploadDirectory
             const fullPath = `${currentDirectory}/${entry.name}`;
             const relativePath = prefix ? `${prefix}/${entry.name}` : entry.name;
             const r2Path = `${uploadDirectoryPath}_${version}/${relativePath}`.replaceAll('\\', '/');
-            const nonJavaScripContentType = entry.name.endsWith('.css') ? 'text/css' : 'application/octet-stream';
-            const contentType = entry.name.endsWith('.js') ? 'application/javascript' : nonJavaScripContentType;
+            const contentType = MODULE_CONTENT_TYPES[path.extname(entry.name)] ?? 'application/octet-stream';
             console.info(`⚙️ Uploading '${relativePath}' → '${r2Path}'...`);
             await execCommand(undefined, 'wrangler', ['r2', 'object', 'put', r2Path, `--file=${fullPath}`, '--content-type', contentType, '--jurisdiction=eu', '--remote']);
         }
