@@ -6,6 +6,11 @@
             "reviewBy": "2026-12-31"
         },
         {
+            "id": "GHSA-587h-7wmj-h5pm",
+            "reason": "'launch-editor', bundled in 'vite' 5, used by VitePress 1.x in dpuse-kb, which affects only the local dev server on Windows",
+            "reviewBy": "2026-12-31"
+        },
+        {
             "id": "GHSA-wq5f-xc86-pv6w",
             "reason": "'sharp', pinned to 0.35.4 by miniflare, Wrangler's local Workers simulator, which runs only during development and is never deployed; remove once miniflare takes 0.35.5",
             "reviewBy": "2026-10-31"
