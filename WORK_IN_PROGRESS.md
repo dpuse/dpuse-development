@@ -1,144 +1,250 @@
 # Data view storage plan
 
 How the data view workflow stores and queries data after the audit, and where workspace data (data view configs,
-event query configs and later kinds) lives. Paste the **Shared context** section plus one phase into a new chat. Run the
-phases in order. Each phase ends with its own checks.
+event query configs and later kinds) lives. Paste the **Shared context** section plus one open item or phase into a new
+chat. Each item ends with its own checks.
 
 ## Shared context (paste with every phase)
 
 Repos are under `/Users/jonathanterrell/DPUse/GitHub`. Follow the `CLAUDE.md` files there and in each repo. Commit to
 `main`. A change to `dpuse-shared` is released (`npm run release`) before the repos that use it bump to the new version.
+`dpuse-development` bundles `dpuse-shared` into its own build, so a change to the connector config schema (for example a
+new action name) also needs `dpuse-development` bumped and released before a connector using it can release.
 
 Decisions already made:
 
 1. Audit is the last required step of a data view. Investigate and transform are optional.
 2. The audit stores nothing. It only reads, and its result (`ContentAuditConfig`, with each column's type) is the
    schema for anything loaded later.
-3. Records are loaded into a store only when the user opens investigate, re-read from the source using the audited
-   types.
-4. Datasets live in DuckDB-Wasm on OPFS, inside the engine worker (`dpuse-engine`, a dedicated worker, which OPFS sync
-   handles need). It's loaded only when needed, so users who only audit never download it.
-5. DuckDB-Wasm is pinned to a build tested with OPFS. npm `latest` (1.33.1-dev57.0) creates OPFS files but never writes
-   to them. `next` 1.33.1-dev110.0 was tested and works.
-6. All DuckDB use sits behind one engine module, so the MotherDuck Wasm client can later be opened in its place for
-   users with a MotherDuck account. MotherDuck needs a token and has no local-only mode.
-7. Only one tab can open a DuckDB database on OPFS. This was tested in Chromium 156, Firefox 157 and WebKit 27.2: a
-   second open fails, even read-only. The tab holding a Web Lock owns DuckDB. Other tabs show "open in another tab"
-   with a "Use here" button, which asks the owner over a `BroadcastChannel` to close and release the lock. Queries are
-   not forwarded between tabs.
-8. Arrow carries record batches into DuckDB. Parquet is the format for datasets saved or shared outside DuckDB.
-9. Rust (`dpuse-tool-rust-csv-core-parser`) only parses. It has no storage or network code.
-10. Remote stores (Postgres SaaS, D1, Turso, MotherDuck, DuckLake) are later connectors fed from the audited types.
-11. The meta store is renamed the workspace store.
-12. The workspace store moves from Dexie to TinyBase: a `MergeableStore` saved to IndexedDB in the browser, synced for
-    signed-in users to a TinyBase `WsServerDurableObject` in `dpuse-api`. On the server it saves with
-    `createDurableObjectSqlStoragePersister(…, this.ctx.storage.sql, { mode: 'fragmented' })`. Each config is one cell
-    holding the whole config object, and the later save wins. (Tested: fragmented mode stores each cell in its own
-    SQLite row, under the 2 MB limit for each row. The default JSON mode puts the whole workspace in one row.)
-13. The app calls `navigator.storage.persist()` when the user first saves work, not when the page opens.
-14. Deferred: sharing datasets as Parquet snapshots on R2 through signed links from `dpuse-api`. Not in this plan.
-15. Dexie stays available as a store connector (`dpuse-connector-dexie-js`). Only the workspace store stops using it.
+3. A data view's records are loaded into a store the first time the user opens investigate, re-read from the source
+   using the audited types. They stay saved on OPFS across sessions, and are loaded again only when the audit changes or
+   the user chooses 'Load again'. The engine reads from the source connector and writes to the store connector, so the
+   records never pass through the app.
+4. There are two store connectors, and the user will choose between them. SQLite is the default.
+   - `dpuse-connector-sqlite-wasm`: light. The `.wasm` is 0.4 MB gzipped, and starting it takes about 15–30 MB of
+     memory. Grouping takes 0.4–2.5 s at 1–3M rows.
+   - `dpuse-connector-duckdb-wasm`: fast. The `.wasm` is 8.4 MB gzipped, and starting it takes about 180–390 MB of
+     memory. Grouping takes under 0.1 s at 3M rows.
+5. Both are built from `connectors/dpuse-connector-template` and published to R2 like every other connector. Each
+   serves its own `.wasm` (and DuckDB's worker script) from its R2 folder. They can't come from `my.dpuse.app`, because
+   Workers Static Assets limits each file to 25 MiB and DuckDB's `.wasm` is 33.7 MB. `uploadModuleToR2` uploads `.wasm`
+   as `application/wasm`, which Cloudflare compresses (checked: Brotli).
+6. Both connectors implement the same store actions in `dpuse-shared`: `openStore`, `closeStore`, `loadObjectRecords`,
+   `queryRecords` and `dropObject`. Queries are structured (filters, sorts, grouping with count, countDistinct, sum,
+   average, minimum and maximum, offset and limit). Columns are named by their position in the audit's columns, because
+   an audited column has a label but no id. Results come back in one engine-neutral shape (`StoreRecord[]`).
+7. Data is saved on OPFS from the start, one database per connector, one table per data view (named by its id).
+8. Only one tab can use a store. This is an OPFS limit, not an engine one: tested in Chromium, Firefox and WebKit for
+   both engines. Each connector takes a Web Lock before opening and releases it on close. A second tab gets
+   'heldElsewhere' and the app shows "Investigate is open in another tab". A 'Use here' handoff is deferred.
+9. DuckDB-Wasm is pinned to `1.33.1-dev110.0` (npm `latest` 1.33.1-dev57.0 doesn't write to OPFS and lacks the
+   `duckdb-base.wasm` the build needs), with `apache-arrow` 17.0.0, the major version DuckDB depends on (`^17.0.0`). The
+   connector's `.ncurc.json` rejects both, so 'npm run check' can't offer `latest`, and 'Check configuration files'
+   reporting that file as different is expected. Raise either pin by hand, and test the round trips when doing so.
+   SQLite Wasm is pinned to `3.54.1-build1` on the `opfs-sahpool` VFS, which needs no COOP/COEP.
+10. A value that doesn't fit its column's audited type is stored as null. (Chosen while building. Revisit if the user
+    wants such values counted or shown.)
+11. Remote stores (MotherDuck, Turso, D1, Postgres) come later as their own connectors implementing the same store
+    actions. MotherDuck no longer needs cross-origin isolation (removed in wasm-client 1.5.2), but needs CSP entries for
+    `app.motherduck.com`.
+12. Rust (`dpuse-tool-rust-csv-core-parser`) only parses. It has no storage or network code.
+13. The meta store is renamed the workspace store, on TinyBase: a `MergeableStore` saved to IndexedDB, synced for
+    signed-in users to a TinyBase `WsServerDurableObject` in `dpuse-api`, saved with
+    `createDurableObjectSqlStoragePersister(…, this.ctx.storage.sql, { mode: 'fragmented' })`.
+14. The app calls `navigator.storage.persist()` when the user first saves work, not when the page opens.
+15. Deferred: sharing datasets as Parquet snapshots on R2 through signed links from `dpuse-api`.
+16. Dexie stays available as a store connector (`dpuse-connector-dexie-js`). Only the workspace store stopped using it.
 
-Code as of 2026-10-28:
+How it works, as of 2026-10-30:
 
-- `dpuse-engine/src/engine.ts` `auditObjectContent` opens a record store through `openRecordStore`
-  (`dpuse-engine/src/recordStore.ts`) when `options.recordStore` is set, and writes every chunk to it.
-- `dpuse-shared/src/component/module/connector/index.ts` has `AuditObjectContentOptions.recordStore`, `RecordStoreConfig`
-  and the `records` argument of `ConnectorInterface.auditObjectContent`. `objectParsing.ts`
-  `auditObjectContentWithParser` takes `onRecords`.
-- `dpuse-app/src/features/studio/dataViews/_dataViews.ts` `auditDataViewContent` passes
-  `recordStore: await establishDataViewRecordStore(…)`.
-- `dpuse-app/src/services/metaStore.ts` reads and writes the workspace through the engine and the Dexie connector
-  (`LOCAL_META_STORE_CONNECTOR_ID` in `src/state/configs.ts`). Its databases are named `dpuMetaStore` (guest) and
-  `dpuMetaStore-<accountId>`. It also uses the TanStack Query cache.
-- Parsing runs in the parser tools. Type inference runs in JS in the engine (`constructColumnAuditor`, `inferValues`).
-  The Rust parser returns records as JS values (`CsvSession.push_chunk`).
+- `dpuse-engine/src/engine.ts` `loadObjectRecords` reads the source with `retrieveRecords`, skips the header record,
+  types each value with `constructStoreRecord` (`src/storeRecords.ts`) and hands the chunks to the store through
+  `createStoreRecordQueue`. While the queue holds more than 2 chunks, the source waits before reading on.
+- `dpuse-app/src/features/studio/dataViews/_dataViewStore.ts` holds `INVESTIGATE_STORE_CONNECTOR_ID` (SQLite, set in code
+  until there is a setting) and remembers which audit each data view was loaded from, in local storage
+  (`dpuse-investigate-loads`).
+- `InvestigateDataPanel.vue` opens the store, loads when needed with progress and Stop, shows the 'heldElsewhere' and
+  'unavailable' messages, pages through records in `Table`, and closes the store on leaving.
+- DuckDB connector workarounds, all in its `src/index.ts` and `src/duckdbSql.ts`:
+    - DuckDB's worker starts from a blob that creates its own Trusted Types policy (`dpuse-connector-duckdb-wasm`, listed
+      in the app's CSP) and `importScripts` the worker script from R2. A module worker fails under the app's CSP.
+    - Arrow columns are built from typed arrays with `makeData`, because Arrow's builders use `new Function`, which the
+      CSP forbids. Dates are staged as milliseconds and cast in SQL.
+    - DuckDB leaves `duckdb/scratch/<id>/` (about 66 files) in OPFS. Each open removes the previous one, so at most one
+      remains.
+- Both CSV parser tools implement `parseStream` and `parseText`: `dpuse-tool-rust-csv-core-parser` (the default, set
+  by `DEFAULT_PARSER_TOOL_IDS` in dpuse-shared) and `dpuse-tool-adaltas-csv-parser` (`csv-parse`). The user picks one in
+  the item preview, and the audit and the load use the same one. An item previewed before Rust became the default keeps
+  the parser saved with its preview. Both read the stream in 1 MB slices (see item A under Done). The Rust tool reports
+  no preview issues, because `csv-core` never reports a parse error.
 
-## Phase 1 ─ The audit stops storing records
+Released: dpuse-shared 1.0.165, dpuse-development 1.0.141, dpuse-engine 1.0.228, dpuse-app 1.0.232, Adaltas CSV parser
+1.0.126, Rust CSV parser 1.0.116, SQLite connector 1.0.8, DuckDB connector 1.0.6, file store emulator connector 1.0.339,
+application emulator connector 1.0.138, dexie connector 1.0.114, dbnomics connector 1.0.113.
 
-Repos: `dpuse-shared`, then `dpuse-engine` and the connectors that pass `records` on, then `dpuse-app`.
+## Done
 
-1. List every user of `recordStore`, `RecordStoreConfig`, `onRecords`, the `records` argument of `auditObjectContent`,
-   `openRecordStore`, `establishDataViewRecordStore` and `retrieveDataViewRecordRange`, across all repos. Show the list,
-   and ask before removing anything that this phase doesn't strictly need to change.
-2. In `dpuse-shared`: take the record-store option out of the audit. Release.
-3. In `dpuse-engine`: the audit no longer opens a record store. Bump `dpuse-shared`. Release.
-4. In each connector that implements `auditObjectContent`: stop passing records on. Bump and release.
-5. In `dpuse-app`: `auditDataViewContent` no longer passes `recordStore`. Update its comment, which says records are
-   stored. The investigate panel then has no data until Phase 4, so it shows a holding message.
+- **Phase 1 ─ The audit stops storing records.**
+- **Phase 2 ─ Workspace store on TinyBase, local only.**
+- **Phase 3 ─ Store connectors.** Store actions in dpuse-shared. SQLite and DuckDB connectors on OPFS, with the Web Lock
+  and tested cross-origin under the app's CSP in Chromium, Firefox and WebKit. Measured on OPFS at 1M rows: SQLite loads
+  in 1.9–3.0 s and groups in 0.9–1.4 s, DuckDB loads in 0.9–1.5 s and groups in about 15 ms.
+- **Phase 4 ─ Load on demand and investigate.** The engine's load operation, and the investigate panel with paging. The
+  user has tested it in the released app, and it works.
+- **A ─ Large audits crashed on iOS.** Fixed and tested by the user: a 168 MB, 375,000-record CSV audits in 59 s on an
+  iPhone 13 and 35 s in desktop Chrome on an M4.
+    - Cause: WebKit hands over a file stream in pieces of about 18 MB, against about 2 MB in Chromium. Parsing a piece
+      that large at once took the tab past 5 GB. Reading the stream alone stays at 0.15 GB.
+    - Fix: both parsers read each piece in 1 MB slices (`MAX_SLICE_BYTE_COUNT`). The Adaltas parser also waits for
+      'drain'.
+    - Peak memory in WebKit on a Mac (Playwright), before and after: csv-parse reading only 5.7–7.4 GB → 0.58 GB;
+      csv-parse audit 5.6–7.5 GB → 0.93 GB; Rust reading only 1.3 GB → 0.51 GB; Rust audit 3.9–7.3 GB → 1.95 GB
+      (0.86 GB on the iPhone 13 itself, see A2). WebKit runs vary by up to 3 GB from one run to the next, so repeat a
+      run before trusting it. Chromium stays under 0.6 GB throughout. On iPhone, Safari's page process has a soft limit
+      of about 1.5 GB.
+    - Tested and ruled out: the per-value objects (`cast` in csv-parse made no difference) and GC lag (yielding between
+      chunks made no difference).
+    - To reproduce: generate the CSV with Python (14 columns, a long quoted notes column), bundle a worker that runs the
+      tool's `parseStream` with the engine's `constructColumnAuditor`, and sample the `ps` RSS of Playwright's WebKit
+      `WebContent` process every 250 ms.
+- **B ─ Store queue limit.** `createStoreRecordQueue` makes the source wait while more than 2 chunks are queued, and
+  lets it go if the store stops reading. The connector `chunk` callback may return a promise for this.
 
-Note: when this plan was written, dpuse-app had uncommitted work (`retrieveDataViewRecordRange` in `metaStore.ts`,
-changes in `InvestigateDataPanel.vue`, a new `InvestigateDataPanel_.json` and tests) that reads the records the audit
-stores. Ask the user what to do with it before starting.
+## Open items
 
-Done when: an audit finishes and stores nothing; each changed repo passes `npm run lint` and `npx vitest run`, and
-dpuse-app also passes `npx playwright test`.
+### A2 ─ Audit performance
 
-## Phase 2 ─ Workspace store on TinyBase, local only
+- Date and time inference took about 85% of the audit's time: every value of 8 characters or more was split again for
+  each format. `temporalInference.ts` now splits each value once and skips values with no digit. Same results on
+  308,700 distinct values. The audit fell from about 62 s to 14 s in WebKit and from 34 s to 13 s in Chromium, at the
+  same peak memory (0.89–0.99 GB in four of five WebKit runs, 1.97 GB in one). (Done, released in dpuse-engine
+  1.0.225.)
+- Audit times measured by the user on the 168 MB, 375,000-record CSV, from the file store emulator connector:
 
-Repo: `dpuse-app`.
+    | Device             | csv-parse, before the date and time change | csv-parse, after | Rust, after  |
+    | ------------------ | ------------------------------------------ | ---------------- | ------------ |
+    | Desktop Chrome, M4 | 35 s                                       | 22 s             | 15.7 s       |
+    | iPhone 13          | 59 s                                       | 37 s             | 26.1 s       |
+    | iPhone 15          | 59 s                                       | not measured     | not measured |
 
-1. Add `tinybase`, pinned. TinyBase was at 10.0.1 when tested.
-2. Create `src/services/workspaceStore.ts` in place of `metaStore.ts`. It has one `MergeableStore` for the current
-   account, or one for guests, saved with `createIndexedDbPersister`. Keep `metaStore.ts`'s rules: one store per
-   account and one for guests, nothing read until the session check is done, and everything dropped when the account
-   changes. Each config is one cell holding the whole config object, in a table per kind (`dataViews` first).
-3. Decide with the user whether TanStack Query stays over TinyBase or the screens read TinyBase directly. TinyBase
-   already holds the data and reports changes.
-4. Rename the meta store terms to workspace store across the app, its tests and its e2e tests, comments included:
-   `metaStoreId`, `MetaStoreNodeId`, `META_STORE_*`, `metaStoreConnectionConfig`, and the `GuestWorkNotice.vue` and
-   `SessionMenu.vue` wording.
-5. One-time move: when a `dpuMetaStore` or `dpuMetaStore-<accountId>` Dexie database exists and the TinyBase store is
-   empty, copy its configs across, then mark the move done. Leave the old Dexie database in place; deleting it is a
-   separate decision for the user. TinyBase needs its own IndexedDB database, because it can't share the Dexie one.
-6. The workspace store no longer goes through the engine or the Dexie connector. Ask before removing anything that
-   only the old path used.
+- The same audit with the released inference rework, measured by the user with the default parser (Rust): desktop
+  Chrome 11.2 s with 0.1 s waiting for data, iPhone 13 17.5 s with 0.8 s waiting for data.
+- The investigate load of the same file, measured by the user with the app's load time: SQLite 17.7 s and DuckDB 13.6 s
+  in desktop Chrome, SQLite 28.3 s and DuckDB 21.2 s in iPhone Safari.
+- The audit summary now shows 'Waiting for data': the part of the duration the parser sat idle waiting for the next
+  piece of the file (`sourceWaitDuration`, from `auditObjectContentWithParser`). Measured 0.1 s on desktop with either
+  parser, 0 s on the iPhone 13 with csv-parse and 0.8 s with Rust. The download is always ahead of the parser, so
+  the time is processing, not network. The wait for the server's first response falls before the audit's clock starts
+  and is not counted.
+- Peak memory on the iPhone 13 during the audit, recorded with Safari's Web Inspector (Timelines, Memory track):
+  csv-parse 1.04 GB, Rust 0.86 GB. Both are under Safari's soft limit of about 1.5 GB. Memory returns to under 0.4 GB
+  once the audit ends. Recording slows the phone, so the audit took about 55 s (csv-parse) and 45 s (Rust) while
+  recorded.
+- The WebKit benchmark on a Mac is a fair guide for csv-parse (0.93 GB) but not for Rust, where it gave 1.95 GB. Check
+  memory on the phone before acting on a benchmark figure.
+- Parsing alone, without the audit, takes about 0.7 s with Rust and 5.7 s with csv-parse in WebKit. Most of the
+  audit's time is type inference in JavaScript, not parsing.
+- The quoted flag (`valueWasQuoted`) cost nothing measurable: removing csv-parse's `cast` changed neither memory nor
+  time. Building one `{ value, valueWasQuoted }` object per value costs about 0.4 GB of the Rust parser's 1.3 GB peak
+  (before slicing) and little time.
 
-Done when: data views save, list, open and delete as before; guest and account work stay separate; existing saved
-work is copied across once; lint, vitest and playwright pass.
+Inference rework (all released, in the versions listed above):
 
-## Phase 3 ─ DuckDB-Wasm in the engine
+- `classifyValue` (`src/dataTypes/inference/classification.ts`) says what a value is, for counting. The preview and the
+  audit count through `src/dataTypes/columnTally.ts`. `convertValue` (`src/dataTypes/conversion.ts`) reads a value as
+  its column's audited type for the load, with no guessing. `tests/fixtures/inferenceCases.json` holds 179 values and
+  their expected results as plain data, for the Rust port to pass too.
+- Column rules: blanks are left out of the 70%. The 70% applies to the main type (numeric, temporal), and the column
+  takes the widest subtype present. A column under 70% is text, so nothing is lost. A column of only void values stays
+  'unknown'. `invalidValueCount` counts the values that do not fit, which load as null.
+- Columns record `formats` (a count per format, for dates, numbers and booleans), `dateOrderId`, `decimalSeparatorId`
+  and `isFormatAmbiguous`. A column's unambiguous values settle how its ambiguous ones (`03/04/2024`, `1,234`) are read.
+  With no proof the browser's locale decides, and the audit screen says the column is unclear.
+- Audits saved before this have no `formats` and may have 'unknown' columns, so audit them again before loading.
+- `inferenceRecords` is no longer saved with a preview. The preview table shows `parsedRecords`.
+- A blank value in a text column now loads as null rather than an empty string.
+- A date, date-time or time with no time zone is taken as UTC, so the same text stores the same value in every browser,
+  and investigate shows every date in UTC. A value with a time zone is therefore shown converted to UTC.
+  `LOAD_FORMAT_VERSION` in `_dataViewStore.ts` is raised when stored values change meaning, so existing loads run again.
+- Stored forms, chosen by measuring 375,000 values. SQLite has no date type, and its docs leave the choice to the
+  application: a date is a whole number of days since 1970 (3.60 MB against 6.46 MB as text), a date and time is
+  milliseconds since 1970 (5.02 MB against 9.72 MB), and a time is milliseconds since midnight (4.28 MB against 7.20 MB
+  with milliseconds). `isDayNumber` on a stored column marks day numbers, so a date column loaded earlier still reads
+  correctly. DuckDB uses `DATE` (1.01 MB), `TIME` (2.01 MB) and `TIMESTAMP` (2.76 MB). It returns `TIME` as bigint
+  microseconds, but `DATE` and `TIMESTAMP` as milliseconds. SQLite's own date functions expect seconds, so SQL using
+  them must convert first.
+- The engine and the app run their unit tests in one fixed time zone, set in `vitest.config.ts`. It is not UTC, so code
+  wrongly using local time fails on every machine.
+- Audit of the 166 MB CSV in WebKit: about 8 s with csv-parse (was about 14 s) and 3 s with Rust. Peak 0.87 GB with
+  csv-parse (1.56 GB in one of three runs) and 1.2 GB with Rust. Chromium with Rust: 3.3 s, 0.23 GB.
 
-Repos: decide with the user first whether DuckDB is a new store connector (from `connectors/dpuse-connector-template`,
-loaded by the engine like the others) or a module inside `dpuse-engine`. A connector matches decision 10. Either way,
-all DuckDB calls go through one module (decision 6).
+Rejected: doing the audit and the load in one pass. It only helps while type inference is in JavaScript, and it
+conflicts with moving inference to Rust, where reading the file a second time costs little.
 
-1. Add `@duckdb/duckdb-wasm` pinned to a tested build (decision 5), plus `apache-arrow` at the version it needs.
-2. Open the database at an `opfs://` path inside the engine worker, read-write, only when first needed. Load the
-   DuckDB worker and the `.wasm` file lazily from the app's own origin.
-3. Tab ownership (decision 7): take a Web Lock (`navigator.locks`, available in workers) before opening, and close the
-   database when the lock is released. Report "open in another tab" to the app when the lock is held elsewhere. Handle
-   the "Use here" request from a `BroadcastChannel`.
-4. Close the database when the user leaves the screens that need it, so idle tabs don't hold the lock.
-5. Check that each DuckDB instance's scratch folder (`duckdb/scratch/<id>/` in OPFS, 64 pool files plus a manifest)
-   is removed when it closes. Report any leftovers.
-6. Operations: load a data view's records into a table named after the data view, replacing any earlier load; run a
-   query and return Arrow batches; drop a data view's table.
+Outstanding, in the suggested order:
 
-Done when: a test loads records into DuckDB on OPFS and reads them back after a reload; a second tab is refused and
-"Use here" moves ownership; lint and tests pass in every changed repo.
+1. Test the released app. The date and time storage has only been tested in Node, against real SQLite and DuckDB, not in
+   a browser on OPFS. Re-audit a data view, load it into SQLite, then set `INVESTIGATE_STORE_CONNECTOR_ID` to DuckDB and
+   load it there. Check that dates, times and date-times show correctly on desktop and on the iPhone. (Done.)
+2. Measure the audit and the investigate load on the iPhone with the released code. The audit took 17.5 s on the
+   iPhone 13. The load took 28.3 s with SQLite and 21.2 s with DuckDB. Use Safari's Web Inspector for memory: the pencil
+   beside 'Enabled Timelines', tick Memory, untick Screenshots, and untick 'Stop recording once page loads'.
+   (Done.)
+3. Report parse issues from the Rust parser, such as a quote left open. Rust is now the default, and `csv-core` reports
+   none itself, so the preview gives no warnings for a malformed file. The Rust reader would have to detect them. This
+   is the most important code item. (Not done.)
+4. Read dates with a numeric time zone. `2023-12-31 10:11:12 +05:30` stays text, because the delimiters split the
+   offset, so such a column doesn't sort as dates. `Z` and `UTC` are read. Once fixed, those values show converted to
+   UTC, because the store keeps no offset. (Not done, decision pending.)
+5. Read times with milliseconds and no zone. `10:11:12.123` and `10:11:12.123Z` stay text, because `ss` is split on ':'
+   only. Both are recorded as today's behaviour in `inferenceCases.json`, so a fix changes those two cases. (Not done.)
+6. Fix the time zone in the test runs of the store connectors, as the engine and the app do in `vitest.config.ts`. They
+   pass today in UTC, New York, Tokyo and Auckland, but only by hand. (Not done.)
+7. One-time port of `classifyValue` and `convertValue` to Rust, so the audit returns only the column summary and no
+   value crosses into JavaScript. Most of the audit's time is inference, so this is what would make Rust much faster.
+   Later changes then go into both. Both must pass `inferenceCases.json`. Changes decision 12. (Needs the user's OK.)
+8. Profile the audit again for the next hotspot before the port, so the port is of the simplest code. (Not done.)
+9. Send Arrow batches from Rust to DuckDB for the load (already under Later). One block of bytes per batch, with no
+   per-value JavaScript. Helps DuckDB only, because SQLite binds values one at a time. Needs item 7. (Not done.)
+10. Keep the downloaded file in OPFS during the audit, so the load reads it locally. Low value while 'Waiting for data'
+    is under 1.5 s, but useful for slow connections or connectors with rate limits. (Not done.)
+11. Other formats. A parser tool declares its formats in `dataFormatIds`, and the format list already holds JSON, JSON
+    Lines, Parquet and Excel. Parquet could read through DuckDB. This widens what users can open more than another CSV
+    parser would. Papa Parse and uDSV were looked at and rejected: they add nothing the two parsers don't have. DuckDB's
+    own CSV reader is the one option worth revisiting. (Needs the user's decision.)
+12. Review the pinned DuckDB and Arrow versions at each DuckDB release, for security fixes and a supported production
+    release. Neither is offered by 'npm run check' any more. See the TODO at the top of the connector's `src/index.ts`.
+    (Ongoing.)
+13. `eslint-plugin-n` 18.5.0 flags the browser's `Worker` as an experimental Node feature, which is a false alarm. Any
+    other repo using `Worker` gets the same lint error when it updates, and needs the same disable comment with a
+    reason. (Done.)
 
-## Phase 4 ─ Load on demand and investigate
+### C ─ Deleting a data view leaves its stored table
 
-Repos: `dpuse-engine` (or the new connector), `dpuse-shared` for any new option types, `dpuse-app`.
+`useDeleteDataView` doesn't drop the table. Opening the store just to drop it would download DuckDB, so decide when it
+is dropped: on delete if the store is free, or the next time investigate opens. (Not done.)
 
-1. Add a load operation that re-reads the source the way the audit did (same parser, delimiter and encoding), types
-   each value with the audited column types, builds Arrow record batches and inserts them into DuckDB
-   (`insertArrowFromIPCStream` or the Arrow table insert). Report progress as the audit does.
-2. Create the table from the audited types (`ContentAuditConfig.columns`), not from values guessed during the load.
-   Decide with the user what to do with a value that doesn't fit its audited type (null it, or count it and show it).
-3. In `dpuse-app`: opening investigate loads the data view if it isn't loaded, or if its audit is newer than its load.
-   The investigate panel then pages through rows with SQL `LIMIT`/`OFFSET` queries.
-4. Deleting a data view, or auditing it again, drops its DuckDB table.
+### D ─ Sort, filter and group in investigate
 
-Done when: audit, then investigate, shows the records with their audited types; a re-audit followed by investigate
-shows fresh data; lint, vitest and playwright pass.
+The connectors and `queryRecords` support all three. The panel only pages. Needs the user's decision on the screen
+design.
+
+### E ─ Store connectors in the connection list
+
+The SQLite and DuckDB connectors need no sign-in, so `connectionConfigs` in `dpuse-app/src/state/configs.ts` gives them
+a connection, and they appear when choosing a connection for a new data view. Needs the user's decision on whether
+connectors that can't be a source are hidden there.
+
+### F ─ Investigate engine setting
+
+`INVESTIGATE_STORE_CONNECTOR_ID` is set in code. Needs the user's decision on where the setting lives, with the
+trade-off in plain words and a confirmation before the larger DuckDB download.
 
 ## Phase 5 ─ Keep local data
 
 Repo: `dpuse-app`.
 
-1. Call `navigator.storage.persist()` the first time the user saves work or a load into DuckDB finishes, and only
+1. Call `navigator.storage.persist()` the first time the user saves work or a load into a store finishes, and only
    while `navigator.storage.persisted()` is false. Don't ask again straight after a refusal.
 2. Firefox shows a prompt, while Chrome and Safari decide by themselves. A WebKit bug reports that Safari 17 always
    answers no. Treat a refusal as normal, not as an error.
@@ -162,17 +268,21 @@ Repos: `dpuse-api`, then `dpuse-app`.
 3. In `dpuse-app`: for a signed-in user, start a `createWsSynchronizer` on the workspace store after the session
    check. Stop it on sign-out or account change. Guests stay local only.
 4. When the connection drops, keep working locally. The synchroniser catches up when it reconnects.
+5. Before syncing, check the size of a saved data view config. It holds the whole preview (`previewConfig`): the raw
+   text, the parsed records and the typed values (`inferenceRecords`), so each previewed value is stored three times.
+   Each config is one cell, and a Durable Object row is limited to 2 MB. Measure a large preview, and decide whether
+   to save less, e.g. drop the text or the parsed records and rebuild them when needed. (Not done.)
 
 Done when: two browsers signed in to the same account see each other's saves; a signed-out user's work never leaves
 the browser; a token for another account is refused; lint and tests pass in both repos.
 
 ## Later (not in this plan)
 
-- Rust parser sends Arrow IPC batches straight to DuckDB, in place of JS values. This keeps decision 9, because Rust
-  only formats the batches. Do it once profiling shows the load step is slow.
+- A 'Use here' handoff between tabs for the store (decision 8).
+- Rust parser sends Arrow IPC batches straight to DuckDB, in place of JS values. This keeps decision 12, because Rust
+  only formats the batches.
 - Transform, and a transformed result used as the source of another data view.
 - Parquet export.
-- Shared Parquet snapshots on R2 (decision 14).
+- Shared Parquet snapshots on R2 (decision 15).
 - Sharing a workspace with other users: one Durable Object per shared workspace, with membership checks.
-- MotherDuck as an alternative engine for users with an account (decision 6).
-- Remote store connectors (decision 10).
+- MotherDuck and other remote store connectors (decision 11).
