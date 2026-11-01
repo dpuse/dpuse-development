@@ -13,13 +13,15 @@ new action name) also needs `dpuse-development` bumped and released before a con
 
 Decisions already made:
 
-1. Audit is the last required step of a data view. Investigate and transform are optional.
-2. The audit stores nothing. It only reads, and its result (`ContentAuditConfig`, with each column's type) is the
-   schema for anything loaded later.
-3. A data view's records are loaded into a store the first time the user opens investigate, re-read from the source
-   using the audited types. They stay saved on OPFS across sessions, and are loaded again only when the audit changes or
-   the user chooses 'Load again'. The engine reads from the source connector and writes to the store connector, so the
-   records never pass through the app.
+1. A preview is enough to work with a data view. The audit, investigate and transform are optional.
+2. The audit stores no records. It only reads, and its result replaces the columns of the data view's one column list
+   (`columnSetConfig`), which comes from the preview until then. A type the user chose is kept, because the audit only
+   advises.
+3. A data view's records are loaded into a store, re-read from the source using each column's type: the type the user
+   chose, otherwise the type detected by the audit or the preview. They stay saved on OPFS across sessions, and are
+   loaded again only when the columns or a chosen type change or the user chooses 'Load again'. If the item's header
+   record differs from the preview's, nothing is loaded and any earlier load is kept. The engine reads from the source
+   connector and writes to the store connector, so the records never pass through the app.
 4. There are two store connectors, and the user will choose between them. SQLite is the default.
    - `dpuse-connector-sqlite-wasm`: light. The `.wasm` is 0.4 MB gzipped, and starting it takes about 15–30 MB of
      memory. Grouping takes 0.4–2.5 s at 1–3M rows.
@@ -33,7 +35,8 @@ Decisions already made:
    `queryRecords` and `dropObject`. Queries are structured (filters, sorts, grouping with count, countDistinct, sum,
    average, minimum and maximum, offset and limit). Columns are named by their position in the audit's columns, because
    an audited column has a label but no id. Results come back in one engine-neutral shape (`StoreRecord[]`).
-7. Data is saved on OPFS from the start, one database per connector, one table per data view (named by its id).
+7. Data is saved on OPFS from the start, one database per connector. A saved data view starts in a table named by its
+   id, and a working copy's load has a table of its own.
 8. Only one tab can use a store. This is an OPFS limit, not an engine one: tested in Chromium, Firefox and WebKit for
    both engines. Each connector takes a Web Lock before opening and releases it on close. A second tab gets
    'heldElsewhere' and the app shows "Investigate is open in another tab". A 'Use here' handoff is deferred.
@@ -42,8 +45,9 @@ Decisions already made:
    connector's `.ncurc.json` rejects both, so 'npm run check' can't offer `latest`, and 'Check configuration files'
    reporting that file as different is expected. Raise either pin by hand, and test the round trips when doing so.
    SQLite Wasm is pinned to `3.54.1-build1` on the `opfs-sahpool` VFS, which needs no COOP/COEP.
-10. A value that doesn't fit its column's audited type is stored as null. (Chosen while building. Revisit if the user
-    wants such values counted or shown.)
+10. A value that doesn't fit its column's type is stored as null, and counted per column
+    (`invalidValueCounts` in the load result) so the user can see it, because the type may be a guess from a sample or a
+    choice the user got wrong.
 11. Remote stores (MotherDuck, Turso, D1, Postgres) come later as their own connectors implementing the same store
     actions. MotherDuck no longer needs cross-origin isolation (removed in wasm-client 1.5.2), but needs CSP entries for
     `app.motherduck.com`.
@@ -54,17 +58,33 @@ Decisions already made:
 14. The app calls `navigator.storage.persist()` when the user first saves work, not when the page opens.
 15. Deferred: sharing datasets as Parquet snapshots on R2 through signed links from `dpuse-api`.
 16. Dexie stays available as a store connector (`dpuse-connector-dexie-js`). Only the workspace store stopped using it.
+17. Transform steps are saved in the data view's working copy, so Save and Discard cover them and a user can try a
+    transform and throw it away without changing the saved data view.
+18. Working copies stay in this browser. Only the saved data view syncs, so a half-finished edit never reaches another
+    device.
+19. The workflow has three steps: Connection, File and Explore. The audit is not a step: 'Audit all records' sits in the
+    preview toolbar on File. The Explore pill goes to Explore and loads in one click.
 
-How it works, as of 2026-10-30:
+How it works, as of 2026-11-01:
 
 - `dpuse-engine/src/engine.ts` `loadObjectRecords` reads the source with `retrieveRecords`, skips the header record,
   types each value with `constructStoreRecord` (`src/storeRecords.ts`) and hands the chunks to the store through
   `createStoreRecordQueue`. While the queue holds more than 2 chunks, the source waits before reading on.
 - `dpuse-app/src/features/studio/dataViews/_dataViewStore.ts` holds `INVESTIGATE_STORE_CONNECTOR_ID` (SQLite, set in code
-  until there is a setting) and remembers which audit each data view was loaded from, in local storage
-  (`dpuse-investigate-loads`).
-- `InvestigateDataPanel.vue` opens the store, loads when needed with progress and Stop, shows the 'heldElsewhere' and
-  'unavailable' messages, pages through records in `Table`, and closes the store on leaving.
+  until there is a setting). It remembers three things in local storage: the columns each data view was loaded with
+  (`dpuse-investigate-loads`), the table each load went into (`dpuse-investigate-tables`) and the tables no longer needed
+  (`dpuse-investigate-unwanted-tables`). Save makes the working copy's table the saved one. Discard and delete add tables
+  to the unwanted list, and they are dropped the next time the store opens, so nothing downloads a store's engine just
+  to drop a table.
+- `InvestigateDataPanel.vue` opens the store, loads when asked with progress and Stop, shows the 'heldElsewhere' and
+  'unavailable' messages, pages through records in `Table`, and closes the store on leaving. Right after a load it lists
+  the columns with values that did not fit, each linking to that column's detail on File.
+- `dpuse-app/src/features/studio/dataViews/_dataViewWorkingCopy.ts` holds the definition fields of a working copy, in the
+  workspace store table `dataViewWorkingCopies`. The label and description save at once. An edit that ends up the same as
+  the saved data view removes the working copy.
+- `_dataViewColumns.ts` joins the columns from the preview or the audit with the types the user chose.
+  `selectItem/useItemAudit.ts` runs the audit, and `selectItem/ColumnDetailPanel.vue` is the detail beside the Columns
+  table.
 - DuckDB connector workarounds, all in its `src/index.ts` and `src/duckdbSql.ts`:
     - DuckDB's worker starts from a blob that creates its own Trusted Types policy (`dpuse-connector-duckdb-wasm`, listed
       in the app's CSP) and `importScripts` the worker script from R2. A module worker fails under the app's CSP.
@@ -78,7 +98,7 @@ How it works, as of 2026-10-30:
   the parser saved with its preview. Both read the stream in 1 MB slices (see item A under Done). The Rust tool reports
   no preview issues, because `csv-core` never reports a parse error.
 
-Released: dpuse-shared 1.0.165, dpuse-development 1.0.141, dpuse-engine 1.0.228, dpuse-app 1.0.232, Adaltas CSV parser
+Released: dpuse-shared 1.0.170, dpuse-development 1.0.142, dpuse-engine 1.0.233, dpuse-app 1.0.241, Adaltas CSV parser
 1.0.126, Rust CSV parser 1.0.116, SQLite connector 1.0.8, DuckDB connector 1.0.6, file store emulator connector 1.0.339,
 application emulator connector 1.0.138, dexie connector 1.0.114, dbnomics connector 1.0.113.
 
@@ -109,6 +129,8 @@ application emulator connector 1.0.138, dexie connector 1.0.114, dbnomics connec
       `WebContent` process every 250 ms.
 - **B ─ Store queue limit.** `createStoreRecordQueue` makes the source wait while more than 2 chunks are queued, and
   lets it go if the store stops reading. The connector `chunk` callback may return a promise for this.
+- **C ─ Deleting a data view leaves its stored table.** Delete now adds the data view's tables to the unwanted list, and
+  they are dropped the next time the store opens.
 
 ## Open items
 
@@ -219,11 +241,6 @@ Outstanding, in the suggested order:
     other repo using `Worker` gets the same lint error when it updates, and needs the same disable comment with a
     reason. (Done.)
 
-### C ─ Deleting a data view leaves its stored table
-
-`useDeleteDataView` doesn't drop the table. Opening the store just to drop it would download DuckDB, so decide when it
-is dropped: on delete if the store is free, or the next time investigate opens. (Not done.)
-
 ### D ─ Sort, filter and group in investigate
 
 The connectors and `queryRecords` support all three. The panel only pages. Needs the user's decision on the screen
@@ -239,6 +256,15 @@ connectors that can't be a source are hidden there.
 
 `INVESTIGATE_STORE_CONNECTOR_ID` is set in code. Needs the user's decision on where the setting lives, with the
 trade-off in plain words and a confirmation before the larger DuckDB download.
+
+### G ─ Data view workflow follow-ups
+
+1. Test the workflow in a browser against real SQLite and DuckDB: an older audited data view, one with no audit, a chosen
+   type surviving a return to File, Save and Discard with a load, and the Columns detail on narrow screens. Unit tests
+   and the e2e suite pass, but the e2e tests don't cover data views. (Not done.)
+2. Check the file's date before a load. Today only the header record is compared, so a file changed below its header
+   loads without warning. (Not done.)
+3. Keep the per-column counts of values that did not fit. They show only right after a load. (Not done.)
 
 ## Phase 5 ─ Keep local data
 
@@ -268,6 +294,7 @@ Repos: `dpuse-api`, then `dpuse-app`.
 3. In `dpuse-app`: for a signed-in user, start a `createWsSynchronizer` on the workspace store after the session
    check. Stop it on sign-out or account change. Guests stay local only.
 4. When the connection drops, keep working locally. The synchroniser catches up when it reconnects.
+   Leave the `dataViewWorkingCopies` table out of the sync (decision 18).
 5. Before syncing, check the size of a saved data view config. It holds the whole preview (`previewConfig`): the raw
    text, the parsed records and the typed values (`inferenceRecords`), so each previewed value is stored three times.
    Each config is one cell, and a Durable Object row is limited to 2 MB. Measure a large preview, and decide whether
