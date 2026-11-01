@@ -36,7 +36,7 @@ Decisions already made:
    average, minimum and maximum, offset and limit). Columns are named by their position in the audit's columns, because
    an audited column has a label but no id. Results come back in one engine-neutral shape (`StoreRecord[]`).
 7. Data is saved on OPFS from the start, one database per connector. A saved data view starts in a table named by its
-   id, and a working copy's load has a table of its own.
+   id, and a load for unsaved changes has a table of its own.
 8. Only one tab can use a store. This is an OPFS limit, not an engine one: tested in Chromium, Firefox and WebKit for
    both engines. Each connector takes a Web Lock before opening and releases it on close. A second tab gets
    'heldElsewhere' and the app shows "Investigate is open in another tab". A 'Use here' handoff is deferred.
@@ -58,12 +58,14 @@ Decisions already made:
 14. The app calls `navigator.storage.persist()` when the user first saves work, not when the page opens.
 15. Deferred: sharing datasets as Parquet snapshots on R2 through signed links from `dpuse-api`.
 16. Dexie stays available as a store connector (`dpuse-connector-dexie-js`). Only the workspace store stopped using it.
-17. Transform steps are saved in the data view's working copy, so Save and Discard cover them and a user can try a
-    transform and throw it away without changing the saved data view.
-18. Working copies stay in this browser. Only the saved data view syncs, so a half-finished edit never reaches another
-    device.
+17. Transform steps are part of the data view's draft, so Save and Discard cover them and a user can try a transform and
+    throw it away without changing the saved data view.
+18. A data view config changes only when the user clicks Save. Until then the changes are held in page memory, never in
+    the workspace store or browser storage, so nothing unsaved can sync. A reload or crash loses them. The rule is in
+    `dpuse-app/CLAUDE.md` under Saving.
 19. The workflow has three steps: Connection, File and Explore. The audit is not a step: 'Audit all records' sits in the
-    preview toolbar on File. The Explore pill goes to Explore and loads in one click.
+    preview toolbar on File. One pill holds Discard, Save and the step's action, and Explore goes to Explore and loads in
+    one click. Leaving a data view with changes asks 'Discard changes?' with Stay and Discard.
 
 How it works, as of 2026-11-01:
 
@@ -73,15 +75,15 @@ How it works, as of 2026-11-01:
 - `dpuse-app/src/features/studio/dataViews/_dataViewStore.ts` holds `INVESTIGATE_STORE_CONNECTOR_ID` (SQLite, set in code
   until there is a setting). It remembers three things in local storage: the columns each data view was loaded with
   (`dpuse-investigate-loads`), the table each load went into (`dpuse-investigate-tables`) and the tables no longer needed
-  (`dpuse-investigate-unwanted-tables`). Save makes the working copy's table the saved one. Discard and delete add tables
-  to the unwanted list, and they are dropped the next time the store opens, so nothing downloads a store's engine just
-  to drop a table.
+  (`dpuse-investigate-unwanted-tables`). Save makes the draft's table the saved one. Discard and delete add tables to the
+  unwanted list, and they are dropped the next time the store opens, so nothing downloads a store's engine just to drop
+  a table. Opening the store also drops the table of a draft lost to a reload or crash.
 - `InvestigateDataPanel.vue` opens the store, loads when asked with progress and Stop, shows the 'heldElsewhere' and
   'unavailable' messages, pages through records in `Table`, and closes the store on leaving. Right after a load it lists
   the columns with values that did not fit, each linking to that column's detail on File.
-- `dpuse-app/src/features/studio/dataViews/_dataViewWorkingCopy.ts` holds the definition fields of a working copy, in the
-  workspace store table `dataViewWorkingCopies`. The label and description save at once. An edit that ends up the same as
-  the saved data view removes the working copy.
+- `dpuse-app/src/features/studio/dataViews/_dataViewDraft.ts` holds the open data view with the user's changes, in page
+  memory. `useCurrentDataView` gives the steps the draft when there is one, otherwise the saved data view. A new data view
+  exists only as a draft, with 'new' in the URL until Save. Any change sets the indicator, and Save or Discard clears it.
 - `_dataViewColumns.ts` joins the columns from the preview or the audit with the types the user chose.
   `selectItem/useItemAudit.ts` runs the audit, and `selectItem/ColumnDetailPanel.vue` is the detail beside the Columns
   table.
@@ -98,7 +100,7 @@ How it works, as of 2026-11-01:
   the parser saved with its preview. Both read the stream in 1 MB slices (see item A under Done). The Rust tool reports
   no preview issues, because `csv-core` never reports a parse error.
 
-Released: dpuse-shared 1.0.170, dpuse-development 1.0.142, dpuse-engine 1.0.233, dpuse-app 1.0.241, Adaltas CSV parser
+Released: dpuse-shared 1.0.170, dpuse-development 1.0.143, dpuse-engine 1.0.233, dpuse-app 1.0.242, Adaltas CSV parser
 1.0.126, Rust CSV parser 1.0.116, SQLite connector 1.0.8, DuckDB connector 1.0.6, file store emulator connector 1.0.339,
 application emulator connector 1.0.138, dexie connector 1.0.114, dbnomics connector 1.0.113.
 
@@ -259,9 +261,9 @@ trade-off in plain words and a confirmation before the larger DuckDB download.
 
 ### G ─ Data view workflow follow-ups
 
-1. Test the workflow in a browser against real SQLite and DuckDB: an older audited data view, one with no audit, a chosen
-   type surviving a return to File, Save and Discard with a load, and the Columns detail on narrow screens. Unit tests
-   and the e2e suite pass, but the e2e tests don't cover data views. (Not done.)
+1. Test on a real iPhone, on DuckDB, and with an older audited data view, a chosen type surviving a return to File, and
+   the Columns detail. Save, Discard, leaving and reloading were driven in Chromium on SQLite at phone and desktop size,
+   and in WebKit at phone size, where the test browser has no OPFS, so records were not checked there. (Not done.)
 2. Check the file's date before a load. Today only the header record is compared, so a file changed below its header
    loads without warning. (Not done.)
 3. Keep the per-column counts of values that did not fit. They show only right after a load. (Not done.)
@@ -294,7 +296,6 @@ Repos: `dpuse-api`, then `dpuse-app`.
 3. In `dpuse-app`: for a signed-in user, start a `createWsSynchronizer` on the workspace store after the session
    check. Stop it on sign-out or account change. Guests stay local only.
 4. When the connection drops, keep working locally. The synchroniser catches up when it reconnects.
-   Leave the `dataViewWorkingCopies` table out of the sync (decision 18).
 5. Before syncing, check the size of a saved data view config. It holds the whole preview (`previewConfig`): the raw
    text, the parsed records and the typed values (`inferenceRecords`), so each previewed value is stored three times.
    Each config is one cell, and a Durable Object row is limited to 2 MB. Measure a large preview, and decide whether
