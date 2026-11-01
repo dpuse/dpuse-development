@@ -15,8 +15,11 @@ Decisions already made:
 
 1. A preview is enough to work with a data view. The audit, investigate and transform are optional.
 2. The audit stores no records. It only reads, and its result replaces the columns of the data view's one column list
-   (`columnSetConfig`), which comes from the preview until then. A type the user chose is kept, because the audit only
-   advises.
+   (`columnSetConfig`). A type the user chose is kept, because the audit only advises. Opening an item audits its first
+   4 KB. Later audits read from the start to 64 KB, 1 MB, 10 MB, 100 MB or the end, and Stop keeps what was read, ending
+   at a record boundary (`endAtRecordBoundary` in `objectParsing.ts`). `contentAuditConfig.isComplete` says the audit
+   reached the end of the item. A data view holds `readConfig` (how the item is read), `previewConfig` (the first 4–64 KB
+   as records, the only records saved), `contentAuditConfig` and `columnSetConfig`.
 3. A data view's records are loaded into a store, re-read from the source using each column's type: the type the user
    chose, otherwise the type detected by the audit or the preview. They stay saved on OPFS across sessions, and are
    loaded again only when the columns or a chosen type change or the user chooses 'Load again'. If the item's header
@@ -63,8 +66,8 @@ Decisions already made:
 18. A data view config changes only when the user clicks Save. Until then the changes are held in page memory, never in
     the workspace store or browser storage, so nothing unsaved can sync. A reload or crash loses them. The rule is in
     `dpuse-app/CLAUDE.md` under Saving.
-19. The workflow has three steps: Connection, File and Explore. The audit is not a step: 'Audit all records' sits in the
-    preview toolbar on File. One pill holds Discard, Save and the step's action, and Explore goes to Explore and loads in
+19. The workflow has three steps: Connection, File and Explore. The audit is not a step: the Audit menu sits in the
+    preview toolbar on File, beside one message that reads the same at every stage. One pill holds Discard, Save and the step's action, and Explore goes to Explore and loads in
     one click. Leaving a data view with changes asks 'Discard changes?' with Stay and Discard.
 
 How it works, as of 2026-11-01:
@@ -296,10 +299,11 @@ Repos: `dpuse-api`, then `dpuse-app`.
 3. In `dpuse-app`: for a signed-in user, start a `createWsSynchronizer` on the workspace store after the session
    check. Stop it on sign-out or account change. Guests stay local only.
 4. When the connection drops, keep working locally. The synchroniser catches up when it reconnects.
-5. Before syncing, check the size of a saved data view config. It holds the whole preview (`previewConfig`): the raw
-   text, the parsed records and the typed values (`inferenceRecords`), so each previewed value is stored three times.
+5. Before syncing, check the size of a saved data view config. It holds the whole preview (`previewConfig`): the parsed
+   records, up to 64 KB of the item. The raw text is not saved. Each record's values are saved as objects with a quoted
+   flag, so short values take about 10–18 times their size in JSON, which puts a 64 KB preview at about 0.5–1.2 MB.
    Each config is one cell, and a Durable Object row is limited to 2 MB. Measure a large preview, and decide whether
-   to save less, e.g. drop the text or the parsed records and rebuild them when needed. (Not done.)
+   to save less. (Not done.)
 
 Done when: two browsers signed in to the same account see each other's saves; a signed-out user's work never leaves
 the browser; a token for another account is refused; lint and tests pass in both repos.
