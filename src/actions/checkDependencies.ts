@@ -5,7 +5,11 @@ import { run as runNpmCheckUpdates } from 'npm-check-updates';
 
 // ── Local Framework
 import { reportIgnoredAdvisories } from '@/actions/auditDependencies';
-import { logOperationHeader, logOperationSuccess, logStepHeader, readJSONFile, spawnCommand } from '@/utilities';
+import { logOperationHeader, logOperationSuccess, logStepHeader, readJSONFile, spawnCommand, writeJSONFile } from '@/utilities';
+
+// ── Types ────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+type AllowScripts = Record<string, boolean>;
 
 // ── Actions ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -46,11 +50,15 @@ export async function checkDependencies(): Promise<void> {
             logStepHeader('5️⃣  No pinned install-script approvals to move');
         }
 
-        // Runs before the rebuild in step 7. A rebuild leaves npm's record of 'node_modules' out of date, and prune then misses
-        // install scripts that 'npm install' still sees, as with 'fsevents' (npm 12.0.1). Also macOS only, as elsewhere it drops
-        // entries for macOS-only packages that are not installed.
+        // Runs before the rebuild in step 7. A rebuild leaves npm's record of 'node_modules' out of date, and prune
+        // then misses install scripts that 'npm install' still sees. Also macOS only, as elsewhere it drops entries for
+        // macOS-only packages that are not installed. Prune judges a package by its installed 'package.json', but
+        // 'npm install' goes by the lockfile's 'hasInstallScript'. The two disagree for 'fsevents' 2.3.3 (seen in npm
+        // 12.0.1 and 12.2.1), so entries the lockfile still needs are put back, or step 8 fails.
         if (process.platform === 'darwin') {
+            const allowScriptsBeforePrune = await readAllowScripts();
             await spawnCommand('6️⃣  Remove unused install-script entries', 'npm', ['install-scripts', 'prune']);
+            await restoreInstallScriptEntries(allowScriptsBeforePrune);
         } else {
             logStepHeader('6️⃣  Skipped removing unused install-script entries (macOS only)');
         }
@@ -76,9 +84,44 @@ export async function checkDependencies(): Promise<void> {
 // Keys are 'name', 'name@version' or '@scope/name@version'. An '@' after the first character marks a pin; it and the version
 // are dropped so npm matches every installed version.
 async function getPinnedPackageNames(): Promise<string[]> {
-    const { allowScripts = {} } = await readJSONFile<{ allowScripts?: Record<string, boolean> }>(path.resolve(process.cwd(), 'package.json'));
+    const allowScripts = await readAllowScripts();
     const names = Object.entries(allowScripts)
         .filter(([key, isAllowed]) => isAllowed && key.lastIndexOf('@') > 0)
         .map(([key]) => key.slice(0, key.lastIndexOf('@')));
     return [...new Set(names)];
+}
+
+async function readAllowScripts(): Promise<AllowScripts> {
+    const { allowScripts = {} } = await readJSONFile<{ allowScripts?: AllowScripts }>(path.resolve(process.cwd(), 'package.json'));
+    return allowScripts;
+}
+
+// Puts back each entry prune removed whose package the lockfile still marks 'hasInstallScript', in its original place.
+async function restoreInstallScriptEntries(allowScriptsBeforePrune: AllowScripts): Promise<void> {
+    const packageJSONPath = path.resolve(process.cwd(), 'package.json');
+    const packageJSON = await readJSONFile<{ allowScripts?: AllowScripts }>(packageJSONPath);
+    const allowScriptsAfterPrune = packageJSON.allowScripts ?? {};
+    const removedKeys = Object.keys(allowScriptsBeforePrune).filter((key) => !Object.hasOwn(allowScriptsAfterPrune, key));
+    if (removedKeys.length === 0) return;
+
+    const { packages = {} } = await readJSONFile<{ packages?: Record<string, { hasInstallScript?: boolean; version?: string }> }>(
+        path.resolve(process.cwd(), 'package-lock.json')
+    );
+    const lockedPackages = Object.entries(packages);
+
+    const restoredKeys = removedKeys.filter((key) => {
+        const pinIndex = key.lastIndexOf('@');
+        const name = pinIndex > 0 ? key.slice(0, pinIndex) : key;
+        const version = pinIndex > 0 ? key.slice(pinIndex + 1) : undefined;
+        return lockedPackages.some(
+            ([lockPath, lockedPackage]) => lockPath.endsWith(`node_modules/${name}`) && lockedPackage.hasInstallScript === true && (version === undefined || lockedPackage.version === version)
+        );
+    });
+    if (restoredKeys.length === 0) return;
+
+    packageJSON.allowScripts = Object.fromEntries(
+        Object.entries(allowScriptsBeforePrune).filter(([key]) => Object.hasOwn(allowScriptsAfterPrune, key) || restoredKeys.includes(key))
+    );
+    await writeJSONFile(packageJSONPath, packageJSON);
+    logStepHeader(`6️⃣  Restored install-script entries the lockfile still needs: ${restoredKeys.join(', ')}`);
 }

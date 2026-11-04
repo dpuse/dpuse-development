@@ -79,6 +79,38 @@ describe('checkDependencies', () => {
         ]);
     });
 
+    it('puts back entries prune removes while the lockfile still marks their packages as having install scripts', async () => {
+        const lockfile = {
+            packages: {
+                'node_modules/fsevents': { hasInstallScript: true, version: '2.3.3' },
+                'node_modules/vite/node_modules/esbuild': { hasInstallScript: true, version: '0.28.2' },
+                'node_modules/unused': { version: '1.0.0' }
+            }
+        };
+        const allowScripts = { 'esbuild@0.28.2': true, 'fsevents@2.3.3': true, 'gone@1.0.0': true, unused: true, workerd: true };
+        await project.writeFiles({ 'package-lock.json': JSON.stringify(lockfile), 'package.json': JSON.stringify({ allowScripts, name: 'sample' }) });
+        // Stands in for npm 12's prune, which removes 'fsevents' because its installed 'package.json' has no install script.
+        vi.mocked(spawnCommand).mockImplementation(async (_label, _command, arguments_) => {
+            if (arguments_.join(' ') !== 'install-scripts prune') return;
+            await project.writeFiles({ 'package.json': JSON.stringify({ allowScripts: { 'esbuild@0.28.2': true, workerd: true }, name: 'sample' }) });
+        });
+
+        await checkDependencies();
+
+        const packageJSON = (await project.readJSON('package.json')) as { allowScripts: Record<string, boolean>; name: string };
+        expect(Object.keys(packageJSON.allowScripts)).toEqual(['esbuild@0.28.2', 'fsevents@2.3.3', 'workerd']);
+        expect(packageJSON.name).toBe('sample');
+    });
+
+    it('leaves package.json alone when prune removes nothing', async () => {
+        const packageJSONText = JSON.stringify({ allowScripts: { esbuild: true } });
+        await project.writeFiles({ 'package.json': packageJSONText });
+
+        await checkDependencies();
+
+        expect(await project.readFile('package.json')).toBe(packageJSONText);
+    });
+
     it('works without an npm-check-updates config or any approvals', async () => {
         await project.writeFiles({ 'package.json': '{}' });
 

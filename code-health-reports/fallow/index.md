@@ -27,13 +27,13 @@ These entries matched, but fallow does the same without them. Remove the entry f
 
 | Metric | Value |
 |:-------|------:|
-| Total LOC | 3988 |
+| Total LOC | 4031 |
 | Avg Cyclomatic | 3.0 |
 | P90 Cyclomatic | 7 |
-| Cyclomatic units | Functions: 314, module scopes: 0, templates: 0 |
+| Cyclomatic units | Functions: 320, module scopes: 0, templates: 0 |
 | Dead Files | 0.0% |
 | Dead Exports | 0.0% |
-| Maintainability (avg) | 92.1 |
+| Maintainability (avg) | 92.0 |
 | Hotspots (since 6 months) | 1 |
 | Circular Deps | 0 |
 | Unused Deps | 0 |
@@ -50,11 +50,11 @@ These entries matched, but fallow does the same without them. Remove the entry f
 | `src/actions/documentBundleSizes.ts` | 87.3 | 1 | 1 | 0% | 0.33 | 11.0 |
 | `src/vite.ts` | 91.6 | 1 | 0 | 0% | 0.28 | 8.3 |
 | `src/utilities/index.ts` | 93.1 | 24 | 0 | 0% | 0.23 | 8.0 |
+| `src/actions/checkDependencies.ts` | 89.6 | 1 | 2 | 0% | 0.20 | 7.0 |
 | `src/actions/publishProject.ts` | 90.8 | 2 | 2 | 0% | 0.16 | 7.0 |
 | `src/actions/auditDependencies.ts` | 90.9 | 2 | 1 | 0% | 0.21 | 7.0 |
 | `src/actions/checkConfigFiles.ts` | 90.9 | 1 | 1 | 0% | 0.21 | 7.0 |
 | `src/actions/documentOpening.ts` | 91.5 | 1 | 1 | 0% | 0.19 | 7.0 |
-| `src/actions/checkDependencies.ts` | 91.7 | 1 | 2 | 0% | 0.13 | 7.0 |
 | `src/actions/documentContributingLicense.ts` | 92.4 | 1 | 1 | 0% | 0.16 | 7.0 |
 | `src/actions/testProject.ts` | 93.6 | 1 | 1 | 0% | 0.12 | 7.0 |
 | `src/actions/documentProject.ts` | 87.5 | 2 | 9 | 0% | 0.11 | 6.0 |
@@ -71,7 +71,7 @@ These entries matched, but fallow does the same without them. Remove the entry f
 | `vite.config.ts` | 99.4 | 0 | 0 | 0% | 0.02 | 2.0 |
 | `src/actions/checkProject.ts` | 95.0 | 1 | 2 | 0% | 0.08 | 1.0 |
 
-**Average maintainability index:** 92.1/100
+**Average maintainability index:** 92.0/100
 
 ### Hotspots (21 files, since 6 months)
 
@@ -83,12 +83,12 @@ These entries matched, but fallow does the same without them. Remove the entry f
 | `src/actions/documentDependencies.ts` | 43.1 | 32 | 941 | 0.29 | 1 | stable |
 | `src/actions/documentOpening.ts` | 22.4 | 22 | 365 | 0.19 | 1 | accelerating |
 | `src/actions/documentUsage.ts` | 17.3 | 17 | 334 | 0.18 | 1 | accelerating |
+| `src/actions/checkDependencies.ts` | 17.1 | 18 | 196 | 0.20 | 1 | stable |
 | `src/actions/auditDependencies.ts` | 11.8 | 11 | 163 | 0.21 | 2 | accelerating |
-| `src/actions/checkDependencies.ts` | 11.1 | 18 | 196 | 0.13 | 1 | stable |
 | `src/utilities/cloudflare.ts` | 10.9 | 12 | 203 | 0.17 | 2 | stable |
 | `src/actions/documentQualitySecurity.ts` | 10.3 | 9 | 679 | 0.18 | 1 | cooling |
 | `src/utilities/apiReference.ts` | 8.9 | 3 | 404 | 0.47 | 1 | cooling |
-| `src/actions/publishProject.ts` | 8.3 | 8 | 110 | 0.16 | 2 | accelerating |
+| `src/actions/publishProject.ts` | 8.2 | 8 | 110 | 0.16 | 2 | accelerating |
 | `src/actions/documentApiReference.ts` | 6.4 | 13 | 772 | 0.08 | 1 | cooling |
 | `src/actions/formatCode.ts` | 4.9 | 7 | 38 | 0.16 | 1 | stable |
 | `src/actions/documentProject.ts` | 3.4 | 5 | 85 | 0.11 | 2 | cooling |
@@ -124,7 +124,7 @@ These entries matched, but fallow does the same without them. Remove the entry f
 | 10.3 | hidden coupling | low / medium | `src/actions/formatCode.ts` | Changes with lintCode.ts in 6 commits (92% coupling) without an import, make the dependency explicit or move the shared logic into one module |
 | 8.3 | hidden coupling | medium / medium | `src/actions/auditDependencies.ts` | Changes with lintCode.ts in 5 commits (59% coupling) without an import, make the dependency explicit or move the shared logic into one module |
 | 8.2 | hidden coupling | low / medium | `src/actions/lintCode.ts` | Changes with formatCode.ts in 6 commits (92% coupling) without an import, make the dependency explicit or move the shared logic into one module |
-| 6.1 | hidden coupling | medium / medium | `src/actions/checkDependencies.ts` | Changes with lintCode.ts in 6 commits (50% coupling) without an import, make the dependency explicit or move the shared logic into one module |
+| 7.9 | hidden coupling | medium / medium | `src/actions/checkDependencies.ts` | Changes with lintCode.ts in 6 commits (50% coupling) without an import, make the dependency explicit or move the shared logic into one module |
 
 ---
 
