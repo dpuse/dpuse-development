@@ -14,12 +14,13 @@ new action name) also needs `dpuse-development` bumped and released before a con
 Decisions already made:
 
 1. A preview is enough to work with a data view. The audit, investigate and transform are optional.
-2. The audit stores no records. It only reads, and its result replaces the columns of the data view's one column list
-   (`columnSetConfig`). A type the user chose is kept, because the audit only advises. Opening an item audits its first
-   4 KB. Later audits read from the start to 64 KB, 1 MB, 10 MB, 100 MB or the end, and Stop keeps what was read, ending
-   at a record boundary (`endAtRecordBoundary` in `objectParsing.ts`). `contentAuditConfig.isComplete` says the audit
-   reached the end of the item. A data view holds `readConfig` (how the item is read), `previewConfig` (the first 4–64 KB
-   as records, the only records saved), `contentAuditConfig` and `columnSetConfig`.
+2. The audit stores no records. It only reads, and its result, the columns it detected included, replaces the data
+   view's `contentAuditConfig` whole. The user's choices are kept apart in `columnChoiceConfigs`, because the audit only
+   advises. Opening an item audits its first 4 KB. Later audits read from the start to 64 KB, 1 MB, 10 MB, 100 MB or the
+   end, and Stop keeps what was read, ending at a record boundary (`endAtRecordBoundary` in `objectParsing.ts`).
+   `contentAuditConfig.isComplete` says the audit reached the end of the item. A data view holds `readingConfig` (how
+   the item is read), `sampleConfig` (the first 4–64 KB as text and records, the only records saved),
+   `contentAuditConfig` (what was audited) and `columnChoiceConfigs`.
 3. A data view's records are loaded into a store, re-read from the source using each column's type: the type the user
    chose, otherwise the type detected by the audit or the preview. They stay saved on OPFS across sessions, and are
    loaded again only when the columns or a chosen type change or the user chooses 'Load again'. If the item's header
@@ -299,11 +300,11 @@ Repos: `dpuse-api`, then `dpuse-app`.
 3. In `dpuse-app`: for a signed-in user, start a `createWsSynchronizer` on the workspace store after the session
    check. Stop it on sign-out or account change. Guests stay local only.
 4. When the connection drops, keep working locally. The synchroniser catches up when it reconnects.
-5. Before syncing, check the size of a saved data view config. It holds the whole preview (`previewConfig`): the parsed
-   records, up to 64 KB of the item. The raw text is not saved. Each record's values are saved as objects with a quoted
-   flag, so short values take about 10–18 times their size in JSON, which puts a 64 KB preview at about 0.5–1.2 MB.
-   Each config is one cell, and a Durable Object row is limited to 2 MB. Measure a large preview, and decide whether
-   to save less. (Not done.)
+5. Before syncing, check the size of a saved data view config. It holds the whole sample (`sampleConfig`): the text,
+   up to 64 KB of the item, and the records parsed from it. Each value is saved as an object with a quoted flag, so short
+   values take about 10–18 times their size in JSON. Each config is one cell, and a Durable Object row is limited to
+   2 MB. Measure a large sample, and if it is too big, make the record format inside 'SampleConfig' more compact rather
+   than adding a second type. (Not done.)
 
 Done when: two browsers signed in to the same account see each other's saves; a signed-out user's work never leaves
 the browser; a token for another account is refused; lint and tests pass in both repos.
@@ -318,3 +319,44 @@ the browser; a token for another account is refused; lint and tests pass in both
 - Shared Parquet snapshots on R2 (decision 15).
 - Sharing a workspace with other users: one Durable Object per shared workspace, with membership checks.
 - MotherDuck and other remote store connectors (decision 11).
+
+## Later ─ Review data warnings
+
+To be reviewed. Two kinds of warning would show in one list in the app, sensitive data first because it carries the
+most risk. The engine already reports invalid values, mixed formats, uneven rows, padded values, mixed currencies and
+number-like ID columns, so those are not listed here.
+
+### Sensitive data
+
+Mostly personal details covered by privacy law (GDPR and similar).
+
+- Email addresses. Builds on the email text check, and flags the column as personal data rather than only typing it.
+- Phone numbers. Too varied to be a type, but good enough for a warning.
+- National ID numbers, such as US Social Security, UK National Insurance or Spanish DNI. Several have check digits, so
+  they can be detected reliably.
+- Bank details: IBANs, and UK sort codes with account numbers.
+- Payment card numbers. 13 to 19 digits, a real card prefix (4 for Visa, 51–55 for Mastercard) and a valid Luhn check
+  digit. One in ten random numbers passes the Luhn check, so flag a column only when nearly all its values pass. The
+  values are all digits and are read as numbers before the text checks run, so this check sits with number
+  detection. The card industry's rules (PCI DSS) restrict where full card numbers are stored, and a data view's
+  sample is saved and may sync to the cloud, so the warning should let the user leave the column out or hide it.
+- Dates of birth: a date column named 'birth' or 'dob' whose dates fit a person's age.
+- Personal names and street addresses: from the column name only ('first_name', 'address'), because the values
+  cannot be told apart from other text.
+- Passwords, API keys and tokens: long random-looking strings, or a column named 'password', 'secret' or 'token'. A
+  leaked key is an immediate security risk.
+- Exact locations: latitude and longitude pairs precise enough to pinpoint a home.
+
+### Data quality
+
+- Duplicate rows: whole records repeated, common when files are joined or exported twice.
+- A unique column with repeats: a column that is almost all unique, like an ID, with a few duplicates.
+- A column with only one value: often a leftover export field.
+- A mostly empty column, such as over 90% blank.
+- Outliers: numbers far outside the column's normal range, such as an age of 999.
+- Dates out of range: far in the future or the distant past, such as 1900-01-01 used as a placeholder.
+- Placeholder values: repeated stand-ins such as '0', '-1', '9999', 'N/A' or 'TBD' that are not read as empty.
+- Mixed text case, such as 'London', 'LONDON' and 'london', which split counts and groupings.
+- Similar spellings, such as 'Untied Kingdom' beside 'United Kingdom'.
+- Broken characters, such as 'Ã©' where 'é' was meant, a sign the encoding was read wrongly.
+- Repeated or blank column names.

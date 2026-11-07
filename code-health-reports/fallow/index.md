@@ -82,11 +82,11 @@ These entries matched, but fallow does the same without them. Remove the entry f
 | `src/utilities/index.ts` | 44.1 | 41 | 610 | 0.23 | 24 | stable |
 | `src/actions/documentDependencies.ts` | 43.1 | 32 | 941 | 0.29 | 1 | stable |
 | `src/actions/documentOpening.ts` | 22.4 | 22 | 365 | 0.19 | 1 | accelerating |
+| `src/actions/checkDependencies.ts` | 18.8 | 19 | 249 | 0.20 | 1 | stable |
 | `src/actions/documentUsage.ts` | 17.3 | 17 | 334 | 0.18 | 1 | accelerating |
-| `src/actions/checkDependencies.ts` | 17.1 | 18 | 196 | 0.20 | 1 | stable |
-| `src/actions/auditDependencies.ts` | 11.8 | 11 | 163 | 0.21 | 2 | accelerating |
+| `src/actions/auditDependencies.ts` | 11.9 | 11 | 163 | 0.21 | 2 | accelerating |
 | `src/utilities/cloudflare.ts` | 10.9 | 12 | 203 | 0.17 | 2 | stable |
-| `src/actions/documentQualitySecurity.ts` | 10.3 | 9 | 679 | 0.18 | 1 | cooling |
+| `src/actions/documentQualitySecurity.ts` | 10.4 | 9 | 679 | 0.18 | 1 | cooling |
 | `src/utilities/apiReference.ts` | 8.9 | 3 | 404 | 0.47 | 1 | cooling |
 | `src/actions/publishProject.ts` | 8.2 | 8 | 110 | 0.16 | 2 | accelerating |
 | `src/actions/documentApiReference.ts` | 6.4 | 13 | 772 | 0.08 | 1 | cooling |
@@ -108,8 +108,8 @@ These entries matched, but fallow does the same without them. Remove the entry f
 | `src/actions/formatCode.ts` | `src/actions/lintCode.ts` | 92% | 6 | 7 | 6 | **strong** |
 | `src/actions/auditDependencies.ts` | `src/actions/lintCode.ts` | 59% | 5 | 11 | 6 | **strong** |
 | `src/actions/auditDependencies.ts` | `src/actions/formatCode.ts` | 56% | 5 | 11 | 7 | **strong** |
-| `src/actions/checkDependencies.ts` | `src/actions/lintCode.ts` | 50% | 6 | 18 | 6 | **strong** |
-| `src/actions/checkDependencies.ts` | `src/actions/formatCode.ts` | 48% | 6 | 18 | 7 |  |
+| `src/actions/checkDependencies.ts` | `src/actions/lintCode.ts` | 48% | 6 | 19 | 6 |  |
+| `src/actions/checkDependencies.ts` | `src/actions/formatCode.ts` | 46% | 6 | 19 | 7 |  |
 | `src/actions/auditDependencies.ts` | `src/actions/documentDependencies.ts` | 37% | 8 | 11 | 32 |  |
 | `src/actions/documentDependencies.ts` | `src/actions/formatCode.ts` | 36% | 7 | 32 | 7 |  |
 | `src/actions/documentOpening.ts` | `src/actions/documentUsage.ts` | 36% | 7 | 22 | 17 |  |
@@ -117,14 +117,13 @@ These entries matched, but fallow does the same without them. Remove the entry f
 
 *Files that change together in the commit history with no import between them.*
 
-### Refactoring Targets (4)
+### Refactoring Targets (3)
 
 | Efficiency | Category | Effort / Confidence | File | Recommendation |
 |:-----------|:---------|:--------------------|:-----|:---------------|
 | 10.3 | hidden coupling | low / medium | `src/actions/formatCode.ts` | Changes with lintCode.ts in 6 commits (92% coupling) without an import, make the dependency explicit or move the shared logic into one module |
 | 8.3 | hidden coupling | medium / medium | `src/actions/auditDependencies.ts` | Changes with lintCode.ts in 5 commits (59% coupling) without an import, make the dependency explicit or move the shared logic into one module |
 | 8.2 | hidden coupling | low / medium | `src/actions/lintCode.ts` | Changes with formatCode.ts in 6 commits (92% coupling) without an import, make the dependency explicit or move the shared logic into one module |
-| 7.9 | hidden coupling | medium / medium | `src/actions/checkDependencies.ts` | Changes with lintCode.ts in 6 commits (50% coupling) without an import, make the dependency explicit or move the shared logic into one module |
 
 ---
 
