@@ -1,7 +1,7 @@
 {
   "metadata": {
     "version": "0.14.0",
-    "generatedAt": "2026-11-07T15:14:11.613Z",
+    "generatedAt": "2026-11-09T16:33:30.300Z",
     "integration": "vite",
     "sources": false,
     "gzip": true,
@@ -93,7 +93,7 @@
       "name": "node_modules/@dpuse/dpuse-shared/dist/dpuse-shared.es.js",
       "type": "script",
       "format": "esm",
-      "uncompressed": 57562
+      "uncompressed": 57699
     },
     {
       "kind": "chunk",
