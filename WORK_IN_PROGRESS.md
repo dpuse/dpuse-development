@@ -186,8 +186,8 @@ Inference rework (all released, in the versions listed above):
   takes the widest subtype present. A column under 70% is text, so nothing is lost. A column of only void values stays
   'unknown'. `invalidValueCount` counts the values that do not fit, which load as null.
 - Columns record `formats` (a count per format, for dates, numbers and booleans), `dateOrderId`, `decimalSeparatorId`
-  and `isFormatAmbiguous`. A column's unambiguous values settle how its ambiguous ones (`03/04/2024`, `1,234`) are read.
-  With no proof the browser's locale decides, and the audit screen says the column is unclear.
+  and `formatIssueIds`. A column's unambiguous values settle how its ambiguous ones (`03/04/2024`, `1,234`) are read.
+  With no proof the browser's locale decides, and the column's Formats tab says why the column is unclear.
 - Audits saved before this have no `formats` and may have 'unknown' columns, so audit them again before loading.
 - `inferenceRecords` is no longer saved with a preview. The preview table shows `parsedRecords`.
 - A blank value in a text column now loads as null rather than an empty string.
