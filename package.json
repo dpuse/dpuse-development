@@ -1,6 +1,6 @@
 {
     "name": "@dpuse/dpuse-development",
-    "version": "1.0.150",
+    "version": "1.0.151",
     "private": false,
     "description": "Actions for managing DPUse projects.",
     "license": "MIT",
@@ -92,7 +92,7 @@
         }
     },
     "dependencies": {
-        "@dpuse/dpuse-shared": "^1.0.205",
+        "@dpuse/dpuse-shared": "^1.0.216",
         "license-checker-rseidelsohn": "^5.0.1",
         "npm-check-updates": "^23.1.1",
         "spdx-satisfies": "^6.0.1",
@@ -106,11 +106,11 @@
         "eslint": "^10.14.0",
         "fallow": "^3.42.0",
         "fast-check": "^4.10.2",
-        "prettier": "^3.9.10",
+        "prettier": "^3.10.1",
         "sonda": "^0.14.0",
         "type-fest": "^5.10.0",
         "typescript": "^6.0.3",
-        "vite": "^8.3.7",
+        "vite": "^8.3.8",
         "vite-plugin-dts": "^5.1.2",
         "vitest": "^5.1.0"
     }

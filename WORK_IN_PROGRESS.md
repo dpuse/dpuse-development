@@ -89,8 +89,8 @@ How it works, as of 2026-11-01:
   memory. `useCurrentDataView` gives the steps the draft when there is one, otherwise the saved data view. A new data view
   exists only as a draft, with 'new' in the URL until Save. Any change sets the indicator, and Save or Discard clears it.
 - `_dataViewColumns.ts` joins the columns from the preview or the audit with the types the user chose.
-  `selectItem/useItemAudit.ts` runs the audit, and `selectItem/ColumnDetailPanel.vue` is the detail beside the Columns
-  table.
+  `selectItem/useItemAudit.ts` runs the audit, and `ColumnDetailPanel.vue` is the detail beside the Columns table, on
+  the item and explore steps.
 - DuckDB connector workarounds, all in its `src/index.ts` and `src/duckdbSql.ts`:
     - DuckDB's worker starts from a blob that creates its own Trusted Types policy (`dpuse-connector-duckdb-wasm`, listed
       in the app's CSP) and `importScripts` the worker script from R2. A module worker fails under the app's CSP.
