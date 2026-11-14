@@ -26,16 +26,19 @@ Decisions already made:
    loaded again only when the columns or a chosen type change or the user chooses 'Load again'. If the item's header
    record differs from the preview's, nothing is loaded and any earlier load is kept. The engine reads from the source
    connector and writes to the store connector, so the records never pass through the app.
-4. There are two store connectors, and the user will choose between them. SQLite is the default.
-   - `dpuse-connector-sqlite-wasm`: light. The `.wasm` is 0.4 MB gzipped, and starting it takes about 15–30 MB of
-     memory. Grouping takes 0.4–2.5 s at 1–3M rows.
-   - `dpuse-connector-duckdb-wasm`: fast. The `.wasm` is 8.4 MB gzipped, and starting it takes about 180–390 MB of
-     memory. Grouping takes under 0.1 s at 3M rows.
-5. Both are built from `connectors/dpuse-connector-template` and published to R2 like every other connector. Each
+4. There are three store connectors, and the user will choose between them. SQLite is the default. See H for the
+   evaluation.
+    - `dpuse-connector-dexie-js`: smallest download (43 KB gzipped) and works in every tab at once, but groups and sorts
+      in memory, so it suits smaller data.
+    - `dpuse-connector-sqlite-wasm`: light. The `.wasm` is 0.4 MB gzipped, and starting it takes about 15–30 MB of
+      memory. Grouping takes 0.4–2.5 s at 1–3M rows.
+    - `dpuse-connector-duckdb-wasm`: fast. The `.wasm` is 8.4 MB gzipped, and starting it takes about 180–390 MB of
+      memory. Grouping takes under 0.1 s at 3M rows.
+5. The SQLite and DuckDB connectors are built from `connectors/dpuse-connector-template` and published to R2 like every other connector. Each
    serves its own `.wasm` (and DuckDB's worker script) from its R2 folder. They can't come from `my.dpuse.app`, because
    Workers Static Assets limits each file to 25 MiB and DuckDB's `.wasm` is 33.7 MB. `uploadModuleToR2` uploads `.wasm`
    as `application/wasm`, which Cloudflare compresses (checked: Brotli).
-6. Both connectors implement the same store actions in `dpuse-shared`: `openStore`, `closeStore`, `loadObjectRecords`,
+6. All three connectors implement the same store actions in `dpuse-shared`: `openStore`, `closeStore`, `loadObjectRecords`,
    `queryRecords` and `dropObject`. Queries are structured (filters, sorts, grouping with count, countDistinct, sum,
    average, minimum and maximum, offset and limit). Columns are named by their position in the audit's columns, because
    an audited column has a label but no id. Results come back in one engine-neutral shape (`StoreRecord[]`).
@@ -271,6 +274,60 @@ trade-off in plain words and a confirmation before the larger DuckDB download.
 2. Check the file's date before a load. Today only the header record is compared, so a file changed below its header
    loads without warning. (Not done.)
 3. Keep the per-column counts of values that did not fit. They show only right after a load. (Not done.)
+
+### H ─ Store connector evaluation
+
+Evaluated 2026-11-14. Sizes and timings for the released connectors come from this plan. PGlite's come from its docs
+and third-party pages, and are unverified.
+
+| Store                  | State                    | Download (gzipped)      | Memory to start | Stored size        | Tabs                       | Features                                                   |
+| ---------------------- | ------------------------ | ----------------------- | --------------- | ------------------ | -------------------------- | ---------------------------------------------------------- |
+| Dexie (IndexedDB)      | Released, 1.0.114        | 43 KB, the whole bundle | Not measured    | Largest            | Every tab at once          | Fewest. Groups and sorts in memory, so suits smaller data. |
+| SQLite Wasm            | Released, 1.0.8, default | 0.4 MB `.wasm`          | 15–30 MB        | Smaller than Dexie | One (Web Lock, decision 8) | SQL. Groups 1M rows in 0.9–1.4 s. A date takes 3.60 MB.    |
+| DuckDB Wasm            | Released, 1.0.6          | 8.4 MB `.wasm`          | 180–390 MB      | Smallest           | One (Web Lock, decision 8) | Most. Groups 1M rows in about 15 ms. A date takes 1.01 MB. |
+| PGlite (Postgres Wasm) | TODO, not built          | About 3 MB+, unverified | Not measured    | Not measured       | Multi-tab worker, built in | Postgres SQL and extensions. Safari has IndexedDB only.    |
+
+Stored sizes are for the same 375,000 values (see A2, stored forms).
+
+Not store connectors:
+
+- TinyBase. It holds the whole dataset in memory and saves a copy to IndexedDB or OPFS, so it suits small reactive
+  state, not data views. It already runs the workspace store (decision 13). A TinyBase store connector would duplicate
+  Dexie with a lower size limit.
+- RxDB. A document store on the same browser storage as Dexie, with no SQL. Its fastest storage (OPFS) is paid
+  (Premium). RxDB's own benchmarks claim about 4 times IndexedDB on large queries, but slower small writes, and compare
+  only against IndexedDB, not SQLite, DuckDB or PGlite. Not worth adding unless Premium measures faster than the stores
+  above. See TODO 3 for its possible part in sync.
+
+TODOs:
+
+1. PGlite. Build and measure it as a fourth store connector only if Postgres SQL or its extensions are wanted. Measure
+   download, memory, load and grouping at 1M rows on OPFS, as in Phase 3, in Chromium, Firefox and WebKit under the
+   app's CSP. Its docs say OPFS needs a worker, and a production Vite build needs the worker format set to ES. (Not
+   done.)
+2. Multi-tab for every store. Today only Dexie works in every tab at once. OPFS lets one tab open a database (decision
+   8), so SQLite and DuckDB answer 'heldElsewhere' in a second tab. (Not done.) Options to check for each store:
+    - A leader tab. One tab holds the database and the other tabs send it their queries. Notion does this for SQLite,
+      and PGlite's multi-tab worker does it built in.
+    - wa-sqlite's `OPFSCoopSyncVFS`, which allows several connections. PowerSync reports deadlocks with it across tabs,
+      unresolved when checked.
+    - The 'Use here' handoff already under Later.
+3. Sync with a remote store. A store's records stay in the browser today. Remote stores (decision 11) are separate
+   connectors, not a sync of a local one. (Needs the user's decision.) Options to check:
+    - RxDB. Its replication keeps a local database in step with a server, and works offline. It stores through its own
+      storage layer, so it would replace a store connector rather than sit on SQLite or DuckDB. Check which parts need
+      Premium.
+    - Dexie Cloud, which the Dexie connector already mentions.
+    - TinyBase sync, as the workspace store uses (Phase 6). Suits small data only, for the same reason as above.
+    - Sync services built for SQLite or PGlite, such as PowerSync or ElectricSQL.
+
+Sources: [PGlite multi-tab worker](https://pglite.dev/docs/multi-tab-worker),
+[PGlite filesystems](https://pglite.dev/docs/filesystems), [PGlite bundler support](https://pglite.dev/docs/bundler-support),
+[TinyBase persisters](https://tinybase.org/api/persisters/),
+[RxDB storage benchmarks](https://rxdb.info/rx-storage-performance.html),
+[wa-sqlite](https://docsearch.algolia.com/mcp/docs/repo/rhashimoto/wa-sqlite),
+[PowerSync deadlock report](https://github.com/powersync-ja/powersync-js/issues/785),
+[Notion on WASM SQLite](https://www.notion.com/blog/how-we-sped-up-notion-in-the-browser-with-wasm-sqlite).
 
 ## Phase 5 ─ Keep local data
 
