@@ -86,8 +86,8 @@ These entries matched, but fallow does the same without them. Remove the entry f
 | `src/actions/auditDependencies.ts` | 11.8 | 11 | 163 | 0.21 | 2 | accelerating |
 | `src/utilities/cloudflare.ts` | 10.9 | 12 | 203 | 0.17 | 2 | stable |
 | `src/actions/documentQualitySecurity.ts` | 10.3 | 9 | 679 | 0.18 | 1 | cooling |
+| `src/actions/publishProject.ts` | 10.3 | 9 | 114 | 0.17 | 1 | cooling |
 | `src/utilities/apiReference.ts` | 8.9 | 3 | 404 | 0.47 | 1 | cooling |
-| `src/actions/publishProject.ts` | 8.8 | 8 | 110 | 0.17 | 1 | accelerating |
 | `src/actions/documentApiReference.ts` | 6.4 | 13 | 772 | 0.08 | 1 | cooling |
 | `src/actions/formatCode.ts` | 4.9 | 7 | 38 | 0.16 | 1 | stable |
 | `src/actions/documentProject.ts` | 3.4 | 5 | 85 | 0.11 | 1 | cooling |
