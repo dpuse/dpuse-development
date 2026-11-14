@@ -10,9 +10,6 @@ import { putState, uploadModuleConfigToDO, uploadModuleToR2, uploadSampleDataToR
 
 // ── Actions ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-// TODO: 'publish.yml' starts alongside CI rather than after it, and repeats CI's build, lint and test but not its audit,
-// so a release can publish while CI's audit fails. Make 'ci.yml' a reusable workflow ('workflow_call') that 'publish.yml'
-// runs as its first job, with the publish job needing it, and drop the repeated steps from 'publish.yml'.
 /** Publishes the project to npm, uploads it to DPUse, or both, as its module type requires. Run by the 'publish.yml' workflow. */
 export async function publishProject(): Promise<void> {
     try {
@@ -52,7 +49,6 @@ export async function publishProject(): Promise<void> {
     }
 }
 
-// Also run as the last step of 'releaseProject'.
 export async function registerModule(stepIcon: string, packageJSON: PackageJson, configJSON: ModuleConfig, moduleTypeConfig: ModuleTypeConfig): Promise<void> {
     if (moduleTypeConfig.typeId === 'app') {
         logStepHeader(`${stepIcon} Register module`);

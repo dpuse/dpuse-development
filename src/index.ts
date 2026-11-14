@@ -12,8 +12,6 @@ export { lintCode } from './actions/lintCode';
 
 export { publishProject } from './actions/publishProject';
 
-export { releaseProject } from './actions/releaseProject';
-
 export { syncProjectWithGitHub } from './actions/syncProjectWithGitHub';
 
 export { testProject } from './actions/testProject';

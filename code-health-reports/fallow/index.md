@@ -27,10 +27,10 @@ These entries matched, but fallow does the same without them. Remove the entry f
 
 | Metric | Value |
 |:-------|------:|
-| Total LOC | 4031 |
+| Total LOC | 3958 |
 | Avg Cyclomatic | 3.0 |
 | P90 Cyclomatic | 7 |
-| Cyclomatic units | Functions: 320, module scopes: 0, templates: 0 |
+| Cyclomatic units | Functions: 319, module scopes: 0, templates: 0 |
 | Dead Files | 0.0% |
 | Dead Exports | 0.0% |
 | Maintainability (avg) | 92.0 |
@@ -39,7 +39,7 @@ These entries matched, but fallow does the same without them. Remove the entry f
 | Unused Deps | 0 |
 
 
-### File Health Scores (27 files)
+### File Health Scores (26 files)
 
 | File | Maintainability | Fan-in | Fan-out | Dead Code | Density | Risk |
 |:-----|:---------------|:-------|:--------|:----------|:--------|:-----|
@@ -49,20 +49,19 @@ These entries matched, but fallow does the same without them. Remove the entry f
 | `src/actions/documentDependencies.ts` | 85.8 | 1 | 3 | 0% | 0.29 | 12.0 |
 | `src/actions/documentBundleSizes.ts` | 87.3 | 1 | 1 | 0% | 0.33 | 11.0 |
 | `src/vite.ts` | 91.6 | 1 | 0 | 0% | 0.28 | 8.3 |
-| `src/utilities/index.ts` | 93.1 | 24 | 0 | 0% | 0.23 | 8.0 |
+| `src/utilities/index.ts` | 93.1 | 23 | 0 | 0% | 0.23 | 8.0 |
 | `src/actions/checkDependencies.ts` | 89.6 | 1 | 2 | 0% | 0.20 | 7.0 |
-| `src/actions/publishProject.ts` | 90.8 | 2 | 2 | 0% | 0.16 | 7.0 |
+| `src/actions/publishProject.ts` | 90.5 | 1 | 2 | 0% | 0.17 | 7.0 |
 | `src/actions/auditDependencies.ts` | 90.9 | 2 | 1 | 0% | 0.21 | 7.0 |
 | `src/actions/checkConfigFiles.ts` | 90.9 | 1 | 1 | 0% | 0.21 | 7.0 |
 | `src/actions/documentOpening.ts` | 91.5 | 1 | 1 | 0% | 0.19 | 7.0 |
 | `src/actions/documentContributingLicense.ts` | 92.4 | 1 | 1 | 0% | 0.16 | 7.0 |
 | `src/actions/testProject.ts` | 93.6 | 1 | 1 | 0% | 0.12 | 7.0 |
-| `src/actions/documentProject.ts` | 87.5 | 2 | 9 | 0% | 0.11 | 6.0 |
-| `src/actions/releaseProject.ts` | 90.9 | 1 | 4 | 0% | 0.09 | 6.0 |
+| `src/actions/documentProject.ts` | 87.5 | 1 | 9 | 0% | 0.11 | 6.0 |
 | `src/actions/documentUsage.ts` | 91.8 | 1 | 1 | 0% | 0.18 | 6.0 |
 | `src/utilities/cloudflare.ts` | 92.1 | 2 | 1 | 0% | 0.17 | 6.0 |
 | `src/actions/syncProjectWithGitHub.ts` | 94.8 | 1 | 1 | 0% | 0.11 | 4.0 |
-| `src/actions/buildProject.ts` | 94.3 | 2 | 1 | 0% | 0.14 | 3.0 |
+| `src/actions/buildProject.ts` | 94.3 | 1 | 1 | 0% | 0.14 | 3.0 |
 | `src/actions/documentActions.ts` | 95.4 | 1 | 1 | 0% | 0.06 | 3.0 |
 | `src/actions/triggerGitHubRelease.ts` | 95.4 | 1 | 1 | 0% | 0.12 | 3.0 |
 | `src/actions/documentApiReference.ts` | 94.4 | 1 | 2 | 0% | 0.08 | 2.0 |
@@ -73,31 +72,30 @@ These entries matched, but fallow does the same without them. Remove the entry f
 
 **Average maintainability index:** 92.0/100
 
-### Hotspots (21 files, since 6 months)
+### Hotspots (20 files, since 6 months)
 
 | File | Score | Commits | Churn | Density | Fan-in | Trend |
 |:-----|:------|:--------|:------|:--------|:-------|:------|
 | `src/actions/documentBundleSizes.ts` | 64.2 | 45 | 1576 | 0.33 | 1 | cooling |
 | `src/actions/checkConfigFiles.ts` | 44.7 | 51 | 565 | 0.21 | 1 | cooling |
-| `src/utilities/index.ts` | 44.1 | 41 | 610 | 0.23 | 24 | stable |
+| `src/utilities/index.ts` | 44.1 | 41 | 610 | 0.23 | 23 | stable |
 | `src/actions/documentDependencies.ts` | 43.1 | 32 | 941 | 0.29 | 1 | stable |
 | `src/actions/documentOpening.ts` | 22.4 | 22 | 365 | 0.19 | 1 | accelerating |
 | `src/actions/checkDependencies.ts` | 18.8 | 19 | 249 | 0.20 | 1 | stable |
 | `src/actions/documentUsage.ts` | 17.3 | 17 | 334 | 0.18 | 1 | accelerating |
-| `src/actions/auditDependencies.ts` | 11.9 | 11 | 163 | 0.21 | 2 | accelerating |
+| `src/actions/auditDependencies.ts` | 11.8 | 11 | 163 | 0.21 | 2 | accelerating |
 | `src/utilities/cloudflare.ts` | 10.9 | 12 | 203 | 0.17 | 2 | stable |
 | `src/actions/documentQualitySecurity.ts` | 10.3 | 9 | 679 | 0.18 | 1 | cooling |
 | `src/utilities/apiReference.ts` | 8.9 | 3 | 404 | 0.47 | 1 | cooling |
-| `src/actions/publishProject.ts` | 8.3 | 8 | 110 | 0.16 | 2 | accelerating |
+| `src/actions/publishProject.ts` | 8.8 | 8 | 110 | 0.17 | 1 | accelerating |
 | `src/actions/documentApiReference.ts` | 6.4 | 13 | 772 | 0.08 | 1 | cooling |
 | `src/actions/formatCode.ts` | 4.9 | 7 | 38 | 0.16 | 1 | stable |
-| `src/actions/documentProject.ts` | 3.4 | 5 | 85 | 0.11 | 2 | cooling |
-| `src/actions/releaseProject.ts` | 2.8 | 5 | 78 | 0.09 | 1 | cooling |
+| `src/actions/documentProject.ts` | 3.4 | 5 | 85 | 0.11 | 1 | cooling |
 | `src/actions/documentActions.ts` | 2.8 | 10 | 102 | 0.06 | 1 | stable |
 | `src/actions/lintCode.ts` | 2.7 | 6 | 30 | 0.11 | 1 | cooling |
-| `src/actions/buildProject.ts` | 2.6 | 3 | 56 | 0.14 | 2 | cooling |
+| `src/actions/buildProject.ts` | 2.6 | 3 | 56 | 0.14 | 1 | cooling |
 | `src/actions/testProject.ts` | 2.4 | 3 | 70 | 0.12 | 1 | cooling |
-| `vite.config.ts` | 2.1 | 23 | 135 | 0.02 | 0 | stable |
+| `vite.config.ts` | 2.1 | 22 | 133 | 0.02 | 0 | stable |
 
 *6 files excluded (< 3 commits)*
 
