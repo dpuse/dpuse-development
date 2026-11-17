@@ -78,26 +78,26 @@ _Note: Sonda's Vite reports currently exclude CSS files, since Vite does not gen
 
 | Chunk/Module/File                                                                | Composition                                                                                   |
 | :------------------------------------------------------------------------------- | :-------------------------------------------------------------------------------------------- |
-| **dist/dpuse-development.es.js**                                                 | 64.9&nbsp;kB&nbsp;·&nbsp;gzip&nbsp;20.8&nbsp;kB&nbsp;·&nbsp;63.0%&nbsp;of&nbsp;the&nbsp;build |
-| &nbsp;&nbsp;&nbsp;&nbsp;src → documentDependencies.ts + 21 more                  | `██████████████████░░`&nbsp;87.6%&nbsp;·&nbsp;56.8&nbsp;kB                                    |
-| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;↳ documentDependencies.ts        | `▒▒▒▒░░░░░░░░░░░░░░░░`&nbsp;17.6%&nbsp;·&nbsp;11.4&nbsp;kB                                    |
-| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;↳ documentQualitySecurity.ts     | `▒▒▒░░░░░░░░░░░░░░░░░`&nbsp;15.3%&nbsp;·&nbsp;9.9&nbsp;kB                                     |
-| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;↳ documentBundleSizes.ts         | `▒▒▒░░░░░░░░░░░░░░░░░`&nbsp;13.9%&nbsp;·&nbsp;9.0&nbsp;kB                                     |
+| **dist/dpuse-development.es.js**                                                 | 65.4&nbsp;kB&nbsp;·&nbsp;gzip&nbsp;21.0&nbsp;kB&nbsp;·&nbsp;63.2%&nbsp;of&nbsp;the&nbsp;build |
+| &nbsp;&nbsp;&nbsp;&nbsp;src → documentDependencies.ts + 21 more                  | `█████████████████░░░`&nbsp;87.2%&nbsp;·&nbsp;57.1&nbsp;kB                                    |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;↳ documentDependencies.ts        | `▒▒▒░░░░░░░░░░░░░░░░░`&nbsp;17.4%&nbsp;·&nbsp;11.4&nbsp;kB                                    |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;↳ documentQualitySecurity.ts     | `▒▒▒░░░░░░░░░░░░░░░░░`&nbsp;15.2%&nbsp;·&nbsp;9.9&nbsp;kB                                     |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;↳ documentBundleSizes.ts         | `▒▒▒░░░░░░░░░░░░░░░░░`&nbsp;13.8%&nbsp;·&nbsp;9.0&nbsp;kB                                     |
 | &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;↳ checkConfigFiles.ts            | `▒░░░░░░░░░░░░░░░░░░░`&nbsp;5.8%&nbsp;·&nbsp;3.8&nbsp;kB                                      |
 | &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;↳ rustCrates.ts                  | `▒░░░░░░░░░░░░░░░░░░░`&nbsp;5.3%&nbsp;·&nbsp;3.4&nbsp;kB                                      |
-| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;↳ documentUsage.ts               | `▒░░░░░░░░░░░░░░░░░░░`&nbsp;4.2%&nbsp;·&nbsp;2.7&nbsp;kB                                      |
-| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;↳ checkDependencies.ts           | `▒░░░░░░░░░░░░░░░░░░░`&nbsp;4.1%&nbsp;·&nbsp;2.6&nbsp;kB                                      |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;↳ documentUsage.ts               | `▒░░░░░░░░░░░░░░░░░░░`&nbsp;4.1%&nbsp;·&nbsp;2.7&nbsp;kB                                      |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;↳ checkDependencies.ts           | `▒░░░░░░░░░░░░░░░░░░░`&nbsp;4.0%&nbsp;·&nbsp;2.6&nbsp;kB                                      |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;↳ auditDependencies.ts           | `▒░░░░░░░░░░░░░░░░░░░`&nbsp;3.4%&nbsp;·&nbsp;2.2&nbsp;kB                                      |
 | &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;↳ cloudflare.ts                  | `▒░░░░░░░░░░░░░░░░░░░`&nbsp;3.4%&nbsp;·&nbsp;2.2&nbsp;kB                                      |
 | &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;↳ documentOpening.ts             | `▒░░░░░░░░░░░░░░░░░░░`&nbsp;3.1%&nbsp;·&nbsp;2.0&nbsp;kB                                      |
-| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;↳ auditDependencies.ts           | `▒░░░░░░░░░░░░░░░░░░░`&nbsp;3.1%&nbsp;·&nbsp;2.0&nbsp;kB                                      |
 | &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;↳ documentActions.ts             | `▒░░░░░░░░░░░░░░░░░░░`&nbsp;2.7%&nbsp;·&nbsp;1.8&nbsp;kB                                      |
 | &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;↳ documentContributingLicense.ts | `░░░░░░░░░░░░░░░░░░░░`&nbsp;1.9%&nbsp;·&nbsp;1.2&nbsp;kB                                      |
 | &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;↳ publishProject.ts              | `░░░░░░░░░░░░░░░░░░░░`&nbsp;1.7%&nbsp;·&nbsp;1.1&nbsp;kB                                      |
 | &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;↳ testProject.ts                 | `░░░░░░░░░░░░░░░░░░░░`&nbsp;1.2%&nbsp;·&nbsp;799&nbsp;B                                       |
 | &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;↳ 8 smaller files                | `▒░░░░░░░░░░░░░░░░░░░`&nbsp;4.3%&nbsp;·&nbsp;2.8&nbsp;kB                                      |
 | &nbsp;&nbsp;&nbsp;&nbsp;(inlined worker)                                         | `░░░░░░░░░░░░░░░░░░░░`&nbsp;0.0%&nbsp;·&nbsp;17&nbsp;B                                        |
-| &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON)                      | `██░░░░░░░░░░░░░░░░░░`&nbsp;12.4%&nbsp;·&nbsp;8.1&nbsp;kB                                     |
-| **dist/utilities-FE2RzZB9.js**                                                   | 27.2&nbsp;kB&nbsp;·&nbsp;gzip&nbsp;7.3&nbsp;kB&nbsp;·&nbsp;26.4%&nbsp;of&nbsp;the&nbsp;build  |
+| &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON)                      | `███░░░░░░░░░░░░░░░░░`&nbsp;12.7%&nbsp;·&nbsp;8.3&nbsp;kB                                     |
+| **dist/utilities-FE2RzZB9.js**                                                   | 27.2&nbsp;kB&nbsp;·&nbsp;gzip&nbsp;7.3&nbsp;kB&nbsp;·&nbsp;26.3%&nbsp;of&nbsp;the&nbsp;build  |
 | &nbsp;&nbsp;&nbsp;&nbsp;@dpuse/dpuse-shared → dist/dpuse-shared.es.js            | `███████████░░░░░░░░░`&nbsp;54.8%&nbsp;·&nbsp;14.9&nbsp;kB                                    |
 | &nbsp;&nbsp;&nbsp;&nbsp;src → index.ts                                           | `███████░░░░░░░░░░░░░`&nbsp;32.6%&nbsp;·&nbsp;8.9&nbsp;kB                                     |
 | &nbsp;&nbsp;&nbsp;&nbsp;valibot → dist/index.mjs                                 | `░░░░░░░░░░░░░░░░░░░░`&nbsp;1.5%&nbsp;·&nbsp;413&nbsp;B                                       |

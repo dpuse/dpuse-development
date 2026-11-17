@@ -41,11 +41,12 @@ afterEach(() => {
 });
 
 describe('auditDependencies', () => {
-    it('checks shipped dependencies strictly, then every dependency as JSON', async () => {
+    it('checks shipped dependencies, then every dependency, as JSON', async () => {
         await auditDependencies();
 
-        expect(spawnedCommands()).toEqual(['npm audit --omit=dev']);
-        expect(spawnCommandForOutput).toHaveBeenCalledWith(expect.any(String), 'npm', ['audit', '--json']);
+        expect(spawnedCommands()).toEqual([]);
+        expect(spawnCommandForOutput).toHaveBeenNthCalledWith(1, expect.any(String), 'npm', ['audit', '--omit=dev', '--json']);
+        expect(spawnCommandForOutput).toHaveBeenNthCalledWith(2, expect.any(String), 'npm', ['audit', '--json']);
         expect(collectConsoleOutput()).toContain('Dependencies audited');
     });
 
@@ -56,15 +57,15 @@ describe('auditDependencies', () => {
         await auditDependencies();
 
         const output = collectConsoleOutput();
-        expect(spawnedCommands()).toEqual([]);
+        expect(spawnCommandForOutput).toHaveBeenCalledTimes(1);
         expect(output).toContain('1️⃣  Shipped dependencies NOT checked: @dpuse/dpuse-development is a development-only tool');
         expect(output).toContain('Dependencies audited');
     });
 
     it('passes moderate advisories and ignored high ones, naming the ignored ones', async () => {
-        vi.mocked(spawnCommandForOutput).mockResolvedValue(
-            auditReport({ id: 'GHSA-moderate', name: 'slow', severity: 'moderate' }, { id: 'GHSA-fx2h-pf6j-xcff', name: 'vite', severity: 'high' })
-        );
+        vi.mocked(spawnCommandForOutput)
+            .mockResolvedValueOnce(auditReport())
+            .mockResolvedValue(auditReport({ id: 'GHSA-moderate', name: 'slow', severity: 'moderate' }, { id: 'GHSA-fx2h-pf6j-xcff', name: 'vite', severity: 'high' }));
 
         await auditDependencies();
 
@@ -75,9 +76,9 @@ describe('auditDependencies', () => {
     });
 
     it('fails on a high or critical advisory that is not ignored, naming it', async () => {
-        vi.mocked(spawnCommandForOutput).mockResolvedValue(
-            auditReport({ id: 'GHSA-new-high', name: 'leaky', severity: 'high' }, { id: 'GHSA-new-critical', name: 'broken', severity: 'critical' })
-        );
+        vi.mocked(spawnCommandForOutput)
+            .mockResolvedValueOnce(auditReport())
+            .mockResolvedValue(auditReport({ id: 'GHSA-new-high', name: 'leaky', severity: 'high' }, { id: 'GHSA-new-critical', name: 'broken', severity: 'critical' }));
 
         await expect(auditDependencies()).rejects.toThrow('process.exit(1)');
         expect(console.error).toHaveBeenCalledWith("❌  high 'leaky': leaky flaw (https://github.com/advisories/GHSA-new-high)");
@@ -87,7 +88,9 @@ describe('auditDependencies', () => {
 
     it('warns, but still passes, when an ignored advisory is past its review date', async () => {
         vi.setSystemTime(new Date('2027-01-01T12:00:00Z'));
-        vi.mocked(spawnCommandForOutput).mockResolvedValue(auditReport({ id: 'GHSA-fx2h-pf6j-xcff', name: 'vite', severity: 'high' }));
+        vi.mocked(spawnCommandForOutput)
+            .mockResolvedValueOnce(auditReport())
+            .mockResolvedValue(auditReport({ id: 'GHSA-fx2h-pf6j-xcff', name: 'vite', severity: 'high' }));
 
         await auditDependencies();
 
@@ -101,11 +104,30 @@ describe('auditDependencies', () => {
         expect(console.error).toHaveBeenCalledWith('❌  Error auditing dependencies', new Error('registry unreachable'));
     });
 
-    it('fails without the full audit when a shipped dependency is vulnerable', async () => {
-        vi.mocked(spawnCommand).mockRejectedValueOnce(new Error('npm exited with code 1'));
+    it('fails without the full audit when a shipped dependency has a vulnerability of any severity', async () => {
+        vi.mocked(spawnCommandForOutput).mockResolvedValue(auditReport({ id: 'GHSA-moderate', name: 'slow', severity: 'moderate' }));
 
         await expect(auditDependencies()).rejects.toThrow('process.exit(1)');
-        expect(spawnCommandForOutput).not.toHaveBeenCalled();
+        expect(console.error).toHaveBeenCalledWith("❌  moderate 'slow': slow flaw (https://github.com/advisories/GHSA-moderate)");
+        expect(console.error).toHaveBeenCalledWith('❌  Error auditing dependencies', new Error('1 vulnerabilities found in shipped dependencies'));
+        expect(spawnCommandForOutput).toHaveBeenCalledTimes(1);
+    });
+
+    it('passes a shipped advisory on the shipped allow list, in both checks, naming it', async () => {
+        vi.mocked(spawnCommandForOutput).mockResolvedValue(auditReport({ id: 'GHSA-fc5q-39xc-vjpf', name: 'picomatch', severity: 'high' }));
+
+        await auditDependencies();
+
+        const output = collectConsoleOutput();
+        expect(output.match(/ℹ️ {2}Ignored GHSA-fc5q-39xc-vjpf/gu)).toHaveLength(2);
+        expect(output).toContain('Dependencies audited');
+    });
+
+    it('fails on a shipped advisory that only the development allow list ignores', async () => {
+        vi.mocked(spawnCommandForOutput).mockResolvedValue(auditReport({ id: 'GHSA-fx2h-pf6j-xcff', name: 'vite', severity: 'high' }));
+
+        await expect(auditDependencies()).rejects.toThrow('process.exit(1)');
+        expect(console.error).toHaveBeenCalledWith('❌  Error auditing dependencies', new Error('1 vulnerabilities found in shipped dependencies'));
     });
 });
 

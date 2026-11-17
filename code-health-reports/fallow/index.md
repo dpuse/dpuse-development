@@ -27,7 +27,7 @@ These entries matched, but fallow does the same without them. Remove the entry f
 
 | Metric | Value |
 |:-------|------:|
-| Total LOC | 3958 |
+| Total LOC | 3970 |
 | Avg Cyclomatic | 3.0 |
 | P90 Cyclomatic | 7 |
 | Cyclomatic units | Functions: 319, module scopes: 0, templates: 0 |
@@ -48,11 +48,11 @@ These entries matched, but fallow does the same without them. Remove the entry f
 | `src/utilities/apiReference.ts` | 83.1 | 1 | 1 | 0% | 0.47 | 12.0 |
 | `src/actions/documentDependencies.ts` | 85.8 | 1 | 3 | 0% | 0.29 | 12.0 |
 | `src/actions/documentBundleSizes.ts` | 87.3 | 1 | 1 | 0% | 0.33 | 11.0 |
+| `src/actions/auditDependencies.ts` | 90.9 | 2 | 1 | 0% | 0.21 | 9.0 |
 | `src/vite.ts` | 91.6 | 1 | 0 | 0% | 0.28 | 8.3 |
 | `src/utilities/index.ts` | 93.1 | 23 | 0 | 0% | 0.23 | 8.0 |
 | `src/actions/checkDependencies.ts` | 89.6 | 1 | 2 | 0% | 0.20 | 7.0 |
 | `src/actions/publishProject.ts` | 90.5 | 1 | 2 | 0% | 0.17 | 7.0 |
-| `src/actions/auditDependencies.ts` | 90.9 | 2 | 1 | 0% | 0.21 | 7.0 |
 | `src/actions/checkConfigFiles.ts` | 90.9 | 1 | 1 | 0% | 0.21 | 7.0 |
 | `src/actions/documentOpening.ts` | 91.5 | 1 | 1 | 0% | 0.19 | 7.0 |
 | `src/actions/documentContributingLicense.ts` | 92.4 | 1 | 1 | 0% | 0.16 | 7.0 |
@@ -83,9 +83,9 @@ These entries matched, but fallow does the same without them. Remove the entry f
 | `src/actions/documentOpening.ts` | 22.4 | 22 | 365 | 0.19 | 1 | accelerating |
 | `src/actions/checkDependencies.ts` | 18.8 | 19 | 249 | 0.20 | 1 | stable |
 | `src/actions/documentUsage.ts` | 17.3 | 17 | 334 | 0.18 | 1 | accelerating |
-| `src/actions/auditDependencies.ts` | 11.8 | 11 | 163 | 0.21 | 2 | accelerating |
+| `src/actions/auditDependencies.ts` | 11.9 | 11 | 163 | 0.21 | 2 | accelerating |
 | `src/utilities/cloudflare.ts` | 10.9 | 12 | 203 | 0.17 | 2 | stable |
-| `src/actions/documentQualitySecurity.ts` | 10.3 | 9 | 679 | 0.18 | 1 | cooling |
+| `src/actions/documentQualitySecurity.ts` | 10.4 | 9 | 679 | 0.18 | 1 | cooling |
 | `src/actions/publishProject.ts` | 10.3 | 9 | 114 | 0.17 | 1 | cooling |
 | `src/utilities/apiReference.ts` | 8.9 | 3 | 404 | 0.47 | 1 | cooling |
 | `src/actions/documentApiReference.ts` | 6.4 | 13 | 772 | 0.08 | 1 | cooling |

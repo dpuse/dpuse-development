@@ -84,6 +84,7 @@ function stubOpenSSF({
     );
 }
 
+// eslint-disable-next-line unicorn/prefer-options-parameter
 async function writeProject(packageJSON: object = {}, files: Record<string, string> = {}): Promise<void> {
     await project.writeFiles({
         'config.json': JSON.stringify({ id: 'dpuse-shared' }),

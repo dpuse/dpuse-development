@@ -2,11 +2,13 @@
 import type { PackageJson } from 'type-fest';
 
 // ── Local Framework
-// High or critical advisories in development tools that cannot reach a release or the publish credentials, and have no
-// fix yet. Remove an entry once a fix is released. After an entry's 'reviewBy' date the audit warns, so it is checked
-// again rather than kept by habit.
-import { IGNORED_ADVISORIES } from './auditDependencies_.json';
-import { DEVELOPMENT_ONLY_PACKAGE_NAMES, logOperationHeader, logOperationSuccess, logStepHeader, readJSONFile, spawnCommand, spawnCommandForOutput } from '@/utilities';
+import { DEVELOPMENT_ONLY_PACKAGE_NAMES, logOperationHeader, logOperationSuccess, logStepHeader, readJSONFile, spawnCommandForOutput } from '@/utilities';
+// Advisories the audit ignores because they have no fix yet. 'IGNORED_ADVISORIES' holds high or critical ones in
+// development tools that cannot reach a release or the publish credentials. 'IGNORED_SHIPPED_ADVISORIES' holds ones in
+// shipped dependencies whose flawed code never reaches users, and is the only list the shipped check reads, so a
+// development entry cannot hide a flaw users would install. Remove an entry once a fix is released. After an entry's
+// 'reviewBy' date the audit warns, so it is checked again rather than kept by habit.
+import { IGNORED_ADVISORIES, IGNORED_SHIPPED_ADVISORIES } from './auditDependencies_.json';
 
 // ── Types ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -19,6 +21,8 @@ interface AuditAdvisory {
     url: string;
 }
 
+type IgnoredAdvisory = (typeof IGNORED_ADVISORIES)[number];
+
 interface AuditReport {
     error?: { summary: string };
     vulnerabilities?: Record<string, { via: (AuditAdvisory | string)[] }>;
@@ -28,6 +32,8 @@ interface AuditReport {
 
 const BLOCKING_SEVERITIES = new Set(['critical', 'high']);
 
+const ALL_IGNORED_ADVISORIES: IgnoredAdvisory[] = [...IGNORED_ADVISORIES, ...IGNORED_SHIPPED_ADVISORIES];
+
 // ── Actions ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 /** Audit the project's dependencies for known security vulnerabilities. */
@@ -35,13 +41,19 @@ export async function auditDependencies(): Promise<void> {
     try {
         logOperationHeader('Audit Dependencies');
 
-        // Users install these packages, so any vulnerability at all fails the audit, and none is ever ignored. A
-        // development-only package ships nothing to users, so all its dependencies are checked as dev tools below.
+        // Users install these packages, so a vulnerability of any severity fails the audit, unless it is on the shipped
+        // allow list. A development-only package ships nothing to users, so all its dependencies are checked as dev
+        // tools below.
         const packageJSON = await readJSONFile<PackageJson>('package.json');
         if (DEVELOPMENT_ONLY_PACKAGE_NAMES.has(packageJSON.name ?? '')) {
             logStepHeader(`1️⃣  Shipped dependencies NOT checked: ${packageJSON.name ?? ''} is a development-only tool`);
         } else {
-            await spawnCommand('1️⃣  Check shipped dependencies for any vulnerability', 'npm', ['audit', '--omit=dev']);
+            const shippedOutput = await spawnCommandForOutput('1️⃣  Check shipped dependencies for any vulnerability', 'npm', ['audit', '--omit=dev', '--json']);
+            const shippedReport = JSON.parse(shippedOutput) as AuditReport;
+            if (shippedReport.error !== undefined) throw new Error(shippedReport.error.summary);
+
+            const shippedAdvisories = checkAdvisories(listAdvisories(shippedReport), IGNORED_SHIPPED_ADVISORIES, true);
+            if (shippedAdvisories.length > 0) throw new Error(`${String(shippedAdvisories.length)} vulnerabilities found in shipped dependencies`);
         }
 
         // Dev tools run during publishing, where they could reach the publish credentials, so high and critical flaws
@@ -50,7 +62,7 @@ export async function auditDependencies(): Promise<void> {
         const report = JSON.parse(output) as AuditReport;
         if (report.error !== undefined) throw new Error(report.error.summary);
 
-        const blockingAdvisories = checkAdvisories(listAdvisories(report));
+        const blockingAdvisories = checkAdvisories(listAdvisories(report), ALL_IGNORED_ADVISORIES, false);
         if (blockingAdvisories.length > 0) throw new Error(`${String(blockingAdvisories.length)} high or critical vulnerabilities found`);
 
         logOperationSuccess('Dependencies audited');
@@ -70,7 +82,7 @@ export async function reportIgnoredAdvisories(label: string): Promise<void> {
 
     let ignoredCount = 0;
     for (const advisory of listAdvisories(report)) {
-        const ignoredAdvisory = BLOCKING_SEVERITIES.has(advisory.severity) ? findIgnoredAdvisory(advisory) : undefined;
+        const ignoredAdvisory = BLOCKING_SEVERITIES.has(advisory.severity) ? findIgnoredAdvisory(advisory, ALL_IGNORED_ADVISORIES) : undefined;
         if (ignoredAdvisory === undefined) continue;
         console.warn(`⚠️  ${ignoredAdvisory.id} ('${advisory.name}') is on the allow list, so the CI audit ignores it: ${ignoredAdvisory.reason}`);
         ignoredCount++;
@@ -80,15 +92,15 @@ export async function reportIgnoredAdvisories(label: string): Promise<void> {
 
 // ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-/** Reports each high or critical advisory, as ignored or blocking, and returns the blocking ones. */
-function checkAdvisories(advisories: AuditAdvisory[]): AuditAdvisory[] {
+/** Reports each advisory severe enough to fail the audit, as ignored or blocking, and returns the blocking ones. */
+function checkAdvisories(advisories: AuditAdvisory[], ignoredAdvisories: IgnoredAdvisory[], isAnySeverityBlocking: boolean): AuditAdvisory[] {
     const today = new Date().toISOString().slice(0, 10);
     const blockingAdvisories: AuditAdvisory[] = [];
 
     for (const advisory of advisories) {
-        if (!BLOCKING_SEVERITIES.has(advisory.severity)) continue;
+        if (!isAnySeverityBlocking && !BLOCKING_SEVERITIES.has(advisory.severity)) continue;
 
-        const ignoredAdvisory = findIgnoredAdvisory(advisory);
+        const ignoredAdvisory = findIgnoredAdvisory(advisory, ignoredAdvisories);
         if (ignoredAdvisory === undefined) {
             console.error(`❌  ${advisory.severity} '${advisory.name}': ${advisory.title} (${advisory.url})`);
             blockingAdvisories.push(advisory);
@@ -103,9 +115,9 @@ function checkAdvisories(advisories: AuditAdvisory[]): AuditAdvisory[] {
 }
 
 // npm names an advisory only by its URL, which ends in the id.
-function findIgnoredAdvisory(advisory: AuditAdvisory): (typeof IGNORED_ADVISORIES)[number] | undefined {
+function findIgnoredAdvisory(advisory: AuditAdvisory, ignoredAdvisories: IgnoredAdvisory[]): IgnoredAdvisory | undefined {
     const id = advisory.url.slice(advisory.url.lastIndexOf('/') + 1);
-    return IGNORED_ADVISORIES.find((ignored) => ignored.id === id);
+    return ignoredAdvisories.find((ignored) => ignored.id === id);
 }
 
 /** The distinct advisories in an 'npm audit --json' report. */

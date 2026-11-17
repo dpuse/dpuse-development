@@ -35,5 +35,12 @@
             "reason": "'undici', pinned to 7.29.1 by miniflare, Wrangler's local Workers simulator, which runs only during development and is never deployed; remove once miniflare takes 7.30.1",
             "reviewBy": "2026-11-30"
         }
+    ],
+    "IGNORED_SHIPPED_ADVISORIES": [
+        {
+            "id": "GHSA-fc5q-39xc-vjpf",
+            "reason": "'picomatch', used by the build-time route plugin in 'vue-router' 5, which runs only while building and is not in the app bundle; remove once 'picomatch' releases a fix",
+            "reviewBy": "2026-12-31"
+        }
     ]
 }
