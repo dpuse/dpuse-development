@@ -1,4 +1,9 @@
-## Fallow: no issues found
+## Fallow: 1 issue found
+
+### Unused dependencies (1)
+
+- `@cyclonedx/cyclonedx-npm`
+
 
 
 ## Redundant config entries
@@ -27,16 +32,16 @@ These entries matched, but fallow does the same without them. Remove the entry f
 
 | Metric | Value |
 |:-------|------:|
-| Total LOC | 3952 |
+| Total LOC | 4080 |
 | Avg Cyclomatic | 3.0 |
 | P90 Cyclomatic | 7 |
-| Cyclomatic units | Functions: 316, module scopes: 0, templates: 0 |
+| Cyclomatic units | Functions: 334, module scopes: 0, templates: 0 |
 | Dead Files | 0.0% |
 | Dead Exports | 0.0% |
-| Maintainability (avg) | 92.1 |
-| Hotspots (since 6 months) | 1 |
+| Maintainability (avg) | 92.0 |
+| Hotspots (since 6 months) | 2 |
 | Circular Deps | 0 |
-| Unused Deps | 0 |
+| Unused Deps | 1 |
 
 
 ### File Health Scores (26 files)
@@ -44,10 +49,10 @@ These entries matched, but fallow does the same without them. Remove the entry f
 | File | Maintainability | Fan-in | Fan-out | Dead Code | Density | Risk |
 |:-----|:---------------|:-------|:--------|:----------|:--------|:-----|
 | `src/actions/documentQualitySecurity.ts` | 91.8 | 1 | 1 | 0% | 0.18 | 16.0 |
+| `src/actions/documentDependencies.ts` | 84.3 | 1 | 3 | 0% | 0.34 | 13.1 |
 | `src/actions/documentBundleSizes.ts` | 87.9 | 1 | 1 | 0% | 0.31 | 13.0 |
 | `src/utilities/rustCrates.ts` | 90.0 | 1 | 1 | 0% | 0.24 | 13.0 |
 | `src/utilities/apiReference.ts` | 83.1 | 1 | 1 | 0% | 0.47 | 12.0 |
-| `src/actions/documentDependencies.ts` | 85.5 | 1 | 3 | 0% | 0.30 | 12.0 |
 | `src/actions/auditDependencies.ts` | 90.9 | 2 | 1 | 0% | 0.21 | 9.0 |
 | `src/vite.ts` | 91.6 | 1 | 0 | 0% | 0.28 | 8.3 |
 | `src/utilities/index.ts` | 93.1 | 23 | 0 | 0% | 0.23 | 8.0 |
@@ -70,25 +75,26 @@ These entries matched, but fallow does the same without them. Remove the entry f
 | `vite.config.ts` | 99.4 | 0 | 0 | 0% | 0.02 | 2.0 |
 | `src/actions/checkProject.ts` | 95.0 | 1 | 2 | 0% | 0.08 | 1.0 |
 
-**Average maintainability index:** 92.1/100
+**Average maintainability index:** 92.0/100
 
-### Hotspots (20 files, since 6 months)
+### Hotspots (21 files, since 6 months)
 
 | File | Score | Commits | Churn | Density | Fan-in | Trend |
 |:-----|:------|:--------|:------|:--------|:-------|:------|
 | `src/actions/documentBundleSizes.ts` | 63.2 | 46 | 1838 | 0.31 | 1 | cooling |
+| `src/actions/documentDependencies.ts` | 53.7 | 33 | 987 | 0.34 | 1 | stable |
 | `src/actions/checkConfigFiles.ts` | 44.7 | 51 | 565 | 0.21 | 1 | cooling |
-| `src/actions/documentDependencies.ts` | 44.6 | 32 | 941 | 0.30 | 1 | stable |
 | `src/utilities/index.ts` | 44.1 | 41 | 610 | 0.23 | 23 | stable |
 | `src/actions/documentOpening.ts` | 22.4 | 22 | 365 | 0.19 | 1 | accelerating |
 | `src/actions/checkDependencies.ts` | 18.8 | 19 | 249 | 0.20 | 1 | stable |
 | `src/actions/documentUsage.ts` | 17.3 | 17 | 334 | 0.18 | 1 | accelerating |
 | `src/actions/auditDependencies.ts` | 13.8 | 12 | 207 | 0.21 | 2 | accelerating |
 | `src/utilities/cloudflare.ts` | 10.9 | 12 | 203 | 0.17 | 2 | stable |
-| `src/actions/documentQualitySecurity.ts` | 10.4 | 9 | 679 | 0.18 | 1 | cooling |
+| `src/actions/documentQualitySecurity.ts` | 10.3 | 9 | 679 | 0.18 | 1 | cooling |
 | `src/actions/publishProject.ts` | 10.3 | 9 | 114 | 0.17 | 1 | cooling |
 | `src/utilities/apiReference.ts` | 8.9 | 3 | 404 | 0.47 | 1 | cooling |
 | `src/actions/documentApiReference.ts` | 6.4 | 13 | 772 | 0.08 | 1 | cooling |
+| `src/utilities/rustCrates.ts` | 5.3 | 3 | 211 | 0.24 | 1 | cooling |
 | `src/actions/formatCode.ts` | 4.9 | 7 | 38 | 0.16 | 1 | stable |
 | `src/actions/documentProject.ts` | 4.4 | 6 | 92 | 0.11 | 1 | cooling |
 | `src/actions/documentActions.ts` | 2.8 | 10 | 102 | 0.06 | 1 | stable |
@@ -97,7 +103,7 @@ These entries matched, but fallow does the same without them. Remove the entry f
 | `src/actions/testProject.ts` | 2.4 | 3 | 70 | 0.12 | 1 | cooling |
 | `vite.config.ts` | 2.1 | 22 | 133 | 0.02 | 0 | stable |
 
-*6 files excluded (< 3 commits)*
+*5 files excluded (< 3 commits)*
 
 ### Hidden Change Coupling (9 pairs, since 12 months)
 
@@ -108,10 +114,10 @@ These entries matched, but fallow does the same without them. Remove the entry f
 | `src/actions/auditDependencies.ts` | `src/actions/formatCode.ts` | 53% | 5 | 12 | 7 | **strong** |
 | `src/actions/checkDependencies.ts` | `src/actions/lintCode.ts` | 48% | 6 | 19 | 6 |  |
 | `src/actions/checkDependencies.ts` | `src/actions/formatCode.ts` | 46% | 6 | 19 | 7 |  |
-| `src/actions/auditDependencies.ts` | `src/actions/documentDependencies.ts` | 36% | 8 | 12 | 32 |  |
-| `src/actions/documentDependencies.ts` | `src/actions/formatCode.ts` | 36% | 7 | 32 | 7 |  |
+| `src/actions/auditDependencies.ts` | `src/actions/documentDependencies.ts` | 36% | 8 | 12 | 33 |  |
 | `src/actions/documentOpening.ts` | `src/actions/documentUsage.ts` | 36% | 7 | 22 | 17 |  |
-| `src/actions/documentDependencies.ts` | `src/actions/lintCode.ts` | 32% | 6 | 32 | 6 |  |
+| `src/actions/documentDependencies.ts` | `src/actions/formatCode.ts` | 35% | 7 | 33 | 7 |  |
+| `src/actions/documentDependencies.ts` | `src/actions/lintCode.ts` | 31% | 6 | 33 | 6 |  |
 
 *Files that change together in the commit history with no import between them.*
 

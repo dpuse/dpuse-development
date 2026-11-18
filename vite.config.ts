@@ -28,7 +28,6 @@ const viteConfig = defineConfig({
                 'node:url',
                 'node:util',
                 'node:zlib',
-                'license-checker-rseidelsohn',
                 'npm-check-updates',
                 'spdx-satisfies',
                 'typescript'

@@ -92,6 +92,15 @@ export async function documentRustCrates(stepLabel: string, allowedLicenses: str
     return { crates, treeItems: treeLines.map(({ name, version, depth, isOwn }) => ({ name, version, depth, isOwn })) };
 }
 
+/** Whether an SPDX licence expression is met by the allowed identifiers. The older 'MIT/Apache-2.0' form means 'OR'. */
+export function isLicenseAllowed(licenseExpression: string, allowedIdentifiers: string[]): boolean {
+    try {
+        return satisfies(licenseExpression.replaceAll('/', ' OR '), allowedIdentifiers);
+    } catch {
+        return false; // Not a licence expression at all, so it cannot be confirmed as allowed.
+    }
+}
+
 /** Whether a name on the allow list is a standard SPDX licence identifier. The list can also name licences that are
  *  not, such as a licence page or 'Custom: LICENSE.md', which only npm packages use. */
 export function isLicenseIdentifier(identifier: string): boolean {
@@ -130,14 +139,6 @@ function checkCrateLicenses(crates: RustCrate[], allowedLicenses: string): void 
     if (failures.length === 0) return;
     const failureList = failures.map((crate) => `${crate.name}@${crate.version} (${crate.licenseExpression === '' ? 'no licence' : crate.licenseExpression})`).join(', ');
     throw new Error(`Rust crates with licences not allowed: ${failureList}.`);
-}
-
-function isLicenseAllowed(licenseExpression: string, allowedIdentifiers: string[]): boolean {
-    try {
-        return satisfies(licenseExpression.replaceAll('/', ' OR '), allowedIdentifiers);
-    } catch {
-        return false; // Not a licence expression at all, so it cannot be confirmed as allowed.
-    }
 }
 
 // The licence files sit beside the crate's own 'Cargo.toml' in Cargo's download cache.

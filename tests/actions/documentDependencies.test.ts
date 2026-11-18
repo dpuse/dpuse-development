@@ -8,29 +8,30 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { documentDependencies } from '@/actions/documentDependencies';
 import { buildReadme, useTemporaryProject } from '../support/temporaryProject';
 
+// ── Types ────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+/** An installed package as a test describes it, keyed by 'name@version' in the bill of materials fixture. */
+interface PackageFixture {
+    licenses?: string; // An SPDX identifier or expression, or any other name a package declares.
+    repository?: string; // As package.json gives it, such as 'git+https://github.com/example/old.git'.
+    author?: string;
+    licenseText?: string;
+    path?: string;
+    nested?: Record<string, PackageFixture>; // The package's own copies of its dependencies.
+}
+
 // ── Mocks ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-// The licence checker and 'npm ls' write the two files the README is built from, so the mocks write fixtures instead.
-const licenseChecker = vi.hoisted((): { licenses: object; error: Error | undefined; options: { excludePackages?: string; production?: boolean } } => ({
-    licenses: {},
-    error: undefined,
-    options: {}
-}));
-vi.mock('license-checker-rseidelsohn', () => ({
-    init: (options: { excludePackages?: string; production?: boolean }, callback: (error: Error | undefined) => void) => {
-        licenseChecker.options = options;
-        void fs.mkdir('licenses', { recursive: true }).then(async () => {
-            await fs.writeFile('licenses/licenses.json', JSON.stringify(licenseChecker.licenses), 'utf-8');
-            callback(licenseChecker.error);
-        });
-    }
-}));
-
+// CycloneDX and 'npm ls' write the two files the README is built from, so the mock writes fixtures instead.
+const bom = vi.hoisted((): { packages: Record<string, PackageFixture>; arguments: string[] } => ({ packages: {}, arguments: [] }));
 const licenseTree = vi.hoisted((): { tree: object } => ({ tree: {} }));
 vi.mock('@/utilities', async (importOriginal) => ({
     ...(await importOriginal<object>()),
-    spawnCommandToFile: vi.fn(async (_label: string, _command: string, _arguments: string[], outputPath: string) => {
-        await fs.writeFile(outputPath, JSON.stringify(licenseTree.tree), 'utf-8');
+    spawnCommandToFile: vi.fn(async (_label: string, command: string, arguments_: string[], outputPath: string) => {
+        if (command === 'cyclonedx-npm') bom.arguments = arguments_;
+        const content = command === 'cyclonedx-npm' ? { components: buildComponents(bom.packages) } : licenseTree.tree;
+        await fs.mkdir('licenses', { recursive: true });
+        await fs.writeFile(outputPath, JSON.stringify(content), 'utf-8');
     })
 }));
 
@@ -102,13 +103,18 @@ describe('documentDependencies', () => {
             }),
             'README.md': buildReadme('DEPENDENCY_LICENSES')
         });
-        licenseChecker.licenses = { 'valibot@1.5.0': { licenses: 'MIT' } };
+        bom.packages = {
+            'valibot@1.5.0': { licenses: 'MIT' },
+            'typescript@6.0.3': { licenses: 'Apache-2.0' },
+            'vitest@5.0.2': { licenses: 'MIT' },
+            'shared-both-ways@1.0.0': { licenses: 'MIT' }
+        };
         licenseTree.tree = { dependencies: { valibot: { version: '1.5.0', dependencies: { typescript: { version: '6.0.3' } } } } };
         stubRegistry({});
 
         await documentDependencies();
 
-        expect(licenseChecker.options.excludePackages).toBe('@dpuse/dpuse-shared;typescript@6.0.3;vitest@5.0.2');
+        expect(await listCheckedKeys()).toEqual(['shared-both-ways@1.0.0', 'valibot@1.5.0']);
         const readme = await project.readFile('README.md');
         expect(readme).toContain('- **[valibot](https://www.npmjs.com/package/valibot)** 1.5.0');
         expect(readme).not.toContain('typescript');
@@ -130,13 +136,18 @@ describe('documentDependencies', () => {
             }),
             'README.md': buildReadme('DEPENDENCY_LICENSES')
         });
-        licenseChecker.licenses = { 'vue-router@5.3.1': { licenses: 'MIT' } };
+        bom.packages = {
+            'vue-router@5.3.1': { licenses: 'MIT' },
+            'vite@8.3.2': { licenses: 'MIT' },
+            'lightningcss@1.33.0': { licenses: 'MPL-2.0' },
+            'lightningcss-darwin-arm64@1.33.0': { licenses: 'MPL-2.0' }
+        };
         licenseTree.tree = { dependencies: { 'vue-router': { version: '5.3.1' } } };
         stubRegistry({});
 
         await documentDependencies();
 
-        expect(licenseChecker.options.excludePackages).toBe('dpuse-app;vite@8.3.2;lightningcss@1.33.0;lightningcss-darwin-arm64@1.33.0');
+        expect(await listCheckedKeys()).toEqual(['vue-router@5.3.1']);
     });
 
     it('keeps a required peer, which ships with the package that needs it', async () => {
@@ -151,18 +162,18 @@ describe('documentDependencies', () => {
             }),
             'README.md': buildReadme('DEPENDENCY_LICENSES')
         });
-        licenseChecker.licenses = { 'plugin@1.0.0': { licenses: 'MIT' }, 'host@2.0.0': { licenses: 'MIT' } };
+        bom.packages = { 'plugin@1.0.0': { licenses: 'MIT' }, 'host@2.0.0': { licenses: 'MIT' } };
         licenseTree.tree = { dependencies: { plugin: { version: '1.0.0' } } };
         stubRegistry({});
 
         await documentDependencies();
 
-        expect(licenseChecker.options.excludePackages).toBe('@dpuse/dpuse-shared');
+        expect(await listCheckedKeys()).toEqual(['host@2.0.0', 'plugin@1.0.0']);
     });
 
     it('leaves out of the tree optional peers that are not installed, which npm lists with no version', async () => {
         await project.writeFiles({ 'package.json': JSON.stringify({ name: '@dpuse/dpuse-shared' }), 'README.md': buildReadme('DEPENDENCY_LICENSES') });
-        licenseChecker.licenses = { 'valibot@1.5.0': { licenses: 'MIT' } };
+        bom.packages = { 'valibot@1.5.0': { licenses: 'MIT' } };
         licenseTree.tree = { dependencies: { valibot: { version: '1.5.0', dependencies: { '@opentelemetry/api': {} } } } };
         stubRegistry({});
 
@@ -192,14 +203,19 @@ describe('documentDependencies', () => {
                 'bundle-analysis-reports/shipped-packages.json': JSON.stringify({ packages: ['@lucide/vue@1.49.0', 'vue-router@5.3.1'], external: [] }),
                 'README.md': buildReadme('DEPENDENCY_LICENSES')
             });
-            licenseChecker.licenses = { 'vue-router@5.3.1': { licenses: 'MIT' }, '@lucide/vue@1.49.0': { licenses: 'ISC' } };
+            bom.packages = {
+                'vue-router@5.3.1': { licenses: 'MIT' },
+                '@lucide/vue@1.49.0': { licenses: 'ISC' },
+                'chokidar@5.0.0': { licenses: 'MIT' },
+                'vite@8.3.2': { licenses: 'MIT' }
+            };
             licenseTree.tree = {};
             stubRegistry({ 'vue-router': { latest: '5.3.1', time: { '5.3.1': '2026-09-01T00:00:00Z' } } });
 
             await documentDependencies('ISC;MIT');
 
-            expect(licenseChecker.options.excludePackages).toBe('dpuse-app;chokidar@5.0.0;vite@8.3.2');
-            expect(licenseChecker.options.production).toBe(false);
+            expect(await listCheckedKeys()).toEqual(['@lucide/vue@1.49.0', 'vue-router@5.3.1']);
+            expect(bom.arguments).not.toContain('--omit'); // The whole installed tree, as a shipped package may be listed for development.
             const readme = await project.readFile('README.md');
             expect(readme).toContain("every package whose code, styles or assets are included in this project's build");
             expect(readme).toContain('|Dependency|Version|License(s)|Document|');
@@ -223,7 +239,7 @@ describe('documentDependencies', () => {
                 'bundle-analysis-reports/shipped-packages.json': JSON.stringify({ packages: ['@vue/runtime-dom@3.5.43', '@vue/shared@3.5.43'], external: [] }),
                 'README.md': buildReadme('DEPENDENCY_LICENSES')
             });
-            licenseChecker.licenses = { '@vue/runtime-dom@3.5.43': { licenses: 'MIT' }, '@vue/shared@3.5.43': { licenses: 'MIT' } };
+            bom.packages = { '@vue/runtime-dom@3.5.43': { licenses: 'MIT' }, '@vue/shared@3.5.43': { licenses: 'MIT' } };
             // npm lists the development tool first; the production dependency is still walked first.
             licenseTree.tree = {
                 dependencies: {
@@ -269,7 +285,7 @@ describe('documentDependencies', () => {
                 'bundle-analysis-reports/shipped-packages.json': JSON.stringify({ packages: ['apache-arrow@17.0.0', 'tslib@2.8.1'], external: [] }),
                 'README.md': buildReadme('DEPENDENCY_LICENSES')
             });
-            licenseChecker.licenses = { 'apache-arrow@17.0.0': { licenses: 'Apache-2.0' }, 'tslib@2.8.1': { licenses: '0BSD' } };
+            bom.packages = { 'apache-arrow@17.0.0': { licenses: 'Apache-2.0' }, 'tslib@2.8.1': { licenses: '0BSD' } };
             // npm lists the package that does not ship first, so 'tslib' is met through it before it is met directly.
             licenseTree.tree = {
                 dependencies: {
@@ -295,7 +311,7 @@ describe('documentDependencies', () => {
                 'bundle-analysis-reports/shipped-packages.json': JSON.stringify({ packages: ['vue-router@5.3.1'], external: [] }),
                 'README.md': buildReadme('DEPENDENCY_LICENSES')
             });
-            licenseChecker.licenses = { 'vue-router@5.3.1': { licenses: 'MIT' } };
+            bom.packages = { 'vue-router@5.3.1': { licenses: 'MIT' } };
             licenseTree.tree = {};
             rustCrates.result = {
                 crates: [
@@ -345,11 +361,17 @@ describe('documentDependencies', () => {
                 'bundle-analysis-reports/shipped-packages.json': JSON.stringify({ packages: [], external: ['vue-router'] }),
                 'README.md': buildReadme('DEPENDENCY_LICENSES')
             });
+            bom.packages = {
+                'vue-router@5.3.1': { licenses: 'MIT' },
+                '@lucide/vue@1.49.0': { licenses: 'ISC' },
+                'chokidar@5.0.0': { licenses: 'MIT' },
+                'vite@8.3.2': { licenses: 'MIT' }
+            };
             stubRegistry({});
 
             await documentDependencies();
 
-            expect(licenseChecker.options.excludePackages).toBe('dpuse-app;@lucide/vue@1.49.0;vite@8.3.2');
+            expect(await listCheckedKeys()).toEqual(['chokidar@5.0.0', 'vue-router@5.3.1']);
         });
 
         it('warns of a recorded package that is not installed, as its licence cannot be checked', async () => {
@@ -359,6 +381,7 @@ describe('documentDependencies', () => {
                 'bundle-analysis-reports/shipped-packages.json': JSON.stringify({ packages: ['vue-router@5.3.1', 'gone@1.0.0'], external: [] }),
                 'README.md': buildReadme('DEPENDENCY_LICENSES')
             });
+            bom.packages = { 'vue-router@5.3.1': { licenses: 'MIT' } };
             stubRegistry({});
 
             await documentDependencies();
@@ -369,20 +392,21 @@ describe('documentDependencies', () => {
 
     it('says the table comes from declared dependencies when the project has no build record', async () => {
         await project.writeFiles({ 'package.json': JSON.stringify({ name: '@dpuse/dpuse-shared' }), 'README.md': buildReadme('DEPENDENCY_LICENSES') });
+        bom.packages = {};
         stubRegistry({});
 
         await documentDependencies();
 
-        expect(licenseChecker.options.production).toBe(true);
+        expect(bom.arguments.slice(0, 2)).toEqual(['--omit', 'dev']);
         expect(await project.readFile('README.md')).toContain('This project has no build record, so the list is taken from its declared dependencies.');
     });
 
     it('lists each production dependency with its licence, and flags outdated and ageing packages in the tree', async () => {
         await project.writeFiles({ 'package.json': JSON.stringify({ name: '@dpuse/dpuse-shared' }), 'README.md': buildReadme('DEPENDENCY_LICENSES') });
-        licenseChecker.licenses = {
-            'valibot@1.5.0': { licenses: 'MIT', repository: 'https://github.com/open-circle/valibot', licenseFile: 'downloads/valibot@1.5.0-LICENSE.txt' },
-            '@scope/current@2.0.0': { licenses: 'Apache-2.0', licenseFile: 'downloads/@scope/current@2.0.0-LICENSE.txt' },
-            'old@1.0.0': { licenses: 'BSD-3-Clause', repository: 'https://github.com/example/old' },
+        bom.packages = {
+            'valibot@1.5.0': { licenses: 'MIT', repository: 'git+https://github.com/open-circle/valibot.git', licenseText: 'MIT License' },
+            '@scope/current@2.0.0': { licenses: 'Apache-2.0', licenseText: 'Apache License' },
+            'old@1.0.0': { licenses: 'BSD-3-Clause', repository: 'git://github.com/example/old.git#packages/old' },
             'lastmonth@1.0.0': { licenses: 'MIT' },
             'unreachable@1.0.0': { licenses: 'MIT' },
             'broken@1.0.0': { licenses: 'MIT' },
@@ -413,7 +437,9 @@ describe('documentDependencies', () => {
         const readme = await project.readFile('README.md');
         expect(readme).toContain('confirmed to use Apache-2.0, BSD-3-Clause, or MIT');
         expect(readme).toContain('|[valibot](https://github.com/open-circle/valibot)|1.5.0|MIT|[LICENSE](licenses/downloads/valibot@1.5.0-LICENSE.txt)|');
-        expect(readme).toContain('|[@scope/current](https://www.npmjs.com/package/@scope/current)|2.0.0|Apache-2.0|');
+        expect(readme).toContain('|[@scope/current](https://www.npmjs.com/package/@scope/current)|2.0.0|Apache-2.0|[LICENSE](licenses/downloads/@scope/current@2.0.0-LICENSE.txt)|');
+        expect(await project.readFile('licenses/downloads/valibot@1.5.0-LICENSE.txt')).toBe('MIT License');
+        expect(await project.readFile('licenses/downloads/@scope/current@2.0.0-LICENSE.txt')).toBe('Apache License');
         expect(readme).toContain('|[old](https://github.com/example/old)|1.0.0|BSD-3-Clause|⚠️  No license file|');
 
         expect(readme).toContain('- **[valibot](https://github.com/open-circle/valibot)** 1.5.0 — 3 mths ago: 2026-06-01 → latest: 1.6.0 — this month: 2026-09-02 ❗');
@@ -426,14 +452,14 @@ describe('documentDependencies', () => {
         // Without registry data there is nothing to add after the version, and the missing dates are reported.
         expect(readme).toContain('- **[unreachable](https://www.npmjs.com/package/unreachable)** 1.0.0\n');
         expect(readme).toContain('- **[broken](https://www.npmjs.com/package/broken)** 1.0.0\n');
-        expect(console.warn).toHaveBeenCalledWith('⚠️   No answer from the npm registry, so shown without release dates: unreachable, broken');
+        expect(console.warn).toHaveBeenCalledWith('⚠️   No answer from the npm registry, so shown without release dates: broken, unreachable');
         // A request the registry never answers is given up on, so it cannot hang a release.
         expect(fetch).toHaveBeenCalledWith('https://registry.npmjs.org/valibot', { signal: expect.any(AbortSignal) as AbortSignal });
     });
 
     it('shows an outdated package without a release date', async () => {
         await project.writeFiles({ 'package.json': JSON.stringify({ name: '@dpuse/dpuse-shared' }), 'README.md': buildReadme('DEPENDENCY_LICENSES') });
-        licenseChecker.licenses = { 'undated@1.0.0': { licenses: 'MIT' } };
+        bom.packages = { 'undated@1.0.0': { licenses: 'MIT' } };
         licenseTree.tree = { dependencies: { undated: { version: '1.0.0' } } };
         stubRegistry({ undated: { latest: '2.0.0', time: {} } });
 
@@ -447,7 +473,7 @@ describe('documentDependencies', () => {
 
     it('names two allowed licences with "or"', async () => {
         await project.writeFiles({ 'package.json': JSON.stringify({ name: '@dpuse/dpuse-shared' }), 'README.md': buildReadme('DEPENDENCY_LICENSES') });
-        licenseChecker.licenses = {};
+        bom.packages = {};
         licenseTree.tree = {};
         stubRegistry({});
 
@@ -458,7 +484,7 @@ describe('documentDependencies', () => {
 
     it('claims commercial use only for standard licences, leaving any other to its own terms', async () => {
         await project.writeFiles({ 'package.json': JSON.stringify({ name: '@dpuse/dpuse-shared' }), 'README.md': buildReadme('DEPENDENCY_LICENSES') });
-        licenseChecker.licenses = {};
+        bom.packages = {};
         licenseTree.tree = {};
         stubRegistry({});
 
@@ -473,14 +499,116 @@ describe('documentDependencies', () => {
         expect(readme).not.toContain('all of which allow commercial use');
     });
 
-    it('exits when the licence check fails', async () => {
-        await project.writeFiles({ 'package.json': JSON.stringify({ name: '@dpuse/dpuse-shared' }), 'README.md': buildReadme('DEPENDENCY_LICENSES') });
-        licenseChecker.error = new Error('GPL found');
+    describe('licences', () => {
+        it('exits, naming each package whose licence is not allowed', async () => {
+            const packages = { 'fine@1.0.0': { licenses: 'MIT' }, 'copyleft@2.0.0': { licenses: 'GPL-3.0-only' }, 'undeclared@3.0.0': {} };
 
-        await expect(documentDependencies()).rejects.toThrow('process.exit(1)');
-        expect(console.error).toHaveBeenCalledWith('❌  Error documenting dependencies', licenseChecker.error);
-        licenseChecker.error = undefined;
+            await expect(documentPackages(packages)).rejects.toThrow('process.exit(1)');
+
+            const expectedError = new Error('Packages with licences not allowed: copyleft@2.0.0 (GPL-3.0-only), undeclared@3.0.0 (UNKNOWN).');
+            expect(console.error).toHaveBeenCalledWith('❌  Error documenting dependencies', expectedError);
+        });
+
+        it('checks a licence expression as a whole, so a choice needs one allowed licence and a combination needs all', async () => {
+            await documentPackages({ 'either@1.0.0': { licenses: '(MPL-2.0 OR Apache-2.0)' } }, 'Apache-2.0;MIT');
+            expect(await listCheckedKeys()).toEqual(['either@1.0.0']);
+
+            await expect(documentPackages({ 'both@1.0.0': { licenses: '(MIT AND CC-BY-3.0)' } }, 'MIT')).rejects.toThrow('process.exit(1)');
+            const expectedError = new Error('Packages with licences not allowed: both@1.0.0 ((MIT AND CC-BY-3.0)).');
+            expect(console.error).toHaveBeenCalledWith('❌  Error documenting dependencies', expectedError);
+        });
+
+        it('shows a licence held in a file or on a web page as custom, allowed only where the list names it', async () => {
+            const packages = { 'paid@1.0.0': { licenses: 'SEE LICENSE IN LICENSE.md' }, 'charts@2.0.0': { licenses: 'https://www.example.com/license' } };
+
+            await documentPackages(packages, 'Custom: LICENSE.md;https://www.example.com/license');
+
+            const readme = await project.readFile('README.md');
+            expect(readme).toContain('|1.0.0|Custom: LICENSE.md|');
+            expect(readme).toContain('|2.0.0|Custom: https://www.example.com/license|');
+            await expect(documentPackages(packages, 'MIT')).rejects.toThrow('process.exit(1)');
+        });
+
+        it('checks nothing when no licences are named', async () => {
+            await documentPackages({ 'copyleft@2.0.0': { licenses: 'GPL-3.0-only' } }, '');
+
+            expect(await listCheckedKeys()).toEqual(['copyleft@2.0.0']);
+        });
+
+        it('includes a package’s own copy of a dependency, and lists a package installed twice once', async () => {
+            const nested = { 'inner@2.0.0': { licenses: 'MIT' }, 'twice@1.0.0': { licenses: 'MIT' } };
+
+            await documentPackages({ 'outer@1.0.0': { licenses: 'MIT', nested }, 'twice@1.0.0': { licenses: 'MIT' } });
+
+            expect(await listCheckedKeys()).toEqual(['inner@2.0.0', 'outer@1.0.0', 'twice@1.0.0']);
+        });
+
+        it('copies the README of a package with no licence file in its place, and shows a package with neither as having none', async () => {
+            await project.writeFiles({ 'node_modules/stated/README.md': '# Stated\n\nLicence: MIT' });
+
+            await documentPackages({ 'stated@1.0.0': { licenses: 'MIT', path: 'node_modules/stated' }, 'silent@1.0.0': { licenses: 'MIT', path: 'node_modules/silent' } });
+
+            expect(await project.readFile('licenses/downloads/stated@1.0.0-LICENSE.txt')).toBe('# Stated\n\nLicence: MIT');
+            const readme = await project.readFile('README.md');
+            expect(readme).toContain('|[stated](https://www.npmjs.com/package/stated)|1.0.0|MIT|[LICENSE](licenses/downloads/stated@1.0.0-LICENSE.txt)|');
+            expect(readme).toContain('|[silent](https://www.npmjs.com/package/silent)|1.0.0|MIT|⚠️  No license file|');
+        });
+
+        it('records each package’s author and folder, and does not keep the bill of materials', async () => {
+            await documentPackages({ 'valibot@1.5.0': { licenses: 'MIT', author: 'Fabian Hiller', path: 'node_modules/valibot', licenseText: 'MIT License' } });
+
+            expect(await readCheckedLicenses()).toEqual({
+                'valibot@1.5.0': { licenses: 'MIT', publisher: 'Fabian Hiller', path: 'node_modules/valibot', licenseFile: 'downloads/valibot@1.5.0-LICENSE.txt' }
+            });
+            await expect(fs.access('licenses/bom.json')).rejects.toThrow();
+        });
     });
 });
+
+// ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+// The fixture packages as CycloneDX lists them: a scope is the component's group, and a licence is an identifier, an
+// expression or a plain name according to its form.
+function buildComponents(packages: Record<string, PackageFixture>): object[] {
+    return Object.entries(packages).map(([packageKey, fixture]) => {
+        const versionIndex = packageKey.lastIndexOf('@');
+        const fullName = packageKey.slice(0, versionIndex);
+        const scopeEnd = fullName.startsWith('@') ? fullName.indexOf('/') : -1;
+        const licenseText = fixture.licenseText === undefined ? undefined : { content: Buffer.from(fixture.licenseText).toString('base64'), encoding: 'base64' };
+        return {
+            ...(scopeEnd !== -1 && { group: fullName.slice(0, scopeEnd) }),
+            name: fullName.slice(scopeEnd + 1),
+            version: packageKey.slice(versionIndex + 1),
+            ...(fixture.author !== undefined && { author: fixture.author }),
+            licenses: fixture.licenses === undefined ? [] : [buildLicenseChoice(fixture.licenses)],
+            externalReferences: fixture.repository === undefined ? [] : [{ type: 'vcs', url: fixture.repository }],
+            properties: fixture.path === undefined ? [] : [{ name: 'cdx:npm:package:path', value: fixture.path }],
+            evidence: licenseText === undefined ? {} : { licenses: [{ license: { name: 'file: LICENSE', text: licenseText } }] },
+            components: buildComponents(fixture.nested ?? {})
+        };
+    });
+}
+
+function buildLicenseChoice(licenses: string): object {
+    if (licenses.includes(' OR ') || licenses.includes(' AND ')) return { expression: licenses };
+    return /^[\w.+-]+$/.test(licenses) ? { license: { id: licenses } } : { license: { name: licenses } };
+}
+
+// Documents a project with no build record whose installed packages are the ones given.
+async function documentPackages(packages: Record<string, PackageFixture>, allowedLicenses?: string): Promise<void> {
+    await project.writeFiles({ 'package.json': JSON.stringify({ name: '@dpuse/dpuse-shared' }), 'README.md': buildReadme('DEPENDENCY_LICENSES') });
+    bom.packages = packages;
+    licenseTree.tree = {};
+    stubRegistry({});
+    await documentDependencies(allowedLicenses);
+}
+
+async function listCheckedKeys(): Promise<string[]> {
+    return Object.keys(await readCheckedLicenses());
+}
+
+async function readCheckedLicenses(): Promise<object> {
+    return JSON.parse(await fs.readFile('licenses/licenses.json', 'utf-8')) as object;
+}
 
 /* eslint-enable security/detect-non-literal-fs-filename -- Tests only name files inside their own temporary folder. */

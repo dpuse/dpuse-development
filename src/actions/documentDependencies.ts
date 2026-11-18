@@ -1,10 +1,6 @@
 // ── External Dependencies & Registrations
-// TODO: 'license-checker-rseidelsohn' is being retired in favour of '@lizenz/checker'. Switch when '@lizenz/checker'
-// reaches 1.0.0, a drop-in replacement: change these two imports and the README link text in 'buildLicensesIntro'.
-// It is BSD-3-Clause, not MIT. Longer term, 'npm sbom --omit dev' could replace it with no extra dependencies, but the
-// allowed-licence check and licence-file lookup would then need writing here.
-import { init as initLicenseChecker } from 'license-checker-rseidelsohn';
-import type { InitOpts } from 'license-checker-rseidelsohn';
+import { promises as fs } from 'node:fs';
+import path from 'node:path';
 
 // ── Local Framework
 import { SHIPPED_PACKAGES_FILE_NAME } from '@/vite';
@@ -18,9 +14,10 @@ import {
     readJSONFile,
     readTextFileOrNull,
     spawnCommandToFile,
+    writeJSONFile,
     writeReadmeSection
 } from '@/utilities';
-import { documentRustCrates, isLicenseIdentifier } from '@/utilities/rustCrates';
+import { documentRustCrates, isLicenseAllowed, isLicenseIdentifier } from '@/utilities/rustCrates';
 import type { RustCrate, RustCrateTreeItem } from '@/utilities/rustCrates';
 
 // ── Types ────────────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -39,11 +36,33 @@ interface License {
 
 interface ProductionPackageLicense {
     licenses: string;
-    repository?: string;
-    publisher?: string;
+    repository?: string | undefined;
+    publisher?: string | undefined;
     email?: string;
-    path?: string;
-    licenseFile?: string;
+    path?: string | undefined;
+    licenseFile?: string | undefined;
+}
+
+// The parts of a CycloneDX bill of materials that are read here.
+interface CycloneDXBom {
+    components?: CycloneDXComponent[];
+}
+
+interface CycloneDXComponent {
+    group?: string; // An npm scope, such as '@vue'.
+    name: string;
+    version?: string;
+    author?: string;
+    licenses?: CycloneDXLicenseChoice[];
+    externalReferences?: { type: string; url: string }[];
+    properties?: { name: string; value: string }[];
+    evidence?: { licenses?: CycloneDXLicenseChoice[] };
+    components?: CycloneDXComponent[]; // A package's own copies of its dependencies, where their versions differ from the project's.
+}
+
+interface CycloneDXLicenseChoice {
+    expression?: string;
+    license?: { id?: string; name?: string; text?: { content: string; encoding?: string } };
 }
 
 interface PackageLock {
@@ -94,6 +113,11 @@ const END_MARKER = '<!-- DEPENDENCY_LICENSES_END -->';
 const LICENSES_HEADING = '## Dependency Licenses';
 const SHIPPED_PACKAGES_RECORD_PATH = `bundle-analysis-reports/${SHIPPED_PACKAGES_FILE_NAME}`; // Written by the 'recordShippedPackages' build plugin.
 const LICENSE_TREE_PATH = 'licenses/licenseTree.json';
+const LICENSES_PATH = 'licenses/licenses.json';
+const BOM_PATH = 'licenses/bom.json';
+const PACKAGE_PATH_PROPERTY = 'cdx:npm:package:path';
+const PLAIN_LICENSE_FILE_PATTERN = /^file: licen[cs]e(?:\.|$)/i;
+const STAND_IN_LICENSE_FILE_PATTERN = /^(?:copying|readme)(?:\.|$)/i;
 const NPM_REGISTRY_REQUEST_TIMEOUT = 10_000; // Without one, a request the registry never answers would hang the release.
 
 const DEPENDENCY_TREE_FLAGS =
@@ -245,7 +269,7 @@ function listProductionNames(rootPackage: RootPackage): Set<string> {
 }
 
 async function readLicenses(): Promise<Map<string, License>> {
-    const licenses = await readJSONFile<Record<string, ProductionPackageLicense>>('licenses/licenses.json');
+    const licenses = await readJSONFile<Record<string, ProductionPackageLicense>>(LICENSES_PATH);
     const licensesByKey = new Map<string, License>();
     for (const [key, value] of Object.entries(licenses)) {
         licensesByKey.set(key, parseLicenseEntry(key, value));
@@ -264,29 +288,133 @@ async function readLicenses(): Promise<Map<string, License>> {
     return licensesByKey;
 }
 
+// Reads every installed package's licence from a CycloneDX bill of materials, leaves out the excluded packages, and
+// stops if any that remain has a licence that is not allowed. Writes 'licenses/licenses.json' and copies each package's
+// licence to 'licenses/downloads'.
 async function checkLicenses(stepLabel: string, allowedLicenses: string, excludedKeys: string[], isProductionOnly: boolean): Promise<void> {
-    logStepHeader(stepLabel);
-    await new Promise<void>((resolve, reject) => {
-        const options: InitOpts & { files: string; relativeModulePath: boolean } = {
-            start: process.cwd(),
-            production: isProductionOnly,
-            json: true,
-            files: 'licenses/downloads',
-            relativeModulePath: true,
-            relativeLicensePath: true,
-            onlyAllow: allowedLicenses,
-            excludePackages: excludedKeys.join(';'),
-            out: 'licenses/licenses.json'
+    // Problems npm reports in the development tools' part of the whole tree do not stop the licences being read.
+    const scopeArguments = isProductionOnly ? ['--omit', 'dev'] : ['--ignore-npm-errors'];
+    await spawnCommandToFile(stepLabel, 'cyclonedx-npm', [...scopeArguments, '--gather-license-texts', '--output-format', 'JSON'], BOM_PATH);
+    const bom = await readJSONFile<CycloneDXBom>(BOM_PATH);
+    await fs.rm(BOM_PATH, { force: true }); // Differs on every run and holds every licence text, so is not kept.
+
+    const excludedKeySet = new Set(excludedKeys);
+    const componentsByKey = new Map<string, CycloneDXComponent>();
+    const components = listComponents(bom.components ?? []);
+    for (const component of components) {
+        const scope = component.group === undefined ? '' : `${component.group}/`;
+        const packageKey = `${scope}${component.name}@${component.version ?? ''}`;
+        if (!excludedKeySet.has(packageKey) && !componentsByKey.has(packageKey)) componentsByKey.set(packageKey, component);
+    }
+
+    const licenseNamesByKey = new Map(componentsByKey.entries().map(([packageKey, component]) => [packageKey, describeLicense(component)]));
+    checkLicensesAllowed(licenseNamesByKey, allowedLicenses);
+
+    const licenses: Record<string, ProductionPackageLicense> = {};
+    const packageKeys = componentsByKey.keys().toArray().toSorted(compareKeys);
+    for (const packageKey of packageKeys) {
+        const component = componentsByKey.get(packageKey);
+        if (component === undefined) continue;
+        const packagePath = component.properties?.find((property) => property.name === PACKAGE_PATH_PROPERTY)?.value;
+        licenses[packageKey] = {
+            licenses: licenseNamesByKey.get(packageKey) ?? 'UNKNOWN',
+            repository: formatRepositoryLink(component),
+            publisher: component.author,
+            path: packagePath,
+            licenseFile: await writeLicenseFile(packageKey, component, packagePath)
         };
-        initLicenseChecker(options, (error: Error | undefined) => {
-            if (error == null) {
-                resolve();
-            } else {
-                reject(error);
-            }
-        });
-    });
+    }
+    await writeJSONFile(LICENSES_PATH, licenses);
 }
+
+// Every package in the bill of materials, including the copies nested inside the package that installed them.
+function listComponents(components: CycloneDXComponent[]): CycloneDXComponent[] {
+    return components.flatMap((component) => [component, ...listComponents(component.components ?? [])]);
+}
+
+// Ordered by character code, as the licence table follows this order and an upper-case name sorts before a lower-case one.
+function compareKeys(a: string, b: string): number {
+    if (a === b) return 0;
+    return a < b ? -1 : 1;
+}
+
+// A package's licence as one name. Several declared licences are a choice between them. A licence that is not a
+// standard one is declared as a file to read or a web page, and is shown as 'Custom:' with that file or page.
+function describeLicense(component: CycloneDXComponent): string {
+    const names = new Set<string>();
+    const choices = component.licenses ?? [];
+    for (const choice of choices) {
+        const name = choice.expression ?? choice.license?.id ?? choice.license?.name;
+        if (name === undefined) continue;
+        const fileName = /^SEE LICENSE IN (.+)$/i.exec(name)?.[1];
+        const isWebPage = /^https?:\/\//.test(name);
+        if (fileName === undefined) names.add(isWebPage ? `Custom: ${name}` : name);
+        else names.add(`Custom: ${fileName}`);
+    }
+    if (names.size === 0) return 'UNKNOWN';
+    const [firstName = '', ...otherNames] = names;
+    return otherNames.length === 0 ? firstName : `(${[firstName, ...otherNames].join(' OR ')})`;
+}
+
+// A standard licence is checked as an SPDX expression: 'MIT OR Apache-2.0' needs either, '(MIT AND CC-BY-3.0)' needs
+// both. Any other allowed name, such as 'Custom: LICENSE.md' or a licence page, is looked for within the licence's name.
+// With no licences named, nothing is checked.
+function checkLicensesAllowed(licenseNamesByKey: Map<string, string>, allowedLicenses: string): void {
+    const allowedNames = allowedLicenses.split(';').filter((name) => name !== '');
+    if (allowedNames.length === 0) return;
+    const standardNames = allowedNames.filter((name) => isLicenseIdentifier(name));
+    const otherNames = allowedNames.filter((name) => !isLicenseIdentifier(name));
+    const failures = licenseNamesByKey
+        .entries()
+        .filter(([, licenseName]) => !isLicenseAllowed(licenseName, standardNames) && otherNames.every((name) => !licenseName.includes(name)))
+        .map(([packageKey, licenseName]) => `${packageKey} (${licenseName})`)
+        .toArray();
+    if (failures.length > 0) throw new Error(`Packages with licences not allowed: ${failures.join(', ')}.`);
+}
+
+// The package's repository as a web address, or nothing where it names none, so the npm page is linked instead.
+function formatRepositoryLink(component: CycloneDXComponent): string | undefined {
+    const repositoryURL = component.externalReferences?.find((reference) => reference.type === 'vcs')?.url;
+    // A package in a shared repository adds its folder after '#'.
+    return repositoryURL
+        ?.split('#', 1)[0]
+        ?.replace('git+ssh://git@', 'git://')
+        .replace('git+https://github.com', 'https://github.com')
+        .replace('git://github.com', 'https://github.com')
+        .replace('git@github.com:', 'https://github.com/')
+        .replace(/\.git$/, '');
+}
+
+/* eslint-disable security/detect-non-literal-fs-filename -- Paths come from the project's own installed packages, not user input. */
+
+// Writes the package's licence to 'licenses/downloads' and returns its path below 'licenses', or nothing where the
+// package has neither a licence file nor a stand-in for one.
+async function writeLicenseFile(packageKey: string, component: CycloneDXComponent, packagePath: string | undefined): Promise<string | undefined> {
+    const licenseFiles = component.evidence?.licenses ?? [];
+    const licenseFile = licenseFiles.find((choice) => PLAIN_LICENSE_FILE_PATTERN.test(choice.license?.name ?? '')) ?? licenseFiles[0];
+    const licenseText = licenseFile?.license?.text;
+    const encoding = licenseText?.encoding === 'base64' ? 'base64' : 'utf-8';
+    const content = licenseText === undefined ? await readStandInLicense(packagePath) : Buffer.from(licenseText.content, encoding);
+    if (content === undefined) return undefined;
+    const copiedPath = `downloads/${packageKey}-LICENSE.txt`;
+    await fs.mkdir(path.dirname(path.join('licenses', copiedPath)), { recursive: true });
+    await fs.writeFile(path.join('licenses', copiedPath), content);
+    return copiedPath;
+}
+
+// A package with no licence file often states its licence in 'COPYING' or its README, so that is copied in its place.
+async function readStandInLicense(packagePath: string | undefined): Promise<Buffer | undefined> {
+    if (packagePath === undefined) return undefined;
+    try {
+        const fileNames = await fs.readdir(packagePath);
+        const fileName = fileNames.filter((candidate) => STAND_IN_LICENSE_FILE_PATTERN.test(candidate)).toSorted((a, b) => a.localeCompare(b, 'en'))[0];
+        return fileName === undefined ? undefined : await fs.readFile(path.join(packagePath, fileName));
+    } catch {
+        return undefined; // The package's folder cannot be read, so it is shown without a licence file.
+    }
+}
+
+/* eslint-enable security/detect-non-literal-fs-filename -- End of the licence files' access. */
 
 async function readLockPackages(): Promise<Record<string, PackageLockEntry>> {
     const lockText = await readTextFileOrNull('package-lock.json');
@@ -399,8 +527,8 @@ function buildLicensesIntro(allowedLicenses: string, isFromBuild: boolean, hasRu
     const otherText = otherNames.length === 0 ? '' : `${formatLicenseListText(otherNames)}, whose own terms decide whether commercial use is allowed`;
     const licenseListText = [standardText, otherText].filter((text) => text !== '').join(', or ');
     const tools = hasRustCrates
-        ? '[license-checker](https://github.com/RSeidelsohn/license-checker-rseidelsohn) and [cargo tree](https://doc.rust-lang.org/cargo/commands/cargo-tree.html)'
-        : '[license-checker](https://github.com/RSeidelsohn/license-checker-rseidelsohn)';
+        ? '[CycloneDX](https://github.com/CycloneDX/cyclonedx-node-npm) and [cargo tree](https://doc.rust-lang.org/cargo/commands/cargo-tree.html)'
+        : '[CycloneDX](https://github.com/CycloneDX/cyclonedx-node-npm)';
     const buildScope =
         "The following table lists every package whose code, styles or assets are included in this project's build, as recorded by the build itself. Modules loaded at run time are not included; each documents its own.";
     const rustScope =
