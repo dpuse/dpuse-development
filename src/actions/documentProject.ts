@@ -15,9 +15,8 @@ import { getModuleConfig, logStepHeader, readJSONFile, readTextFileOrNull, spawn
 // ── Actions ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 /** Regenerates every generated section of the README, in the order they appear, then the API reference where the project keeps one. */
-// 'allowedLicenses' lists the licences dependencies may use, separated by ';'. 'isModuleLevel' breaks bundle sizes
-// down by module rather than by package.
-export async function documentProject(allowedLicenses = 'MIT', isModuleLevel = false): Promise<void> {
+// 'allowedLicenses' lists the licences dependencies may use, separated by ';'.
+export async function documentProject(allowedLicenses = 'MIT'): Promise<void> {
     try {
         const configJSON = await readJSONFile<ModuleConfig>('config.json');
         const isConnector = getModuleConfig(configJSON.id).typeId === 'connector'; // Only connectors have an actions table.
@@ -31,7 +30,7 @@ export async function documentProject(allowedLicenses = 'MIT', isModuleLevel = f
         if ((await readTextFileOrNull(BUNDLE_REPORT_PATH)) === null) {
             logStepHeader(`ℹ️  Bundle sizes NOT documented, as there is no '${BUNDLE_REPORT_PATH}' yet. Build the project first.`);
         } else {
-            await documentBundleSizes({ moduleLevel: isModuleLevel });
+            await documentBundleSizes();
         }
 
         await documentQualitySecurity();

@@ -101,10 +101,9 @@ describe('documentProject', () => {
     it('documents bundle sizes, between dependencies and quality and security, once a build has written its report', async () => {
         await project.writeFiles({ 'config.json': JSON.stringify({ id: 'dpuse-shared' }), 'bundle-analysis-reports/sonda/index.json': '{}' });
 
-        await documentProject('MIT', true);
+        await documentProject('MIT');
 
         expect(calls).toEqual(['opening', 'usage', 'dependencies', 'bundleSizes', 'qualitySecurity', 'contributingLicense']);
-        expect(documentBundleSizes).toHaveBeenCalledWith({ moduleLevel: true });
     });
 
     it('regenerates the API reference last, where the project keeps one', async () => {

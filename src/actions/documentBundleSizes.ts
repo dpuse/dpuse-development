@@ -1,3 +1,8 @@
+// ── External Dependencies & Registrations
+import type { Dirent } from 'node:fs';
+import { promises as fs } from 'node:fs';
+import { gzipSync } from 'node:zlib';
+
 // ── Local Framework
 import { logOperationHeader, logOperationSuccess, logStepHeader, readJSONFile, readTextFileOrNull, writeReadmeSection } from '@/utilities';
 
@@ -29,6 +34,13 @@ interface SondaJson {
 interface GroupData {
     sizes: Sizes;
     files: Map<string, Sizes>;
+    parts?: Map<string, GroupData>; // An inlined worker's own groups, shown as '↳' rows beneath it.
+}
+
+interface InlinedWorker {
+    bytes: number;
+    groups: Map<string, GroupData>;
+    wasm: WasmSizes; // The WebAssembly embedded in the worker, so it is not counted again for the file that holds the worker.
 }
 
 interface WasmSizes {
@@ -37,12 +49,16 @@ interface WasmSizes {
 }
 
 type GroupEntry = [string, GroupData];
+type FileEntry = [name: string, sizes: Sizes];
 type DependencyPath = [path: string, name: string];
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 export const BUNDLE_REPORT_PATH = 'bundle-analysis-reports/sonda/index.json'; // Written by Sonda during the Vite build.
 const WORKER_REPORT_PATH = 'bundle-analysis-reports/sonda/worker.json'; // Written for an inlined worker, where the project's build adds one.
+const OUTPUT_DIRECTORY = 'dist';
+// Source maps and type declarations are never loaded by a browser, and the shipped packages record only serves 'npm run document'.
+const UNLISTED_FILE_PATTERN = /^\.|\.map$|\.d\.ts$|^shipped-packages\.json$/;
 
 const BUNDLE_START_MARKER = '<!-- BUNDLE_START -->';
 const BUNDLE_END_MARKER = '<!-- BUNDLE_END -->';
@@ -50,8 +66,6 @@ const INDENT = '&nbsp;&nbsp;&nbsp;&nbsp;';
 const BAR_WIDTH = 20;
 const BAR_CHARACTER = '█';
 const PART_BAR_CHARACTER = '▒'; // Lighter, so a '↳' row reads as part of the row above. Markdown has no colour that also shows on npm.
-const MIN_VISIBLE_PERCENT = 100 / BAR_WIDTH / 2; // Below this a bar rounds to no characters at all.
-const SMALL_FILES_MAX_PERCENT = 100 / BAR_WIDTH; // The combined row for small files stays within one bar character.
 
 // GitHub strips CSS from a README, so column widths are steered through the text itself: the composition column has no
 // spaces to break at, and a long label is shortened so the column it gives up stays narrow.
@@ -60,14 +74,16 @@ const LABEL_MAX_LENGTH = 48;
 const BUNDLE_ANALYSIS_INTRO = `This report is updated with each release, from the bundle the release builds, using [Sonda](https://sonda.dev/), which analyses final source maps to reveal the actual effects of tree-shaking and minification rather than relying on pre-build estimates.\n\n_Note: Sonda's Vite reports currently exclude CSS files, since Vite does not generate source maps for CSS._`;
 
 const BAR_NOTE = `Bars show each row's share of its output file.`;
-const PART_ROW_NOTE = '↳ rows are part of the row above.'; // Only where the table has such rows, which module level leaves out.
+const PART_ROW_NOTE = '↳ rows are part of the row above.'; // Only where the table has such rows, beneath an inlined worker.
+const OTHER_FILES_NOTE =
+    'A file with no rows beneath it is shipped as it is, such as WebAssembly, so it has no breakdown. Source maps and type declarations are left out.';
 
 const MORE_NOTE =
     '+ n more = the row also holds n more files from the same package or folder, each no larger than the one named. A package can appear under several output files, each holding different files, never the same file twice.';
 
 const UNTRACED_LABEL = '(bundler output, whitespace & JSON)';
 const WORKER_LABEL = '(inlined worker)';
-const WORKER_NOTE = `${WORKER_LABEL} = a Web Worker built separately and embedded in its output file as text. Where the build records what it contains, its rows list that; any few bytes over are the escaping needed to embed it.`;
+const WORKER_NOTE = `${WORKER_LABEL} = a Web Worker built separately and embedded in its output file as text. Its rows list what it contains.`;
 const WASM_LABEL_PREFIX = '(Rust WebAssembly as base64';
 const WASM_NOTE = `${WASM_LABEL_PREFIX}…) = the compiled Rust code, embedded as base64 text, about a third larger than the binary it decodes to, which is the size given.`;
 
@@ -75,7 +91,7 @@ const UNTRACED_NOTE = `${UNTRACED_LABEL} = bytes Sonda can't trace to a source f
 
 // ── Actions ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-export async function documentBundleSizes(options?: { moduleLevel?: boolean }): Promise<void> {
+export async function documentBundleSizes(): Promise<void> {
     try {
         logOperationHeader('Document Bundle Sizes');
 
@@ -83,17 +99,23 @@ export async function documentBundleSizes(options?: { moduleLevel?: boolean }): 
         const json = await readJSONFile<SondaJson>(BUNDLE_REPORT_PATH);
         const workerReport = await readTextFileOrNull(WORKER_REPORT_PATH);
         const workerJson = workerReport === null ? undefined : (JSON.parse(workerReport) as SondaJson);
-        // The built files, read to find what is embedded in them as text, which Sonda cannot trace.
+        // The built files, read to find the WebAssembly embedded in them as text, which Sonda cannot trace.
         const assetContents = new Map<string, string | null>();
-        for (const resource of json.resources) if (resource.kind === 'asset') assetContents.set(resource.name, await readTextFileOrNull(resource.name));
+        for (const resource of [...json.resources, ...(workerJson?.resources ?? [])]) {
+            if (resource.kind === 'asset') assetContents.set(resource.name, await readTextFileOrNull(resource.name));
+        }
+        const otherFiles = await measureOtherFiles(new Set(assetContents.keys()));
 
         logStepHeader(`2️⃣  Insert table into 'README.md'`);
-        const bundleTable = buildBundleTable(json, { assetContents, isModuleLevel: options?.moduleLevel ?? false, workerJson });
-        const rowNote = bundleTable.includes('↳') ? `${BAR_NOTE} ${PART_ROW_NOTE}` : BAR_NOTE;
-        const moreNote = / \+ \d+ more \|/.test(bundleTable) ? MORE_NOTE : '';
-        const notes = [rowNote, moreNote, bundleTable.includes(WORKER_LABEL) ? WORKER_NOTE : '', bundleTable.includes(WASM_LABEL_PREFIX) ? WASM_NOTE : '', UNTRACED_NOTE].filter(
-            (note) => note !== ''
-        );
+        const bundleTable = buildBundleTable(json, { assetContents, otherFiles, workerJson });
+        const notes = [
+            bundleTable.includes('↳') ? `${BAR_NOTE} ${PART_ROW_NOTE}` : BAR_NOTE,
+            otherFiles.length > 0 ? OTHER_FILES_NOTE : '',
+            / \+ \d+ more \|/.test(bundleTable) ? MORE_NOTE : '',
+            bundleTable.includes(WORKER_LABEL) ? WORKER_NOTE : '',
+            bundleTable.includes(WASM_LABEL_PREFIX) ? WASM_NOTE : '',
+            UNTRACED_NOTE
+        ].filter((note) => note !== '');
 
         await writeReadmeSection(`## Bundle Analysis\n\n${BUNDLE_ANALYSIS_INTRO}\n\n${bundleTable}\n\n${notes.join('\n\n')}`, BUNDLE_START_MARKER, BUNDLE_END_MARKER);
 
@@ -106,64 +128,75 @@ export async function documentBundleSizes(options?: { moduleLevel?: boolean }): 
 
 // ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-// Each output file is broken down on its own, so its top-level bars add up to 100% of that file, and its heading gives its
-// share of the whole build. Rows marked '↳' are part of the row above; their bars use the same scale, so every bar in a
-// file can be compared with every other.
-function buildBundleTable(json: SondaJson, options: { assetContents: Map<string, string | null>; isModuleLevel: boolean; workerJson: SondaJson | undefined }): string {
-    const { assetContents, isModuleLevel, workerJson } = options;
-    const assetGroups = buildAssetGroups(json);
-    const workerGroups = workerJson === undefined ? undefined : buildAssetGroups(workerJson).values().next().value;
-    for (const [file, groups] of assetGroups) {
-        const content = assetContents.get(file);
-        if (content != null) separateEmbeddedContent(groups, content, workerGroups);
+// Sonda only reports the files the bundler writes, so a file the build copies into the output folder, such as a database
+// engine's WebAssembly, is measured here. Without these a README would show only the small script that loads it.
+async function measureOtherFiles(analysedNames: Set<string>): Promise<FileEntry[]> {
+    const files: FileEntry[] = [];
+    const entries = await readOutputDirectory();
+    for (const entry of entries) {
+        const name = `${entry.parentPath}/${entry.name}`;
+        if (!entry.isFile() || UNLISTED_FILE_PATTERN.test(entry.name) || analysedNames.has(name)) continue;
+        const content = await fs.readFile(name); // eslint-disable-line security/detect-non-literal-fs-filename -- A file found in the build's own output folder.
+        files.push([name, { uncompressed: content.byteLength, gzip: gzipSync(content).byteLength }]);
     }
-    const buildTotal = assetGroups
-        .values()
-        .flatMap((groups) => groups.values().toArray())
-        .reduce((sum, group) => sum + group.sizes.uncompressed, 0);
+    return files;
+}
 
-    const assets = json.resources
-        .filter((resource) => resource.kind === 'asset')
-        .map((asset): [string, Sizes] => [asset.name, resourceSizes(asset)])
-        .toSorted((a, b) => b[1].uncompressed - a[1].uncompressed);
+async function readOutputDirectory(): Promise<Dirent[]> {
+    try {
+        return await fs.readdir(OUTPUT_DIRECTORY, { recursive: true, withFileTypes: true });
+    } catch (error) {
+        if ((error as NodeJS.ErrnoException).code === 'ENOENT') return []; // No build yet, or a project that builds elsewhere.
+        throw error;
+    }
+}
+
+// Every shipped file has a heading row giving its size and its share of the whole build, largest first. A file the
+// bundler wrote is then broken down by package, with bars that add up to 100% of that file. Rows marked '↳' are part of
+// the row above; their bars use the same scale, so every bar in a file can be compared with every other.
+function buildBundleTable(json: SondaJson, options: { assetContents: Map<string, string | null>; otherFiles: FileEntry[]; workerJson: SondaJson | undefined }): string {
+    const { assetContents, otherFiles, workerJson } = options;
+    const assetGroups = buildAssetGroups(json);
+    const analysedFiles = json.resources.filter((resource) => resource.kind === 'asset').map((asset): FileEntry => [asset.name, resourceSizes(asset)]);
+    const files = [...analysedFiles, ...otherFiles].toSorted((a, b) => b[1].uncompressed - a[1].uncompressed);
+    const buildSizes = zero();
+    for (const [, sizes] of files) addTo(buildSizes, sizes);
+
+    // Embedded text is traced to no source, or to the one that embeds it, so it is given rows of its own: an inlined
+    // worker, placed in the first file with enough untraced bytes to hold it, and embedded WebAssembly.
+    const worker = workerJson === undefined ? undefined : readInlinedWorker(workerJson, assetContents);
+    const workerFile = worker === undefined ? undefined : files.find(([file]) => (assetGroups.get(file)?.get(UNTRACED_LABEL)?.sizes.uncompressed ?? 0) >= worker.bytes)?.[0];
+    for (const [file, groups] of assetGroups) {
+        const wasm = measureWasm(assetContents.get(file) ?? '');
+        if (worker !== undefined && file === workerFile) {
+            separateWorker(groups, worker);
+            separateWasm(groups, { bytes: wasm.bytes - worker.wasm.bytes, binaryBytes: wasm.binaryBytes - worker.wasm.binaryBytes });
+        } else {
+            separateWasm(groups, wasm);
+        }
+    }
 
     const lines = ['|Chunk/Module/File|Composition|', '|:------ |:-----------|'];
+    if (files.length > 1) lines.push(row(`**All ${String(files.length)} files**`, chunkSizes(buildSizes)));
 
-    for (const [file, sizes] of assets) {
+    for (const [file, sizes] of files) {
         const groups = assetGroups.get(file) ?? new Map<string, GroupData>();
-        const sortedGroups = [...groups].toSorted(compareGroups);
-        const fileTotal = sortedGroups.reduce((sum, [, group]) => sum + group.sizes.uncompressed, 0);
-
-        const buildShare = fileTotal > 0 && buildTotal > 0 ? ` · ${formatPercent(fileTotal, buildTotal)} of the build` : '';
-        lines.push(row(`**${fitLabel(file)}**`, `${chunkSizes(sizes)}${buildShare}`), ...renderGroupRows(sortedGroups, fileTotal, isModuleLevel));
+        const fileTotal = groups.values().reduce((sum, group) => sum + group.sizes.uncompressed, 0);
+        const buildShare = buildSizes.uncompressed > 0 ? ` · ${formatPercent(sizes.uncompressed, buildSizes.uncompressed)} of the build` : '';
+        lines.push(row(`**${fitLabel(file)}**`, `${chunkSizes(sizes)}${buildShare}`), ...renderGroupRows(groups, fileTotal));
     }
 
     return lines.join('\n');
 }
 
-// Embedded text is traced to no source, or to the one that embeds it, so it is measured in the built file and given rows
-// of its own: an inlined worker, broken down where its build was recorded, and embedded WebAssembly.
-function separateEmbeddedContent(groups: Map<string, GroupData>, content: string, workerGroups: Map<string, GroupData> | undefined): void {
-    const workerText = findInlinedWorkerText(content);
-    const workerWasm = measureWasm(workerText ?? '');
-    const allWasm = measureWasm(content);
-    separateWasm(groups, { bytes: allWasm.bytes - workerWasm.bytes, binaryBytes: allWasm.binaryBytes - workerWasm.binaryBytes });
-    if (workerText !== undefined) separateWorker(groups, Buffer.byteLength(workerText), workerWasm, workerGroups);
-}
-
-// Vite embeds an inlined worker as a string it passes to 'new Worker(… encodeURIComponent(name))'; this finds that string.
-function findInlinedWorkerText(content: string): string | undefined {
-    if (!content.includes('new Worker(')) return undefined;
-    const variableName = /encodeURIComponent\((\w+)\)/.exec(content)?.[1];
-    if (variableName === undefined) return undefined;
-    // eslint-disable-next-line security/detect-non-literal-regexp -- The name is a JavaScript identifier, matched by '\w+' above.
-    const declaration = new RegExp(String.raw`(?:var|let|const)\s+${variableName}\s*=\s*(["'\`])`).exec(content);
-    const quote = declaration?.[1];
-    if (declaration === null || quote === undefined) return undefined;
-    const start = declaration.index + declaration[0].length;
-    let end = start;
-    while (end < content.length && content[end] !== quote) end += content[end] === '\\' ? 2 : 1;
-    return content.slice(start, end);
+// The worker's report says what it contains, and the copy of the worker beside it is read for its embedded WebAssembly.
+function readInlinedWorker(workerJson: SondaJson, assetContents: Map<string, string | null>): InlinedWorker | undefined {
+    const [file, groups] = buildAssetGroups(workerJson).entries().next().value ?? [];
+    if (file === undefined || groups === undefined) return undefined;
+    const bytes = groups.values().reduce((sum, group) => sum + group.sizes.uncompressed, 0);
+    const wasm = measureWasm(assetContents.get(file) ?? '');
+    separateWasm(groups, wasm);
+    return { bytes, groups, wasm };
 }
 
 function measureWasm(text: string): WasmSizes {
@@ -200,32 +233,14 @@ function separateWasm(groups: Map<string, GroupData>, wasm: WasmSizes): void {
     groups.set(label, { sizes: { uncompressed: wasm.bytes, gzip: 0 }, files: new Map([['', { uncompressed: wasm.bytes, gzip: 0 }]]) });
 }
 
-function separateWorker(groups: Map<string, GroupData>, workerBytes: number, workerWasm: WasmSizes, workerGroups: Map<string, GroupData> | undefined): void {
+// The worker is embedded as one string, which Sonda cannot trace, so its bytes are taken out of the untraced ones.
+function separateWorker(groups: Map<string, GroupData>, worker: InlinedWorker): void {
     const untraced = groups.get(UNTRACED_LABEL);
     const untracedSizes = untraced?.files.get('');
-    if (untraced === undefined || untracedSizes === undefined || untracedSizes.uncompressed < workerBytes) return;
-    subtractBytes(groups, untraced, '', untracedSizes, workerBytes);
-    const files = workerGroups === undefined ? new Map([['', { uncompressed: workerBytes, gzip: 0 }]]) : flattenWorkerGroups(workerGroups, workerBytes, workerWasm);
-    groups.set(WORKER_LABEL, { sizes: { uncompressed: workerBytes, gzip: 0 }, files });
-}
-
-// The worker's own rows: its source files by name, and each dependency, the WebAssembly and its untraced bytes as one.
-function flattenWorkerGroups(workerGroups: Map<string, GroupData>, workerBytes: number, workerWasm: WasmSizes): Map<string, Sizes> {
-    separateWasm(workerGroups, workerWasm);
-    const files = new Map<string, Sizes>();
-    for (const [groupName, group] of workerGroups) {
-        if (groupName === 'src') {
-            for (const [fileName, sizes] of group.files) files.set(fileName, { ...sizes });
-        } else {
-            const label = group.files.size === 1 ? formatGroupLabel(groupName, getSoleFileName(group.files)) : groupName;
-            files.set(label, { ...group.sizes });
-        }
-    }
-    const reportedBytes = files.values().reduce((sum, sizes) => sum + sizes.uncompressed, 0);
-    const untraced = files.get(UNTRACED_LABEL) ?? zero();
-    untraced.uncompressed += Math.max(0, workerBytes - reportedBytes);
-    if (untraced.uncompressed > 0) files.set(UNTRACED_LABEL, untraced);
-    return files;
+    if (untraced === undefined || untracedSizes === undefined) return;
+    subtractBytes(groups, untraced, '', untracedSizes, worker.bytes);
+    const sizes = { uncompressed: worker.bytes, gzip: 0 };
+    groups.set(WORKER_LABEL, { sizes, files: new Map([['', { ...sizes }]]), parts: worker.groups });
 }
 
 function subtractBytes(groups: Map<string, GroupData>, group: GroupData, fileName: string, sizes: Sizes, bytes: number): void {
@@ -242,70 +257,26 @@ function compareGroups(a: GroupEntry, b: GroupEntry): number {
     return b[1].sizes.uncompressed - a[1].sizes.uncompressed;
 }
 
-// A group of several files is labelled by its largest, with a count of the rest, so a package spread over several output
-// files reads as different parts of it rather than as a copy in each.
-function renderGroupRows(sortedGroups: GroupEntry[], fileTotal: number, isModuleLevel: boolean): string[] {
-    const lines: string[] = [];
-
-    for (const [groupName, { sizes: groupSizes, files }] of sortedGroups) {
-        if (files.size === 1) {
-            const fileName = getSoleFileName(files);
-            lines.push(row(`${INDENT}${fitLabel(formatGroupLabel(groupName, fileName))}`, composition(groupSizes.uncompressed, fileTotal)));
-            continue;
-        }
-
-        lines.push(row(`${INDENT}${formatSeveralFilesLabel(groupName, files)}`, composition(groupSizes.uncompressed, fileTotal)));
-        if (!isModuleLevel) lines.push(...renderFileRows(files, fileTotal));
-    }
-
-    return lines;
-}
-
-function renderFileRows(files: Map<string, Sizes>, fileTotal: number): string[] {
-    const sortedFiles = [...files].toSorted((a, b) => b[1].uncompressed - a[1].uncompressed);
-    const smallCount = countSmallFiles(sortedFiles, fileTotal);
-    const namedFiles = smallCount > 0 ? sortedFiles.slice(0, -smallCount) : sortedFiles;
-
-    const rows = namedFiles.map(([fileName, fileSizes]) => row(`${INDENT}${INDENT}↳ ${fitLabel(fileName)}`, composition(fileSizes.uncompressed, fileTotal, PART_BAR_CHARACTER)));
-    if (smallCount > 0) {
-        const smallBytes = sortedFiles.slice(-smallCount).reduce((sum, [, fileSizes]) => sum + fileSizes.uncompressed, 0);
-        rows.push(row(`${INDENT}${INDENT}↳ ${String(smallCount)} smaller files`, composition(smallBytes, fileTotal, PART_BAR_CHARACTER)));
-    }
-    return rows;
-}
-
-// Files too small to show any bar are combined into one row, smallest first, stopping before that row would pass one bar
-// character, so it never hides much. A lone small file keeps its name, as combining one file would hide it for nothing.
-function countSmallFiles(sortedFiles: [string, Sizes][], fileTotal: number): number {
-    if (fileTotal <= 0) return 0;
-    let count = 0;
-    let bytes = 0;
-    for (const [, fileSizes] of sortedFiles.toReversed()) {
-        const isTooSmallToShow = (fileSizes.uncompressed / fileTotal) * 100 < MIN_VISIBLE_PERCENT;
-        const isCombinedRowStillSmall = ((bytes + fileSizes.uncompressed) / fileTotal) * 100 <= SMALL_FILES_MAX_PERCENT;
-        if (!isTooSmallToShow || !isCombinedRowStillSmall) break;
-        count++;
-        bytes += fileSizes.uncompressed;
-    }
-    return count >= 2 ? count : 0;
+function renderGroupRows(groups: Map<string, GroupData>, fileTotal: number, isPart = false): string[] {
+    const indent = isPart ? `${INDENT}${INDENT}↳ ` : INDENT;
+    return [...groups].toSorted(compareGroups).flatMap(([groupName, group]) => [
+        row(`${indent}${formatGroupLabel(groupName, group.files)}`, composition(group.sizes.uncompressed, fileTotal, isPart ? PART_BAR_CHARACTER : BAR_CHARACTER)),
+        ...(group.parts === undefined ? [] : renderGroupRows(group.parts, fileTotal, true))
+    ]);
 }
 
 // A bar and percentage of the output file, then the size, so the share and the bytes behind it read together.
-function composition(bytes: number, fileTotal: number, barCharacter = BAR_CHARACTER): string {
+function composition(bytes: number, fileTotal: number, barCharacter: string): string {
     return `${bar(fileTotal > 0 ? (bytes / fileTotal) * 100 : 0, barCharacter)} · ${formatBytes(bytes)}`;
 }
 
-// A group with no file name, such as the untraced bytes, is shown on its own rather than as 'group → '.
-function formatGroupLabel(groupName: string, fileName: string): string {
-    return fileName === '' ? groupName : `${groupName} → ${fileName}`;
-}
-
-// The inlined worker's rows are its own breakdown rather than files, so it keeps its plain label. The count is left out of
-// any shortening, so it is never the part cut.
-function formatSeveralFilesLabel(groupName: string, files: Map<string, Sizes>): string {
-    if (groupName === WORKER_LABEL) return groupName;
+// A group of several files is labelled by its largest, with a count of the rest, so a package spread over several output
+// files reads as different parts of it rather than as a copy in each. The count is left out of any shortening, so it is
+// never the part cut. A group with no file name, such as the untraced bytes, is shown on its own rather than as 'group → '.
+function formatGroupLabel(groupName: string, files: Map<string, Sizes>): string {
     const [largestFileName] = [...files].toSorted((a, b) => b[1].uncompressed - a[1].uncompressed)[0] ?? [''];
-    return `${fitLabel(formatGroupLabel(groupName, largestFileName))} + ${String(files.size - 1)} more`;
+    const label = fitLabel(largestFileName === '' ? groupName : `${groupName} → ${largestFileName}`);
+    return files.size > 1 ? `${label} + ${String(files.size - 1)} more` : label;
 }
 
 // A 'group → ' prefix is always kept whole. The path after it loses its start, keeping the file name it ends with, and
@@ -323,12 +294,6 @@ function fitLabel(label: string): string {
 // inside one, where it would show as written.
 function row(label: string, composition: string): string {
     return `| ${label} | ${composition.replaceAll(' ', '&nbsp;')} |`;
-}
-
-function getSoleFileName(files: Map<string, Sizes>): string {
-    const [fileName] = files.keys();
-    if (fileName === undefined) throw new Error('Expected exactly one file');
-    return fileName;
 }
 
 // Builds, per output asset, the size totals grouped by dependency (or 'src'/'wasm'/'(runtime)'), and by file within each group.
@@ -391,7 +356,7 @@ function chunkSizes(sizes: Sizes): string {
     return `${formatBytes(sizes.uncompressed)} · gzip ${formatBytes(sizes.gzip)}`;
 }
 
-function bar(pct: number, barCharacter = BAR_CHARACTER): string {
+function bar(pct: number, barCharacter: string): string {
     const count = Math.round((pct / 100) * BAR_WIDTH);
     return `\`${barCharacter.repeat(count)}${'░'.repeat(BAR_WIDTH - count)}\` ${pct.toFixed(1)}%`;
 }
@@ -410,5 +375,6 @@ function formatPercent(part: number, whole: number): string {
 }
 
 function formatBytes(bytes: number): string {
-    return bytes < 1024 ? `${String(bytes)} B` : `${(bytes / 1024).toFixed(1)} kB`;
+    if (bytes < 1024) return `${String(bytes)} B`;
+    return bytes < 1024 * 1024 ? `${(bytes / 1024).toFixed(1)} kB` : `${(bytes / 1024 / 1024).toFixed(1)} MB`;
 }
