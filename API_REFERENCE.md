@@ -12,7 +12,7 @@ Every export, grouped by import path. This file is updated each time `npm run do
     > Builds the package using Vite. Output to '/dist' directory. Builds bundle analysis reports.
 - **`checkProject`**`()`
     > Checks the configuration files against the DPUse templates, then lists outdated dependencies.
-- **`documentProject`**`(allowedLicenses?: string, isModuleLevel?: boolean)`
+- **`documentProject`**`(allowedLicenses?: string)`
     > Regenerates every generated section of the README, in the order they appear, then the API reference where the project keeps one.
 - **`formatCode`**`()`
     > Uses prettier to enforce formatting style rules.
