@@ -1,7 +1,7 @@
 {
   "metadata": {
     "version": "0.14.0",
-    "generatedAt": "2026-11-18T15:27:04.671Z",
+    "generatedAt": "2026-11-18T16:26:26.936Z",
     "integration": "vite",
     "sources": false,
     "gzip": true,
@@ -31,8 +31,8 @@
       "name": "[unassigned]",
       "type": "other",
       "format": "other",
-      "uncompressed": 314,
-      "gzip": 176,
+      "uncompressed": 371,
+      "gzip": 183,
       "brotli": 0,
       "parent": "dist/vite.es.js"
     },
@@ -84,8 +84,8 @@
       "kind": "asset",
       "name": "dist/vite.es.js",
       "type": "script",
-      "uncompressed": 2557,
-      "gzip": 1154,
+      "uncompressed": 3479,
+      "gzip": 1496,
       "brotli": 0
     },
     {
@@ -549,15 +549,15 @@
       "name": "src/vite.ts",
       "type": "script",
       "format": "esm",
-      "uncompressed": 4598
+      "uncompressed": 6603
     },
     {
       "kind": "chunk",
       "name": "src/vite.ts",
       "type": "script",
       "format": "esm",
-      "uncompressed": 2243,
-      "gzip": 978,
+      "uncompressed": 3108,
+      "gzip": 1313,
       "brotli": 0,
       "parent": "dist/vite.es.js"
     }

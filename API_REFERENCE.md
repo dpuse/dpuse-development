@@ -34,7 +34,7 @@ Every export, grouped by import path. This file is updated each time `npm run do
 ### Functions
 
 - **`recordShippedPackages`**`()`
-    > Records which installed packages a build ships, read from the bundler's own list of what it put in each output file. Modules loaded at run time by URL are not part of the build, so are not recorded; each reports its own. A bundled package that publishes its own record, as DPUse packages do, adds the packages bundled inside it.
+    > Records which installed packages a build ships, read from the bundler's own list of what it put in each output file. The bundler lists a stylesheet as one module whatever it brings in with '@import', so those are read from the stylesheet itself. Modules loaded at run time by URL are not part of the build, so are not recorded; each reports its own. A bundled package that publishes its own record, as DPUse packages do, adds the packages bundled inside it.
 
 ### Constants
 

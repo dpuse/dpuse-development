@@ -11,12 +11,14 @@ import { useTemporaryProject } from './support/temporaryProject';
 
 const project = useTemporaryProject();
 
-// Runs the plugin's build hooks over one bundle, as Vite would, and returns the record written beside the reports.
-async function recordBundle(bundle: Record<string, object>): Promise<ShippedPackagesRecord> {
+// Runs the plugin's build hooks over the sources Vite transforms and the bundle it then writes, as Vite would, and
+// returns the record written beside the reports.
+async function recordBundle(bundle: Record<string, object>, sources: Record<string, string> = {}): Promise<ShippedPackagesRecord> {
     type Hook = (...hookArguments: unknown[]) => void;
-    const plugin = recordShippedPackages() as unknown as { configResolved: Hook; generateBundle: Hook; closeBundle: Hook };
+    const plugin = recordShippedPackages() as unknown as { configResolved: Hook; transform: { handler: Hook }; generateBundle: Hook; closeBundle: Hook };
     const root = process.cwd();
     plugin.configResolved({ root, build: { outDir: 'dist' } });
+    for (const [moduleId, source] of Object.entries(sources)) plugin.transform.handler(source, path.resolve(moduleId));
     plugin.generateBundle({}, bundle);
     plugin.closeBundle();
     return (await project.readJSON('bundle-analysis-reports/shipped-packages.json')) as unknown as ShippedPackagesRecord;
@@ -50,6 +52,41 @@ describe('recordShippedPackages', () => {
         const record = await recordBundle({ 'inter.woff2': { type: 'asset', originalFileNames: ['node_modules/@fontsource-variable/inter/files/inter.woff2'] } });
 
         expect(record.packages).toEqual(['@fontsource-variable/inter@5.3.0']);
+    });
+
+    it('records a package a stylesheet imports, which the bundler does not list, but not one in a comment', async () => {
+        await project.writeFiles({
+            'node_modules/tailwindcss/package.json': JSON.stringify({ name: 'tailwindcss', version: '4.3.5' }),
+            'node_modules/@scope/theme/package.json': JSON.stringify({ name: '@scope/theme', version: '2.0.0' }),
+            'node_modules/unused/package.json': JSON.stringify({ name: 'unused', version: '1.0.0' })
+        });
+        const source = `@import 'tailwindcss';\n/* @import 'unused'; */\n@import url("@scope/theme/dark.css") layer(theme);\n@import 'https://example.com/remote.css';`;
+
+        const record = await recordBundle({ 'index.js': chunk([]) }, { 'src/assets/main.css': source });
+
+        expect(record.packages).toEqual(['@scope/theme@2.0.0', 'tailwindcss@4.3.5']);
+    });
+
+    it('follows a stylesheet’s imports of the project’s own files, and reads a component’s style block', async () => {
+        await project.writeFiles({
+            'node_modules/first/package.json': JSON.stringify({ name: 'first', version: '1.0.0' }),
+            'node_modules/second/package.json': JSON.stringify({ name: 'second', version: '1.0.0' }),
+            'node_modules/third/package.json': JSON.stringify({ name: 'third', version: '1.0.0' }),
+            'src/assets/theme.css': `@import './main.css';\n@import 'first';`,
+            'src/assets/plain.css': `@import 'second';`
+        });
+
+        const record = await recordBundle(
+            { 'index.js': chunk([]) },
+            {
+                // The second import names a file beside the stylesheet without './', as CSS allows.
+                'src/assets/main.css': `@import './theme.css';\n@import 'plain.css';`,
+                'src/App.vue?vue&type=style&index=0&lang.css': `@import 'third';`,
+                'src/index.ts': `const note = "@import 'unused'";`
+            }
+        );
+
+        expect(record.packages).toEqual(['first@1.0.0', 'second@1.0.0', 'third@1.0.0']);
     });
 
     it('adds the packages bundled inside a package that publishes its own record', async () => {

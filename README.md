@@ -78,21 +78,21 @@ _Note: Sonda's Vite reports currently exclude CSS files, since Vite does not gen
 
 | Chunk/Module/File                                                     | Composition                                                                                   |
 | :-------------------------------------------------------------------- | :-------------------------------------------------------------------------------------------- |
-| **All 4 files**                                                       | 106.1&nbsp;kB&nbsp;·&nbsp;gzip&nbsp;33.3&nbsp;kB                                              |
-| **dist/dpuse-development.es.js**                                      | 67.9&nbsp;kB&nbsp;·&nbsp;gzip&nbsp;21.8&nbsp;kB&nbsp;·&nbsp;64.0%&nbsp;of&nbsp;the&nbsp;build |
+| **All 4 files**                                                       | 107.0&nbsp;kB&nbsp;·&nbsp;gzip&nbsp;33.6&nbsp;kB                                              |
+| **dist/dpuse-development.es.js**                                      | 67.9&nbsp;kB&nbsp;·&nbsp;gzip&nbsp;21.8&nbsp;kB&nbsp;·&nbsp;63.5%&nbsp;of&nbsp;the&nbsp;build |
 | &nbsp;&nbsp;&nbsp;&nbsp;src → documentDependencies.ts + 21 more       | `██████████████████░░`&nbsp;87.7%&nbsp;·&nbsp;59.6&nbsp;kB                                    |
 | &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON)           | `██░░░░░░░░░░░░░░░░░░`&nbsp;12.3%&nbsp;·&nbsp;8.4&nbsp;kB                                     |
-| **dist/utilities-Cr4u5egW.js**                                        | 27.2&nbsp;kB&nbsp;·&nbsp;gzip&nbsp;7.3&nbsp;kB&nbsp;·&nbsp;25.7%&nbsp;of&nbsp;the&nbsp;build  |
+| **dist/utilities-Cr4u5egW.js**                                        | 27.2&nbsp;kB&nbsp;·&nbsp;gzip&nbsp;7.3&nbsp;kB&nbsp;·&nbsp;25.4%&nbsp;of&nbsp;the&nbsp;build  |
 | &nbsp;&nbsp;&nbsp;&nbsp;@dpuse/dpuse-shared → dist/dpuse-shared.es.js | `███████████░░░░░░░░░`&nbsp;54.8%&nbsp;·&nbsp;14.9&nbsp;kB                                    |
 | &nbsp;&nbsp;&nbsp;&nbsp;src → index.ts                                | `███████░░░░░░░░░░░░░`&nbsp;32.6%&nbsp;·&nbsp;8.9&nbsp;kB                                     |
 | &nbsp;&nbsp;&nbsp;&nbsp;valibot → dist/index.mjs                      | `░░░░░░░░░░░░░░░░░░░░`&nbsp;1.5%&nbsp;·&nbsp;413&nbsp;B                                       |
 | &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON)           | `██░░░░░░░░░░░░░░░░░░`&nbsp;11.1%&nbsp;·&nbsp;3.0&nbsp;kB                                     |
-| **dist/apiReference-BdQJPhGc.js**                                     | 8.4&nbsp;kB&nbsp;·&nbsp;gzip&nbsp;3.1&nbsp;kB&nbsp;·&nbsp;8.0%&nbsp;of&nbsp;the&nbsp;build    |
+| **dist/apiReference-BdQJPhGc.js**                                     | 8.4&nbsp;kB&nbsp;·&nbsp;gzip&nbsp;3.1&nbsp;kB&nbsp;·&nbsp;7.9%&nbsp;of&nbsp;the&nbsp;build    |
 | &nbsp;&nbsp;&nbsp;&nbsp;src → apiReference.ts                         | `███████████████████░`&nbsp;95.3%&nbsp;·&nbsp;8.0&nbsp;kB                                     |
 | &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON)           | `█░░░░░░░░░░░░░░░░░░░`&nbsp;4.7%&nbsp;·&nbsp;407&nbsp;B                                       |
-| **dist/vite.es.js**                                                   | 2.5&nbsp;kB&nbsp;·&nbsp;gzip&nbsp;1.1&nbsp;kB&nbsp;·&nbsp;2.4%&nbsp;of&nbsp;the&nbsp;build    |
-| &nbsp;&nbsp;&nbsp;&nbsp;src → vite.ts                                 | `██████████████████░░`&nbsp;87.7%&nbsp;·&nbsp;2.2&nbsp;kB                                     |
-| &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON)           | `██░░░░░░░░░░░░░░░░░░`&nbsp;12.3%&nbsp;·&nbsp;314&nbsp;B                                      |
+| **dist/vite.es.js**                                                   | 3.4&nbsp;kB&nbsp;·&nbsp;gzip&nbsp;1.5&nbsp;kB&nbsp;·&nbsp;3.2%&nbsp;of&nbsp;the&nbsp;build    |
+| &nbsp;&nbsp;&nbsp;&nbsp;src → vite.ts                                 | `██████████████████░░`&nbsp;89.3%&nbsp;·&nbsp;3.0&nbsp;kB                                     |
+| &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON)           | `██░░░░░░░░░░░░░░░░░░`&nbsp;10.7%&nbsp;·&nbsp;371&nbsp;B                                      |
 
 Bars show each row's share of its output file.
 

@@ -1,6 +1,6 @@
 // ── External Dependencies & Registrations
 import path from 'node:path';
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readFileSync, statSync, writeFileSync } from 'node:fs';
 import type { Plugin, ResolvedConfig } from 'vite';
 
 // ── Types ────────────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -34,6 +34,9 @@ interface OutputAsset {
 
 export const SHIPPED_PACKAGES_FILE_NAME = 'shipped-packages.json';
 const REPORT_DIRECTORY = 'bundle-analysis-reports';
+const STYLE_FILE_PATTERN = /\.(?:css|less|pcss|postcss|sass|scss|styl|stylus)(?:$|\?)/; // Ends a '<style>' block's id too, as in 'App.vue?vue&type=style&lang.css'.
+const STYLE_COMMENT_PATTERN = /\/\*[\s\S]*?\*\//g;
+const STYLE_IMPORT_PATTERN = /@import\s+(?:url\(\s*["']|["'])([^"']+)["']/g;
 
 // ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -43,8 +46,9 @@ const collectionsByRoot = new Map<string, ShippedPackagesCollection>();
 // ── Actions ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 /** Records which installed packages a build ships, read from the bundler's own list of what it put in each output file.
- *  Modules loaded at run time by URL are not part of the build, so are not recorded; each reports its own. A bundled
- *  package that publishes its own record, as DPUse packages do, adds the packages bundled inside it. */
+ *  The bundler lists a stylesheet as one module whatever it brings in with '@import', so those are read from the
+ *  stylesheet itself. Modules loaded at run time by URL are not part of the build, so are not recorded; each reports
+ *  its own. A bundled package that publishes its own record, as DPUse packages do, adds the packages bundled inside it. */
 export function recordShippedPackages(): Plugin {
     let config: ResolvedConfig | undefined;
 
@@ -54,10 +58,17 @@ export function recordShippedPackages(): Plugin {
         configResolved(resolvedConfig) {
             config = resolvedConfig;
         },
+        transform: {
+            // Before any other plugin, as one such as Tailwind replaces an '@import' with the styles it brings in.
+            order: 'pre',
+            handler(code, id) {
+                if (config === undefined || !STYLE_FILE_PATTERN.test(id)) return;
+                collectStyleImports(establishCollection(config.root), code, id.split('?', 1)[0] ?? id, new Set());
+            }
+        },
         generateBundle(_options, bundle) {
             if (config === undefined) return;
-            const collection = collectionsByRoot.get(config.root) ?? { packages: new Set<string>(), external: new Set<string>() };
-            collectionsByRoot.set(config.root, collection);
+            const collection = establishCollection(config.root);
             const outputFileNames = new Set(Object.keys(bundle));
             for (const output of Object.values(bundle) as (OutputChunk | OutputAsset)[]) {
                 if (output.type === 'chunk') collectChunk(collection, output, outputFileNames);
@@ -73,6 +84,12 @@ export function recordShippedPackages(): Plugin {
 }
 
 // ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+function establishCollection(root: string): ShippedPackagesCollection {
+    const collection = collectionsByRoot.get(root) ?? { packages: new Set<string>(), external: new Set<string>() };
+    collectionsByRoot.set(root, collection);
+    return collection;
+}
 
 function collectChunk(collection: ShippedPackagesCollection, chunk: OutputChunk, outputFileNames: Set<string>): void {
     const moduleIds = [...Object.keys(chunk.modules), ...(chunk.moduleIds ?? [])];
@@ -92,6 +109,39 @@ function collectAsset(collection: ShippedPackagesCollection, asset: OutputAsset,
 }
 
 /* eslint-disable security/detect-non-literal-fs-filename -- Paths come from the build's own module list and config, not user input. */
+
+// Adds each installed package a stylesheet imports. A file beside the stylesheet is tried first, as CSS allows
+// '@import "theme.css"' for one, and is read in turn, because its own imports reach the output as well. A package's
+// stylesheet is not read, so a package it imports from is not found.
+function collectStyleImports(collection: ShippedPackagesCollection, source: string, stylesheetPath: string, readPaths: Set<string>): void {
+    const stylesheetDirectory = path.dirname(stylesheetPath);
+    const imports = source.replaceAll(STYLE_COMMENT_PATTERN, '').matchAll(STYLE_IMPORT_PATTERN);
+    for (const [, specifier = ''] of imports) {
+        const importedPath = path.resolve(stylesheetDirectory, specifier);
+        if (statSync(importedPath, { throwIfNoEntry: false })?.isFile() === true) {
+            if (readPaths.has(importedPath)) continue;
+            readPaths.add(importedPath);
+            collectStyleImports(collection, readFileSync(importedPath, 'utf-8'), importedPath, readPaths);
+            continue;
+        }
+        const packageName = extractPackageName(specifier);
+        const packageDirectory = packageName === undefined ? undefined : findInstalledPackage(stylesheetDirectory, packageName);
+        if (packageDirectory !== undefined) addPackage(collection, path.join(packageDirectory, 'package.json'));
+    }
+}
+
+// Finds a package where Node would: in the 'node_modules' of the starting folder, then of each folder above it. An
+// import that names no installed package, such as one through an alias, is not found.
+function findInstalledPackage(startDirectory: string, packageName: string): string | undefined {
+    let directory = startDirectory;
+    for (;;) {
+        const packageDirectory = path.join(directory, 'node_modules', packageName);
+        if (existsSync(path.join(packageDirectory, 'package.json'))) return packageDirectory;
+        const parentDirectory = path.dirname(directory);
+        if (parentDirectory === directory) return undefined;
+        directory = parentDirectory;
+    }
+}
 
 // Adds the package a module or asset belongs to, and anything bundled inside that package according to its own record.
 function addPackage(collection: ShippedPackagesCollection, moduleId: string): void {
