@@ -27,10 +27,10 @@ These entries matched, but fallow does the same without them. Remove the entry f
 
 | Metric | Value |
 |:-------|------:|
-| Total LOC | 3935 |
+| Total LOC | 3952 |
 | Avg Cyclomatic | 3.0 |
 | P90 Cyclomatic | 7 |
-| Cyclomatic units | Functions: 312, module scopes: 0, templates: 0 |
+| Cyclomatic units | Functions: 316, module scopes: 0, templates: 0 |
 | Dead Files | 0.0% |
 | Dead Exports | 0.0% |
 | Maintainability (avg) | 92.1 |
@@ -47,7 +47,7 @@ These entries matched, but fallow does the same without them. Remove the entry f
 | `src/actions/documentBundleSizes.ts` | 87.9 | 1 | 1 | 0% | 0.31 | 13.0 |
 | `src/utilities/rustCrates.ts` | 90.0 | 1 | 1 | 0% | 0.24 | 13.0 |
 | `src/utilities/apiReference.ts` | 83.1 | 1 | 1 | 0% | 0.47 | 12.0 |
-| `src/actions/documentDependencies.ts` | 85.8 | 1 | 3 | 0% | 0.29 | 12.0 |
+| `src/actions/documentDependencies.ts` | 85.5 | 1 | 3 | 0% | 0.30 | 12.0 |
 | `src/actions/auditDependencies.ts` | 90.9 | 2 | 1 | 0% | 0.21 | 9.0 |
 | `src/vite.ts` | 91.6 | 1 | 0 | 0% | 0.28 | 8.3 |
 | `src/utilities/index.ts` | 93.1 | 23 | 0 | 0% | 0.23 | 8.0 |
@@ -78,8 +78,8 @@ These entries matched, but fallow does the same without them. Remove the entry f
 |:-----|:------|:--------|:------|:--------|:-------|:------|
 | `src/actions/documentBundleSizes.ts` | 63.2 | 46 | 1838 | 0.31 | 1 | cooling |
 | `src/actions/checkConfigFiles.ts` | 44.7 | 51 | 565 | 0.21 | 1 | cooling |
+| `src/actions/documentDependencies.ts` | 44.6 | 32 | 941 | 0.30 | 1 | stable |
 | `src/utilities/index.ts` | 44.1 | 41 | 610 | 0.23 | 23 | stable |
-| `src/actions/documentDependencies.ts` | 43.1 | 32 | 941 | 0.29 | 1 | stable |
 | `src/actions/documentOpening.ts` | 22.4 | 22 | 365 | 0.19 | 1 | accelerating |
 | `src/actions/checkDependencies.ts` | 18.8 | 19 | 249 | 0.20 | 1 | stable |
 | `src/actions/documentUsage.ts` | 17.3 | 17 | 334 | 0.18 | 1 | accelerating |

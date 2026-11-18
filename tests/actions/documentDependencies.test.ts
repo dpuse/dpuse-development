@@ -36,7 +36,10 @@ vi.mock('@/utilities', async (importOriginal) => ({
 
 // Listing Rust crates runs Cargo and is tested on its own; here it returns whatever crates a test sets.
 const rustCrates = vi.hoisted((): { result: unknown } => ({ result: null }));
-vi.mock('@/utilities/rustCrates', () => ({ documentRustCrates: vi.fn(() => Promise.resolve(rustCrates.result)) }));
+vi.mock('@/utilities/rustCrates', async (importOriginal) => ({
+    ...(await importOriginal<object>()),
+    documentRustCrates: vi.fn(() => Promise.resolve(rustCrates.result))
+}));
 
 // ── Tests ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -252,6 +255,39 @@ describe('documentDependencies', () => {
             expect(readme).not.toContain('compiler-dom');
         });
 
+        it('lists a package once beneath a parent that reaches it both directly and through a package that does not ship', async () => {
+            await project.writeFiles({
+                'package.json': JSON.stringify({ name: 'dpuse-connector', dependencies: { 'apache-arrow': '17.0.0' } }),
+                'package-lock.json': JSON.stringify({
+                    packages: {
+                        '': { name: 'dpuse-connector', dependencies: { 'apache-arrow': '17.0.0' } },
+                        'node_modules/apache-arrow': { version: '17.0.0', dependencies: { '@swc/helpers': '^0.5.0', tslib: '^2.8.0' } },
+                        'node_modules/@swc/helpers': { version: '0.5.23', dependencies: { tslib: '^2.8.0' } },
+                        'node_modules/tslib': { version: '2.8.1' }
+                    }
+                }),
+                'bundle-analysis-reports/shipped-packages.json': JSON.stringify({ packages: ['apache-arrow@17.0.0', 'tslib@2.8.1'], external: [] }),
+                'README.md': buildReadme('DEPENDENCY_LICENSES')
+            });
+            licenseChecker.licenses = { 'apache-arrow@17.0.0': { licenses: 'Apache-2.0' }, 'tslib@2.8.1': { licenses: '0BSD' } };
+            // npm lists the package that does not ship first, so 'tslib' is met through it before it is met directly.
+            licenseTree.tree = {
+                dependencies: {
+                    'apache-arrow': {
+                        version: '17.0.0',
+                        dependencies: { '@swc/helpers': { version: '0.5.23', dependencies: { tslib: { version: '2.8.1' } } }, tslib: { version: '2.8.1' } }
+                    }
+                }
+            };
+            stubRegistry({});
+
+            await documentDependencies('0BSD;Apache-2.0');
+
+            const readme = await project.readFile('README.md');
+            expect(readme).toContain('- **[apache-arrow](https://www.npmjs.com/package/apache-arrow)** 17.0.0\n  - **[tslib](https://www.npmjs.com/package/tslib)** 2.8.1\n');
+            expect(readme.match(/- \*\*\[tslib\]/g)).toHaveLength(1);
+        });
+
         it('adds the Rust crates compiled into the WebAssembly to the table and the tree, under the project’s own crate', async () => {
             await project.writeFiles({
                 'package.json': JSON.stringify({ name: 'dpuse-app' }),
@@ -349,7 +385,8 @@ describe('documentDependencies', () => {
             'old@1.0.0': { licenses: 'BSD-3-Clause', repository: 'https://github.com/example/old' },
             'lastmonth@1.0.0': { licenses: 'MIT' },
             'unreachable@1.0.0': { licenses: 'MIT' },
-            'broken@1.0.0': { licenses: 'MIT' }
+            'broken@1.0.0': { licenses: 'MIT' },
+            'ahead@1.1.0-dev110.0': { licenses: 'MIT' }
         };
         licenseTree.tree = {
             dependencies: {
@@ -357,7 +394,8 @@ describe('documentDependencies', () => {
                 '@scope/current': { version: '2.0.0', dependencies: { old: { version: '1.0.0' }, untracked: { version: '0.1.0' } } },
                 lastmonth: { version: '1.0.0' },
                 unreachable: { version: '1.0.0' },
-                broken: { version: '1.0.0' }
+                broken: { version: '1.0.0' },
+                ahead: { version: '1.1.0-dev110.0' }
             }
         };
         stubRegistry({
@@ -366,7 +404,8 @@ describe('documentDependencies', () => {
             old: { latest: '1.0.0', time: { '1.0.0': '2025-01-10T00:00:00Z' } },
             lastmonth: { latest: '1.0.0', time: { '1.0.0': '2026-08-10T00:00:00Z' } },
             unreachable: 'reject',
-            broken: 'fail'
+            broken: 'fail',
+            ahead: { latest: '1.1.0-dev57.0', time: { '1.1.0-dev57.0': '2026-06-22T00:00:00Z', '1.1.0-dev110.0': '2026-09-10T00:00:00Z' } }
         });
 
         await documentDependencies('Apache-2.0;BSD-3-Clause;MIT');
@@ -382,9 +421,14 @@ describe('documentDependencies', () => {
         expect(readme).toContain('  - **[old](https://github.com/example/old)** 1.0.0 — 20 mths ago: 2025-01-10 ⚠️');
         expect(readme).toContain('  - **untracked** 0.1.0\n');
         expect(readme).toContain('- **[lastmonth](https://www.npmjs.com/package/lastmonth)** 1.0.0 — 1 mth ago: 2026-08-10');
-        // Without registry data there is nothing to add after the version.
+        // The registry's 'latest' was released before the installed version, so the package is not behind it.
+        expect(readme).toContain('- **[ahead](https://www.npmjs.com/package/ahead)** 1.1.0-dev110.0 — this month: 2026-09-10\n');
+        // Without registry data there is nothing to add after the version, and the missing dates are reported.
         expect(readme).toContain('- **[unreachable](https://www.npmjs.com/package/unreachable)** 1.0.0\n');
         expect(readme).toContain('- **[broken](https://www.npmjs.com/package/broken)** 1.0.0\n');
+        expect(console.warn).toHaveBeenCalledWith('⚠️   No answer from the npm registry, so shown without release dates: unreachable, broken');
+        // A request the registry never answers is given up on, so it cannot hang a release.
+        expect(fetch).toHaveBeenCalledWith('https://registry.npmjs.org/valibot', { signal: expect.any(AbortSignal) as AbortSignal });
     });
 
     it('shows an outdated package without a release date', async () => {
@@ -397,7 +441,7 @@ describe('documentDependencies', () => {
 
         const readme = await project.readFile('README.md');
         expect(readme).toContain('confirmed to use MIT, all of which allow commercial use.');
-        expect(readme).toContain('All are used unmodified, so any licence conditions that apply only to modified versions are not triggered.');
+        expect(readme).toContain('All are used as published. Where the build has to adjust a dependency so it can be bundled, the adjustment only affects how its files are located and loaded, never what the code does.');
         expect(readme).toContain('- **[undated](https://www.npmjs.com/package/undated)** 1.0.0 — → latest: 2.0.0 ❗');
     });
 
@@ -409,7 +453,24 @@ describe('documentDependencies', () => {
 
         await documentDependencies('Apache-2.0;MIT');
 
-        expect(await project.readFile('README.md')).toContain('confirmed to use Apache-2.0 or MIT');
+        expect(await project.readFile('README.md')).toContain('confirmed to use Apache-2.0 or MIT, all of which allow commercial use.');
+    });
+
+    it('claims commercial use only for standard licences, leaving any other to its own terms', async () => {
+        await project.writeFiles({ 'package.json': JSON.stringify({ name: '@dpuse/dpuse-shared' }), 'README.md': buildReadme('DEPENDENCY_LICENSES') });
+        licenseChecker.licenses = {};
+        licenseTree.tree = {};
+        stubRegistry({});
+
+        await documentDependencies('Custom: LICENSE.md;MIT');
+        expect(await project.readFile('README.md')).toContain(
+            'confirmed to use MIT, all of which allow commercial use, or Custom: LICENSE.md, whose own terms decide whether commercial use is allowed. All are used'
+        );
+
+        await documentDependencies('https://www.highcharts.com/license');
+        const readme = await project.readFile('README.md');
+        expect(readme).toContain('confirmed to use https://www.highcharts.com/license, whose own terms decide whether commercial use is allowed. All are used');
+        expect(readme).not.toContain('all of which allow commercial use');
     });
 
     it('exits when the licence check fails', async () => {

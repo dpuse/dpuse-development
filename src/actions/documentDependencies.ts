@@ -7,7 +7,6 @@ import { init as initLicenseChecker } from 'license-checker-rseidelsohn';
 import type { InitOpts } from 'license-checker-rseidelsohn';
 
 // ── Local Framework
-import { documentRustCrates } from '@/utilities/rustCrates';
 import { SHIPPED_PACKAGES_FILE_NAME } from '@/vite';
 import type { ShippedPackagesRecord } from '@/vite';
 import {
@@ -21,6 +20,7 @@ import {
     spawnCommandToFile,
     writeReadmeSection
 } from '@/utilities';
+import { documentRustCrates, isLicenseIdentifier } from '@/utilities/rustCrates';
 import type { RustCrate, RustCrateTreeItem } from '@/utilities/rustCrates';
 
 // ── Types ────────────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -94,6 +94,7 @@ const END_MARKER = '<!-- DEPENDENCY_LICENSES_END -->';
 const LICENSES_HEADING = '## Dependency Licenses';
 const SHIPPED_PACKAGES_RECORD_PATH = `bundle-analysis-reports/${SHIPPED_PACKAGES_FILE_NAME}`; // Written by the 'recordShippedPackages' build plugin.
 const LICENSE_TREE_PATH = 'licenses/licenseTree.json';
+const NPM_REGISTRY_REQUEST_TIMEOUT = 10_000; // Without one, a request the registry never answers would hang the release.
 
 const DEPENDENCY_TREE_FLAGS =
     "Packages flagged ❗ have a newer version available; ⚠️ indicates a package that hasn't been updated in the last 6 months or longer. Neither flag necessarily indicates a problem: we let new releases stabilise before upgrading, and some packages are mature and stable (have limited or no dependencies), so they require no active development.";
@@ -102,9 +103,9 @@ const SHIPPED_TREE_INTRO = `The dependency tree below shows how each package in 
 
 // ── Actions ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-/** Identify licenses of the project's production and peer dependencies. Updates the table in the Dependency Licenses
- *  section of this page and summary files licenses.json and licenseTree.json in th licenses directory of this
- *  repository. Also downloads a copy of dependency license to `licenses/downloads'. */
+/** Checks the licences of the packages the project's build ships, or of its production dependencies where there is no
+ *  build record. Updates the Dependency Licenses section of the README, writes 'licenses/licenses.json' and
+ *  'licenses/licenseTree.json', and copies each package's licence to 'licenses/downloads'. */
 export async function documentDependencies(allowedLicenses = 'MIT'): Promise<void> {
     try {
         logOperationHeader('Document Dependencies');
@@ -205,7 +206,7 @@ async function insertShippedLicensesIntoReadme(stepIcon: string, context: Shippe
     const licenseTree = await readJSONFile<NpmPackageTree>(LICENSE_TREE_PATH);
     const rootEntries = Object.entries(licenseTree.dependencies ?? {}).toSorted(([a], [b]) => Number(!productionNames.has(a)) - Number(!productionNames.has(b)));
     const treeItems: string[] = [];
-    walkShippedTree(rootEntries, { licensesByKey, shippedKeys, shownKeys: new Set() }, treeItems, 0, false);
+    walkShippedTree(rootEntries, { licensesByKey, shippedKeys, shownKeys: new Set() }, treeItems, 0);
     const javaScriptTree = treeItems.length === 0 ? 'None.' : treeItems.join('\n');
     const rustTree = (rustCrates?.treeItems ?? []).map((item) => formatCrateTreeItem(item, crateLicensesByKey)).join('\n');
     const treeContent = hasRustCrates ? `${SHIPPED_TREE_INTRO}\n\n#### JavaScript\n\n${javaScriptTree}\n\n#### Rust\n\n${rustTree}` : `${SHIPPED_TREE_INTRO}\n\n${javaScriptTree}`;
@@ -257,6 +258,9 @@ async function readLicenses(): Promise<Map<string, License>> {
             license.publishedDate = data.publishedDate;
         })
     );
+    const unansweredNames = licensesByKey.values().flatMap((license) => (license.latestVersion === '' ? [license.name] : []));
+    const unansweredList = [...unansweredNames].join(', ');
+    if (unansweredList !== '') console.warn(`⚠️   No answer from the npm registry, so shown without release dates: ${unansweredList}`);
     return licensesByKey;
 }
 
@@ -387,7 +391,13 @@ function resolveLockPath(packages: Record<string, PackageLockEntry>, fromPath: s
 }
 
 function buildLicensesIntro(allowedLicenses: string, isFromBuild: boolean, hasRustCrates = false): string {
-    const licenseListText = formatLicenseListText(allowedLicenses.split(';'));
+    // Only a standard licence is known to allow commercial use. Any other, such as a paid one, is used on its own terms.
+    const allowedNames = allowedLicenses.split(';');
+    const standardNames = allowedNames.filter((name) => isLicenseIdentifier(name));
+    const otherNames = allowedNames.filter((name) => !isLicenseIdentifier(name));
+    const standardText = standardNames.length === 0 ? '' : `${formatLicenseListText(standardNames)}, all of which allow commercial use`;
+    const otherText = otherNames.length === 0 ? '' : `${formatLicenseListText(otherNames)}, whose own terms decide whether commercial use is allowed`;
+    const licenseListText = [standardText, otherText].filter((text) => text !== '').join(', or ');
     const tools = hasRustCrates
         ? '[license-checker](https://github.com/RSeidelsohn/license-checker-rseidelsohn) and [cargo tree](https://doc.rust-lang.org/cargo/commands/cargo-tree.html)'
         : '[license-checker](https://github.com/RSeidelsohn/license-checker-rseidelsohn)';
@@ -399,7 +409,7 @@ function buildLicensesIntro(allowedLicenses: string, isFromBuild: boolean, hasRu
     const scope = isFromBuild
         ? fromBuildScope
         : 'The following table lists all production dependencies. This project has no build record, so the list is taken from its declared dependencies.';
-    return `License data is updated each time \`npm run document\` is run, using ${tools}. ${scope} These dependencies have been checked and confirmed to use ${licenseListText}, all of which allow commercial use. All are used unmodified, so any licence conditions that apply only to modified versions are not triggered. Developers cloning this repository should independently verify development dependencies.`;
+    return `License data is updated each time \`npm run document\` is run, using ${tools}. ${scope} These dependencies have been checked and confirmed to use ${licenseListText}. All are used as published. Where the build has to adjust a dependency so it can be bundled, the adjustment only affects how its files are located and loaded, never what the code does. Developers cloning this repository should independently verify development dependencies.`;
 }
 
 function formatLicenseListText(licenses: string[]): string {
@@ -426,7 +436,7 @@ function parseLicenseEntry(key: string, value: ProductionPackageLicense): Licens
 
 async function fetchNpmData(name: string, version: string): Promise<{ latestVersion: string; latestPublishedDate: string; publishedDate: string }> {
     try {
-        const response = await fetch(`https://registry.npmjs.org/${encodeURIComponent(name)}`);
+        const response = await fetch(`https://registry.npmjs.org/${encodeURIComponent(name)}`, { signal: AbortSignal.timeout(NPM_REGISTRY_REQUEST_TIMEOUT) });
         if (response.ok) {
             const data = (await response.json()) as { 'dist-tags'?: Record<string, string>; time?: Record<string, string> };
             const distributionTags = new Map(Object.entries(data['dist-tags'] ?? {}));
@@ -437,7 +447,7 @@ async function fetchNpmData(name: string, version: string): Promise<{ latestVers
             return { latestVersion, latestPublishedDate, publishedDate };
         }
     } catch {
-        // Ignore network errors.
+        // Ignore network errors and timeouts.
     }
     return { latestVersion: '', latestPublishedDate: '', publishedDate: '' };
 }
@@ -466,20 +476,24 @@ function walkTreeList(dependencies: Record<string, NpmPackageTree>, licensesByKe
 
 // Lists each shipped package where it is reached. A package that does not ship, such as 'vue' whose '@vue/*' parts are
 // bundled, or a development tool, is passed over and what ships beneath it is listed in its place. A package reached
-// that way is listed once only, as it is already listed wherever a shipped package reaches it.
-function walkShippedTree(entries: [string, NpmPackageTree][], context: ShippedTreeContext, items: string[], depth: number, isPassedOver: boolean): void {
+// that way is listed once only, as it is already listed wherever a shipped package reaches it, and never twice beneath
+// the same package. 'passedOverKeys' is given while walking beneath a package that was passed over, and holds what is
+// already listed at this level.
+function walkShippedTree(entries: [string, NpmPackageTree][], context: ShippedTreeContext, items: string[], depth: number, passedOverKeys?: Set<string>): void {
+    const levelKeys = passedOverKeys ?? new Set<string>();
     for (const [name, node] of entries) {
         if (node.version === undefined) continue;
         const packageKey = `${name}@${node.version}`;
         const childEntries = Object.entries(node.dependencies ?? {});
         if (!context.shippedKeys.has(packageKey)) {
-            walkShippedTree(childEntries, context, items, depth, true);
+            walkShippedTree(childEntries, context, items, depth, levelKeys);
             continue;
         }
-        if (isPassedOver && context.shownKeys.has(packageKey)) continue;
+        if (levelKeys.has(packageKey) || (passedOverKeys !== undefined && context.shownKeys.has(packageKey))) continue;
+        levelKeys.add(packageKey);
         context.shownKeys.add(packageKey);
         items.push(formatTreeItem(name, node.version, context.licensesByKey.get(packageKey), '  '.repeat(depth)));
-        walkShippedTree(childEntries, context, items, depth + 1, false);
+        walkShippedTree(childEntries, context, items, depth + 1);
     }
 }
 
@@ -491,7 +505,9 @@ function formatTreeItem(name: string, version: string, license: License | undefi
 function formatVersionDetail(license: License | undefined): string {
     if (license == null) return '';
     const published = license.publishedDate ? determineLatestAge(license.publishedDate.split('T', 1)[0]) : '';
-    const isOutdated = license.latestVersion !== '' && license.latestVersion !== license.installedVersion;
+    // npm's 'latest' can be older than what is installed, such as a pre-release line, so it must also have been released later.
+    const isLatestOlder = license.publishedDate !== '' && license.latestPublishedDate !== '' && Date.parse(license.latestPublishedDate) <= Date.parse(license.publishedDate);
+    const isOutdated = license.latestVersion !== '' && license.latestVersion !== license.installedVersion && !isLatestOlder;
     if (!isOutdated) return published === '' ? '' : ` — ${published}`;
     const latestAge = license.latestPublishedDate ? determineLatestAge(license.latestPublishedDate.split('T', 1)[0]) : '';
     const latestClause = latestAge === '' ? `latest: ${license.latestVersion} ❗` : `latest: ${license.latestVersion} — ${latestAge} ❗`;

@@ -138,12 +138,12 @@ function writeRecord(collection: ShippedPackagesCollection, directories: string[
 
 /* eslint-enable security/detect-non-literal-fs-filename -- End of the build plugin's file access. */
 
-// The package a bare import names, such as 'vue' for 'vue/dist/x.js' or '@scope/pkg' for '@scope/pkg/sub'. Built-in
-// modules, relative paths and URLs name no package.
 function compareNames(a: string, b: string): number {
     return a.localeCompare(b, 'en');
 }
 
+// The package a bare import names, such as 'vue' for 'vue/dist/x.js' or '@scope/pkg' for '@scope/pkg/sub'. Built-in
+// modules, relative paths and URLs name no package.
 function extractPackageName(specifier: string): string | undefined {
     if (specifier.startsWith('.') || specifier.startsWith('/') || specifier.startsWith('node:') || /^[a-z]+:\/\//i.test(specifier)) return undefined;
     const parts = specifier.split('/', 2);

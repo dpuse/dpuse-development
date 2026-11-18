@@ -78,16 +78,16 @@ _Note: Sonda's Vite reports currently exclude CSS files, since Vite does not gen
 
 | Chunk/Module/File                                                     | Composition                                                                                   |
 | :-------------------------------------------------------------------- | :-------------------------------------------------------------------------------------------- |
-| **All 4 files**                                                       | 102.9&nbsp;kB&nbsp;·&nbsp;gzip&nbsp;32.3&nbsp;kB                                              |
-| **dist/dpuse-development.es.js**                                      | 64.7&nbsp;kB&nbsp;·&nbsp;gzip&nbsp;20.8&nbsp;kB&nbsp;·&nbsp;62.9%&nbsp;of&nbsp;the&nbsp;build |
-| &nbsp;&nbsp;&nbsp;&nbsp;src → documentDependencies.ts + 21 more       | `█████████████████░░░`&nbsp;87.1%&nbsp;·&nbsp;56.4&nbsp;kB                                    |
-| &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON)           | `███░░░░░░░░░░░░░░░░░`&nbsp;12.9%&nbsp;·&nbsp;8.4&nbsp;kB                                     |
-| **dist/utilities-Cr4u5egW.js**                                        | 27.2&nbsp;kB&nbsp;·&nbsp;gzip&nbsp;7.3&nbsp;kB&nbsp;·&nbsp;26.5%&nbsp;of&nbsp;the&nbsp;build  |
+| **All 4 files**                                                       | 103.6&nbsp;kB&nbsp;·&nbsp;gzip&nbsp;32.5&nbsp;kB                                              |
+| **dist/dpuse-development.es.js**                                      | 65.5&nbsp;kB&nbsp;·&nbsp;gzip&nbsp;21.0&nbsp;kB&nbsp;·&nbsp;63.2%&nbsp;of&nbsp;the&nbsp;build |
+| &nbsp;&nbsp;&nbsp;&nbsp;src → documentDependencies.ts + 21 more       | `█████████████████░░░`&nbsp;87.2%&nbsp;·&nbsp;57.1&nbsp;kB                                    |
+| &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON)           | `███░░░░░░░░░░░░░░░░░`&nbsp;12.8%&nbsp;·&nbsp;8.4&nbsp;kB                                     |
+| **dist/utilities-Cr4u5egW.js**                                        | 27.2&nbsp;kB&nbsp;·&nbsp;gzip&nbsp;7.3&nbsp;kB&nbsp;·&nbsp;26.3%&nbsp;of&nbsp;the&nbsp;build  |
 | &nbsp;&nbsp;&nbsp;&nbsp;@dpuse/dpuse-shared → dist/dpuse-shared.es.js | `███████████░░░░░░░░░`&nbsp;54.8%&nbsp;·&nbsp;14.9&nbsp;kB                                    |
 | &nbsp;&nbsp;&nbsp;&nbsp;src → index.ts                                | `███████░░░░░░░░░░░░░`&nbsp;32.6%&nbsp;·&nbsp;8.9&nbsp;kB                                     |
 | &nbsp;&nbsp;&nbsp;&nbsp;valibot → dist/index.mjs                      | `░░░░░░░░░░░░░░░░░░░░`&nbsp;1.5%&nbsp;·&nbsp;413&nbsp;B                                       |
 | &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON)           | `██░░░░░░░░░░░░░░░░░░`&nbsp;11.1%&nbsp;·&nbsp;3.0&nbsp;kB                                     |
-| **dist/apiReference-BdQJPhGc.js**                                     | 8.4&nbsp;kB&nbsp;·&nbsp;gzip&nbsp;3.1&nbsp;kB&nbsp;·&nbsp;8.2%&nbsp;of&nbsp;the&nbsp;build    |
+| **dist/apiReference-BdQJPhGc.js**                                     | 8.4&nbsp;kB&nbsp;·&nbsp;gzip&nbsp;3.1&nbsp;kB&nbsp;·&nbsp;8.1%&nbsp;of&nbsp;the&nbsp;build    |
 | &nbsp;&nbsp;&nbsp;&nbsp;src → apiReference.ts                         | `███████████████████░`&nbsp;95.3%&nbsp;·&nbsp;8.0&nbsp;kB                                     |
 | &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON)           | `█░░░░░░░░░░░░░░░░░░░`&nbsp;4.7%&nbsp;·&nbsp;407&nbsp;B                                       |
 | **dist/vite.es.js**                                                   | 2.5&nbsp;kB&nbsp;·&nbsp;gzip&nbsp;1.1&nbsp;kB&nbsp;·&nbsp;2.4%&nbsp;of&nbsp;the&nbsp;build    |
