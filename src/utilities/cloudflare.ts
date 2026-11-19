@@ -30,10 +30,17 @@ const SAMPLE_DATA_BUCKET = 'dpuse-sample-data-eu';
 // TODO: Send a release secret with these config writes once dpuse-api requires one on its '/configs' write routes,
 // which are open to anyone (found October 2026).
 //
-// TODO: Split 'CLOUDFLARE_PUBLISH_TOKEN' (found October 2026). One token, held by all 28 repos, can edit every Worker
-// and route on all accounts, so a compromised release in any repo could replace the live app. Give module repos an R2
-// only token for this account, give a Workers deploy token only to repos that run 'wrangler deploy', and remove the
-// secret from repos that never touch Cloudflare.
+// NOTE: Each project's publish workflow hands Wrangler the GitHub secret 'CLOUDFLARE_PUBLISH_TOKEN'. The secret holds
+// one of three Cloudflare tokens, each allowed only what its projects do, so a compromised release in a repo that only
+// uploads files cannot replace the live app:
+// - 'CLOUDFLARE_PUBLISH_TOKEN_R2_UPLOAD', for projects that only upload files to R2. The organisation secret for the
+//   connectors, tools, presenters, cookbooks and dpuse-resources, and a repo secret in dpuse-engine, because a private
+//   repo cannot read an organisation secret on GitHub's free plan.
+// - 'CLOUDFLARE_PUBLISH_TOKEN_WORKERS_DEPLOY', a repo secret in dpuse-api and dpuse-app, which deploy Workers. A repo
+//   secret is used in place of the organisation secret of the same name.
+// - 'CLOUDFLARE_PUBLISH_TOKEN_WORKERS_DEPLOY_KV', a repo secret in dpuse-kb, which deploys a Worker and writes to KV.
+// dpuse-shared, dpuse-development and eslint-config-dpuse never call Cloudflare, so the organisation secret is not
+// shared with them.
 export async function putState(): Promise<void> {
     const configJSON = await readJSONFile<ModuleConfig>('config.json');
     const options = {
@@ -92,21 +99,15 @@ export async function uploadModuleToR2(packageJSON: PackageJson, uploadDirectory
 
 // ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-// One 'wrangler r2 bulk put' call, which reads the files to upload from a list in a temporary file.
+// One 'wrangler r2 bulk put' call, which reads the files to upload from a list in a temporary file. Only
+// dpuse-resources uploads this way, when its sample data is published.
 //
-// TODO: Recheck this on every Wrangler upgrade, as Wrangler marks 'r2 bulk put' as experimental ("🚧 `wrangler r2 bulk
-// put` is an experimental command"), so it may change. As of Wrangler 4.147, the list is a JSON array of
-// '{ key, file }', each entry may carry nothing else, and options such as '--content-type' and '--cache-control' apply
-// to every file in the call, which is why files are grouped by content type. The tests pin the exact arguments, so a
-// changed command shows up there; also check the command's '--help' and the warning it prints. If it is withdrawn,
-// fall back to one 'r2 object put' per file, as before (slow: one Wrangler process per file), or upload through R2's
-// S3-compatible API.
-//
-// TODO: Report to Cloudflare (https://github.com/cloudflare/workers-sdk) that in local mode ('--local'), Wrangler 4.147
-// stores a bulk-put key containing a space with '%20', e.g. 'fileStore/Encoding%20Samples/ascii.txt', because it
-// builds a URL from the key without encoding it (`http://localhost/${entry.key}`). Found in October 2026. Remote mode,
-// which this uses, sends each file through the same function as 'r2 object put' and stores the key correctly, so this
-// only matters when trying the upload against local storage.
+// NOTE: Wrangler marks 'r2 bulk put' as experimental and leaves it out of its list of commands, so it may change. Check
+// it when dpuse-resources upgrades Wrangler. As of Wrangler 4.159, the list is a JSON array of '{ key, file }', an
+// entry cannot set options of its own, and options such as '--content-type' and '--cache-control' apply to every file
+// in the call, which is why files are grouped by content type. The tests pin the arguments this function passes, so
+// they catch a change made here but not a change in Wrangler. If the command is withdrawn, fall back to one 'r2 object
+// put' per file, as before (slow: one Wrangler process per file), or upload through R2's S3-compatible API.
 async function bulkPutToR2(files: BulkPutFile[], options: string[]): Promise<void> {
     if (files.length === 0) return;
     const listFolderPath = await fs.mkdtemp(path.join(os.tmpdir(), 'dpuse-r2-bulk-'));

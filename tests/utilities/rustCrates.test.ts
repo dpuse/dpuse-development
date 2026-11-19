@@ -1,5 +1,3 @@
-/* eslint-disable security/detect-non-literal-fs-filename -- Tests only name files inside their own temporary folder. */
-
 // ── External Dependencies & Registrations
 import { promises as fs } from 'node:fs';
 import path from 'node:path';
@@ -159,5 +157,3 @@ describe('documentRustCrates', () => {
         });
     });
 });
-
-/* eslint-enable security/detect-non-literal-fs-filename -- Tests only name files inside their own temporary folder. */

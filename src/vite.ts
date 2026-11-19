@@ -108,8 +108,6 @@ function collectAsset(collection: ShippedPackagesCollection, asset: OutputAsset,
     for (const originalFileName of originalFileNames) addPackage(collection, path.resolve(root, originalFileName));
 }
 
-/* eslint-disable security/detect-non-literal-fs-filename -- Paths come from the build's own module list and config, not user input. */
-
 // Adds each installed package a stylesheet imports. A file beside the stylesheet is tried first, as CSS allows
 // '@import "theme.css"' for one, and is read in turn, because its own imports reach the output as well. A package's
 // stylesheet is not read, so a package it imports from is not found.
@@ -185,8 +183,6 @@ function writeRecord(collection: ShippedPackagesCollection, directories: string[
         writeFileSync(path.join(directory, SHIPPED_PACKAGES_FILE_NAME), content, 'utf-8');
     }
 }
-
-/* eslint-enable security/detect-non-literal-fs-filename -- End of the build plugin's file access. */
 
 function compareNames(a: string, b: string): number {
     return a.localeCompare(b, 'en');

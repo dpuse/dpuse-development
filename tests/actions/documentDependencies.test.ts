@@ -1,5 +1,3 @@
-/* eslint-disable security/detect-non-literal-fs-filename -- Tests only name files inside their own temporary folder. */
-
 // ── External Dependencies & Registrations
 import { promises as fs } from 'node:fs';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
@@ -437,7 +435,9 @@ describe('documentDependencies', () => {
         const readme = await project.readFile('README.md');
         expect(readme).toContain('confirmed to use Apache-2.0, BSD-3-Clause, or MIT');
         expect(readme).toContain('|[valibot](https://github.com/open-circle/valibot)|1.5.0|MIT|[LICENSE](licenses/downloads/valibot@1.5.0-LICENSE.txt)|');
-        expect(readme).toContain('|[@scope/current](https://www.npmjs.com/package/@scope/current)|2.0.0|Apache-2.0|[LICENSE](licenses/downloads/@scope/current@2.0.0-LICENSE.txt)|');
+        expect(readme).toContain(
+            '|[@scope/current](https://www.npmjs.com/package/@scope/current)|2.0.0|Apache-2.0|[LICENSE](licenses/downloads/@scope/current@2.0.0-LICENSE.txt)|'
+        );
         expect(await project.readFile('licenses/downloads/valibot@1.5.0-LICENSE.txt')).toBe('MIT License');
         expect(await project.readFile('licenses/downloads/@scope/current@2.0.0-LICENSE.txt')).toBe('Apache License');
         expect(readme).toContain('|[old](https://github.com/example/old)|1.0.0|BSD-3-Clause|⚠️  No license file|');
@@ -467,7 +467,9 @@ describe('documentDependencies', () => {
 
         const readme = await project.readFile('README.md');
         expect(readme).toContain('confirmed to use MIT, all of which allow commercial use.');
-        expect(readme).toContain('All are used as published. Where the build has to adjust a dependency so it can be bundled, the adjustment only affects how its files are located and loaded, never what the code does.');
+        expect(readme).toContain(
+            'All are used as published. Where the build has to adjust a dependency so it can be bundled, the adjustment only affects how its files are located and loaded, never what the code does.'
+        );
         expect(readme).toContain('- **[undated](https://www.npmjs.com/package/undated)** 1.0.0 — → latest: 2.0.0 ❗');
     });
 
@@ -610,5 +612,3 @@ async function listCheckedKeys(): Promise<string[]> {
 async function readCheckedLicenses(): Promise<object> {
     return JSON.parse(await fs.readFile('licenses/licenses.json', 'utf-8')) as object;
 }
-
-/* eslint-enable security/detect-non-literal-fs-filename -- Tests only name files inside their own temporary folder. */

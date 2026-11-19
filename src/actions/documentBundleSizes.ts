@@ -75,8 +75,7 @@ const BUNDLE_ANALYSIS_INTRO = `This report is updated with each release, from th
 
 const BAR_NOTE = `Bars show each row's share of its output file.`;
 const PART_ROW_NOTE = '↳ rows are part of the row above.'; // Only where the table has such rows, beneath an inlined worker.
-const OTHER_FILES_NOTE =
-    'A file with no rows beneath it is shipped as it is, such as WebAssembly, so it has no breakdown. Source maps and type declarations are left out.';
+const OTHER_FILES_NOTE = 'A file with no rows beneath it is shipped as it is, such as WebAssembly, so it has no breakdown. Source maps and type declarations are left out.';
 
 const MORE_NOTE =
     '+ n more = the row also holds n more files from the same package or folder, each no larger than the one named. A package can appear under several output files, each holding different files, never the same file twice.';
@@ -136,7 +135,7 @@ async function measureOtherFiles(analysedNames: Set<string>): Promise<FileEntry[
     for (const entry of entries) {
         const name = `${entry.parentPath}/${entry.name}`;
         if (!entry.isFile() || UNLISTED_FILE_PATTERN.test(entry.name) || analysedNames.has(name)) continue;
-        const content = await fs.readFile(name); // eslint-disable-line security/detect-non-literal-fs-filename -- A file found in the build's own output folder.
+        const content = await fs.readFile(name);
         files.push([name, { uncompressed: content.byteLength, gzip: gzipSync(content).byteLength }]);
     }
     return files;
@@ -259,10 +258,12 @@ function compareGroups(a: GroupEntry, b: GroupEntry): number {
 
 function renderGroupRows(groups: Map<string, GroupData>, fileTotal: number, isPart = false): string[] {
     const indent = isPart ? `${INDENT}${INDENT}↳ ` : INDENT;
-    return [...groups].toSorted(compareGroups).flatMap(([groupName, group]) => [
-        row(`${indent}${formatGroupLabel(groupName, group.files)}`, composition(group.sizes.uncompressed, fileTotal, isPart ? PART_BAR_CHARACTER : BAR_CHARACTER)),
-        ...(group.parts === undefined ? [] : renderGroupRows(group.parts, fileTotal, true))
-    ]);
+    return [...groups]
+        .toSorted(compareGroups)
+        .flatMap(([groupName, group]) => [
+            row(`${indent}${formatGroupLabel(groupName, group.files)}`, composition(group.sizes.uncompressed, fileTotal, isPart ? PART_BAR_CHARACTER : BAR_CHARACTER)),
+            ...(group.parts === undefined ? [] : renderGroupRows(group.parts, fileTotal, true))
+        ]);
 }
 
 // A bar and percentage of the output file, then the size, so the share and the bytes behind it read together.

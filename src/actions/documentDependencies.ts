@@ -385,8 +385,6 @@ function formatRepositoryLink(component: CycloneDXComponent): string | undefined
         .replace(/\.git$/, '');
 }
 
-/* eslint-disable security/detect-non-literal-fs-filename -- Paths come from the project's own installed packages, not user input. */
-
 // Writes the package's licence to 'licenses/downloads' and returns its path below 'licenses', or nothing where the
 // package has neither a licence file nor a stand-in for one.
 async function writeLicenseFile(packageKey: string, component: CycloneDXComponent, packagePath: string | undefined): Promise<string | undefined> {
@@ -413,8 +411,6 @@ async function readStandInLicense(packagePath: string | undefined): Promise<Buff
         return undefined; // The package's folder cannot be read, so it is shown without a licence file.
     }
 }
-
-/* eslint-enable security/detect-non-literal-fs-filename -- End of the licence files' access. */
 
 async function readLockPackages(): Promise<Record<string, PackageLockEntry>> {
     const lockText = await readTextFileOrNull('package-lock.json');

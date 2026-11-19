@@ -1,5 +1,3 @@
-/* eslint-disable security/detect-non-literal-fs-filename -- Tests only name files inside their own temporary folder. */
-
 // ── External Dependencies & Registrations
 import { promises as fs } from 'node:fs';
 import os from 'node:os';
@@ -67,5 +65,3 @@ export function buildReadme(...markerNames: string[]): string {
     const sections = markerNames.map((name) => `<!-- ${name}_START -->\n<!-- ${name}_END -->`);
     return `# Test Project\n\n${sections.join('\n\n')}\n`;
 }
-
-/* eslint-enable security/detect-non-literal-fs-filename -- Tests only name files inside their own temporary folder. */

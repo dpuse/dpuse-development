@@ -27,7 +27,6 @@ Every export, grouped by import path. This file is updated each time `npm run do
     > Runs the requested types of test, skipping any type this project has not configured.
 - **`triggerGitHubRelease`**`()`
     > Create a GitHub release for the current version, which triggers the 'publish.yml' workflow.
-- **`uploadDirectoryToR2`**`(sourceDirectory: string, uploadDirectory: string)`
 
 ## @dpuse/dpuse-development/vite
 

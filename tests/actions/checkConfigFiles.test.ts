@@ -1,5 +1,3 @@
-/* eslint-disable security/detect-non-literal-fs-filename -- Tests only name files inside their own temporary folder. */
-
 // ── External Dependencies & Registrations
 import { promises as fs } from 'node:fs';
 import path from 'node:path';
@@ -83,7 +81,7 @@ describe('checkConfigFiles', () => {
         expect(output).toContain("❌  File 'vite.config.ts' is MISSING");
         expect(output).toContain("❌  File '.github/workflows/publish.yml' is MISSING");
         expect(output).toContain("❌  File 'SECURITY.md' is MISSING");
-        expect(output).toContain("❌  Prettier configuration is NOT '@dpuse/dpuse-development/prettierrc'");
+        expect(output).toContain("⚠️  Prettier configuration is NOT '@dpuse/dpuse-development/prettierrc'");
     });
 
     it('reports a file that differs from its template', async () => {
@@ -93,8 +91,8 @@ describe('checkConfigFiles', () => {
         await checkConfigFiles();
 
         const output = collectConsoleOutput();
-        expect(output).toContain("❌  File '.editorconfig' is NOT the same");
-        expect(output).toContain("❌  File 'vite.config.ts' is NOT the same");
+        expect(output).toContain("⚠️  File '.editorconfig' is NOT the same");
+        expect(output).toContain("⚠️  File 'vite.config.ts' is NOT the same");
     });
 
     it('uses the tool Vite template, and the one publish workflow, for a tool', async () => {
@@ -161,7 +159,7 @@ describe('checkConfigFiles', () => {
 
         const output = collectConsoleOutput();
         expect(output).toContain("ℹ️  File '.github/workflows/ci.yml' is the same as '.github/workflows/ci.yml'");
-        expect(output).toContain("❌  File '.github/workflows/publish.yml' is NOT the same");
+        expect(output).toContain("⚠️  File '.github/workflows/publish.yml' is NOT the same");
         expect(output).not.toContain('codeql.yml');
     });
 
@@ -171,11 +169,11 @@ describe('checkConfigFiles', () => {
         await checkConfigFiles();
 
         const output = collectConsoleOutput();
-        expect(output).toContain("⚠️  File 'eslint.config.js' is UNIQUE to this project");
-        expect(output).toContain("⚠️  File 'tsconfig.json' is UNIQUE to this project");
-        expect(output).toContain("⚠️  File 'vite.config.ts' is UNIQUE to this project");
+        expect(output).toContain("🔷 File 'eslint.config.js' is UNIQUE to this project");
+        expect(output).toContain("🔷 File 'tsconfig.json' is UNIQUE to this project");
+        expect(output).toContain("🔷 File 'vite.config.ts' is UNIQUE to this project");
         expect(output).toContain("ℹ️  File 'vitest.config.ts' is NOT required by this project");
-        expect(output).toContain("⚠️  File '.prettierrc.json' is UNIQUE to this project");
+        expect(output).toContain("🔷 File '.prettierrc.json' is UNIQUE to this project");
     });
 
     it('checks the shared Vitest configuration, but no Vite configuration, for the ESLint configuration package', async () => {
@@ -195,7 +193,7 @@ describe('checkConfigFiles', () => {
         await checkConfigFiles();
 
         const output = collectConsoleOutput();
-        expect(output).toContain("⚠️  File 'eslint.config.js' is UNIQUE to this project");
+        expect(output).toContain("🔷 File 'eslint.config.js' is UNIQUE to this project");
         expect(output).toContain("ℹ️  File 'vite.config.ts' is NOT required by this project");
         expect(output).toContain("ℹ️  File 'vitest.config.ts' is NOT required by this project");
     });
@@ -240,5 +238,3 @@ describe('checkConfigFiles', () => {
         expect(console.error).toHaveBeenCalledWith('❌  Error checking configuration files', expect.any(Error));
     });
 });
-
-/* eslint-enable security/detect-non-literal-fs-filename -- Tests only name files inside their own temporary folder. */

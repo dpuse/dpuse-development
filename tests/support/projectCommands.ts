@@ -1,5 +1,3 @@
-/* eslint-disable security/detect-non-literal-fs-filename -- Tests only name files inside their own fixtures folder. */
-
 // ── External Dependencies & Registrations
 import { promises as fs } from 'node:fs';
 import { vi } from 'vitest';
@@ -28,5 +26,3 @@ export async function readFixture(name: string): Promise<string> {
 export function spawnedCommands(): string[] {
     return vi.mocked(spawnCommand).mock.calls.map(([, command, arguments_]) => `${command} ${arguments_.join(' ')}`);
 }
-
-/* eslint-enable security/detect-non-literal-fs-filename -- Tests only name files inside their own fixtures folder. */

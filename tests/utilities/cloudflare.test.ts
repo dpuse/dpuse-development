@@ -35,7 +35,14 @@ beforeEach(() => {
 
 describe('uploadModuleToR2', () => {
     it('uploads each built file under the versioned path, with its content type, skipping source maps and folders', async () => {
-        await project.writeFiles({ 'dist/index.es.js': '', 'dist/index.es.js.map': '', 'dist/style.css': '', 'dist/data.wasm': '', 'dist/notes.txt': '', 'dist/types/index.d.ts': '' });
+        await project.writeFiles({
+            'dist/index.es.js': '',
+            'dist/index.es.js.map': '',
+            'dist/style.css': '',
+            'dist/data.wasm': '',
+            'dist/notes.txt': '',
+            'dist/types/index.d.ts': ''
+        });
 
         await uploadModuleToR2({ version: '1.2.3' }, 'dpuse-engine-eu/connectors/example');
 

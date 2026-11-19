@@ -104,9 +104,7 @@ async function restoreInstallScriptEntries(allowScriptsBeforePrune: AllowScripts
     const removedKeys = Object.keys(allowScriptsBeforePrune).filter((key) => !Object.hasOwn(allowScriptsAfterPrune, key));
     if (removedKeys.length === 0) return;
 
-    const { packages = {} } = await readJSONFile<{ packages?: Record<string, { hasInstallScript?: boolean; version?: string }> }>(
-        path.resolve(process.cwd(), 'package-lock.json')
-    );
+    const { packages = {} } = await readJSONFile<{ packages?: Record<string, { hasInstallScript?: boolean; version?: string }> }>(path.resolve(process.cwd(), 'package-lock.json'));
     const lockedPackages = Object.entries(packages);
 
     const restoredKeys = removedKeys.filter((key) => {
@@ -114,7 +112,8 @@ async function restoreInstallScriptEntries(allowScriptsBeforePrune: AllowScripts
         const name = pinIndex > 0 ? key.slice(0, pinIndex) : key;
         const version = pinIndex > 0 ? key.slice(pinIndex + 1) : undefined;
         return lockedPackages.some(
-            ([lockPath, lockedPackage]) => lockPath.endsWith(`node_modules/${name}`) && lockedPackage.hasInstallScript === true && (version === undefined || lockedPackage.version === version)
+            ([lockPath, lockedPackage]) =>
+                lockPath.endsWith(`node_modules/${name}`) && lockedPackage.hasInstallScript === true && (version === undefined || lockedPackage.version === version)
         );
     });
     if (restoredKeys.length === 0) return;

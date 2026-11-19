@@ -1,5 +1,3 @@
-/* eslint-disable security/detect-non-literal-fs-filename -- All paths come from package.json scripts, not user input. */
-
 // 'ℹ️|⚠️|❌|1️⃣|2️⃣|3️⃣|4️⃣|5️⃣|6️⃣|7️⃣|8️⃣|✅|▶️' icon search regex.
 
 // ── External Dependencies & Registrations
@@ -444,5 +442,3 @@ function substituteText(originalText: string, substituteText: string, startMarke
     const trimmedSubstitute = substituteText.trim();
     return `${originalText.slice(0, Math.max(0, startIndex + startMarker.length))}\n\n${trimmedSubstitute}\n\n${originalText.slice(Math.max(0, endIndex))}`;
 }
-
-/* eslint-enable security/detect-non-literal-fs-filename -- All paths come from package.json scripts, not user input. */

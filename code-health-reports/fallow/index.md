@@ -17,8 +17,8 @@ These entries matched, but fallow does the same without them. Remove the entry f
 
 **Clone group 1** (8 lines, 2 instances)
 
-- `src/utilities/index.ts:149-156`
-- `src/utilities/index.ts:164-171`
+- `src/utilities/index.ts:147-154`
+- `src/utilities/index.ts:162-169`
 
 ### Clone Families
 
@@ -32,7 +32,7 @@ These entries matched, but fallow does the same without them. Remove the entry f
 
 | Metric | Value |
 |:-------|------:|
-| Total LOC | 4130 |
+| Total LOC | 4111 |
 | Avg Cyclomatic | 3.0 |
 | P90 Cyclomatic | 7 |
 | Cyclomatic units | Functions: 338, module scopes: 0, templates: 0 |
@@ -54,7 +54,7 @@ These entries matched, but fallow does the same without them. Remove the entry f
 | `src/utilities/rustCrates.ts` | 90.0 | 1 | 1 | 0% | 0.24 | 13.0 |
 | `src/utilities/apiReference.ts` | 83.1 | 1 | 1 | 0% | 0.47 | 12.0 |
 | `src/actions/auditDependencies.ts` | 90.9 | 2 | 1 | 0% | 0.21 | 9.0 |
-| `src/vite.ts` | 91.6 | 1 | 0 | 0% | 0.28 | 8.3 |
+| `src/vite.ts` | 91.3 | 1 | 0 | 0% | 0.29 | 8.3 |
 | `src/utilities/index.ts` | 93.1 | 23 | 0 | 0% | 0.23 | 8.0 |
 | `src/actions/checkDependencies.ts` | 89.6 | 1 | 2 | 0% | 0.20 | 7.0 |
 | `src/actions/publishProject.ts` | 90.5 | 1 | 2 | 0% | 0.17 | 7.0 |
@@ -64,20 +64,20 @@ These entries matched, but fallow does the same without them. Remove the entry f
 | `src/actions/testProject.ts` | 93.6 | 1 | 1 | 0% | 0.12 | 7.0 |
 | `src/actions/documentProject.ts` | 87.5 | 1 | 9 | 0% | 0.11 | 6.0 |
 | `src/actions/documentUsage.ts` | 91.8 | 1 | 1 | 0% | 0.18 | 6.0 |
-| `src/utilities/cloudflare.ts` | 92.1 | 2 | 1 | 0% | 0.17 | 6.0 |
+| `src/utilities/cloudflare.ts` | 92.1 | 1 | 1 | 0% | 0.17 | 6.0 |
 | `src/actions/syncProjectWithGitHub.ts` | 94.8 | 1 | 1 | 0% | 0.11 | 4.0 |
 | `src/actions/buildProject.ts` | 94.3 | 1 | 1 | 0% | 0.14 | 3.0 |
 | `src/actions/documentActions.ts` | 95.4 | 1 | 1 | 0% | 0.06 | 3.0 |
 | `src/actions/triggerGitHubRelease.ts` | 95.4 | 1 | 1 | 0% | 0.12 | 3.0 |
 | `src/actions/documentApiReference.ts` | 94.4 | 1 | 2 | 0% | 0.08 | 2.0 |
-| `src/actions/formatCode.ts` | 94.8 | 1 | 1 | 0% | 0.16 | 2.0 |
+| `src/actions/formatCode.ts` | 94.8 | 1 | 1 | 0% | 0.17 | 2.0 |
 | `src/actions/lintCode.ts` | 96.0 | 1 | 1 | 0% | 0.11 | 2.0 |
 | `vite.config.ts` | 99.4 | 0 | 0 | 0% | 0.02 | 2.0 |
 | `src/actions/checkProject.ts` | 95.0 | 1 | 2 | 0% | 0.08 | 1.0 |
 
 **Average maintainability index:** 92.0/100
 
-### Hotspots (21 files, since 6 months)
+### Hotspots (22 files, since 6 months)
 
 | File | Score | Commits | Churn | Density | Fan-in | Trend |
 |:-----|:------|:--------|:------|:--------|:-------|:------|
@@ -89,13 +89,14 @@ These entries matched, but fallow does the same without them. Remove the entry f
 | `src/actions/checkDependencies.ts` | 18.8 | 19 | 249 | 0.20 | 1 | stable |
 | `src/actions/documentUsage.ts` | 17.3 | 17 | 334 | 0.18 | 1 | accelerating |
 | `src/actions/auditDependencies.ts` | 13.8 | 12 | 207 | 0.21 | 2 | accelerating |
-| `src/utilities/cloudflare.ts` | 10.9 | 12 | 203 | 0.17 | 2 | stable |
-| `src/actions/documentQualitySecurity.ts` | 10.3 | 9 | 679 | 0.18 | 1 | cooling |
+| `src/utilities/cloudflare.ts` | 10.9 | 12 | 203 | 0.17 | 1 | stable |
+| `src/actions/documentQualitySecurity.ts` | 10.4 | 9 | 679 | 0.18 | 1 | cooling |
 | `src/actions/publishProject.ts` | 10.3 | 9 | 114 | 0.17 | 1 | cooling |
 | `src/utilities/apiReference.ts` | 8.9 | 3 | 404 | 0.47 | 1 | cooling |
 | `src/utilities/rustCrates.ts` | 7.5 | 4 | 228 | 0.24 | 1 | stable |
+| `src/vite.ts` | 7.2 | 3 | 215 | 0.29 | 1 | accelerating |
 | `src/actions/documentApiReference.ts` | 6.4 | 13 | 772 | 0.08 | 1 | cooling |
-| `src/actions/formatCode.ts` | 4.9 | 7 | 38 | 0.16 | 1 | stable |
+| `src/actions/formatCode.ts` | 5.2 | 7 | 38 | 0.17 | 1 | stable |
 | `src/actions/documentProject.ts` | 4.4 | 6 | 92 | 0.11 | 1 | cooling |
 | `src/actions/documentActions.ts` | 2.8 | 10 | 102 | 0.06 | 1 | stable |
 | `src/actions/lintCode.ts` | 2.7 | 6 | 30 | 0.11 | 1 | cooling |
@@ -103,7 +104,7 @@ These entries matched, but fallow does the same without them. Remove the entry f
 | `src/actions/testProject.ts` | 2.4 | 3 | 70 | 0.12 | 1 | cooling |
 | `vite.config.ts` | 2.3 | 23 | 134 | 0.02 | 0 | stable |
 
-*5 files excluded (< 3 commits)*
+*4 files excluded (< 3 commits)*
 
 ### Hidden Change Coupling (9 pairs, since 12 months)
 
@@ -125,7 +126,7 @@ These entries matched, but fallow does the same without them. Remove the entry f
 
 | Efficiency | Category | Effort / Confidence | File | Recommendation |
 |:-----------|:---------|:--------------------|:-----|:---------------|
-| 10.3 | hidden coupling | low / medium | `src/actions/formatCode.ts` | Changes with lintCode.ts in 6 commits (92% coupling) without an import, make the dependency explicit or move the shared logic into one module |
+| 10.7 | hidden coupling | low / medium | `src/actions/formatCode.ts` | Changes with lintCode.ts in 6 commits (92% coupling) without an import, make the dependency explicit or move the shared logic into one module |
 | 8.5 | hidden coupling | medium / medium | `src/actions/auditDependencies.ts` | Changes with lintCode.ts in 5 commits (56% coupling) without an import, make the dependency explicit or move the shared logic into one module |
 | 8.2 | hidden coupling | low / medium | `src/actions/lintCode.ts` | Changes with formatCode.ts in 6 commits (92% coupling) without an import, make the dependency explicit or move the shared logic into one module |
 

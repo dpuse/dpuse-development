@@ -1,5 +1,3 @@
-/* eslint-disable security/detect-non-literal-fs-filename -- Tests only name files inside their own temporary folder. */
-
 // ── External Dependencies & Registrations
 import { promises as fs } from 'node:fs';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
@@ -84,8 +82,7 @@ function stubOpenSSF({
     );
 }
 
-// eslint-disable-next-line unicorn/prefer-options-parameter
-async function writeProject(packageJSON: object = {}, files: Record<string, string> = {}): Promise<void> {
+async function writeProject({ files = {}, packageJSON = {} }: { files?: Record<string, string>; packageJSON?: object } = {}): Promise<void> {
     await project.writeFiles({
         'config.json': JSON.stringify({ id: 'dpuse-shared' }),
         'package.json': JSON.stringify({
@@ -258,7 +255,7 @@ describe('documentQualitySecurity', () => {
     });
 
     it('leaves out the coverage and Fallow rows where they are not installed', async () => {
-        await writeProject({ devDependencies: {} });
+        await writeProject({ packageJSON: { devDependencies: {} } });
         stubGitHub();
         stubOpenSSF();
 
@@ -295,10 +292,9 @@ describe('documentQualitySecurity', () => {
     });
 
     it('reports settings GitHub switches off or does not reveal', async () => {
-        await writeProject(
-            {},
-            { '.github/workflows/ci.yml': 'steps:\n  - run: npm audit --audit-level=high\n', '.github/dependabot.yml': 'updates:\n  - package-ecosystem: npm\n' }
-        );
+        await writeProject({
+            files: { '.github/workflows/ci.yml': 'steps:\n  - run: npm audit --audit-level=high\n', '.github/dependabot.yml': 'updates:\n  - package-ecosystem: npm\n' }
+        });
         stubGitHub({
             [REPO]: '{}',
             [`${REPO}/private-vulnerability-reporting`]: undefined,
@@ -340,14 +336,14 @@ describe('documentQualitySecurity', () => {
 
     it('lists Rust among the languages CodeQL scans only where the project has Rust code', async () => {
         const codeQLWorkflow = 'matrix:\n  include:\n    - language: javascript-typescript\n    - language: rust\n';
-        await writeProject({}, { '.github/workflows/codeql.yml': codeQLWorkflow });
+        await writeProject({ files: { '.github/workflows/codeql.yml': codeQLWorkflow } });
         stubGitHub();
         stubOpenSSF();
 
         await documentQualitySecurity();
         expect(await project.readFile('README.md')).toContain('[CodeQL](https://codeql.github.com) scans JavaScript/TypeScript for security vulnerabilities');
 
-        await writeProject({}, { '.github/workflows/codeql.yml': codeQLWorkflow, 'rust/Cargo.toml': '[workspace]\n' });
+        await writeProject({ files: { '.github/workflows/codeql.yml': codeQLWorkflow, 'rust/Cargo.toml': '[workspace]\n' } });
         await documentQualitySecurity();
         expect(await project.readFile('README.md')).toContain('[CodeQL](https://codeql.github.com) scans JavaScript/TypeScript and Rust for security vulnerabilities');
     });
@@ -376,7 +372,7 @@ describe('documentQualitySecurity', () => {
         ['the Best Practices lookup fails', {}, { failing: 'https://www.bestpractices.dev' }],
         ['the Scorecard lookup fails', {}, { failing: 'https://api.scorecard.dev' }]
     ])('exits when %s', async (_case, packageJSON, openSSF) => {
-        await writeProject(packageJSON);
+        await writeProject({ packageJSON });
         stubGitHub();
         stubOpenSSF(openSSF);
 
@@ -392,5 +388,3 @@ describe('documentQualitySecurity', () => {
         await expect(documentQualitySecurity()).rejects.toThrow('process.exit(1)');
     });
 });
-
-/* eslint-enable security/detect-non-literal-fs-filename -- Tests only name files inside their own temporary folder. */

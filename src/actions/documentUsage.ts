@@ -72,7 +72,6 @@ function resolveDirectoryName(cloneURL: string): string {
 
 function resolveVersion(range: string | undefined): string {
     if (range == null) throw new Error('package.json version range is required to document usage.');
-    // eslint-disable-next-line security/detect-unsafe-regex -- Linear: each group repeat must start with a literal '.'.
     const match = /\d+(?:\.\d+)*/.exec(range);
     if (match == null) throw new Error(`Unable to parse version from '${range}'.`);
     return match[0];

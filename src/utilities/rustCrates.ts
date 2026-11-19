@@ -1,5 +1,3 @@
-/* eslint-disable security/detect-non-literal-fs-filename -- Paths come from Cargo's own output and this project's folders, not user input. */
-
 // ── External Dependencies & Registrations
 import { setTimeout as delay } from 'node:timers/promises';
 import { promises as fs } from 'node:fs';
@@ -180,5 +178,3 @@ async function addReleaseDetails(stepLabel: string, crates: RustCrate[]): Promis
         }
     }
 }
-
-/* eslint-enable security/detect-non-literal-fs-filename -- End of the Rust crate documentation's file access. */
