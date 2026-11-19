@@ -32,10 +32,10 @@ These entries matched, but fallow does the same without them. Remove the entry f
 
 | Metric | Value |
 |:-------|------:|
-| Total LOC | 4141 |
+| Total LOC | 4166 |
 | Avg Cyclomatic | 3.0 |
 | P90 Cyclomatic | 7 |
-| Cyclomatic units | Functions: 341, module scopes: 0, templates: 0 |
+| Cyclomatic units | Functions: 342, module scopes: 0, templates: 0 |
 | Dead Files | 0.0% |
 | Dead Exports | 0.0% |
 | Maintainability (avg) | 91.9 |
@@ -53,7 +53,7 @@ These entries matched, but fallow does the same without them. Remove the entry f
 | `src/actions/documentBundleSizes.ts` | 87.9 | 1 | 1 | 0% | 0.31 | 13.0 |
 | `src/utilities/rustCrates.ts` | 90.0 | 1 | 1 | 0% | 0.24 | 13.0 |
 | `src/utilities/apiReference.ts` | 83.1 | 1 | 1 | 0% | 0.47 | 12.0 |
-| `src/actions/documentUsage.ts` | 90.6 | 1 | 1 | 0% | 0.22 | 10.0 |
+| `src/actions/documentUsage.ts` | 90.9 | 1 | 1 | 0% | 0.21 | 10.0 |
 | `src/actions/auditDependencies.ts` | 90.9 | 2 | 1 | 0% | 0.21 | 9.0 |
 | `src/vite.ts` | 91.3 | 1 | 0 | 0% | 0.29 | 8.3 |
 | `src/utilities/index.ts` | 93.1 | 23 | 0 | 0% | 0.23 | 8.0 |
@@ -83,15 +83,15 @@ These entries matched, but fallow does the same without them. Remove the entry f
 |:-----|:------|:--------|:------|:--------|:-------|:------|
 | `src/actions/documentBundleSizes.ts` | 63.3 | 47 | 1853 | 0.31 | 1 | stable |
 | `src/actions/documentDependencies.ts` | 57.4 | 35 | 1187 | 0.34 | 1 | stable |
+| `src/utilities/index.ts` | 46.4 | 43 | 629 | 0.23 | 23 | stable |
 | `src/actions/checkConfigFiles.ts` | 44.7 | 52 | 577 | 0.21 | 1 | cooling |
-| `src/utilities/index.ts` | 44.3 | 42 | 614 | 0.23 | 23 | stable |
-| `src/actions/documentUsage.ts` | 28.1 | 21 | 385 | 0.22 | 1 | accelerating |
+| `src/actions/documentUsage.ts` | 26.8 | 21 | 385 | 0.21 | 1 | accelerating |
 | `src/actions/documentOpening.ts` | 21.5 | 22 | 365 | 0.19 | 1 | accelerating |
 | `src/actions/checkDependencies.ts` | 19.8 | 20 | 256 | 0.20 | 1 | stable |
 | `src/actions/auditDependencies.ts` | 13.2 | 12 | 207 | 0.21 | 2 | accelerating |
 | `src/utilities/cloudflare.ts` | 11.9 | 13 | 240 | 0.17 | 1 | accelerating |
 | `src/actions/documentQualitySecurity.ts` | 9.9 | 9 | 679 | 0.18 | 1 | cooling |
-| `src/actions/publishProject.ts` | 9.9 | 9 | 114 | 0.17 | 1 | cooling |
+| `src/actions/publishProject.ts` | 9.8 | 9 | 114 | 0.17 | 1 | cooling |
 | `src/vite.ts` | 9.5 | 4 | 219 | 0.29 | 1 | accelerating |
 | `src/utilities/rustCrates.ts` | 9.3 | 5 | 232 | 0.24 | 1 | stable |
 | `src/utilities/apiReference.ts` | 8.5 | 3 | 404 | 0.47 | 1 | cooling |

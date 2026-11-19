@@ -41,16 +41,17 @@ describe('documentOpening', () => {
         expect(await project.readFile('README.md')).not.toContain('## Introduction');
     });
 
-    it('puts the package description between the badges and the links, and leaves it out when there is none', async () => {
+    it('puts the package description and the release notice between the badges and the links, and leaves the description out when there is none', async () => {
+        const notice = '**Release candidate.** See [Release Status](#release-status).';
         const ciBadge = '[![CI](https://github.com/dpuse/dpuse-shared/actions/workflows/ci.yml/badge.svg)](https://github.com/dpuse/dpuse-shared/actions/workflows/ci.yml)';
         const links = '[Report a Vulnerability](https://github.com/dpuse/dpuse-shared/security/advisories/new) · [Open an Issue](https://github.com/dpuse/dpuse-shared/issues)';
         await writeProject({ description: 'Common constants, types and utilities.' });
         await documentOpening();
-        expect(await project.readFile('README.md')).toContain(`${ciBadge}\n\nCommon constants, types and utilities.\n\n${links}\n\n## About DPUse`);
+        expect(await project.readFile('README.md')).toContain(`${ciBadge}\n\nCommon constants, types and utilities.\n\n${notice}\n\n${links}\n\n## About DPUse`);
 
         await writeProject({});
         await documentOpening();
-        expect(await project.readFile('README.md')).toContain(`${ciBadge}\n\n${links}\n\n## About DPUse`);
+        expect(await project.readFile('README.md')).toContain(`${ciBadge}\n\n${notice}\n\n${links}\n\n## About DPUse`);
     });
 
     it('shows only the License, npm and CI badges for an npm package, as check results sit in Quality & Security', async () => {

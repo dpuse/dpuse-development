@@ -108,6 +108,29 @@ describe('documentUsage', () => {
         );
     });
 
+    it('ends with the release status, giving version advice only for an npm package', async () => {
+        await writeProject('dpuse-shared', { name: '@dpuse/dpuse-shared' });
+        await documentUsage();
+        const packageReadme = await project.readFile('README.md');
+        expect(packageReadme).toContain(
+            '### Release Status\n\nDPUse is a new product, and this package is a release candidate: complete and in use across DPUse, but not yet at its first stable release.\n\nEach release increases the last number of the version'
+        );
+        expect(packageReadme).toContain('[Semantic Versioning](https://semver.org)');
+        expect(packageReadme).toContain('Every release is listed on the [Releases](https://github.com/dpuse/dpuse-shared/releases) page.\n\n<!-- USAGE_END -->');
+
+        await writeProject('dpuse-connector-dropbox', { name: '@dpuse/dpuse-connector-dropbox' });
+        await documentUsage();
+        const connectorReadme = await project.readFile('README.md');
+        expect(connectorReadme).toContain(
+            'this connector is a release candidate: complete and in use across DPUse, but not yet at its first stable release.\n\nEvery release is listed on the [Releases](https://github.com/dpuse/dpuse-connector-dropbox/releases) page.'
+        );
+        expect(connectorReadme).not.toContain('Semantic Versioning');
+
+        await writeProject('dpuse-app', { name: '@dpuse/dpuse-app' });
+        await documentUsage();
+        expect(await project.readFile('README.md')).toContain('this project is a release candidate');
+    });
+
     it('does not list the repository commands', async () => {
         await writeProject('dpuse-shared', { name: '@dpuse/dpuse-shared', scripts: { lint: RUN } });
 

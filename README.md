@@ -8,6 +8,8 @@
 
 Actions for managing DPUse projects.
 
+**Release candidate.** See [Release Status](#release-status).
+
 [Report a Vulnerability](https://github.com/dpuse/dpuse-development/security/advisories/new) · [Open an Issue](https://github.com/dpuse/dpuse-development/issues)
 
 ## About DPUse
@@ -55,6 +57,14 @@ _Working on the source also requires [TypeScript](https://www.typescriptlang.org
 
 This repository manages itself using the actions it implements. See the `scripts` block in [package.json](https://github.com/dpuse/dpuse-development/blob/main/package.json) for details.
 
+### Release Status
+
+DPUse is a new product, and this package is a release candidate: complete and in use across DPUse, but not yet at its first stable release.
+
+Each release increases the last number of the version, for example from 1.0.164 to 1.0.165. Until the first stable release, any release may include changes that need updates in the projects that use it, so depend on an exact version to avoid unexpected changes. Once stable, versions will follow [Semantic Versioning](https://semver.org): breaking changes in the first number, new features in the second and fixes in the last.
+
+Every release is listed on the [Releases](https://github.com/dpuse/dpuse-development/releases) page.
+
 <!-- USAGE_END -->
 
 ## API Reference
@@ -80,11 +90,11 @@ _Note: Sonda's Vite reports currently exclude CSS files, since Vite does not gen
 
 | Chunk/Module/File                                                     | Composition                                                                                   |
 | :-------------------------------------------------------------------- | :-------------------------------------------------------------------------------------------- |
-| **All 4 files**                                                       | 107.9&nbsp;kB&nbsp;·&nbsp;gzip&nbsp;33.9&nbsp;kB                                              |
-| **dist/dpuse-development.es.js**                                      | 68.8&nbsp;kB&nbsp;·&nbsp;gzip&nbsp;22.1&nbsp;kB&nbsp;·&nbsp;63.8%&nbsp;of&nbsp;the&nbsp;build |
-| &nbsp;&nbsp;&nbsp;&nbsp;src → documentDependencies.ts + 21 more       | `██████████████████░░`&nbsp;87.8%&nbsp;·&nbsp;60.4&nbsp;kB                                    |
-| &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON)           | `██░░░░░░░░░░░░░░░░░░`&nbsp;12.2%&nbsp;·&nbsp;8.4&nbsp;kB                                     |
-| **dist/utilities-wFsr5fpy.js**                                        | 27.2&nbsp;kB&nbsp;·&nbsp;gzip&nbsp;7.3&nbsp;kB&nbsp;·&nbsp;25.2%&nbsp;of&nbsp;the&nbsp;build  |
+| **All 4 files**                                                       | 108.8&nbsp;kB&nbsp;·&nbsp;gzip&nbsp;34.3&nbsp;kB                                              |
+| **dist/dpuse-development.es.js**                                      | 69.7&nbsp;kB&nbsp;·&nbsp;gzip&nbsp;22.4&nbsp;kB&nbsp;·&nbsp;64.1%&nbsp;of&nbsp;the&nbsp;build |
+| &nbsp;&nbsp;&nbsp;&nbsp;src → documentDependencies.ts + 21 more       | `██████████████████░░`&nbsp;87.8%&nbsp;·&nbsp;61.2&nbsp;kB                                    |
+| &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON)           | `██░░░░░░░░░░░░░░░░░░`&nbsp;12.2%&nbsp;·&nbsp;8.5&nbsp;kB                                     |
+| **dist/utilities-wFsr5fpy.js**                                        | 27.2&nbsp;kB&nbsp;·&nbsp;gzip&nbsp;7.3&nbsp;kB&nbsp;·&nbsp;25.0%&nbsp;of&nbsp;the&nbsp;build  |
 | &nbsp;&nbsp;&nbsp;&nbsp;@dpuse/dpuse-shared → dist/dpuse-shared.es.js | `███████████░░░░░░░░░`&nbsp;54.8%&nbsp;·&nbsp;14.9&nbsp;kB                                    |
 | &nbsp;&nbsp;&nbsp;&nbsp;src → index.ts                                | `███████░░░░░░░░░░░░░`&nbsp;32.6%&nbsp;·&nbsp;8.9&nbsp;kB                                     |
 | &nbsp;&nbsp;&nbsp;&nbsp;valibot → dist/index.mjs                      | `░░░░░░░░░░░░░░░░░░░░`&nbsp;1.5%&nbsp;·&nbsp;413&nbsp;B                                       |

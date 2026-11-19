@@ -47,7 +47,8 @@ export async function documentUsage(): Promise<void> {
         const packageJSONURL = `${cloneURL.replace(/\.git$/, '')}/blob/main/package.json`;
         const managementText = packageJSON.name === '@dpuse/dpuse-development' ? DEVELOPMENT_MANAGEMENT_TEXT : SHARED_MANAGEMENT_TEXT;
         const management = `${managementText} See the \`scripts\` block in [package.json](${packageJSONURL}) for details.`;
-        const content = buildUsageContent(introduction, cloneURL, directoryName, requirements, management);
+        const releaseStatus = buildReleaseStatusContent(moduleTypeConfig, cloneURL.replace(/\.git$/, ''));
+        const content = buildUsageContent(introduction, cloneURL, directoryName, requirements, `${management}\n\n${releaseStatus}`);
 
         await writeReadmeSection(content, START_MARKER, END_MARKER);
 
@@ -124,6 +125,26 @@ function buildRequirementsContent(moduleTypeConfig: ModuleTypeConfig, nodeVersio
     return moduleTypeConfig.publishedTo === 'npm'
         ? `_Working on the source also requires ${typescript}_`
         : `_Requires [Node.js](https://nodejs.org/) ${nodeVersion} or later, [npm](https://www.npmjs.com/) ${npmVersion} or later, and ${typescript}_`;
+}
+
+// DPUse is a new product, so every project is a release candidate. Version advice is given only for npm packages,
+// because people install them at a version they choose, while the app always loads the latest uploaded module.
+function buildReleaseStatusContent(moduleTypeConfig: ModuleTypeConfig, repositoryURL: string): string {
+    const { publishedTo, typeId } = moduleTypeConfig;
+    const isNPMPackage = publishedTo === 'npm';
+    let subject = 'project';
+    if (isNPMPackage) subject = 'package';
+    else if (UPLOADED_MODULE_TYPE_IDS.has(typeId)) subject = typeId;
+    const versioning = isNPMPackage
+        ? `
+
+Each release increases the last number of the version, for example from 1.0.164 to 1.0.165. Until the first stable release, any release may include changes that need updates in the projects that use it, so depend on an exact version to avoid unexpected changes. Once stable, versions will follow [Semantic Versioning](https://semver.org): breaking changes in the first number, new features in the second and fixes in the last.`
+        : '';
+    return `### Release Status
+
+DPUse is a new product, and this ${subject} is a release candidate: complete and in use across DPUse, but not yet at its first stable release.${versioning}
+
+Every release is listed on the [Releases](${repositoryURL}/releases) page.`;
 }
 
 function buildUsageContent(introduction: string, cloneURL: string, directoryName: string, requirements: string, management: string): string {
