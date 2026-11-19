@@ -82,7 +82,7 @@ These entries matched, but fallow does the same without them. Remove the entry f
 | File | Score | Commits | Churn | Density | Fan-in | Trend |
 |:-----|:------|:--------|:------|:--------|:-------|:------|
 | `src/actions/documentBundleSizes.ts` | 63.3 | 47 | 1853 | 0.31 | 1 | stable |
-| `src/actions/documentDependencies.ts` | 57.4 | 35 | 1187 | 0.34 | 1 | stable |
+| `src/actions/documentDependencies.ts` | 57.5 | 35 | 1187 | 0.34 | 1 | stable |
 | `src/utilities/index.ts` | 46.4 | 43 | 629 | 0.23 | 23 | stable |
 | `src/actions/checkConfigFiles.ts` | 44.7 | 52 | 577 | 0.21 | 1 | cooling |
 | `src/actions/documentUsage.ts` | 30.6 | 23 | 410 | 0.21 | 1 | accelerating |
@@ -91,13 +91,13 @@ These entries matched, but fallow does the same without them. Remove the entry f
 | `src/actions/auditDependencies.ts` | 13.2 | 12 | 207 | 0.21 | 2 | accelerating |
 | `src/utilities/cloudflare.ts` | 11.9 | 13 | 240 | 0.17 | 1 | accelerating |
 | `src/actions/documentQualitySecurity.ts` | 11.5 | 10 | 685 | 0.18 | 1 | cooling |
-| `src/actions/publishProject.ts` | 9.8 | 9 | 114 | 0.17 | 1 | cooling |
+| `src/actions/publishProject.ts` | 9.9 | 9 | 114 | 0.17 | 1 | cooling |
 | `src/vite.ts` | 9.5 | 4 | 219 | 0.29 | 1 | accelerating |
 | `src/utilities/rustCrates.ts` | 9.3 | 5 | 232 | 0.24 | 1 | stable |
 | `src/utilities/apiReference.ts` | 8.5 | 3 | 404 | 0.47 | 1 | cooling |
 | `src/actions/formatCode.ts` | 6.5 | 8 | 39 | 0.17 | 1 | stable |
 | `src/actions/documentApiReference.ts` | 6.2 | 13 | 772 | 0.08 | 1 | cooling |
-| `src/actions/documentProject.ts` | 4.3 | 6 | 92 | 0.11 | 1 | cooling |
+| `src/actions/documentProject.ts` | 4.2 | 6 | 92 | 0.11 | 1 | cooling |
 | `src/actions/lintCode.ts` | 4.2 | 7 | 49 | 0.13 | 1 | stable |
 | `src/actions/documentActions.ts` | 2.7 | 10 | 102 | 0.06 | 1 | stable |
 | `src/actions/buildProject.ts` | 2.5 | 3 | 56 | 0.14 | 1 | cooling |
