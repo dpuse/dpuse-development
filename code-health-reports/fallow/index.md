@@ -85,12 +85,12 @@ These entries matched, but fallow does the same without them. Remove the entry f
 | `src/actions/documentDependencies.ts` | 57.4 | 35 | 1187 | 0.34 | 1 | stable |
 | `src/utilities/index.ts` | 46.4 | 43 | 629 | 0.23 | 23 | stable |
 | `src/actions/checkConfigFiles.ts` | 44.7 | 52 | 577 | 0.21 | 1 | cooling |
-| `src/actions/documentUsage.ts` | 28.7 | 22 | 408 | 0.21 | 1 | accelerating |
+| `src/actions/documentUsage.ts` | 30.6 | 23 | 410 | 0.21 | 1 | accelerating |
 | `src/actions/documentOpening.ts` | 23.2 | 23 | 369 | 0.19 | 1 | accelerating |
 | `src/actions/checkDependencies.ts` | 19.8 | 20 | 256 | 0.20 | 1 | stable |
 | `src/actions/auditDependencies.ts` | 13.2 | 12 | 207 | 0.21 | 2 | accelerating |
 | `src/utilities/cloudflare.ts` | 11.9 | 13 | 240 | 0.17 | 1 | accelerating |
-| `src/actions/documentQualitySecurity.ts` | 9.9 | 9 | 679 | 0.18 | 1 | cooling |
+| `src/actions/documentQualitySecurity.ts` | 11.5 | 10 | 685 | 0.18 | 1 | cooling |
 | `src/actions/publishProject.ts` | 9.8 | 9 | 114 | 0.17 | 1 | cooling |
 | `src/vite.ts` | 9.5 | 4 | 219 | 0.29 | 1 | accelerating |
 | `src/utilities/rustCrates.ts` | 9.3 | 5 | 232 | 0.24 | 1 | stable |
@@ -106,7 +106,7 @@ These entries matched, but fallow does the same without them. Remove the entry f
 
 *4 files excluded (< 3 commits)*
 
-### Hidden Change Coupling (8 pairs, since 12 months)
+### Hidden Change Coupling (9 pairs, since 12 months)
 
 | File A | File B | Degree | Shared | Commits A | Commits B | Strong |
 |:-------|:-------|:-------|:-------|:----------|:----------|:-------|
@@ -116,8 +116,9 @@ These entries matched, but fallow does the same without them. Remove the entry f
 | `src/actions/auditDependencies.ts` | `src/actions/formatCode.ts` | 50% | 5 | 12 | 8 | **strong** |
 | `src/actions/checkDependencies.ts` | `src/actions/lintCode.ts` | 44% | 6 | 20 | 7 |  |
 | `src/actions/documentDependencies.ts` | `src/actions/formatCode.ts` | 37% | 8 | 35 | 8 |  |
-| `src/actions/documentOpening.ts` | `src/actions/documentUsage.ts` | 36% | 8 | 23 | 22 |  |
+| `src/actions/documentOpening.ts` | `src/actions/documentUsage.ts` | 35% | 8 | 23 | 23 |  |
 | `src/actions/auditDependencies.ts` | `src/actions/documentDependencies.ts` | 34% | 8 | 12 | 35 |  |
+| `src/actions/documentQualitySecurity.ts` | `src/actions/documentUsage.ts` | 30% | 5 | 10 | 23 |  |
 
 *Files that change together in the commit history with no import between them.*
 
