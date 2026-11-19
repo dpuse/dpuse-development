@@ -87,7 +87,7 @@ These entries matched, but fallow does the same without them. Remove the entry f
 | `src/utilities/index.ts` | 44.3 | 42 | 614 | 0.23 | 23 | stable |
 | `src/actions/documentOpening.ts` | 21.5 | 22 | 365 | 0.19 | 1 | accelerating |
 | `src/actions/checkDependencies.ts` | 19.8 | 20 | 256 | 0.20 | 1 | stable |
-| `src/actions/documentUsage.ts` | 18.2 | 18 | 335 | 0.18 | 1 | accelerating |
+| `src/actions/documentUsage.ts` | 19.8 | 19 | 337 | 0.18 | 1 | accelerating |
 | `src/actions/auditDependencies.ts` | 13.2 | 12 | 207 | 0.21 | 2 | accelerating |
 | `src/utilities/cloudflare.ts` | 11.9 | 13 | 240 | 0.17 | 1 | accelerating |
 | `src/actions/documentQualitySecurity.ts` | 9.9 | 9 | 679 | 0.18 | 1 | cooling |
@@ -98,7 +98,7 @@ These entries matched, but fallow does the same without them. Remove the entry f
 | `src/actions/formatCode.ts` | 6.5 | 8 | 39 | 0.17 | 1 | stable |
 | `src/actions/documentApiReference.ts` | 6.2 | 13 | 772 | 0.08 | 1 | cooling |
 | `src/actions/documentProject.ts` | 4.2 | 6 | 92 | 0.11 | 1 | cooling |
-| `src/actions/lintCode.ts` | 3.0 | 6 | 30 | 0.13 | 1 | cooling |
+| `src/actions/lintCode.ts` | 4.2 | 7 | 49 | 0.13 | 1 | stable |
 | `src/actions/documentActions.ts` | 2.7 | 10 | 102 | 0.06 | 1 | stable |
 | `src/actions/buildProject.ts` | 2.5 | 3 | 56 | 0.14 | 1 | cooling |
 | `src/actions/testProject.ts` | 2.3 | 3 | 70 | 0.12 | 1 | cooling |
@@ -110,14 +110,14 @@ These entries matched, but fallow does the same without them. Remove the entry f
 
 | File A | File B | Degree | Shared | Commits A | Commits B | Strong |
 |:-------|:-------|:-------|:-------|:----------|:----------|:-------|
-| `src/actions/formatCode.ts` | `src/actions/lintCode.ts` | 86% | 6 | 8 | 6 | **strong** |
-| `src/actions/auditDependencies.ts` | `src/actions/lintCode.ts` | 56% | 5 | 12 | 6 | **strong** |
+| `src/actions/formatCode.ts` | `src/actions/lintCode.ts` | 80% | 6 | 8 | 7 | **strong** |
+| `src/actions/auditDependencies.ts` | `src/actions/lintCode.ts` | 53% | 5 | 12 | 7 | **strong** |
 | `src/actions/checkDependencies.ts` | `src/actions/formatCode.ts` | 50% | 7 | 20 | 8 | **strong** |
 | `src/actions/auditDependencies.ts` | `src/actions/formatCode.ts` | 50% | 5 | 12 | 8 | **strong** |
-| `src/actions/checkDependencies.ts` | `src/actions/lintCode.ts` | 46% | 6 | 20 | 6 |  |
+| `src/actions/checkDependencies.ts` | `src/actions/lintCode.ts` | 44% | 6 | 20 | 7 |  |
 | `src/actions/documentDependencies.ts` | `src/actions/formatCode.ts` | 37% | 8 | 35 | 8 |  |
-| `src/actions/documentOpening.ts` | `src/actions/documentUsage.ts` | 35% | 7 | 22 | 18 |  |
 | `src/actions/auditDependencies.ts` | `src/actions/documentDependencies.ts` | 34% | 8 | 12 | 35 |  |
+| `src/actions/documentOpening.ts` | `src/actions/documentUsage.ts` | 34% | 7 | 22 | 19 |  |
 
 *Files that change together in the commit history with no import between them.*
 
@@ -125,9 +125,9 @@ These entries matched, but fallow does the same without them. Remove the entry f
 
 | Efficiency | Category | Effort / Confidence | File | Recommendation |
 |:-----------|:---------|:--------------------|:-----|:---------------|
-| 11.0 | hidden coupling | low / medium | `src/actions/formatCode.ts` | Changes with lintCode.ts in 6 commits (86% coupling) without an import, make the dependency explicit or move the shared logic into one module |
-| 8.9 | hidden coupling | low / medium | `src/actions/lintCode.ts` | Changes with formatCode.ts in 6 commits (86% coupling) without an import, make the dependency explicit or move the shared logic into one module |
-| 8.5 | hidden coupling | medium / medium | `src/actions/auditDependencies.ts` | Changes with lintCode.ts in 5 commits (56% coupling) without an import, make the dependency explicit or move the shared logic into one module |
+| 11.0 | hidden coupling | low / medium | `src/actions/formatCode.ts` | Changes with lintCode.ts in 6 commits (80% coupling) without an import, make the dependency explicit or move the shared logic into one module |
+| 9.2 | hidden coupling | low / medium | `src/actions/lintCode.ts` | Changes with formatCode.ts in 6 commits (80% coupling) without an import, make the dependency explicit or move the shared logic into one module |
+| 8.5 | hidden coupling | medium / medium | `src/actions/auditDependencies.ts` | Changes with lintCode.ts in 5 commits (53% coupling) without an import, make the dependency explicit or move the shared logic into one module |
 | 8.3 | hidden coupling | medium / medium | `src/actions/checkDependencies.ts` | Changes with formatCode.ts in 7 commits (50% coupling) without an import, make the dependency explicit or move the shared logic into one module |
 
 ---

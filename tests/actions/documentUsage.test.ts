@@ -35,7 +35,7 @@ describe('documentUsage', () => {
         expect(readme).toContain('building a new, similar connector, though there is currently no process to accept third-party connectors');
         expect(readme).toContain('git clone https://github.com/dpuse/dpuse-connector-dropbox.git\ncd dpuse-connector-dropbox\nnpm install');
         expect(readme).toContain(
-            '_Requires [Node.js](https://nodejs.org/) 24 or later, [npm](https://www.npmjs.com/) 12 or later, and [TypeScript](https://www.typescriptlang.org/) 6.0.3, TypeScript 7 is not supported as yet._'
+            '_Requires [Node.js](https://nodejs.org/) 24 or later, [npm](https://www.npmjs.com/) 12 or later, and [TypeScript](https://www.typescriptlang.org/) 6.0.3. TypeScript 7 is not supported yet._'
         );
     });
 

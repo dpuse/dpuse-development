@@ -121,7 +121,7 @@ cd ${directoryName}
 npm install
 \`\`\`
 
-_Requires [Node.js](https://nodejs.org/) ${nodeVersion} or later, [npm](https://www.npmjs.com/) ${npmVersion} or later, and [TypeScript](https://www.typescriptlang.org/) ${typescriptVersion}, TypeScript 7 is not supported as yet._
+_Requires [Node.js](https://nodejs.org/) ${nodeVersion} or later, [npm](https://www.npmjs.com/) ${npmVersion} or later, and [TypeScript](https://www.typescriptlang.org/) ${typescriptVersion}. TypeScript 7 is not supported yet._
 
 ${management}`;
 }
