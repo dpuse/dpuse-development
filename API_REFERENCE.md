@@ -17,7 +17,7 @@ Every export, grouped by import path. This file is updated each time `npm run do
 - **`formatCode`**`()`
     > Uses prettier to enforce formatting style rules.
 - **`lintCode`**`()`
-    > Uses eslint to check the code for potential errors and enforces coding style rules.
+    > Uses eslint to check the code for potential errors and enforces coding style rules, then type-checks the project.
 - **`publishProject`**`()`
     > Publishes the project to npm, uploads it to DPUse, or both, as its module type requires. Run by the 'publish.yml' workflow.
 - **`resolveSampleDataContentType`**`(key: string)`
