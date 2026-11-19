@@ -35,7 +35,7 @@ describe('documentUsage', () => {
         expect(readme).toContain('building a new, similar connector, though there is currently no process to accept third-party connectors');
         expect(readme).toContain('git clone https://github.com/dpuse/dpuse-connector-dropbox.git\ncd dpuse-connector-dropbox\nnpm install');
         expect(readme).toContain(
-            '_Requires [Node.js](https://nodejs.org/) 24 or later, [npm](https://www.npmjs.com/) 12 or later, and [TypeScript](https://www.typescriptlang.org/) 6.0.3. TypeScript 7 is not supported yet._'
+            '_Requires [Node.js](https://nodejs.org/) 24 or later, [npm](https://www.npmjs.com/) 12 or later, and [TypeScript](https://www.typescriptlang.org/) 6.0.3 or a later 6.0 release. Later versions, including TypeScript 7, are not supported yet._'
         );
     });
 
@@ -46,8 +46,34 @@ describe('documentUsage', () => {
 
         const readme = await project.readFile('README.md');
         expect(readme).toContain('This [package](https://www.npmjs.com/package/@dpuse/dpuse-shared) is available on [npm](https://www.npmjs.com/).');
-        expect(readme).toContain('npm install @dpuse/dpuse-shared');
+        expect(readme).toContain('```bash\nnpm install @dpuse/dpuse-shared\n```');
+        expect(readme).toContain('_Requires [Node.js](https://nodejs.org/) 24 or later, [npm](https://www.npmjs.com/) 12 or later._');
+        expect(readme).toContain(
+            '_Working on the source also requires [TypeScript](https://www.typescriptlang.org/) 6.0.3 or a later 6.0 release. Later versions, including TypeScript 7, are not supported yet._'
+        );
         expect(readme).not.toContain('[!WARNING]');
+    });
+
+    it('installs an internal npm package as a development dependency, with its peer dependencies', async () => {
+        await writeProject('eslint-config-dpuse', { name: '@dpuse/eslint-config-dpuse', peerDependencies: { eslint: '^10.15.0' } });
+
+        await documentUsage();
+
+        const readme = await project.readFile('README.md');
+        expect(readme).toContain('```bash\nnpm install -D @dpuse/eslint-config-dpuse eslint\n```');
+        expect(readme).toContain(
+            '_Requires [Node.js](https://nodejs.org/) 24 or later, [npm](https://www.npmjs.com/) 12 or later, and `eslint` 10.15.0 or later as a peer dependency._'
+        );
+    });
+
+    it('names every peer dependency', async () => {
+        await writeProject('dpuse-shared', { name: '@dpuse/dpuse-shared', peerDependencies: { eslint: '^10.15.0', typescript: '^6.0.3' } });
+
+        await documentUsage();
+
+        const readme = await project.readFile('README.md');
+        expect(readme).toContain('npm install @dpuse/dpuse-shared eslint typescript\n');
+        expect(readme).toContain(', and `eslint` 10.15.0 or later, `typescript` 6.0.3 or later as peer dependencies._');
     });
 
     it('warns that internal npm packages are not for general use', async () => {

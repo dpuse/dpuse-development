@@ -35,8 +35,10 @@ The package implements a common set of actions used to manage DPUse repositories
 This [package](https://www.npmjs.com/package/@dpuse/dpuse-development) is available on [npm](https://www.npmjs.com/). Install it with:
 
 ```bash
-npm install @dpuse/dpuse-development
+npm install -D @dpuse/dpuse-development typescript
 ```
+
+_Requires [Node.js](https://nodejs.org/) 24 or later, [npm](https://www.npmjs.com/) 12 or later, and `typescript` 6.0.3 or later as a peer dependency._
 
 > [!WARNING]
 > This project is not designed for general use. It is custom built for the DPUse CI/CD process. You are welcome to clone and customise it for your own purposes, but you will need to adapt it to your own project structure and tooling.
@@ -49,7 +51,7 @@ cd dpuse-development
 npm install
 ```
 
-_Requires [Node.js](https://nodejs.org/) 24 or later, [npm](https://www.npmjs.com/) 12 or later, and [TypeScript](https://www.typescriptlang.org/) 6.0.3. TypeScript 7 is not supported yet._
+_Working on the source also requires [TypeScript](https://www.typescriptlang.org/) 6.0.3 or a later 6.0 release. Later versions, including TypeScript 7, are not supported yet._
 
 This repository manages itself using the actions it implements. See the `scripts` block in [package.json](https://github.com/dpuse/dpuse-development/blob/main/package.json) for details.
 
@@ -78,19 +80,19 @@ _Note: Sonda's Vite reports currently exclude CSS files, since Vite does not gen
 
 | Chunk/Module/File                                                     | Composition                                                                                   |
 | :-------------------------------------------------------------------- | :-------------------------------------------------------------------------------------------- |
-| **All 4 files**                                                       | 107.2&nbsp;kB&nbsp;·&nbsp;gzip&nbsp;33.7&nbsp;kB                                              |
-| **dist/dpuse-development.es.js**                                      | 68.2&nbsp;kB&nbsp;·&nbsp;gzip&nbsp;21.8&nbsp;kB&nbsp;·&nbsp;63.6%&nbsp;of&nbsp;the&nbsp;build |
-| &nbsp;&nbsp;&nbsp;&nbsp;src → documentDependencies.ts + 21 more       | `██████████████████░░`&nbsp;87.7%&nbsp;·&nbsp;59.8&nbsp;kB                                    |
-| &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON)           | `██░░░░░░░░░░░░░░░░░░`&nbsp;12.3%&nbsp;·&nbsp;8.4&nbsp;kB                                     |
-| **dist/utilities-Cr4u5egW.js**                                        | 27.2&nbsp;kB&nbsp;·&nbsp;gzip&nbsp;7.3&nbsp;kB&nbsp;·&nbsp;25.4%&nbsp;of&nbsp;the&nbsp;build  |
+| **All 4 files**                                                       | 107.9&nbsp;kB&nbsp;·&nbsp;gzip&nbsp;33.9&nbsp;kB                                              |
+| **dist/dpuse-development.es.js**                                      | 68.8&nbsp;kB&nbsp;·&nbsp;gzip&nbsp;22.1&nbsp;kB&nbsp;·&nbsp;63.8%&nbsp;of&nbsp;the&nbsp;build |
+| &nbsp;&nbsp;&nbsp;&nbsp;src → documentDependencies.ts + 21 more       | `██████████████████░░`&nbsp;87.8%&nbsp;·&nbsp;60.4&nbsp;kB                                    |
+| &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON)           | `██░░░░░░░░░░░░░░░░░░`&nbsp;12.2%&nbsp;·&nbsp;8.4&nbsp;kB                                     |
+| **dist/utilities-Cr4u5egW.js**                                        | 27.2&nbsp;kB&nbsp;·&nbsp;gzip&nbsp;7.3&nbsp;kB&nbsp;·&nbsp;25.2%&nbsp;of&nbsp;the&nbsp;build  |
 | &nbsp;&nbsp;&nbsp;&nbsp;@dpuse/dpuse-shared → dist/dpuse-shared.es.js | `███████████░░░░░░░░░`&nbsp;54.8%&nbsp;·&nbsp;14.9&nbsp;kB                                    |
 | &nbsp;&nbsp;&nbsp;&nbsp;src → index.ts                                | `███████░░░░░░░░░░░░░`&nbsp;32.6%&nbsp;·&nbsp;8.9&nbsp;kB                                     |
 | &nbsp;&nbsp;&nbsp;&nbsp;valibot → dist/index.mjs                      | `░░░░░░░░░░░░░░░░░░░░`&nbsp;1.5%&nbsp;·&nbsp;413&nbsp;B                                       |
 | &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON)           | `██░░░░░░░░░░░░░░░░░░`&nbsp;11.1%&nbsp;·&nbsp;3.0&nbsp;kB                                     |
-| **dist/apiReference-BdQJPhGc.js**                                     | 8.4&nbsp;kB&nbsp;·&nbsp;gzip&nbsp;3.1&nbsp;kB&nbsp;·&nbsp;7.9%&nbsp;of&nbsp;the&nbsp;build    |
+| **dist/apiReference-BdQJPhGc.js**                                     | 8.4&nbsp;kB&nbsp;·&nbsp;gzip&nbsp;3.1&nbsp;kB&nbsp;·&nbsp;7.8%&nbsp;of&nbsp;the&nbsp;build    |
 | &nbsp;&nbsp;&nbsp;&nbsp;src → apiReference.ts                         | `███████████████████░`&nbsp;95.3%&nbsp;·&nbsp;8.0&nbsp;kB                                     |
 | &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON)           | `█░░░░░░░░░░░░░░░░░░░`&nbsp;4.7%&nbsp;·&nbsp;407&nbsp;B                                       |
-| **dist/vite.es.js**                                                   | 3.4&nbsp;kB&nbsp;·&nbsp;gzip&nbsp;1.5&nbsp;kB&nbsp;·&nbsp;3.2%&nbsp;of&nbsp;the&nbsp;build    |
+| **dist/vite.es.js**                                                   | 3.4&nbsp;kB&nbsp;·&nbsp;gzip&nbsp;1.5&nbsp;kB&nbsp;·&nbsp;3.1%&nbsp;of&nbsp;the&nbsp;build    |
 | &nbsp;&nbsp;&nbsp;&nbsp;src → vite.ts                                 | `██████████████████░░`&nbsp;89.3%&nbsp;·&nbsp;3.0&nbsp;kB                                     |
 | &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON)           | `██░░░░░░░░░░░░░░░░░░`&nbsp;10.7%&nbsp;·&nbsp;371&nbsp;B                                      |
 

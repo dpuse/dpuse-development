@@ -40,12 +40,14 @@ export async function documentUsage(): Promise<void> {
         const npmVersion = resolveVersion(packageJSON.engines?.npm);
         const typescriptVersion = resolveVersion(packageJSON.devDependencies?.['typescript']);
 
-        const introduction = buildIntroductionContent(getModuleConfig(configJSON.id), packageJSON.name);
+        const moduleTypeConfig = getModuleConfig(configJSON.id);
+        const introduction = buildIntroductionContent(moduleTypeConfig, packageJSON, nodeVersion, npmVersion);
+        const requirements = buildRequirementsContent(moduleTypeConfig, nodeVersion, npmVersion, typescriptVersion);
         // A full link, so it still works where the README is shown away from GitHub, such as on npm.
         const packageJSONURL = `${cloneURL.replace(/\.git$/, '')}/blob/main/package.json`;
         const managementText = packageJSON.name === '@dpuse/dpuse-development' ? DEVELOPMENT_MANAGEMENT_TEXT : SHARED_MANAGEMENT_TEXT;
         const management = `${managementText} See the \`scripts\` block in [package.json](${packageJSONURL}) for details.`;
-        const content = buildUsageContent(introduction, cloneURL, directoryName, nodeVersion, npmVersion, typescriptVersion, management);
+        const content = buildUsageContent(introduction, cloneURL, directoryName, requirements, management);
 
         await writeReadmeSection(content, START_MARKER, END_MARKER);
 
@@ -78,7 +80,7 @@ function resolveVersion(range: string | undefined): string {
 }
 
 // Worded for how the module reaches people: uploaded to DPUse, installed from npm, or neither.
-function buildIntroductionContent(moduleTypeConfig: ModuleTypeConfig, packageName: string | undefined): string {
+function buildIntroductionContent(moduleTypeConfig: ModuleTypeConfig, packageJSON: PackageJson, nodeVersion: string, npmVersion: string): string {
     const { typeId } = moduleTypeConfig;
 
     if (UPLOADED_MODULE_TYPE_IDS.has(typeId)) {
@@ -88,13 +90,24 @@ You may view or clone this repository for your own purposes, such as building a 
     }
 
     if (moduleTypeConfig.publishedTo === 'npm') {
+        const packageName = packageJSON.name;
         if (packageName == null || packageName === '') throw new Error("package.json 'name' field is required to document usage.");
-        const warning = INTERNAL_NPM_MODULE_TYPE_IDS.has(typeId) ? `${INTERNAL_NPM_WARNING}\n\n` : ''; // Its own paragraph, or the text after it joins the warning.
+        const isInternal = INTERNAL_NPM_MODULE_TYPE_IDS.has(typeId);
+        const warning = isInternal ? `${INTERNAL_NPM_WARNING}\n\n` : ''; // Its own paragraph, or the text after it joins the warning.
+        // An internal package is a development tool, so it is installed as a development dependency. Peer dependencies
+        // are named in the same command, because npm only warns when they are missing.
+        const peerDependencies = Object.entries(packageJSON.peerDependencies ?? {});
+        const installArguments = [...(isInternal ? ['-D'] : []), packageName, ...peerDependencies.map(([name]) => name)];
+        const peerRequirements = peerDependencies.map(([name, range]) => `\`${name}\` ${resolveVersion(range)} or later`);
+        const peerKind = peerRequirements.length === 1 ? 'a peer dependency' : 'peer dependencies';
+        const peerText = peerRequirements.length > 0 ? `, and ${peerRequirements.join(', ')} as ${peerKind}` : '';
         return `This [package](https://www.npmjs.com/package/${packageName}) is available on [npm](https://www.npmjs.com/). Install it with:
 
 \`\`\`bash
-npm install ${packageName}
+npm install ${installArguments.join(' ')}
 \`\`\`
+
+_Requires [Node.js](https://nodejs.org/) ${nodeVersion} or later, [npm](https://www.npmjs.com/) ${npmVersion} or later${peerText}._
 
 ${warning}To work on the source instead, clone this repository.`;
     }
@@ -102,15 +115,18 @@ ${warning}To work on the source instead, clone this repository.`;
     return `You may view or clone this repository for your own purposes.`;
 }
 
-function buildUsageContent(
-    introduction: string,
-    cloneURL: string,
-    directoryName: string,
-    nodeVersion: string,
-    npmVersion: string,
-    typescriptVersion: string,
-    management: string
-): string {
+// An npm package states its Node.js and npm versions with its install command, so the line after the clone steps only
+// adds what working on the source needs. typescript-eslint, which every DPUse project lints with, supports TypeScript
+// up to the end of 6.0.
+function buildRequirementsContent(moduleTypeConfig: ModuleTypeConfig, nodeVersion: string, npmVersion: string, typescriptVersion: string): string {
+    const [major = '', minor = '0'] = typescriptVersion.split('.', 2);
+    const typescript = `[TypeScript](https://www.typescriptlang.org/) ${typescriptVersion} or a later ${major}.${minor} release. Later versions, including TypeScript 7, are not supported yet.`;
+    return moduleTypeConfig.publishedTo === 'npm'
+        ? `_Working on the source also requires ${typescript}_`
+        : `_Requires [Node.js](https://nodejs.org/) ${nodeVersion} or later, [npm](https://www.npmjs.com/) ${npmVersion} or later, and ${typescript}_`;
+}
+
+function buildUsageContent(introduction: string, cloneURL: string, directoryName: string, requirements: string, management: string): string {
     return `## Usage
 
 ${introduction}
@@ -121,7 +137,7 @@ cd ${directoryName}
 npm install
 \`\`\`
 
-_Requires [Node.js](https://nodejs.org/) ${nodeVersion} or later, [npm](https://www.npmjs.com/) ${npmVersion} or later, and [TypeScript](https://www.typescriptlang.org/) ${typescriptVersion}. TypeScript 7 is not supported yet._
+${requirements}
 
 ${management}`;
 }
