@@ -170,7 +170,9 @@ describe('documentQualitySecurity', () => {
         expect(codeQuality).toContain(
             '|Code analysis|✅ On|[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=dpuse_dpuse-shared&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=dpuse_dpuse-shared) [SonarCloud](https://sonarcloud.io) checks'
         );
-        expect(codeQuality).toContain(`|Linting|✅ On|[ESLint](https://eslint.org) checks the code for errors and style problems.${ciNote}|`);
+        expect(codeQuality).toContain(
+            `|Linting|✅ On|[ESLint](https://eslint.org) checks the code for errors and style problems, and the [TypeScript](https://www.typescriptlang.org/) compiler type-checks the whole project.${ciNote}|`
+        );
 
         const securityAnalysis = sectionOf(readme, 'Security Analysis');
         expect(securityAnalysis).toContain(

@@ -340,7 +340,11 @@ function buildChecksContent(owner: string, repository: string, { coveragePercent
             formatStatus(settings.sonarCloud),
             `${settings.sonarCloud ? sonarCloudBadge : ''}[SonarCloud](https://sonarcloud.io) checks every push for bugs, code smells and vulnerabilities.`
         ],
-        ['Linting', formatStatus(settings.lintInCI), `[ESLint](https://eslint.org) checks the code for errors and style problems.${ciNote(settings.lintInCI)}`]
+        [
+            'Linting',
+            formatStatus(settings.lintInCI),
+            `[ESLint](https://eslint.org) checks the code for errors and style problems, and the [TypeScript](https://www.typescriptlang.org/) compiler type-checks the whole project.${ciNote(settings.lintInCI)}`
+        ]
     ];
     // Measured when the README is regenerated, before the changes are pushed, so it comes first.
     if (fallowHealth !== undefined) {

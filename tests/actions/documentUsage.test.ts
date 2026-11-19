@@ -82,8 +82,8 @@ describe('documentUsage', () => {
         await documentUsage();
 
         const readme = await project.readFile('README.md');
-        expect(readme).toContain('> [!WARNING]\n> This project is not designed for general use.');
-        expect(readme).toContain('your own project structure and tooling.\n\nTo work on the source instead, clone this repository.');
+        expect(readme).toContain('> [!WARNING]\n> Built for DPUse projects and their conventions.');
+        expect(readme).toContain('it may change without notice to suit DPUse.\n\nTo work on the source instead, clone this repository.');
     });
 
     it('uses the general wording for modules that are neither uploaded nor on npm', async () => {

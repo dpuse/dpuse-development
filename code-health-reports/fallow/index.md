@@ -32,7 +32,7 @@ These entries matched, but fallow does the same without them. Remove the entry f
 
 | Metric | Value |
 |:-------|------:|
-| Total LOC | 4166 |
+| Total LOC | 4170 |
 | Avg Cyclomatic | 3.0 |
 | P90 Cyclomatic | 7 |
 | Cyclomatic units | Functions: 342, module scopes: 0, templates: 0 |
@@ -85,8 +85,8 @@ These entries matched, but fallow does the same without them. Remove the entry f
 | `src/actions/documentDependencies.ts` | 57.4 | 35 | 1187 | 0.34 | 1 | stable |
 | `src/utilities/index.ts` | 46.4 | 43 | 629 | 0.23 | 23 | stable |
 | `src/actions/checkConfigFiles.ts` | 44.7 | 52 | 577 | 0.21 | 1 | cooling |
-| `src/actions/documentUsage.ts` | 26.8 | 21 | 385 | 0.21 | 1 | accelerating |
-| `src/actions/documentOpening.ts` | 21.5 | 22 | 365 | 0.19 | 1 | accelerating |
+| `src/actions/documentUsage.ts` | 28.7 | 22 | 408 | 0.21 | 1 | accelerating |
+| `src/actions/documentOpening.ts` | 23.2 | 23 | 369 | 0.19 | 1 | accelerating |
 | `src/actions/checkDependencies.ts` | 19.8 | 20 | 256 | 0.20 | 1 | stable |
 | `src/actions/auditDependencies.ts` | 13.2 | 12 | 207 | 0.21 | 2 | accelerating |
 | `src/utilities/cloudflare.ts` | 11.9 | 13 | 240 | 0.17 | 1 | accelerating |
@@ -116,8 +116,8 @@ These entries matched, but fallow does the same without them. Remove the entry f
 | `src/actions/auditDependencies.ts` | `src/actions/formatCode.ts` | 50% | 5 | 12 | 8 | **strong** |
 | `src/actions/checkDependencies.ts` | `src/actions/lintCode.ts` | 44% | 6 | 20 | 7 |  |
 | `src/actions/documentDependencies.ts` | `src/actions/formatCode.ts` | 37% | 8 | 35 | 8 |  |
+| `src/actions/documentOpening.ts` | `src/actions/documentUsage.ts` | 36% | 8 | 23 | 22 |  |
 | `src/actions/auditDependencies.ts` | `src/actions/documentDependencies.ts` | 34% | 8 | 12 | 35 |  |
-| `src/actions/documentOpening.ts` | `src/actions/documentUsage.ts` | 33% | 7 | 22 | 21 |  |
 
 *Files that change together in the commit history with no import between them.*
 

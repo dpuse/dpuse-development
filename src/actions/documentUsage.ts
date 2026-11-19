@@ -18,7 +18,7 @@ const UPLOADED_MODULE_TYPE_IDS = new Set<ModuleTypeConfig['typeId']>(['connector
 // Published to npm only so DPUse projects can install them, not for general use, so the npm wording carries a warning.
 const INTERNAL_NPM_MODULE_TYPE_IDS = new Set<ModuleTypeConfig['typeId']>(['development', 'eslint']);
 const INTERNAL_NPM_WARNING = `> [!WARNING]
-> This project is not designed for general use. It is custom built for the DPUse CI/CD process. You are welcome to clone and customise it for your own purposes, but you will need to adapt it to your own project structure and tooling.`;
+> Built for DPUse projects and their conventions. You are welcome to use or adapt it, but it may change without notice to suit DPUse.`;
 
 // How the repository is managed. dpuse-development provides the actions every other repository uses, and runs them on itself.
 const DEVELOPMENT_MANAGEMENT_TEXT = 'This repository manages itself using the actions it implements.';

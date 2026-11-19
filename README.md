@@ -43,7 +43,7 @@ npm install -D @dpuse/dpuse-development typescript
 _Requires [Node.js](https://nodejs.org/) 24 or later, [npm](https://www.npmjs.com/) 12 or later, and `typescript` 6.0.3 or later as a peer dependency._
 
 > [!WARNING]
-> This project is not designed for general use. It is custom built for the DPUse CI/CD process. You are welcome to clone and customise it for your own purposes, but you will need to adapt it to your own project structure and tooling.
+> Built for DPUse projects and their conventions. You are welcome to use or adapt it, but it may change without notice to suit DPUse.
 
 To work on the source instead, clone this repository.
 
@@ -134,7 +134,7 @@ This section is updated each time `npm run document` is run. Settings come from 
 | :------------ | :----- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Code health   | ✅ On  | [![Fallow code health](https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2Fdpuse%2Fdpuse-development%2Fmain%2Fcode-health-reports%2Ffallow%2Fbadge.json)](./code-health-reports/fallow/index.md) [Fallow](https://github.com/fallow-rs/fallow) finds unused code, duplication, complexity and dependency problems. |
 | Code analysis | ✅ On  | [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=dpuse_dpuse-development&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=dpuse_dpuse-development) [SonarCloud](https://sonarcloud.io) checks every push for bugs, code smells and vulnerabilities.                                           |
-| Linting       | ✅ On  | [ESLint](https://eslint.org) checks the code for errors and style problems. Part of the [CI workflow](https://github.com/dpuse/dpuse-development/actions/workflows/ci.yml) on every push and pull request to `main`.                                                                                                                         |
+| Linting       | ✅ On  | [ESLint](https://eslint.org) checks the code for errors and style problems, and the [TypeScript](https://www.typescriptlang.org/) compiler type-checks the whole project. Part of the [CI workflow](https://github.com/dpuse/dpuse-development/actions/workflows/ci.yml) on every push and pull request to `main`.                           |
 
 ### Security Analysis
 
