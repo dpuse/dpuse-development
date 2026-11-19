@@ -306,19 +306,20 @@ export async function buildModuleConfig(stepIcon: string, packageJSON: PackageJs
     }
 }
 
+// 'npm version' writes the new version to the lock file as well as 'package.json'. The flag stops it committing and
+// tagging, because the caller commits and the GitHub release adds the tag.
 export async function bumpPackageVersion(stepIcon: string, packageJSON: PackageJson, path = './'): Promise<void> {
-    logStepHeader(`${stepIcon} Bump project version`);
+    const oldVersion = packageJSON.version;
+    const newVersion = oldVersion == null ? '0.0.1' : 'patch';
+    await execCommand(`${stepIcon} Bump project version`, 'npm', ['version', newVersion, '--no-git-tag-version', '--prefix', path]);
 
-    if (packageJSON.version == null) {
-        packageJSON.version = '0.0.001';
+    const { version = 'unknown' } = await readJSONFile<PackageJson>(`${path}package.json`);
+    packageJSON.version = version;
+    if (oldVersion == null) {
         console.warn(`⚠️  Project version initialised to '${packageJSON.version}'.`);
     } else {
-        const oldVersion = packageJSON.version;
-        const versionSegments = packageJSON.version.split('.');
-        packageJSON.version = `${versionSegments[0] ?? 'unknown'}.${versionSegments[1] ?? 'unknown'}.${String(Number(versionSegments[2]) + 1)}`;
         console.info(`Project version bumped from '${oldVersion}' to '${packageJSON.version}'.`);
     }
-    await writeJSONFile(`${path}package.json`, packageJSON);
 }
 
 // ── Actions - Source ─────────────────────────────────────────────────────────────────────────────────────────────────

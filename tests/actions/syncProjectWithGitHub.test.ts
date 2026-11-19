@@ -39,6 +39,40 @@ describe('syncProjectWithGitHub', () => {
         expect(executedCommands()).toEqual(['git add .', 'git commit -m v0.3.10', 'git push origin main:main']);
     });
 
+    it('bumps the version in the lock file too, leaving its dependencies as they are', async () => {
+        const dependency = { version: '1.2.3', resolved: 'https://registry.npmjs.org/a/-/a-1.2.3.tgz' };
+        await project.writeFiles({
+            'package.json': JSON.stringify({ name: '@dpuse/dpuse-shared', version: '0.3.9' }),
+            'package-lock.json': JSON.stringify({
+                name: '@dpuse/dpuse-shared',
+                version: '0.3.8',
+                lockfileVersion: 3,
+                packages: { '': { name: '@dpuse/dpuse-shared', version: '0.3.8' }, 'node_modules/a': dependency }
+            }),
+            'config.json': JSON.stringify({ id: 'dpuse-shared', version: '0.3.9' })
+        });
+
+        await syncProjectWithGitHub();
+
+        expect(await project.readJSON('package-lock.json')).toEqual({
+            name: '@dpuse/dpuse-shared',
+            version: '0.3.10',
+            lockfileVersion: 3,
+            packages: { '': { name: '@dpuse/dpuse-shared', version: '0.3.10' }, 'node_modules/a': dependency }
+        });
+    });
+
+    it('creates no lock file for a project without one', async () => {
+        await project.writeFiles({
+            'package.json': JSON.stringify({ name: '@dpuse/dpuse-shared', version: '0.3.9' }),
+            'config.json': JSON.stringify({ id: 'dpuse-shared', version: '0.3.9' })
+        });
+
+        await syncProjectWithGitHub();
+
+        await expect(project.readFile('package-lock.json')).rejects.toThrow('ENOENT');
+    });
+
     it("writes the config's keys as 'id', 'label' and 'description', then the rest alphabetically", async () => {
         await project.writeFiles({
             'package.json': JSON.stringify({ name: '@dpuse/dpuse-shared', version: '0.3.9' }),
@@ -50,14 +84,14 @@ describe('syncProjectWithGitHub', () => {
         expect(Object.keys(await project.readJSON('config.json'))).toEqual(['id', 'label', 'description', 'icon', 'iconDark', 'typeId', 'version']);
     });
 
-    it('starts the version at 0.0.001 when there is none', async () => {
+    it('starts the version at 0.0.1 when there is none', async () => {
         await project.writeFiles({ 'package.json': JSON.stringify({ name: '@dpuse/dpuse-shared' }), 'config.json': JSON.stringify({ id: 'dpuse-shared' }) });
 
         await syncProjectWithGitHub();
 
         const packageJSON = await project.readJSON('package.json');
-        expect(packageJSON['version']).toBe('0.0.001');
-        expect(executedCommands()).toContain('git commit -m v0.0.001');
+        expect(packageJSON['version']).toBe('0.0.1');
+        expect(executedCommands()).toContain('git commit -m v0.0.1');
     });
 
     it('records the actions and usage a connector implements', async () => {
