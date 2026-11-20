@@ -2,17 +2,17 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 // ── Local Framework
-import { execCommand } from '@/utilities';
+import { spawnCommand } from '@/utilities';
 import { syncProjectWithGitHub } from '@/actions/syncProjectWithGitHub';
 import { collectConsoleOutput, useTemporaryProject } from '../support/temporaryProject';
-import { CONNECTOR_SOURCE, executedCommands, PRESENTER_SOURCE, readFixture, TOOL_SOURCE } from '../support/projectCommands';
+import { CONNECTOR_SOURCE, PRESENTER_SOURCE, readFixture, spawnedCommands, TOOL_SOURCE } from '../support/projectCommands';
 
 // ── Mocks ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 // git commands are recorded rather than run.
 vi.mock('@/utilities', async (importOriginal) => ({
     ...(await importOriginal<object>()),
-    execCommand: vi.fn(() => Promise.resolve())
+    spawnCommand: vi.fn(() => Promise.resolve())
 }));
 
 // ── Tests ────────────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -20,7 +20,7 @@ vi.mock('@/utilities', async (importOriginal) => ({
 const project = useTemporaryProject();
 
 beforeEach(() => {
-    vi.mocked(execCommand).mockClear();
+    vi.mocked(spawnCommand).mockClear();
 });
 
 describe('syncProjectWithGitHub', () => {
@@ -36,7 +36,7 @@ describe('syncProjectWithGitHub', () => {
         const packageJSON = await project.readJSON('package.json');
         expect(packageJSON['version']).toBe('0.3.10');
         expect(await project.readJSON('config.json')).toEqual({ id: 'dpuse-shared', version: '0.3.10', icon: '<svg>light</svg>', iconDark: null });
-        expect(executedCommands()).toEqual(['git add .', 'git commit -m v0.3.10', 'git push origin main:main']);
+        expect(spawnedCommands()).toEqual(['git add .', 'git commit -m v0.3.10', 'git push origin main:main']);
     });
 
     it('bumps the version in the lock file too, leaving its dependencies as they are', async () => {
@@ -91,7 +91,7 @@ describe('syncProjectWithGitHub', () => {
 
         const packageJSON = await project.readJSON('package.json');
         expect(packageJSON['version']).toBe('0.0.1');
-        expect(executedCommands()).toContain('git commit -m v0.0.1');
+        expect(spawnedCommands()).toContain('git commit -m v0.0.1');
     });
 
     it('records the actions and usage a connector implements', async () => {
@@ -176,7 +176,7 @@ describe('syncProjectWithGitHub', () => {
 
         await expect(syncProjectWithGitHub()).rejects.toThrow('process.exit(1)');
         expect(console.error).toHaveBeenCalledWith("❌  The 'parser' configuration is invalid:");
-        expect(executedCommands()).toEqual([]);
+        expect(spawnedCommands()).toEqual([]);
     });
 
     it.each([
@@ -187,6 +187,6 @@ describe('syncProjectWithGitHub', () => {
 
         await expect(syncProjectWithGitHub()).rejects.toThrow('process.exit(1)');
         expect(console.error).toHaveBeenCalledWith('❌  Configuration is invalid:');
-        expect(executedCommands()).toEqual([]);
+        expect(spawnedCommands()).toEqual([]);
     });
 });

@@ -3,7 +3,7 @@ import { promises as fs } from 'node:fs';
 import { vi } from 'vitest';
 
 // ── Local Framework
-import { execCommand, spawnCommand } from '@/utilities';
+import { spawnCommand } from '@/utilities';
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -14,15 +14,11 @@ export const TOOL_SOURCE = 'export class Tool {\n    parseStream() {}\n    parse
 
 // ── Actions ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-// The commands a test file's mocked 'execCommand' and 'spawnCommand' were asked to run, as command lines.
-export function executedCommands(): string[] {
-    return vi.mocked(execCommand).mock.calls.map(([, command, arguments_]) => `${command} ${arguments_.join(' ')}`);
-}
-
 export async function readFixture(name: string): Promise<string> {
     return await fs.readFile(new URL(`../fixtures/${name}`, import.meta.url), 'utf-8');
 }
 
+// The commands a test file's mocked 'spawnCommand' was asked to run, as command lines.
 export function spawnedCommands(): string[] {
     return vi.mocked(spawnCommand).mock.calls.map(([, command, arguments_]) => `${command} ${arguments_.join(' ')}`);
 }

@@ -15,14 +15,6 @@ vi.mock('@/utilities', async (importOriginal) => ({ ...(await importOriginal<obj
 
 const project = useTemporaryProject();
 
-function uploads(): string[][] {
-    return vi.mocked(execCommand).mock.calls.map((call) => call[2]);
-}
-
-function compareUploads(a: string[], b: string[]): number {
-    return a.join(' ').localeCompare(b.join(' '));
-}
-
 function stubFetch(isOK: boolean): ReturnType<typeof vi.fn> {
     const fetch = vi.fn(() => Promise.resolve({ ok: isOK, text: () => Promise.resolve('Server error') }));
     vi.stubGlobal('fetch', fetch);
@@ -33,78 +25,6 @@ beforeEach(() => {
     vi.mocked(execCommand).mockClear();
 });
 
-describe('uploadModuleToR2', () => {
-    it('uploads each built file under the versioned path, with its content type, skipping source maps and folders', async () => {
-        await project.writeFiles({
-            'dist/index.es.js': '',
-            'dist/index.es.js.map': '',
-            'dist/style.css': '',
-            'dist/data.wasm': '',
-            'dist/notes.txt': '',
-            'dist/types/index.d.ts': ''
-        });
-
-        await uploadModuleToR2({ version: '1.2.3' }, 'dpuse-engine-eu/connectors/example');
-
-        expect(uploads().toSorted(compareUploads)).toEqual(
-            [
-                [
-                    'r2',
-                    'object',
-                    'put',
-                    'dpuse-engine-eu/connectors/example_v1.2.3/data.wasm',
-                    '--file=dist/data.wasm',
-                    '--content-type',
-                    'application/wasm',
-                    '--jurisdiction=eu',
-                    '--remote'
-                ],
-                [
-                    'r2',
-                    'object',
-                    'put',
-                    'dpuse-engine-eu/connectors/example_v1.2.3/index.es.js',
-                    '--file=dist/index.es.js',
-                    '--content-type',
-                    'application/javascript',
-                    '--jurisdiction=eu',
-                    '--remote'
-                ],
-                [
-                    'r2',
-                    'object',
-                    'put',
-                    'dpuse-engine-eu/connectors/example_v1.2.3/notes.txt',
-                    '--file=dist/notes.txt',
-                    '--content-type',
-                    'application/octet-stream',
-                    '--jurisdiction=eu',
-                    '--remote'
-                ],
-                [
-                    'r2',
-                    'object',
-                    'put',
-                    'dpuse-engine-eu/connectors/example_v1.2.3/style.css',
-                    '--file=dist/style.css',
-                    '--content-type',
-                    'text/css',
-                    '--jurisdiction=eu',
-                    '--remote'
-                ]
-            ].toSorted(compareUploads)
-        );
-    });
-
-    it("names the version 'unknown' when there is none", async () => {
-        await project.writeFiles({ 'dist/index.es.js': '' });
-
-        await uploadModuleToR2({}, 'dpuse-engine-eu/engine');
-
-        expect(uploads()[0]?.[3]).toBe('dpuse-engine-eu/engine_vunknown/index.es.js');
-    });
-});
-
 // Each bulk upload's options and the files its list names. The list is read while the call runs, as it is deleted
 // afterwards.
 interface BulkPut {
@@ -113,16 +33,55 @@ interface BulkPut {
     options: string[];
 }
 
-function recordBulkPuts(): BulkPut[] {
+function recordBulkPuts(bucket = 'dpuse-sample-data-eu'): BulkPut[] {
     const bulkPuts: BulkPut[] = [];
     vi.mocked(execCommand).mockImplementation(async (_label, _command, arguments_) => {
-        expect(arguments_.slice(0, 4)).toEqual(['r2', 'bulk', 'put', 'dpuse-sample-data-eu']);
+        expect(arguments_.slice(0, 4)).toEqual(['r2', 'bulk', 'put', bucket]);
         const listFilePath = arguments_[5] ?? '';
         const files = await readJSONFile<BulkPut['files']>(listFilePath);
         bulkPuts.push({ files, listFilePath, options: arguments_.slice(6) });
     });
     return bulkPuts;
 }
+
+describe('uploadModuleToR2', () => {
+    it('uploads the built files under the versioned path in one bulk call per content type, skipping source maps and folders', async () => {
+        await project.writeFiles({
+            'dist/index.es.js': '',
+            'dist/chunk.es.js': '',
+            'dist/index.es.js.map': '',
+            'dist/style.css': '',
+            'dist/data.wasm': '',
+            'dist/packages.json': '',
+            'dist/notes.txt': '',
+            'dist/types/index.d.ts': ''
+        });
+        const bulkPuts = recordBulkPuts('dpuse-engine-eu');
+
+        await uploadModuleToR2({ version: '1.2.3' }, 'dpuse-engine-eu/connectors/example');
+
+        const uploaded = bulkPuts.map(({ files, options }) => [options.join(' '), files.map(({ key }) => key).toSorted((a, b) => a.localeCompare(b))]);
+        expect(uploaded.toSorted((a, b) => String(a[0]).localeCompare(String(b[0])))).toEqual([
+            ['--content-type application/javascript --jurisdiction=eu --remote --force', ['connectors/example_v1.2.3/chunk.es.js', 'connectors/example_v1.2.3/index.es.js']],
+            ['--content-type application/json --jurisdiction=eu --remote --force', ['connectors/example_v1.2.3/packages.json']],
+            ['--content-type application/octet-stream --jurisdiction=eu --remote --force', ['connectors/example_v1.2.3/notes.txt']],
+            ['--content-type application/wasm --jurisdiction=eu --remote --force', ['connectors/example_v1.2.3/data.wasm']],
+            ['--content-type text/css --jurisdiction=eu --remote --force', ['connectors/example_v1.2.3/style.css']]
+        ]);
+        expect(bulkPuts.flatMap(({ files }) => files)).toContainEqual({ file: 'dist/data.wasm', key: 'connectors/example_v1.2.3/data.wasm' });
+        expect(collectConsoleOutput()).toContain("Uploading 'dist/data.wasm' → 'dpuse-engine-eu/connectors/example_v1.2.3/data.wasm'");
+        for (const { listFilePath } of bulkPuts) expect(await readTextFileOrNull(listFilePath)).toBeNull();
+    });
+
+    it("names the version 'unknown' when there is none", async () => {
+        await project.writeFiles({ 'dist/index.es.js': '' });
+        const bulkPuts = recordBulkPuts('dpuse-engine-eu');
+
+        await uploadModuleToR2({}, 'dpuse-engine-eu/engine');
+
+        expect(bulkPuts[0]?.files).toEqual([{ file: 'dist/index.es.js', key: 'engine_vunknown/index.es.js' }]);
+    });
+});
 
 describe('uploadDirectoryToR2', () => {
     it('uploads a folder and the folders inside it in one bulk call per content type, never with a charset', async () => {
@@ -140,9 +99,9 @@ describe('uploadDirectoryToR2', () => {
 
         const uploaded = bulkPuts.map(({ files, options }) => [options.join(' '), files.map(({ key }) => key).toSorted((a, b) => a.localeCompare(b))]);
         expect(uploaded.toSorted((a, b) => String(a[0]).localeCompare(String(b[0])))).toEqual([
-            ['--content-type application/octet-stream --jurisdiction=eu --remote', ['fileStore/chardet/koi8r']],
-            ['--content-type text/csv --jurisdiction=eu --remote', ['fileStore/a.csv', 'fileStore/nested/b.csv']],
-            ['--content-type text/plain --jurisdiction=eu --remote', ['fileStore/chardet/LICENSE', 'fileStore/notes.txt']]
+            ['--content-type application/octet-stream --jurisdiction=eu --remote --force', ['fileStore/chardet/koi8r']],
+            ['--content-type text/csv --jurisdiction=eu --remote --force', ['fileStore/a.csv', 'fileStore/nested/b.csv']],
+            ['--content-type text/plain --jurisdiction=eu --remote --force', ['fileStore/chardet/LICENSE', 'fileStore/notes.txt']]
         ]);
         expect(bulkPuts.flatMap(({ files }) => files)).toContainEqual({ file: 'public/fileStore/a.csv', key: 'fileStore/a.csv' });
         for (const { listFilePath } of bulkPuts) expect(await readTextFileOrNull(listFilePath)).toBeNull();
@@ -155,7 +114,7 @@ describe('uploadDirectoryToR2', () => {
         await uploadDirectoryToR2('public', 'fileStore');
 
         expect(bulkPuts.map(({ files, options }) => [options.join(' '), files.map(({ key }) => key)])).toContainEqual([
-            '--content-type application/octet-stream --jurisdiction=eu --remote',
+            '--content-type application/octet-stream --jurisdiction=eu --remote --force',
             ['fileStore/report.pdf']
         ]);
         expect(collectConsoleOutput()).toContain("No content type for 'fileStore/report.pdf'");
@@ -179,7 +138,7 @@ describe('uploadSampleDataToR2', () => {
             ['fileStore/a.csv'],
             ['applicationIndex.json', 'fileStoreIndex.json']
         ]);
-        expect(bulkPuts.at(-1)?.options).toEqual(['--content-type', 'application/json', '--cache-control', 'no-cache', '--jurisdiction=eu', '--remote']);
+        expect(bulkPuts.at(-1)?.options).toEqual(['--content-type', 'application/json', '--cache-control', 'no-cache', '--jurisdiction=eu', '--remote', '--force']);
     });
 });
 

@@ -90,12 +90,6 @@ describe('execCommand', () => {
         expect(console.error).toHaveBeenCalledWith('err');
     });
 
-    it('writes standard output to a file when one is given', async () => {
-        await execCommand(undefined, 'node', ['-e', "console.log('  saved  ')"], 'output.txt');
-        expect(await project.readFile('output.txt')).toBe('saved');
-        expect(console.log).not.toHaveBeenCalled();
-    });
-
     it('rejects when the command fails', async () => {
         await expect(execCommand(undefined, 'node', ['-e', 'process.exit(3)'])).rejects.toThrow();
     });
@@ -113,6 +107,10 @@ describe('spawnCommand', () => {
     it('resolves despite a failure when errors are ignored', async () => {
         await expect(spawnCommand('1️⃣  Run', 'node', ['-e', 'process.exit(2)'], true)).resolves.toBeUndefined();
     });
+
+    it('rejects when the command cannot be started', async () => {
+        await expect(spawnCommand('1️⃣  Run', 'no-such-command-dpuse', [])).rejects.toThrow('ENOENT');
+    });
 });
 
 describe('spawnCommandForOutput', () => {
@@ -129,6 +127,10 @@ describe('spawnCommandToFile', () => {
     it('writes standard output to the file, creating its folder', async () => {
         await spawnCommandToFile('1️⃣  Run', 'node', ['-e', "process.stdout.write('report')"], 'reports/nested/output.txt');
         expect(await project.readFile('reports/nested/output.txt')).toBe('report');
+    });
+
+    it('rejects when the command cannot be started', async () => {
+        await expect(spawnCommandToFile('1️⃣  Run', 'no-such-command-dpuse', [], 'output.txt')).rejects.toThrow('ENOENT');
     });
 
     it('rejects with the exit code when the command fails', async () => {

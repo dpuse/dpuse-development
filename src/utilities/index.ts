@@ -116,14 +116,10 @@ export async function getDirectoryEntries(path: string, options?: ObjectEncoding
 
 // ── Actions - Command ────────────────────────────────────────────────────────────────────────────────────────────────
 
-export async function execCommand(label: string | undefined, command_: string, arguments_: string[], outputFilePath?: string): Promise<void> {
+export async function execCommand(label: string | undefined, command_: string, arguments_: string[]): Promise<void> {
     if (label !== undefined) logStepHeader(`${label} - exec(${command_} ${arguments_.join(' ')})`);
     const { stdout, stderr } = await asyncExecFile(command_, arguments_);
-    if (outputFilePath === undefined) {
-        if (stdout.trim()) console.log(stdout.trim());
-    } else {
-        await fs.writeFile(outputFilePath, stdout.trim(), 'utf-8');
-    }
+    if (stdout.trim()) console.log(stdout.trim());
     if (stderr.trim()) console.error(stderr.trim());
 }
 
@@ -131,6 +127,7 @@ export async function spawnCommand(label: string, command: string, arguments_: s
     logStepHeader(`${label} - spawn(${command} ${arguments_.join(' ')})`);
     return new Promise((resolve, reject) => {
         const child = spawn(command, arguments_, { shell: isShellUsed, stdio: 'inherit' });
+        child.on('error', reject); // The command could not be started at all.
         child.on('close', (code) => {
             if (code === 0 || isErrorIgnored) {
                 resolve();
@@ -166,6 +163,7 @@ export async function spawnCommandToFile(label: string, command: string, argumen
         child.stdout.on('data', (chunk) => {
             output += String(chunk);
         });
+        child.on('error', reject); // The command could not be started at all.
         child.on('close', (code) => {
             if (code === 0 || isErrorIgnored) {
                 void (async () => {

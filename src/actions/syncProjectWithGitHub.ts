@@ -5,7 +5,7 @@ import type { PackageJson } from 'type-fest';
 import type { ModuleConfig } from '@dpuse/dpuse-shared';
 
 // ── Local Framework
-import { buildModuleConfig, bumpPackageVersion, execCommand, getModuleConfig, logOperationHeader, logOperationSuccess, readJSONFile } from '@/utilities';
+import { buildModuleConfig, bumpPackageVersion, getModuleConfig, logOperationHeader, logOperationSuccess, readJSONFile, spawnCommand } from '@/utilities';
 
 // ── Actions ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -22,11 +22,11 @@ export async function syncProjectWithGitHub(): Promise<void> {
 
         await buildModuleConfig('2️⃣ ', packageJSON, moduleTypeConfig);
 
-        await execCommand('3️⃣  Stage changes', 'git', ['add', '.']);
+        await spawnCommand('3️⃣  Stage changes', 'git', ['add', '.']);
 
-        await execCommand('4️⃣  Commit changes', 'git', ['commit', '-m', `v${packageJSON.version ?? 'unknown'}`]);
+        await spawnCommand('4️⃣  Commit changes', 'git', ['commit', '-m', `v${packageJSON.version ?? 'unknown'}`]);
 
-        await execCommand('5️⃣  Push changes', 'git', ['push', 'origin', 'main:main']);
+        await spawnCommand('5️⃣  Push changes', 'git', ['push', 'origin', 'main:main']);
 
         logOperationSuccess(`Project version '${packageJSON.version ?? 'unknown'}' synchronised with GitHub.`);
     } catch (error) {

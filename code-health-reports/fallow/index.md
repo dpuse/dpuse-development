@@ -15,27 +15,27 @@ These entries matched, but fallow does the same without them. Remove the entry f
 
 ### Duplicates
 
-**Clone group 1** (8 lines, 2 instances)
+**Clone group 1** (9 lines, 2 instances)
 
-- `src/utilities/index.ts:147-154`
-- `src/utilities/index.ts:162-169`
+- `src/utilities/index.ts:144-152`
+- `src/utilities/index.ts:159-167`
 
 ### Clone Families
 
-**Family 1** (1 group, 8 lines across `src/utilities/index.ts`)
+**Family 1** (1 group, 9 lines across `src/utilities/index.ts`)
 
-- Extract shared function (8 lines) from index.ts, index.ts (~8 lines saved)
+- Extract shared function (9 lines) from index.ts, index.ts (~9 lines saved)
 
-**Summary:** 16 duplicated lines (0.4%) across 1 file
+**Summary:** 18 duplicated lines (0.4%) across 1 file
 
 ## Vital Signs
 
 | Metric | Value |
 |:-------|------:|
-| Total LOC | 4170 |
+| Total LOC | 4165 |
 | Avg Cyclomatic | 3.0 |
 | P90 Cyclomatic | 7 |
-| Cyclomatic units | Functions: 342, module scopes: 0, templates: 0 |
+| Cyclomatic units | Functions: 344, module scopes: 0, templates: 0 |
 | Dead Files | 0.0% |
 | Dead Exports | 0.0% |
 | Maintainability (avg) | 91.9 |
@@ -64,7 +64,7 @@ These entries matched, but fallow does the same without them. Remove the entry f
 | `src/actions/documentContributingLicense.ts` | 92.4 | 1 | 1 | 0% | 0.16 | 7.0 |
 | `src/actions/testProject.ts` | 93.6 | 1 | 1 | 0% | 0.12 | 7.0 |
 | `src/actions/documentProject.ts` | 87.5 | 1 | 9 | 0% | 0.11 | 6.0 |
-| `src/utilities/cloudflare.ts` | 92.1 | 1 | 1 | 0% | 0.17 | 6.0 |
+| `src/utilities/cloudflare.ts` | 92.1 | 1 | 1 | 0% | 0.17 | 4.0 |
 | `src/actions/lintCode.ts` | 94.7 | 1 | 1 | 0% | 0.13 | 4.0 |
 | `src/actions/syncProjectWithGitHub.ts` | 94.8 | 1 | 1 | 0% | 0.11 | 4.0 |
 | `src/actions/buildProject.ts` | 94.3 | 1 | 1 | 0% | 0.14 | 3.0 |

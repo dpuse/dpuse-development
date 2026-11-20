@@ -103,13 +103,9 @@ function buildOpeningContent(
         npmPackageName === undefined ? '' : `\n[![npm version](https://img.shields.io/npm/v/${npmPackageName}?label=npm)](https://www.npmjs.com/package/${npmPackageName})`;
     const summary = description == null || description === '' ? '' : `\n\n${description}`;
     const introductionSection = introduction === undefined ? '' : `\n\n## Introduction\n\n${introduction}`;
-    // Every project is a release candidate. The Usage section explains what that means for it.
-    const releaseNotice = '**Release candidate.** See [Release Status](#release-status).';
 
     return `[![License: ${license}](https://img.shields.io/badge/License-${badgeLicense}-blue.svg)](./LICENSE)${dpuseBadge}${npmBadge}
 [![CI](${repositoryURL}/actions/workflows/ci.yml/badge.svg)](${repositoryURL}/actions/workflows/ci.yml)${summary}
-
-${releaseNotice}
 
 [Report a Vulnerability](${repositoryURL}/security/advisories/new) · [Open an Issue](${repositoryURL}/issues)
 
