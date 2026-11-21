@@ -32,7 +32,7 @@ These entries matched, but fallow does the same without them. Remove the entry f
 
 | Metric | Value |
 |:-------|------:|
-| Total LOC | 4165 |
+| Total LOC | 4167 |
 | Avg Cyclomatic | 3.0 |
 | P90 Cyclomatic | 7 |
 | Cyclomatic units | Functions: 344, module scopes: 0, templates: 0 |
@@ -77,21 +77,21 @@ These entries matched, but fallow does the same without them. Remove the entry f
 
 **Average maintainability index:** 91.9/100
 
-### Hotspots (22 files, since 6 months)
+### Hotspots (23 files, since 6 months)
 
 | File | Score | Commits | Churn | Density | Fan-in | Trend |
 |:-----|:------|:--------|:------|:--------|:-------|:------|
 | `src/actions/documentBundleSizes.ts` | 63.3 | 47 | 1853 | 0.31 | 1 | stable |
 | `src/actions/documentDependencies.ts` | 57.5 | 35 | 1187 | 0.34 | 1 | stable |
-| `src/utilities/index.ts` | 46.4 | 43 | 629 | 0.23 | 23 | stable |
+| `src/utilities/index.ts` | 48.4 | 44 | 639 | 0.23 | 23 | stable |
 | `src/actions/checkConfigFiles.ts` | 44.7 | 52 | 577 | 0.21 | 1 | cooling |
 | `src/actions/documentUsage.ts` | 30.6 | 23 | 410 | 0.21 | 1 | accelerating |
-| `src/actions/documentOpening.ts` | 23.2 | 23 | 369 | 0.19 | 1 | accelerating |
+| `src/actions/documentOpening.ts` | 24.9 | 24 | 373 | 0.19 | 1 | accelerating |
 | `src/actions/checkDependencies.ts` | 19.8 | 20 | 256 | 0.20 | 1 | stable |
+| `src/utilities/cloudflare.ts` | 13.4 | 14 | 283 | 0.17 | 1 | accelerating |
 | `src/actions/auditDependencies.ts` | 13.2 | 12 | 207 | 0.21 | 2 | accelerating |
-| `src/utilities/cloudflare.ts` | 11.9 | 13 | 240 | 0.17 | 1 | accelerating |
 | `src/actions/documentQualitySecurity.ts` | 11.5 | 10 | 685 | 0.18 | 1 | cooling |
-| `src/actions/publishProject.ts` | 9.9 | 9 | 114 | 0.17 | 1 | cooling |
+| `src/actions/publishProject.ts` | 9.8 | 9 | 114 | 0.17 | 1 | cooling |
 | `src/vite.ts` | 9.5 | 4 | 219 | 0.29 | 1 | accelerating |
 | `src/utilities/rustCrates.ts` | 9.3 | 5 | 232 | 0.24 | 1 | stable |
 | `src/utilities/apiReference.ts` | 8.5 | 3 | 404 | 0.47 | 1 | cooling |
@@ -102,9 +102,10 @@ These entries matched, but fallow does the same without them. Remove the entry f
 | `src/actions/documentActions.ts` | 2.7 | 10 | 102 | 0.06 | 1 | stable |
 | `src/actions/buildProject.ts` | 2.5 | 3 | 56 | 0.14 | 1 | cooling |
 | `src/actions/testProject.ts` | 2.3 | 3 | 70 | 0.12 | 1 | cooling |
+| `src/actions/syncProjectWithGitHub.ts` | 2.3 | 3 | 46 | 0.11 | 1 | cooling |
 | `vite.config.ts` | 2.2 | 23 | 134 | 0.02 | 0 | stable |
 
-*4 files excluded (< 3 commits)*
+*3 files excluded (< 3 commits)*
 
 ### Hidden Change Coupling (9 pairs, since 12 months)
 
@@ -116,8 +117,8 @@ These entries matched, but fallow does the same without them. Remove the entry f
 | `src/actions/auditDependencies.ts` | `src/actions/formatCode.ts` | 50% | 5 | 12 | 8 | **strong** |
 | `src/actions/checkDependencies.ts` | `src/actions/lintCode.ts` | 44% | 6 | 20 | 7 |  |
 | `src/actions/documentDependencies.ts` | `src/actions/formatCode.ts` | 37% | 8 | 35 | 8 |  |
-| `src/actions/documentOpening.ts` | `src/actions/documentUsage.ts` | 35% | 8 | 23 | 23 |  |
 | `src/actions/auditDependencies.ts` | `src/actions/documentDependencies.ts` | 34% | 8 | 12 | 35 |  |
+| `src/actions/documentOpening.ts` | `src/actions/documentUsage.ts` | 34% | 8 | 24 | 23 |  |
 | `src/actions/documentQualitySecurity.ts` | `src/actions/documentUsage.ts` | 30% | 5 | 10 | 23 |  |
 
 *Files that change together in the commit history with no import between them.*

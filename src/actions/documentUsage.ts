@@ -20,8 +20,8 @@ const INTERNAL_NPM_MODULE_TYPE_IDS = new Set<ModuleTypeConfig['typeId']>(['devel
 const INTERNAL_NPM_WARNING = `> [!WARNING]
 > Built for DPUse projects and their conventions. You are welcome to use or adapt it, but it may change without notice to suit DPUse.`;
 
-// How the repository is managed. dpuse-development provides the actions every other repository uses, and runs them on itself.
-const DEVELOPMENT_MANAGEMENT_TEXT = 'This repository manages itself using the actions it implements.';
+// How the repository is managed. dpuse-development provides the actions every other repository uses, and is managed with them too.
+const DEVELOPMENT_MANAGEMENT_TEXT = 'This repository is managed using the actions it implements.';
 const SHARED_MANAGEMENT_TEXT = 'This repository is managed using the common set of actions provided by [@dpuse/dpuse-development](https://github.com/dpuse/dpuse-development).';
 
 // ── Actions ──────────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -138,7 +138,7 @@ function buildReleaseStatusContent(moduleTypeConfig: ModuleTypeConfig, repositor
     const versioning = isNPMPackage
         ? `
 
-Each release increases the last number of the version, for example from 1.0.164 to 1.0.165. Until the first stable release, any release may include changes that need updates in the projects that use it, so depend on an exact version to avoid unexpected changes. Once stable, versions will follow [Semantic Versioning](https://semver.org): breaking changes in the first number, new features in the second and fixes in the last.`
+The last number of the version increases with every push to GitHub, whether or not that push is released, so the versions of consecutive releases can skip numbers, for example from 1.1.120 to 1.1.124. Until the first stable release, any release may include changes that need updates in the projects that use it, so depend on an exact version to avoid unexpected changes. Once stable, versions will follow [Semantic Versioning](https://semver.org): breaking changes in the first number, new features in the second and fixes in the last.`
         : '';
     return `### Release Status
 

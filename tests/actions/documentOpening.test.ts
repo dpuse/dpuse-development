@@ -26,9 +26,9 @@ describe('documentOpening', () => {
 
         const readme = await project.readFile('README.md');
         expect(readme).toContain('[![License: Apache-2.0](https://img.shields.io/badge/License-Apache--2.0-blue.svg)](./LICENSE)');
-        expect(readme).toContain('## About DPUse\n\n[DPUse](https://www.dpuse.app) (Data Positioning & Use) is');
+        expect(readme).toContain('## About DPUse\n\nDPUse (Data Positioning & Use) is');
         expect(readme).not.toContain('[DPUse](https://www.dpuse.app) ·');
-        expect(readme).toContain('[Connectors](https://www.dpuse.app/connectors)');
+        expect(readme).toContain('**Sourcing** uses Connectors to link to');
         expect(readme).toContain('## Introduction\n\nFirst paragraph.\n\nSecond paragraph.');
         expect(readme).not.toContain('Fallow code health');
     });

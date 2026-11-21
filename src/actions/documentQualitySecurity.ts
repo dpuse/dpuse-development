@@ -237,7 +237,9 @@ async function readSecuritySettings(owner: string, repository: string, packageJS
         secretScanning: readSetting('secret_scanning'),
         socket: checkAppSlugs.has('socket-security'),
         sonarCloud: checkAppSlugs.has('sonarqubecloud'),
-        testsInCI: ciWorkflow?.includes('npm test') ?? false
+        // The CI workflow runs the tests by calling 'testProject', and a project's own workflow may run 'npm test'. Comment
+        // lines are passed over, as the workflow's notes mention 'npm test' without running it.
+        testsInCI: /^(?!\s*#).*(?:npm test|testProject\()/m.test(ciWorkflow ?? '')
     };
 }
 

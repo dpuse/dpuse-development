@@ -42,7 +42,8 @@ const project = useTemporaryProject();
 
 const REPO = 'repos/dpuse/dpuse-shared';
 
-const CI_WORKFLOW = 'steps:\n  - run: npm run lint\n  - run: npm test\n  - run: npm run audit\n';
+const TEST_STEP = `  - run: node -e "import('@dpuse/dpuse-development').then(m => m.testProject(['unit']))"\n`; // As the CI workflow template runs the tests.
+const CI_WORKFLOW = `steps:\n  - run: npm run lint\n${TEST_STEP}  - run: npm run audit\n`;
 const CODEQL_WORKFLOW = 'matrix:\n  include:\n    - language: actions\n    - language: javascript-typescript\n    - language: swift\nqueries: security-extended\n';
 const DEPENDABOT_PAUSED = 'updates:\n  - package-ecosystem: npm\n    open-pull-requests-limit: 0\n';
 
@@ -291,6 +292,19 @@ describe('documentQualitySecurity', () => {
 
         expect(await project.readFile('README.md')).not.toContain('|Test coverage|');
         await expect(fs.access('code-health-reports/vitest/badge.json')).rejects.toThrow();
+    });
+
+    it.each([
+        { status: '✅ On', workflow: 'steps:\n  - run: npm test\n' },
+        { status: '❌ Off', workflow: "steps:\n  # TODO: Run 'npm test' and testProject(['unit']) in this step.\n  - run: npm run lint\n" }
+    ])('reports unit tests as $status from the steps the CI workflow runs, not its comments', async ({ status, workflow }) => {
+        await writeProject({ files: { '.github/workflows/ci.yml': workflow } });
+        stubGitHub();
+        stubOpenSSF();
+
+        await documentQualitySecurity();
+
+        expect(await project.readFile('README.md')).toContain(`|Unit tests|${status}|`);
     });
 
     it('reports settings GitHub switches off or does not reveal', async () => {

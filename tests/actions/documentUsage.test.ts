@@ -104,7 +104,7 @@ describe('documentUsage', () => {
         await writeProject('dpuse-development', { name: '@dpuse/dpuse-development' });
         await documentUsage();
         expect(await project.readFile('README.md')).toContain(
-            'This repository manages itself using the actions it implements. See the `scripts` block in [package.json](https://github.com/dpuse/dpuse-development/blob/main/package.json) for details.'
+            'This repository is managed using the actions it implements. See the `scripts` block in [package.json](https://github.com/dpuse/dpuse-development/blob/main/package.json) for details.'
         );
     });
 
@@ -113,7 +113,7 @@ describe('documentUsage', () => {
         await documentUsage();
         const packageReadme = await project.readFile('README.md');
         expect(packageReadme).toContain(
-            '### Release Status\n\nDPUse is a new product, and this package is a release candidate: complete and in use across DPUse, but not yet at its first stable release.\n\nEach release increases the last number of the version'
+            '### Release Status\n\nDPUse is a new product, and this package is a release candidate: complete and in use across DPUse, but not yet at its first stable release.\n\nThe last number of the version increases with every push to GitHub, whether or not that push is released'
         );
         expect(packageReadme).toContain('[Semantic Versioning](https://semver.org)');
         expect(packageReadme).toContain('Every release is listed on the [Releases](https://github.com/dpuse/dpuse-shared/releases) page.\n\n<!-- USAGE_END -->');
