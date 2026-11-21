@@ -138,6 +138,30 @@ describe('documentRustCrates', () => {
         });
     });
 
+    it('lists the crates without dates when crates.io cannot be reached', async () => {
+        await setUpRustProject();
+        vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new Error('offline')));
+
+        const result = await documentRustCrates('Identify', 'MIT');
+
+        const crates = result?.crates ?? [];
+        expect(crates.map((crate) => crate.name)).toEqual(['csv-core', 'memchr', 'wasm-bindgen']);
+        for (const crate of crates) expect(crate).toEqual(expect.objectContaining({ publishedDate: '', latestVersion: '', latestPublishedDate: '' }));
+    });
+
+    it('takes the newest version of any kind for a crate with no stable release, and gives no later date when it is installed', async () => {
+        await setUpRustProject();
+        const data = { crate: { max_stable_version: null, max_version: '0.1.13' }, versions: [{ num: '0.1.13', created_at: '2025-10-17T00:00:00Z' }] };
+        vi.stubGlobal(
+            'fetch',
+            vi.fn(() => Promise.resolve(Response.json(data)))
+        );
+
+        const result = await documentRustCrates('Identify', 'MIT');
+
+        expect(result?.crates[0]).toEqual(expect.objectContaining({ publishedDate: '2025-10-17T00:00:00Z', latestVersion: '0.1.13', latestPublishedDate: '' }));
+    });
+
     describe('licences', () => {
         it.each([
             ['either of two licences', 'MIT OR Apache-2.0', 'MIT'],

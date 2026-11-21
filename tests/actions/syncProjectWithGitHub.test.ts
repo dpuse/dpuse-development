@@ -39,6 +39,23 @@ describe('syncProjectWithGitHub', () => {
         expect(spawnedCommands()).toEqual(['git add .', 'git commit -m v0.3.10', 'git push origin main:main']);
     });
 
+    it('exits without pushing when the commit fails', async () => {
+        await project.writeFiles({ 'package.json': JSON.stringify({ name: '@dpuse/dpuse-shared', version: '0.3.9' }), 'config.json': JSON.stringify({ id: 'dpuse-shared' }) });
+        vi.mocked(spawnCommand).mockResolvedValueOnce().mockRejectedValueOnce(new Error('git exited with code 1'));
+
+        await expect(syncProjectWithGitHub()).rejects.toThrow('process.exit(1)');
+        expect(spawnedCommands()).toEqual(['git add .', 'git commit -m v0.3.10']);
+        expect(console.error).toHaveBeenCalledWith('❌  Error synchronising project with GitHub', new Error('git exited with code 1'));
+    });
+
+    it('exits when the push fails, without reporting the project as synchronised', async () => {
+        await project.writeFiles({ 'package.json': JSON.stringify({ name: '@dpuse/dpuse-shared', version: '0.3.9' }), 'config.json': JSON.stringify({ id: 'dpuse-shared' }) });
+        vi.mocked(spawnCommand).mockResolvedValueOnce().mockResolvedValueOnce().mockRejectedValueOnce(new Error('git exited with code 128'));
+
+        await expect(syncProjectWithGitHub()).rejects.toThrow('process.exit(1)');
+        expect(collectConsoleOutput()).not.toContain('synchronised with GitHub');
+    });
+
     it('bumps the version in the lock file too, leaving its dependencies as they are', async () => {
         const dependency = { version: '1.2.3', resolved: 'https://registry.npmjs.org/a/-/a-1.2.3.tgz' };
         await project.writeFiles({

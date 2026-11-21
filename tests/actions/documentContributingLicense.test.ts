@@ -9,7 +9,7 @@ import { buildReadme, useTemporaryProject } from '../support/temporaryProject';
 
 const project = useTemporaryProject();
 
-async function writeProject(packageJSON: object = {}, firstCreatedAt: number | null = Date.UTC(2024, 0, 1), readme = buildReadme('CONTRIBUTING_LICENSE')): Promise<void> {
+async function writeProject(packageJSON: object = {}, firstCreatedAt: number | null = Date.UTC(2024, 0, 1)): Promise<void> {
     await project.writeFiles({
         'config.json': JSON.stringify({ id: 'dpuse-shared', firstCreatedAt }),
         'package.json': JSON.stringify({
@@ -17,7 +17,7 @@ async function writeProject(packageJSON: object = {}, firstCreatedAt: number | n
             repository: { type: 'git', url: 'git+https://github.com/dpuse/dpuse-shared.git' },
             ...packageJSON
         }),
-        'README.md': readme
+        'README.md': buildReadme('CONTRIBUTING_LICENSE')
     });
 }
 
@@ -42,14 +42,16 @@ describe('documentContributingLicense', () => {
         expect(readme).toContain('[MIT](./LICENSE) © 2024-present Jonathan Terrell');
     });
 
-    it('splits an old README section, leaving empty Quality & Security markers before it', async () => {
-        await writeProject({}, Date.UTC(2024, 0, 1), buildReadme('GOVERNANCE'));
+    it.each([
+        ['a public repository', false, 'Its source is published openly under the MIT License — every DPUse project'],
+        ['a private repository', true, 'Its source is not published — every DPUse project']
+    ])('says whether the source of %s is published, and names the projects that are closed', async (_case, isPrivate, expected) => {
+        await writeProject({ private: isPrivate });
 
         await documentContributingLicense();
 
         const readme = await project.readFile('README.md');
-        expect(readme).not.toContain('GOVERNANCE');
-        expect(readme).toMatch(/<!-- QUALITY_SECURITY_START -->\n<!-- QUALITY_SECURITY_END -->\n\n<!-- CONTRIBUTING_LICENSE_START -->\n\n## Contributing/);
+        expect(readme).toContain(`${expected} is fully open source except DPUse Engine and DPUse API, which remain closed and proprietary.`);
     });
 
     it.each([

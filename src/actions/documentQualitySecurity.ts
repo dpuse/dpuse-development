@@ -1,19 +1,19 @@
 // ── External Dependencies & Registrations
-import { execFile } from 'node:child_process';
 import type { PackageJson } from 'type-fest';
-import { promisify } from 'node:util';
 
 // ── Local Framework
 import {
+    COVERAGE_BADGE_PATH,
     FALLOW_BADGE_PATH,
     FALLOW_DIRECTORY,
     FALLOW_REPORT_PATH,
     logOperationHeader,
     logOperationSuccess,
     logStepHeader,
-    migrateGovernanceSection,
     QUALITY_SECURITY_END_MARKER,
     QUALITY_SECURITY_START_MARKER,
+    readGitHubAPI,
+    readGitHubCheckAppSlugs,
     readJSONFile,
     readTextFileOrNull,
     resolveOwnerAndRepository,
@@ -37,10 +37,6 @@ interface CoverageSummary {
 
 interface FallowHealth {
     health_score: { score: number; grade: string };
-}
-
-interface GitHubCheckRuns {
-    check_runs: { app: { slug: string } | null }[];
 }
 
 interface GitHubRepositoryDetails {
@@ -92,7 +88,6 @@ const COVERAGE_FINAL_PATH = 'coverage/coverage-final.json';
 const COVERAGE_SUMMARY_PATH = 'coverage/coverage-summary.json';
 const COVERAGE_TARGET_PERCENT = 80;
 const COVERAGE_WARNING_PERCENT = 60; // Below the target the badge turns yellow, and below this it turns red.
-const COVERAGE_BADGE_PATH = 'code-health-reports/vitest/badge.json'; // Not under a 'coverage' folder, which '.gitignore' leaves out.
 
 const CODEQL_LANGUAGE_NAMES: Record<string, string> = { actions: 'GitHub Actions', 'javascript-typescript': 'JavaScript/TypeScript', rust: 'Rust' };
 
@@ -100,10 +95,6 @@ const CODEQL_LANGUAGE_NAMES: Record<string, string> = { actions: 'GitHub Actions
 // README; the Code Quality row and the badge are both built from the one health run, so they always agree.
 const FALLOW_GRADE_COLOURS: Record<string, string> = { A: 'brightgreen', B: 'green', C: 'yellow', D: 'orange', F: 'red' };
 const FALLOW_HEALTH_PATH = `${FALLOW_DIRECTORY}/health.json`;
-
-// ── Initialisation ───────────────────────────────────────────────────────────────────────────────────────────────────
-
-const asyncExecFile = promisify(execFile);
 
 // ── Actions ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -131,7 +122,6 @@ export async function documentQualitySecurity(): Promise<void> {
         logStepHeader("6️⃣  Insert quality and security content into 'README.md'");
         const content = buildQualitySecurityContent(owner, repository, { coveragePercent, fallowHealth, securitySettings }, bestPracticesProjectId, scorecardResult);
 
-        await migrateGovernanceSection();
         await writeReadmeSection(content, QUALITY_SECURITY_START_MARKER, QUALITY_SECURITY_END_MARKER);
 
         logOperationSuccess('Quality & security documented');
@@ -203,16 +193,15 @@ async function readSecuritySettings(owner: string, repository: string, packageJS
         readTextFileOrNull(RUST_WORKSPACE_PATH)
     ]);
     const codeQLWorkflow = (await readTextFileOrNull('.github/workflows/codeql.yml')) ?? ''; // Empty when missing, so CodeQL reads as off.
-    const [repositoryDetails, privateVulnerabilityReporting, vulnerabilityAlerts, checkRuns] = await Promise.all([
+    const [repositoryDetails, privateVulnerabilityReporting, vulnerabilityAlerts, checkAppSlugs] = await Promise.all([
         readGitHubAPI(`repos/${owner}/${repository}`),
         readGitHubAPI(`repos/${owner}/${repository}/private-vulnerability-reporting`),
         readGitHubAPI(`repos/${owner}/${repository}/vulnerability-alerts`),
-        readGitHubAPI(`repos/${owner}/${repository}/commits/main/check-runs?per_page=100`)
+        readGitHubCheckAppSlugs(owner, repository)
     ]);
 
     const securityAndAnalysis = repositoryDetails === undefined ? undefined : (JSON.parse(repositoryDetails) as GitHubRepositoryDetails).security_and_analysis;
     const readSetting = (name: string): SettingStatus => (securityAndAnalysis?.[name] === undefined ? undefined : securityAndAnalysis[name].status === 'enabled');
-    const checkAppSlugs = new Set((checkRuns === undefined ? [] : (JSON.parse(checkRuns) as GitHubCheckRuns).check_runs).map((checkRun) => checkRun.app?.slug));
 
     // Version updates count as off when every ecosystem is limited to 0 pull requests, the documented way to pause them.
     const ecosystemCount = dependabotConfig?.match(/package-ecosystem:/g)?.length ?? 0;
@@ -241,18 +230,6 @@ async function readSecuritySettings(owner: string, repository: string, packageJS
         // lines are passed over, as the workflow's notes mention 'npm test' without running it.
         testsInCI: /^(?!\s*#).*(?:npm test|testProject\()/m.test(ciWorkflow ?? '')
     };
-}
-
-// Answers undefined for a 404, which is how some endpoints report a switched-off feature. Any other failure throws, so a
-// missing login or network blip can't be written into the README as settings being off.
-async function readGitHubAPI(endpoint: string): Promise<string | undefined> {
-    try {
-        const { stdout } = await asyncExecFile('gh', ['api', endpoint]);
-        return stdout;
-    } catch (error) {
-        if (String((error as { stderr?: unknown }).stderr).includes('HTTP 404')) return undefined;
-        throw error;
-    }
 }
 
 // Found by repository URL, as OpenSSF Scorecard does, so a repository shows its badge as soon as it is registered and nothing
@@ -304,16 +281,9 @@ ${rows.map((row) => `|${row.join('|')}|`).join('\n')}
 `;
 }
 
-// A badge that shields.io draws from a JSON file this action commits, so it shows the latest pushed figure.
-function formatEndpointBadge(owner: string, repository: string, label: string, badgePath: string): string {
-    const badgeSourceURL = encodeURIComponent(`https://raw.githubusercontent.com/${owner}/${repository}/main/${badgePath}`);
-    return `![${label}](https://img.shields.io/endpoint?url=${badgeSourceURL})`;
-}
-
 // Grouped by what each check protects against, and within a group in the order the checks act on a change: before a
 // push, on every push, then continuously, and alphabetically within each. Status is only ever on, off or unknown. What
-// it does opens with the check's badge where it has one, shown only while the check is on so a badge is never broken,
-// and names and links the product doing the check.
+// it does names and links the product doing the check. The checks' badges are on the README's opening line.
 function buildChecksContent(owner: string, repository: string, { coveragePercent, fallowHealth, securitySettings: settings }: ChecksResults): string {
     const repositoryURL = `https://github.com/${owner}/${repository}`;
 
@@ -328,20 +298,11 @@ function buildChecksContent(owner: string, repository: string, { coveragePercent
         ]
     ];
     if (coveragePercent !== undefined) {
-        testingRows.push([
-            'Test coverage',
-            formatStatus(true),
-            `${formatEndpointBadge(owner, repository, 'Coverage', COVERAGE_BADGE_PATH)} [Vitest's V8 coverage](https://vitest.dev/guide/coverage) measures the share of source lines the unit tests run. The target is ${String(COVERAGE_TARGET_PERCENT)}%.`
-        ]);
+        testingRows.push(['Test coverage', formatStatus(true), "[Vitest's V8 coverage](https://vitest.dev/guide/coverage) measures the share of source lines the unit tests run."]);
     }
 
-    const sonarCloudBadge = `[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=${owner}_${repository}&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=${owner}_${repository}) `;
     const codeQualityRows = [
-        [
-            'Code analysis',
-            formatStatus(settings.sonarCloud),
-            `${settings.sonarCloud ? sonarCloudBadge : ''}[SonarCloud](https://sonarcloud.io) checks every push for bugs, code smells and vulnerabilities.`
-        ],
+        ['Code analysis', formatStatus(settings.sonarCloud), '[SonarCloud](https://sonarcloud.io) checks every push for bugs, code smells and vulnerabilities.'],
         [
             'Linting',
             formatStatus(settings.lintInCI),
@@ -353,12 +314,11 @@ function buildChecksContent(owner: string, repository: string, { coveragePercent
         codeQualityRows.unshift([
             'Code health',
             formatStatus(true),
-            `[${formatEndpointBadge(owner, repository, 'Fallow code health', FALLOW_BADGE_PATH)}](./${FALLOW_REPORT_PATH}) [Fallow](https://github.com/fallow-rs/fallow) finds unused code, duplication, complexity and dependency problems.`
+            `[Fallow](https://github.com/fallow-rs/fallow) finds unused code, duplication, complexity and dependency problems. See the [report](./${FALLOW_REPORT_PATH}).`
         ]);
     }
 
     const hasCodeQL = settings.codeQLLanguages.length > 0;
-    const codeQLBadge = `[![CodeQL](${repositoryURL}/actions/workflows/codeql.yml/badge.svg)](${repositoryURL}/security/code-scanning) `;
     const codeQLScope = settings.codeQLQueries === 'security-extended' ? 'using the extended security queries' : 'using the default queries';
     const codeQLLanguages = hasCodeQL ? ` ${settings.codeQLLanguages.join(' and ')}` : '';
     const securityAnalysisRows = [
@@ -370,7 +330,7 @@ function buildChecksContent(owner: string, repository: string, { coveragePercent
         [
             'Static analysis',
             formatStatus(hasCodeQL),
-            `${hasCodeQL ? codeQLBadge : ''}[CodeQL](https://codeql.github.com) scans${codeQLLanguages} for security vulnerabilities, ${codeQLScope}, on every push and pull request to \`main\` and weekly.`
+            `[CodeQL](https://codeql.github.com) scans${codeQLLanguages} for security vulnerabilities, ${codeQLScope}, on every push and pull request to \`main\` and weekly.`
         ],
         [
             'Secret scanning',

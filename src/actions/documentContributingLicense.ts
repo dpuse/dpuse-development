@@ -8,7 +8,6 @@ import {
     logOperationHeader,
     logOperationSuccess,
     logStepHeader,
-    migrateGovernanceSection,
     readJSONFile,
     resolveOwnerAndRepository,
     writeReadmeSection
@@ -35,8 +34,8 @@ export async function documentContributingLicense(): Promise<void> {
 
         logStepHeader("1️⃣  Insert contributing and license content into 'README.md'");
 
-        await migrateGovernanceSection();
-        await writeReadmeSection(buildContributingLicenseContent(owner, repository, authorName, copyrightYear), CONTRIBUTING_LICENSE_START_MARKER, CONTRIBUTING_LICENSE_END_MARKER);
+        const content = buildContributingLicenseContent(owner, repository, authorName, copyrightYear, packageJSON.private === true);
+        await writeReadmeSection(content, CONTRIBUTING_LICENSE_START_MARKER, CONTRIBUTING_LICENSE_END_MARKER);
 
         logOperationSuccess('Contributing & license documented');
     } catch (error) {
@@ -67,12 +66,14 @@ function resolveCopyrightYear(firstCreatedAt: number | null | undefined): string
     return startYear === currentYear ? String(currentYear) : `${String(startYear)}-present`;
 }
 
-function buildContributingLicenseContent(owner: string, repository: string, authorName: string, copyrightYear: string): string {
+// A private repository, such as DPUse Engine or DPUse API, cannot say its source is published, so it says the opposite.
+function buildContributingLicenseContent(owner: string, repository: string, authorName: string, copyrightYear: string, isPrivate: boolean): string {
     const repositoryURL = `https://github.com/${owner}/${repository}`;
+    const sourceText = isPrivate ? 'Its source is not published' : 'Its source is published openly under the MIT License';
 
     return `## Contributing
 
-This repository is maintained solely by its owner and does not, at present, accept external contributions into the canonical repo. Its source is published openly under the MIT License — every DPUse project is fully open source except DPUse Engine, which remains closed and proprietary.
+This repository is maintained solely by its owner and does not, at present, accept external contributions into the canonical repo. ${sourceText} — every DPUse project is fully open source except DPUse Engine and DPUse API, which remain closed and proprietary.
 
 For security vulnerabilities, see [Reporting Vulnerabilities](#reporting-vulnerabilities). For bugs, inconsistencies, or other feedback, [open a GitHub issue](${repositoryURL}/issues) — feedback is read, but responses and fixes are at the maintainer's discretion.
 

@@ -4,7 +4,6 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 // ── Local Framework
 import { checkDependencies } from '@/actions/checkDependencies';
-import { formatCode } from '@/actions/formatCode';
 import { useTemporaryProject } from '../support/temporaryProject';
 import { spawnCommand, spawnCommandForOutput } from '@/utilities';
 
@@ -123,20 +122,5 @@ describe('checkDependencies', () => {
 
         await expect(checkDependencies()).rejects.toThrow('process.exit(1)');
         expect(console.error).toHaveBeenCalledWith('❌  Error checking dependencies', expect.any(SyntaxError));
-    });
-});
-
-describe('single-command actions', () => {
-    it('formats the root files, and the app, src and tests folders only where they exist', async () => {
-        await project.writeFiles({ 'src/index.ts': '' });
-
-        await formatCode();
-
-        expect(spawnedCommands()).toEqual(['prettier --write *.json *.md *.ts src/**']);
-    });
-
-    it('formatCode exits when its command fails', async () => {
-        vi.mocked(spawnCommand).mockRejectedValueOnce(new Error('failed'));
-        await expect(formatCode()).rejects.toThrow('process.exit(1)');
     });
 });

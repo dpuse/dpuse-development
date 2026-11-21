@@ -230,6 +230,33 @@ describe('checkConfigFiles', () => {
         expect(output).toContain("ℹ️  File 'vitest.config.ts' is NOT required by this project");
     });
 
+    // A template left out of package.json 'files' is not published, so the check would fail in every project using it.
+    it('publishes every template it compares a file against', async () => {
+        const { files: publishedPaths } = JSON.parse(await fs.readFile(path.join(repositoryDirectory, 'package.json'), 'utf-8')) as { files: string[] };
+        const readFile = vi.spyOn(fs, 'readFile');
+        const checkedFileNames = ['.editorconfig', '.gitattributes', '.gitignore', '.markdownlint.json', '.ncurc.json', 'eslint.config.js', 'LICENSE', 'SECURITY.md'];
+        const codeFileNames = ['rust-toolchain.toml', 'scripts/tsconfig.json', 'tsconfig.json', 'vite.config.ts', 'vitest.config.ts'];
+        const gitHubFileNames = ['dependabot.yml', 'workflows/ci.yml', 'workflows/codeql.yml', 'workflows/publish.yml', 'workflows/scorecard.yml'].map((name) => `.github/${name}`);
+        // Each file differs from its template, so every template it could match is read.
+        await project.writeFiles(Object.fromEntries([...checkedFileNames, ...codeFileNames, ...gitHubFileNames].map((fileName) => [fileName, 'different'])));
+
+        for (const id of ['dpuse-connector-example', 'dpuse-presenter-example', 'dpuse-tool-example']) {
+            for (const isPrivate of [false, true]) {
+                for (const hasRust of [false, true]) {
+                    await writeProject(id, { private: isPrivate });
+                    await (hasRust ? project.writeFiles({ 'rust/Cargo.toml': '[workspace]\n' }) : fs.rm('rust', { force: true, recursive: true }));
+                    await checkConfigFiles();
+                }
+            }
+        }
+
+        const readPaths = readFile.mock.calls.map(([filePath]) => filePath).filter((filePath) => typeof filePath === 'string');
+        const templatePaths = readPaths.filter((readPath) => readPath.startsWith(repositoryDirectory));
+        const templateNames = [...new Set(templatePaths.map((templatePath) => path.relative(repositoryDirectory, templatePath)))];
+        expect(templateNames).toEqual(expect.arrayContaining(['.github/dependabot.private.rust.yml', 'vite.config.presenter.ts', 'vite.config.tool.ts']));
+        expect(templateNames.filter((name) => publishedPaths.every((publishedPath) => name !== publishedPath && !name.startsWith(`${publishedPath}/`)))).toEqual([]);
+    });
+
     it('exits when a file cannot be read for a reason other than being missing', async () => {
         await writeProject('dpuse-tool-example');
         await fs.mkdir('.editorconfig');

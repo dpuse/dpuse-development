@@ -35,15 +35,6 @@ beforeEach(() => {
 });
 
 describe('publishProject', () => {
-    it('stores the app configuration', async () => {
-        await project.writeFiles({ 'package.json': JSON.stringify({ version: '1.0.0' }), 'config.json': JSON.stringify({ id: 'dpuse-app' }) });
-
-        await publishProject();
-
-        expect(putState).toHaveBeenCalledOnce();
-        expect(collectConsoleOutput()).toContain("Project version '1.0.0' published.");
-    });
-
     it('uploads the engine to its own folder', async () => {
         await project.writeFiles({ 'package.json': JSON.stringify({ version: '2.0.0' }), 'config.json': JSON.stringify({ id: 'dpuse-engine' }) });
 
@@ -92,6 +83,7 @@ describe('publishProject', () => {
         expect(spawnedCommands()).toEqual(['npm run deploy']);
         expect(putState).toHaveBeenCalledOnce();
         expect(vi.mocked(spawnCommand).mock.invocationCallOrder[0]).toBeLessThan(vi.mocked(putState).mock.invocationCallOrder[0] ?? 0);
+        expect(collectConsoleOutput()).toContain("Project version '1.0.0' published.");
     });
 
     it('deploys the API with its own deploy script', async () => {

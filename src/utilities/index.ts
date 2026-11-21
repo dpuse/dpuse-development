@@ -44,16 +44,18 @@ interface OperationConfig {
 // ever reach a release.
 export const DEVELOPMENT_ONLY_PACKAGE_NAMES = new Set(['@dpuse/dpuse-development', '@dpuse/eslint-config-dpuse']);
 
+// Coverage badge ─ Quality & Security writes this file each time it measures coverage, and the README's opening badge
+// reads it from the repository. Not under a 'coverage' folder, which '.gitignore' leaves out.
+export const COVERAGE_BADGE_PATH = 'code-health-reports/vitest/badge.json';
+
 // Fallow — Quality & Security writes these each time it runs; the README's opening badge reads the badge file from the repository.
 export const FALLOW_DIRECTORY = 'code-health-reports/fallow';
 export const FALLOW_BADGE_PATH = `${FALLOW_DIRECTORY}/badge.json`;
 export const FALLOW_REPORT_PATH = `${FALLOW_DIRECTORY}/index.md`;
 
-// README markers — Quality & Security, and Contributing and License, once shared one 'GOVERNANCE' section.
+// README markers
 export const CONTRIBUTING_LICENSE_END_MARKER = '<!-- CONTRIBUTING_LICENSE_END -->';
 export const CONTRIBUTING_LICENSE_START_MARKER = '<!-- CONTRIBUTING_LICENSE_START -->';
-const GOVERNANCE_END_MARKER = '<!-- GOVERNANCE_END -->';
-const GOVERNANCE_START_MARKER = '<!-- GOVERNANCE_START -->';
 export const QUALITY_SECURITY_END_MARKER = '<!-- QUALITY_SECURITY_END -->';
 export const QUALITY_SECURITY_START_MARKER = '<!-- QUALITY_SECURITY_START -->';
 
@@ -184,16 +186,10 @@ export async function spawnCommandToFile(label: string, command: string, argumen
 
 // ── Actions - File ───────────────────────────────────────────────────────────────────────────────────────────────────
 
-// Swaps an old README's single 'GOVERNANCE' section for the two sections that replaced it, so either can then be
-// written. A README already split, or without the old section, is left as it is.
-export async function migrateGovernanceSection(): Promise<void> {
-    const readme = await readTextFile('./README.md');
-    const startIndex = readme.indexOf(GOVERNANCE_START_MARKER);
-    const endIndex = readme.indexOf(GOVERNANCE_END_MARKER);
-    if (startIndex === -1 || endIndex === -1) return;
-
-    const markers = `${QUALITY_SECURITY_START_MARKER}\n${QUALITY_SECURITY_END_MARKER}\n\n${CONTRIBUTING_LICENSE_START_MARKER}\n${CONTRIBUTING_LICENSE_END_MARKER}`;
-    await writeTextFile('README.md', `${readme.slice(0, startIndex)}${markers}${readme.slice(endIndex + GOVERNANCE_END_MARKER.length)}`);
+// A README badge that shields.io draws from a JSON file committed to the repository, so it shows the latest pushed figure.
+export function formatEndpointBadge(owner: string, repository: string, label: string, badgePath: string): string {
+    const badgeSourceURL = encodeURIComponent(`https://raw.githubusercontent.com/${owner}/${repository}/main/${badgePath}`);
+    return `![${label}](https://img.shields.io/endpoint?url=${badgeSourceURL})`;
 }
 
 export async function readJSONFile<T>(path: string): Promise<T> {
@@ -278,6 +274,27 @@ export function resolveOwnerAndRepository(packageJSON: PackageJson, purpose: str
     if (match?.[1] == null || match[2] == null) throw new Error(`Unable to parse GitHub owner/repo from '${url}'.`);
 
     return { owner: match[1], repository: match[2] };
+}
+
+// Reads from the GitHub API through 'gh'. Answers undefined for a 404, which is how some endpoints report a switched-off
+// feature. Any other failure throws, so a missing login or network blip can't be written into the README as settings
+// being off.
+export async function readGitHubAPI(endpoint: string): Promise<string | undefined> {
+    try {
+        const { stdout } = await asyncExecFile('gh', ['api', endpoint]);
+        return stdout;
+    } catch (error) {
+        if (String((error as { stderr?: unknown }).stderr).includes('HTTP 404')) return undefined;
+        throw error;
+    }
+}
+
+// The GitHub Apps that ran a check on the latest commit to 'main', by slug, such as 'sonarqubecloud'. An app that checks
+// every push shows here without the project holding any file for it.
+export async function readGitHubCheckAppSlugs(owner: string, repository: string): Promise<Set<string>> {
+    const checkRuns = await readGitHubAPI(`repos/${owner}/${repository}/commits/main/check-runs?per_page=100`);
+    const { check_runs: runs } = checkRuns === undefined ? { check_runs: [] } : (JSON.parse(checkRuns) as { check_runs: { app: { slug: string } | null }[] });
+    return new Set(runs.map((run) => run.app?.slug).filter((slug) => slug !== undefined));
 }
 
 // ── Actions - Path ───────────────────────────────────────────────────────────────────────────────────────────────────

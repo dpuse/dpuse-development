@@ -107,6 +107,29 @@ describe('uploadDirectoryToR2', () => {
         for (const { listFilePath } of bulkPuts) expect(await readTextFileOrNull(listFilePath)).toBeNull();
     });
 
+    it('runs no upload for a folder with nothing to upload', async () => {
+        await project.writeFiles({ 'public/fileStore/.DS_Store': '' });
+        const bulkPuts = recordBulkPuts();
+
+        await uploadDirectoryToR2('public', 'fileStore');
+
+        expect(bulkPuts).toEqual([]);
+        expect(execCommand).not.toHaveBeenCalled();
+    });
+
+    it('rejects when Wrangler fails, and still removes the list of files it wrote', async () => {
+        await project.writeFiles({ 'public/fileStore/a.csv': '' });
+        let listFilePath = '';
+        vi.mocked(execCommand).mockImplementation((_label, _command, arguments_) => {
+            listFilePath = arguments_[5] ?? '';
+            return Promise.reject(new Error('wrangler exited with code 1'));
+        });
+
+        await expect(uploadDirectoryToR2('public', 'fileStore')).rejects.toThrow('wrangler exited with code 1');
+        expect(listFilePath).not.toBe('');
+        expect(await readTextFileOrNull(listFilePath)).toBeNull();
+    });
+
     it('uploads a file with an extension it has no content type for as raw bytes, with a warning', async () => {
         await project.writeFiles({ 'public/fileStore/a.csv': '', 'public/fileStore/report.pdf': '' });
         const bulkPuts = recordBulkPuts();

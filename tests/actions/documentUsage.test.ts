@@ -9,8 +9,6 @@ import { buildReadme, useTemporaryProject } from '../support/temporaryProject';
 
 const project = useTemporaryProject();
 
-const RUN = 'node -e "import(\'@dpuse/dpuse-development\').then(m => m.run())"';
-
 async function writeProject(id: string, packageJSON: object): Promise<void> {
     await project.writeFiles({
         'config.json': JSON.stringify({ id }),
@@ -129,14 +127,6 @@ describe('documentUsage', () => {
         await writeProject('dpuse-app', { name: '@dpuse/dpuse-app' });
         await documentUsage();
         expect(await project.readFile('README.md')).toContain('this project is a release candidate');
-    });
-
-    it('does not list the repository commands', async () => {
-        await writeProject('dpuse-shared', { name: '@dpuse/dpuse-shared', scripts: { lint: RUN } });
-
-        await documentUsage();
-
-        expect(await project.readFile('README.md')).not.toContain('|Command|What it does|');
     });
 
     it.each([

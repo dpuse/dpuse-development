@@ -5,7 +5,21 @@ import type { PackageJson } from 'type-fest';
 import type { ModuleConfig } from '@dpuse/dpuse-shared';
 
 // ── Local Framework
-import { getModuleConfig, logOperationHeader, logOperationSuccess, logStepHeader, readJSONFile, resolveOwnerAndRepository, writeReadmeSection } from '@/utilities';
+import {
+    COVERAGE_BADGE_PATH,
+    FALLOW_BADGE_PATH,
+    FALLOW_REPORT_PATH,
+    formatEndpointBadge,
+    getModuleConfig,
+    logOperationHeader,
+    logOperationSuccess,
+    logStepHeader,
+    readGitHubCheckAppSlugs,
+    readJSONFile,
+    readTextFileOrNull,
+    resolveOwnerAndRepository,
+    writeReadmeSection
+} from '@/utilities';
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -30,9 +44,21 @@ export async function documentOpening(): Promise<void> {
         const dpuseModuleId = moduleTypeConfig.uploadGroupName === undefined ? undefined : configJSON.id;
         const npmPackageName = moduleTypeConfig.publishedTo === 'npm' ? resolvePackageName(packageJSON) : undefined;
 
+        // A badge is only shown where it has something to show. The coverage and Fallow badges each read a file the
+        // Quality & Security section commits, so each appears from the second run after its figure is first measured. A
+        // private repository's files cannot be read from outside, so its two badges would always be broken.
+        const hasCodeQL = (await readTextFileOrNull('.github/workflows/codeql.yml')) !== null;
+        const hasCoverage = packageJSON.private !== true && (await readTextFileOrNull(COVERAGE_BADGE_PATH)) !== null;
+        const hasFallow = packageJSON.private !== true && (await readTextFileOrNull(FALLOW_BADGE_PATH)) !== null;
+        const checkAppSlugs = await readGitHubCheckAppSlugs(owner, repository); // SonarCloud checks every push as a GitHub App, so the project holds no file for it.
+
         const content = buildOpeningContent(owner, repository, license, {
             description: packageJSON.description,
             dpuseModuleId,
+            hasCodeQL,
+            hasCoverage,
+            hasFallow,
+            hasSonarCloud: checkAppSlugs.has('sonarqubecloud'),
             introduction,
             npmPackageName,
             version: packageJSON.version
@@ -78,7 +104,9 @@ function resolveIntroduction(configJSON: ModuleConfig): string | undefined {
 // The package description is optional, so a project without one simply has no summary between the badges and the links.
 // Only modules uploaded to DPUse get the DPUse version badge, and only projects published to npm get the npm badge. The
 // DPUse badge reads the version registered in DPUse, which is only updated once the upload succeeds, so like the npm
-// badge it shows what was actually published, and it works for private repositories too.
+// badge it shows what was actually published, and it works for private repositories too. The badges run from the
+// licence, which never changes, through the checks (CI, CodeQL, coverage, Fallow, SonarCloud), to the published versions, because a
+// version is only published once the checks pass.
 function buildOpeningContent(
     owner: string,
     repository: string,
@@ -86,26 +114,42 @@ function buildOpeningContent(
     options: {
         description: string | undefined;
         dpuseModuleId: string | undefined;
+        hasCodeQL: boolean;
+        hasCoverage: boolean;
+        hasFallow: boolean;
+        hasSonarCloud: boolean;
         introduction: string | undefined;
         npmPackageName: string | undefined;
         version: string | undefined;
     }
 ): string {
-    const { description, dpuseModuleId, introduction, npmPackageName, version } = options;
+    const { description, dpuseModuleId, hasCodeQL, hasCoverage, hasFallow, hasSonarCloud, introduction, npmPackageName, version } = options;
     const repositoryURL = `https://github.com/${owner}/${repository}`;
     const badgeLicense = license.replaceAll('-', '--');
     const dpuseConfigURL = encodeURIComponent(`https://api.dpuse.app/configs/${dpuseModuleId ?? ''}`);
     const dpuseBadge =
         dpuseModuleId === undefined
             ? ''
-            : `\n[![DPUse version](https://img.shields.io/badge/dynamic/json?url=${dpuseConfigURL}&query=%24.data.version&prefix=v&label=DPUse&color=${resolveVersionColor(version)})](${repositoryURL}/releases/latest)`;
+            : `[![DPUse version](https://img.shields.io/badge/dynamic/json?url=${dpuseConfigURL}&query=%24.data.version&prefix=v&label=DPUse&color=${resolveVersionColor(version)})](${repositoryURL}/releases/latest)`;
     const npmBadge =
-        npmPackageName === undefined ? '' : `\n[![npm version](https://img.shields.io/npm/v/${npmPackageName}?label=npm)](https://www.npmjs.com/package/${npmPackageName})`;
+        npmPackageName === undefined ? '' : `[![npm version](https://img.shields.io/npm/v/${npmPackageName}?label=npm)](https://www.npmjs.com/package/${npmPackageName})`;
     const summary = description == null || description === '' ? '' : `\n\n${description}`;
     const introductionSection = introduction === undefined ? '' : `\n\n## Introduction\n\n${introduction}`;
 
-    return `[![License: ${license}](https://img.shields.io/badge/License-${badgeLicense}-blue.svg)](./LICENSE)${dpuseBadge}${npmBadge}
-[![CI](${repositoryURL}/actions/workflows/ci.yml/badge.svg)](${repositoryURL}/actions/workflows/ci.yml)${summary}
+    const badges = [
+        `[![License: ${license}](https://img.shields.io/badge/License-${badgeLicense}-blue.svg)](./LICENSE)`,
+        `[![CI](${repositoryURL}/actions/workflows/ci.yml/badge.svg)](${repositoryURL}/actions/workflows/ci.yml)`,
+        hasCodeQL ? `[![CodeQL](${repositoryURL}/actions/workflows/codeql.yml/badge.svg)](${repositoryURL}/security/code-scanning)` : '',
+        hasCoverage ? formatEndpointBadge(owner, repository, 'Coverage', COVERAGE_BADGE_PATH) : '',
+        hasFallow ? `[${formatEndpointBadge(owner, repository, 'Fallow code health', FALLOW_BADGE_PATH)}](./${FALLOW_REPORT_PATH})` : '',
+        hasSonarCloud
+            ? `[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=${owner}_${repository}&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=${owner}_${repository})`
+            : '',
+        dpuseBadge,
+        npmBadge
+    ].filter((badge) => badge !== '');
+
+    return `${badges.join('\n')}${summary}
 
 [Report a Vulnerability](${repositoryURL}/security/advisories/new) · [Open an Issue](${repositoryURL}/issues)
 

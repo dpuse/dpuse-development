@@ -91,7 +91,7 @@ async function writeProject({ files = {}, packageJSON = {} }: { files?: Record<s
             devDependencies: { '@vitest/coverage-v8': '^5.0.2', fallow: '^3.30.0', 'fast-check': '^4.10.2' },
             ...packageJSON
         }),
-        'README.md': buildReadme('GOVERNANCE'), // The old single section, so every test also runs the migration.
+        'README.md': buildReadme('QUALITY_SECURITY'),
         '.github/workflows/ci.yml': CI_WORKFLOW,
         '.github/workflows/codeql.yml': CODEQL_WORKFLOW,
         '.github/dependabot.yml': DEPENDABOT_PAUSED,
@@ -133,18 +133,6 @@ describe('documentQualitySecurity', () => {
         expect(readme).toContain('This section is updated each time `npm run document` is run.');
     });
 
-    it('splits an old README section, leaving empty Contributing and License markers after it', async () => {
-        await writeProject();
-        stubGitHub();
-        stubOpenSSF();
-
-        await documentQualitySecurity();
-
-        const readme = await project.readFile('README.md');
-        expect(readme).not.toContain('GOVERNANCE');
-        expect(readme).toMatch(/Reporting Vulnerabilities[\s\S]*<!-- QUALITY_SECURITY_END -->\n\n<!-- CONTRIBUTING_LICENSE_START -->\n<!-- CONTRIBUTING_LICENSE_END -->/);
-    });
-
     it('shows on or off as the status, and opens what each check does with its badge and product', async () => {
         await writeProject();
         stubGitHub();
@@ -154,30 +142,27 @@ describe('documentQualitySecurity', () => {
 
         const readme = await project.readFile('README.md');
         const repositoryURL = 'https://github.com/dpuse/dpuse-shared';
-        const coverageBadge = `![Coverage](https://img.shields.io/endpoint?url=${encodeURIComponent('https://raw.githubusercontent.com/dpuse/dpuse-shared/main/code-health-reports/vitest/badge.json')})`;
-        const fallowBadge = `![Fallow code health](https://img.shields.io/endpoint?url=${encodeURIComponent('https://raw.githubusercontent.com/dpuse/dpuse-shared/main/code-health-reports/fallow/badge.json')})`;
 
         const ciNote = ` Part of the [CI workflow](${repositoryURL}/actions/workflows/ci.yml) on every push and pull request to \`main\`.`;
-        expect(readme).not.toContain('[![CI]');
 
         const testing = sectionOf(readme, 'Testing');
         expect(testing).toContain('|Check|Status|What it does|');
         expect(testing).toContain(`|Unit tests|✅ On|[Vitest](https://vitest.dev) runs the unit tests.${ciNote}|`);
         expect(testing).toContain(`alongside the unit tests.${ciNote}|`);
-        expect(testing).toContain(`|Test coverage|✅ On|${coverageBadge} [Vitest's V8 coverage](https://vitest.dev/guide/coverage) measures`);
+        expect(testing).toContain("|Test coverage|✅ On|[Vitest's V8 coverage](https://vitest.dev/guide/coverage) measures the share of source lines the unit tests run.|");
 
         const codeQuality = sectionOf(readme, 'Code Quality');
-        expect(codeQuality).toContain(`|Code health|✅ On|[${fallowBadge}](./code-health-reports/fallow/index.md) [Fallow](https://github.com/fallow-rs/fallow) finds`);
         expect(codeQuality).toContain(
-            '|Code analysis|✅ On|[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=dpuse_dpuse-shared&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=dpuse_dpuse-shared) [SonarCloud](https://sonarcloud.io) checks'
+            '|Code health|✅ On|[Fallow](https://github.com/fallow-rs/fallow) finds unused code, duplication, complexity and dependency problems. See the [report](./code-health-reports/fallow/index.md).|'
         );
+        expect(codeQuality).toContain('|Code analysis|✅ On|[SonarCloud](https://sonarcloud.io) checks');
         expect(codeQuality).toContain(
             `|Linting|✅ On|[ESLint](https://eslint.org) checks the code for errors and style problems, and the [TypeScript](https://www.typescriptlang.org/) compiler type-checks the whole project.${ciNote}|`
         );
 
         const securityAnalysis = sectionOf(readme, 'Security Analysis');
         expect(securityAnalysis).toContain(
-            `|Static analysis|✅ On|[![CodeQL](${repositoryURL}/actions/workflows/codeql.yml/badge.svg)](${repositoryURL}/security/code-scanning) [CodeQL](https://codeql.github.com) scans GitHub Actions and JavaScript/TypeScript and swift for security vulnerabilities, using the extended security queries,`
+            `|Static analysis|✅ On|[CodeQL](https://codeql.github.com) scans GitHub Actions and JavaScript/TypeScript and swift for security vulnerabilities, using the extended security queries,`
         );
         expect(securityAnalysis).toContain('|Secret scanning|✅ On|[GitHub secret scanning]');
         expect(securityAnalysis).toContain('|Push protection|✅ On|[GitHub push protection]');
@@ -206,8 +191,6 @@ describe('documentQualitySecurity', () => {
 
         const readme = await project.readFile('README.md');
         expect(readme).not.toContain('Part of the [CI workflow]');
-        expect(readme).not.toContain('[![CodeQL]');
-        expect(readme).not.toContain('[![Quality Gate Status]');
         expect(readme).toContain('|Code analysis|❌ Off|[SonarCloud](https://sonarcloud.io) checks');
     });
 

@@ -104,6 +104,17 @@ describe('auditDependencies', () => {
         expect(console.error).toHaveBeenCalledWith('❌  Error auditing dependencies', new Error('registry unreachable'));
     });
 
+    it.each([
+        ['nothing', ''],
+        ['text that is not a report', 'npm error code ENOLOCK']
+    ])('fails, rather than passing unchecked, when the audit writes %s', async (_case, output) => {
+        vi.mocked(spawnCommandForOutput).mockResolvedValue(output);
+
+        await expect(auditDependencies()).rejects.toThrow('process.exit(1)');
+        expect(console.error).toHaveBeenCalledWith('❌  Error auditing dependencies', expect.any(SyntaxError));
+        expect(collectConsoleOutput()).not.toContain('Dependencies audited');
+    });
+
     it('fails without the full audit when a shipped dependency has a vulnerability of any severity', async () => {
         vi.mocked(spawnCommandForOutput).mockResolvedValue(auditReport({ id: 'GHSA-moderate', name: 'slow', severity: 'moderate' }));
 

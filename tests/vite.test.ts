@@ -43,6 +43,30 @@ describe('recordShippedPackages', () => {
         expect(record).toEqual({ packages: ['@scope/icons@1.0.0', 'vue-router@5.3.1'], external: [] });
     });
 
+    it('names a module by its package, not by an unnamed package.json in one of the package’s folders', async () => {
+        await project.writeFiles({
+            'node_modules/dual/package.json': JSON.stringify({ name: 'dual', version: '2.0.0' }),
+            'node_modules/dual/dist/esm/package.json': JSON.stringify({ type: 'module' }), // Only tells Node how to load the folder's files.
+            'node_modules/dual/dist/esm/index.js': ''
+        });
+
+        const record = await recordBundle({ 'index.js': chunk(['node_modules/dual/dist/esm/index.js']) });
+
+        expect(record.packages).toEqual(['dual@2.0.0']);
+    });
+
+    it('records a package installed inside another package, not the one that holds it', async () => {
+        await project.writeFiles({
+            'node_modules/outer/package.json': JSON.stringify({ name: 'outer', version: '1.0.0' }),
+            'node_modules/outer/node_modules/inner/package.json': JSON.stringify({ name: 'inner', version: '3.0.0' }),
+            'node_modules/outer/node_modules/inner/index.js': ''
+        });
+
+        const record = await recordBundle({ 'index.js': chunk(['node_modules/outer/node_modules/inner/index.js']) });
+
+        expect(record.packages).toEqual(['inner@3.0.0']);
+    });
+
     it('records the package an asset comes from, such as a font', async () => {
         await project.writeFiles({
             'node_modules/@fontsource-variable/inter/package.json': JSON.stringify({ name: '@fontsource-variable/inter', version: '5.3.0' }),
