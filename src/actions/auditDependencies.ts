@@ -1,14 +1,9 @@
 // ── External Dependencies & Registrations
 import type { PackageJson } from 'type-fest';
+import { array, type InferOutput, isoDate, optional, pipe, safeParse, strictObject, string } from 'valibot';
 
 // ── Local Framework
-import { DEVELOPMENT_ONLY_PACKAGE_NAMES, logOperationHeader, logOperationSuccess, logStepHeader, readJSONFile, spawnCommandForOutput } from '@/utilities';
-// Advisories the audit ignores because they have no fix yet. 'IGNORED_ADVISORIES' holds high or critical ones in
-// development tools that cannot reach a release or the publish credentials. 'IGNORED_SHIPPED_ADVISORIES' holds ones in
-// shipped dependencies whose flawed code never reaches users, and is the only list the shipped check reads, so a
-// development entry cannot hide a flaw users would install. Remove an entry once a fix is released. After an entry's
-// 'reviewBy' date the audit warns, so it is checked again rather than kept by habit.
-import { IGNORED_ADVISORIES, IGNORED_SHIPPED_ADVISORIES } from './auditDependencies_.json';
+import { DEVELOPMENT_ONLY_PACKAGE_NAMES, logOperationHeader, logOperationSuccess, logStepHeader, readJSONFile, readTextFileOrNull, spawnCommandForOutput } from '@/utilities';
 
 // ── Types ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -21,7 +16,9 @@ interface AuditAdvisory {
     url: string;
 }
 
-type IgnoredAdvisory = (typeof IGNORED_ADVISORIES)[number];
+type IgnoredAdvisory = InferOutput<typeof ignoredAdvisorySchema>;
+
+type IgnoredAdvisoryLists = InferOutput<typeof ignoredAdvisoryListsSchema>;
 
 interface AuditReport {
     error?: { summary: string };
@@ -32,7 +29,16 @@ interface AuditReport {
 
 const BLOCKING_SEVERITIES = new Set(['critical', 'high']);
 
-const ALL_IGNORED_ADVISORIES: IgnoredAdvisory[] = [...IGNORED_ADVISORIES, ...IGNORED_SHIPPED_ADVISORIES];
+// ── Ignored Advisories ─ The advisories a project's audit ignores because they have no fix yet, kept in a file in the
+// project. An advisory is then ignored only where its reason holds, and adding one needs no release of this package.
+// 'advisories' holds high or critical ones in development tools that cannot reach a release or the publish
+// credentials. 'shippedAdvisories' holds ones in shipped dependencies whose flawed code never reaches users, and is the
+// only list the shipped check reads, so a development entry cannot hide a flaw users would install. Remove an entry
+// once a fix is released. After an entry's 'reviewBy' date the audit warns, so it is checked again rather than kept by
+// habit.
+const IGNORED_ADVISORIES_PATH = 'auditIgnore.json';
+const ignoredAdvisorySchema = strictObject({ id: string(), reason: string(), reviewBy: pipe(string(), isoDate()) });
+const ignoredAdvisoryListsSchema = strictObject({ advisories: optional(array(ignoredAdvisorySchema), []), shippedAdvisories: optional(array(ignoredAdvisorySchema), []) });
 
 // ── Actions ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -45,6 +51,7 @@ export async function auditDependencies(): Promise<void> {
         // allow list. A development-only package ships nothing to users, so all its dependencies are checked as dev
         // tools below.
         const packageJSON = await readJSONFile<PackageJson>('package.json');
+        const ignoredAdvisoryLists = await readIgnoredAdvisoryLists();
         if (DEVELOPMENT_ONLY_PACKAGE_NAMES.has(packageJSON.name ?? '')) {
             logStepHeader(`1️⃣  Shipped dependencies NOT checked: ${packageJSON.name ?? ''} is a development-only tool`);
         } else {
@@ -52,7 +59,7 @@ export async function auditDependencies(): Promise<void> {
             const shippedReport = JSON.parse(shippedOutput) as AuditReport;
             if (shippedReport.error !== undefined) throw new Error(shippedReport.error.summary);
 
-            const shippedAdvisories = checkAdvisories(listAdvisories(shippedReport), IGNORED_SHIPPED_ADVISORIES, true);
+            const shippedAdvisories = checkAdvisories(listAdvisories(shippedReport), ignoredAdvisoryLists.shippedAdvisories, true);
             if (shippedAdvisories.length > 0) throw new Error(`${String(shippedAdvisories.length)} vulnerabilities found in shipped dependencies`);
         }
 
@@ -62,7 +69,7 @@ export async function auditDependencies(): Promise<void> {
         const report = JSON.parse(output) as AuditReport;
         if (report.error !== undefined) throw new Error(report.error.summary);
 
-        const blockingAdvisories = checkAdvisories(listAdvisories(report), ALL_IGNORED_ADVISORIES, false);
+        const blockingAdvisories = checkAdvisories(listAdvisories(report), listAllIgnoredAdvisories(ignoredAdvisoryLists), false);
         if (blockingAdvisories.length > 0) throw new Error(`${String(blockingAdvisories.length)} high or critical vulnerabilities found`);
 
         logOperationSuccess('Dependencies audited');
@@ -80,9 +87,10 @@ export async function reportIgnoredAdvisories(label: string): Promise<void> {
         return;
     }
 
+    const ignoredAdvisories = listAllIgnoredAdvisories(await readIgnoredAdvisoryLists());
     let ignoredCount = 0;
     for (const advisory of listAdvisories(report)) {
-        const ignoredAdvisory = BLOCKING_SEVERITIES.has(advisory.severity) ? findIgnoredAdvisory(advisory, ALL_IGNORED_ADVISORIES) : undefined;
+        const ignoredAdvisory = BLOCKING_SEVERITIES.has(advisory.severity) ? findIgnoredAdvisory(advisory, ignoredAdvisories) : undefined;
         if (ignoredAdvisory === undefined) continue;
         console.warn(`⚠️  ${ignoredAdvisory.id} ('${advisory.name}') is on the allow list, so the CI audit ignores it: ${ignoredAdvisory.reason}`);
         ignoredCount++;
@@ -91,6 +99,22 @@ export async function reportIgnoredAdvisories(label: string): Promise<void> {
 }
 
 // ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+// A project with no file ignores nothing. A file that cannot be read as the lists stops the audit, as a mistyped entry
+// would otherwise ignore nothing without saying so.
+async function readIgnoredAdvisoryLists(): Promise<IgnoredAdvisoryLists> {
+    const text = await readTextFileOrNull(IGNORED_ADVISORIES_PATH);
+    if (text === null) return { advisories: [], shippedAdvisories: [] };
+
+    const result = safeParse(ignoredAdvisoryListsSchema, JSON.parse(text));
+    if (result.success) return result.output;
+    const issueTexts = result.issues.map((issue) => `${issue.path?.map((item) => String(item.key)).join('.') ?? 'file'}: ${issue.message}`);
+    throw new Error(`'${IGNORED_ADVISORIES_PATH}' is not valid. ${issueTexts.join('; ')}`);
+}
+
+function listAllIgnoredAdvisories(lists: IgnoredAdvisoryLists): IgnoredAdvisory[] {
+    return [...lists.advisories, ...lists.shippedAdvisories];
+}
 
 /** Reports each advisory severe enough to fail the audit, as ignored or blocking, and returns the blocking ones. */
 function checkAdvisories(advisories: AuditAdvisory[], ignoredAdvisories: IgnoredAdvisory[], isAnySeverityBlocking: boolean): AuditAdvisory[] {

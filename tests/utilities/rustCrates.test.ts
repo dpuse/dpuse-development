@@ -24,9 +24,7 @@ vi.mock('@/utilities', async (importOriginal) => ({
 // crates.io asks for a pause between requests, which the tests do not need to wait for.
 vi.mock('node:timers/promises', () => ({ setTimeout: vi.fn().mockResolvedValue(undefined) }));
 
-// ── Tests ────────────────────────────────────────────────────────────────────────────────────────────────────────────
-
-const project = useTemporaryProject();
+// ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 // The project's own crate, two crates it uses, one reached through the other, and a repeat Cargo marks with '(*)'.
 const CARGO_TREE = [
@@ -37,53 +35,11 @@ const CARGO_TREE = [
     '2memchr v2.8.0|Unlicense OR MIT|https://github.com/BurntSushi/memchr (*)'
 ].join('\n');
 
-// Places each crate in a pretend download cache with the given files, and returns Cargo's metadata pointing at them.
-async function writeCrateSources(crates: Record<string, string[]>): Promise<string> {
-    const packages = [];
-    for (const [crateKey, fileNames] of Object.entries(crates)) {
-        const [name = '', version = ''] = crateKey.split('@', 2);
-        const crateDirectory = path.resolve('cargo-cache', `${name}-${version}`);
-        await fs.mkdir(crateDirectory, { recursive: true });
-        for (const fileName of ['Cargo.toml', ...fileNames]) await fs.writeFile(path.join(crateDirectory, fileName), `${crateKey} ${fileName}`, 'utf-8');
-        packages.push({ name, version, manifest_path: path.join(crateDirectory, 'Cargo.toml') });
-    }
-    return JSON.stringify({ packages });
-}
+// ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-async function setUpRustProject(): Promise<void> {
-    await project.writeFiles({ 'rust/Cargo.toml': '[workspace]\n' });
-    cargo.calls = [];
-    cargo.outputs = {
-        'licenses/cargoTree.txt': CARGO_TREE,
-        'licenses/cargoMetadata.json': await writeCrateSources({
-            'csv-core@0.1.13': ['COPYING', 'LICENSE-MIT', 'README.md'],
-            'memchr@2.8.0': ['UNLICENSE'],
-            'wasm-bindgen@0.2.114': []
-        })
-    };
-    vi.stubGlobal(
-        'fetch',
-        vi.fn((url: string) => {
-            if (!url.endsWith('/csv-core')) return Promise.resolve(new Response('', { status: 404 }));
-            const data = {
-                crate: { max_stable_version: '0.1.14' },
-                versions: [
-                    { num: '0.1.14', created_at: '2026-09-01T00:00:00Z' },
-                    { num: '0.1.13', created_at: '2025-10-17T00:00:00Z' }
-                ]
-            };
-            return Promise.resolve(Response.json(data));
-        })
-    );
-}
+const project = useTemporaryProject();
 
-// One crate with the given licence, checked against the given allow list.
-async function checkLicence(licenseExpression: string, allowedLicenses: string): Promise<unknown> {
-    await setUpRustProject();
-    cargo.outputs['licenses/cargoTree.txt'] = `0example v0.1.0 (/projects/example)|MIT|\n1some-crate v1.0.0|${licenseExpression}|`;
-    cargo.outputs['licenses/cargoMetadata.json'] = JSON.stringify({ packages: [] });
-    return documentRustCrates('Identify', allowedLicenses);
-}
+// ── Tests ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 describe('documentRustCrates', () => {
     it('does nothing for a project with no Rust code', async () => {
@@ -181,3 +137,53 @@ describe('documentRustCrates', () => {
         });
     });
 });
+
+// ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+// Places each crate in a pretend download cache with the given files, and returns Cargo's metadata pointing at them.
+async function writeCrateSources(crates: Record<string, string[]>): Promise<string> {
+    const packages = [];
+    for (const [crateKey, fileNames] of Object.entries(crates)) {
+        const [name = '', version = ''] = crateKey.split('@', 2);
+        const crateDirectory = path.resolve('cargo-cache', `${name}-${version}`);
+        await fs.mkdir(crateDirectory, { recursive: true });
+        for (const fileName of ['Cargo.toml', ...fileNames]) await fs.writeFile(path.join(crateDirectory, fileName), `${crateKey} ${fileName}`, 'utf-8');
+        packages.push({ name, version, manifest_path: path.join(crateDirectory, 'Cargo.toml') });
+    }
+    return JSON.stringify({ packages });
+}
+
+async function setUpRustProject(): Promise<void> {
+    await project.writeFiles({ 'rust/Cargo.toml': '[workspace]\n' });
+    cargo.calls = [];
+    cargo.outputs = {
+        'licenses/cargoTree.txt': CARGO_TREE,
+        'licenses/cargoMetadata.json': await writeCrateSources({
+            'csv-core@0.1.13': ['COPYING', 'LICENSE-MIT', 'README.md'],
+            'memchr@2.8.0': ['UNLICENSE'],
+            'wasm-bindgen@0.2.114': []
+        })
+    };
+    vi.stubGlobal(
+        'fetch',
+        vi.fn((url: string) => {
+            if (!url.endsWith('/csv-core')) return Promise.resolve(new Response('', { status: 404 }));
+            const data = {
+                crate: { max_stable_version: '0.1.14' },
+                versions: [
+                    { num: '0.1.14', created_at: '2026-09-01T00:00:00Z' },
+                    { num: '0.1.13', created_at: '2025-10-17T00:00:00Z' }
+                ]
+            };
+            return Promise.resolve(Response.json(data));
+        })
+    );
+}
+
+// One crate with the given licence, checked against the given allow list.
+async function checkLicence(licenseExpression: string, allowedLicenses: string): Promise<unknown> {
+    await setUpRustProject();
+    cargo.outputs['licenses/cargoTree.txt'] = `0example v0.1.0 (/projects/example)|MIT|\n1some-crate v1.0.0|${licenseExpression}|`;
+    cargo.outputs['licenses/cargoMetadata.json'] = JSON.stringify({ packages: [] });
+    return documentRustCrates('Identify', allowedLicenses);
+}

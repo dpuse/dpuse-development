@@ -7,26 +7,11 @@ import { recordShippedPackages } from '@/vite';
 import type { ShippedPackagesRecord } from '@/vite';
 import { useTemporaryProject } from './support/temporaryProject';
 
-// ── Tests ────────────────────────────────────────────────────────────────────────────────────────────────────────────
+// ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const project = useTemporaryProject();
 
-// Runs the plugin's build hooks over the sources Vite transforms and the bundle it then writes, as Vite would, and
-// returns the record written beside the reports.
-async function recordBundle(bundle: Record<string, object>, sources: Record<string, string> = {}): Promise<ShippedPackagesRecord> {
-    type Hook = (...hookArguments: unknown[]) => void;
-    const plugin = recordShippedPackages() as unknown as { configResolved: Hook; transform: { handler: Hook }; generateBundle: Hook; closeBundle: Hook };
-    const root = process.cwd();
-    plugin.configResolved({ root, build: { outDir: 'dist' } });
-    for (const [moduleId, source] of Object.entries(sources)) plugin.transform.handler(source, path.resolve(moduleId));
-    plugin.generateBundle({}, bundle);
-    plugin.closeBundle();
-    return (await project.readJSON('bundle-analysis-reports/shipped-packages.json')) as unknown as ShippedPackagesRecord;
-}
-
-function chunk(moduleIds: string[], imports: string[] = []): object {
-    return { type: 'chunk', modules: Object.fromEntries(moduleIds.map((moduleId) => [path.resolve(moduleId), {}])), imports, dynamicImports: [] };
-}
+// ── Tests ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 describe('recordShippedPackages', () => {
     it('records the installed package of each bundled module, but not the project’s own source', async () => {
@@ -140,3 +125,22 @@ describe('recordShippedPackages', () => {
         expect(await project.readJSON('dist/shipped-packages.json')).toEqual({ packages: [], external: [] });
     });
 });
+
+// ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+// Runs the plugin's build hooks over the sources Vite transforms and the bundle it then writes, as Vite would, and
+// returns the record written beside the reports.
+async function recordBundle(bundle: Record<string, object>, sources: Record<string, string> = {}): Promise<ShippedPackagesRecord> {
+    type Hook = (...hookArguments: unknown[]) => void;
+    const plugin = recordShippedPackages() as unknown as { configResolved: Hook; transform: { handler: Hook }; generateBundle: Hook; closeBundle: Hook };
+    const root = process.cwd();
+    plugin.configResolved({ root, build: { outDir: 'dist' } });
+    for (const [moduleId, source] of Object.entries(sources)) plugin.transform.handler(source, path.resolve(moduleId));
+    plugin.generateBundle({}, bundle);
+    plugin.closeBundle();
+    return (await project.readJSON('bundle-analysis-reports/shipped-packages.json')) as unknown as ShippedPackagesRecord;
+}
+
+function chunk(moduleIds: string[], imports: string[] = []): object {
+    return { type: 'chunk', modules: Object.fromEntries(moduleIds.map((moduleId) => [path.resolve(moduleId), {}])), imports, dynamicImports: [] };
+}

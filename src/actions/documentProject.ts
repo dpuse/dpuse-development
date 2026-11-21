@@ -10,7 +10,7 @@ import { documentQualitySecurity } from '@/actions/documentQualitySecurity';
 import { documentUsage } from '@/actions/documentUsage';
 import { API_REFERENCE_PATH, documentAPIReference } from '@/actions/documentApiReference';
 import { BUNDLE_REPORT_PATH, documentBundleSizes } from '@/actions/documentBundleSizes';
-import { getModuleConfig, logStepHeader, readJSONFile, readTextFileOrNull, spawnCommand } from '@/utilities';
+import { getModuleTypeConfig, logStepHeader, readJSONFile, readTextFileOrNull, spawnCommand } from '@/utilities';
 
 // ── Actions ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -19,7 +19,7 @@ import { getModuleConfig, logStepHeader, readJSONFile, readTextFileOrNull, spawn
 export async function documentProject(allowedLicenses = 'MIT'): Promise<void> {
     try {
         const configJSON = await readJSONFile<ModuleConfig>('config.json');
-        const isConnector = getModuleConfig(configJSON.id).typeId === 'connector'; // Only connectors have an actions table.
+        const isConnector = getModuleTypeConfig(configJSON.id).typeId === 'connector'; // Only connectors have an actions table.
 
         await documentOpening();
         if (isConnector) await documentActions();

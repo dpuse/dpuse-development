@@ -2,25 +2,29 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 // ── Local Framework
-import { spawnCommand } from '@/utilities';
 import { syncProjectWithGitHub } from '@/actions/syncProjectWithGitHub';
 import { collectConsoleOutput, useTemporaryProject } from '../support/temporaryProject';
 import { CONNECTOR_SOURCE, PRESENTER_SOURCE, readFixture, spawnedCommands, TOOL_SOURCE } from '../support/projectCommands';
+import { spawnCommand, spawnCommandForOutput } from '@/utilities';
 
 // ── Mocks ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-// git commands are recorded rather than run.
+// git commands are recorded rather than run, and the branch git reports is given by each test.
 vi.mock('@/utilities', async (importOriginal) => ({
     ...(await importOriginal<object>()),
-    spawnCommand: vi.fn(() => Promise.resolve())
+    spawnCommand: vi.fn(() => Promise.resolve()),
+    spawnCommandForOutput: vi.fn(() => Promise.resolve('main\n'))
 }));
 
-// ── Tests ────────────────────────────────────────────────────────────────────────────────────────────────────────────
+// ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const project = useTemporaryProject();
 
+// ── Tests ────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
 beforeEach(() => {
     vi.mocked(spawnCommand).mockClear();
+    vi.mocked(spawnCommandForOutput).mockClear().mockResolvedValue('main\n');
 });
 
 describe('syncProjectWithGitHub', () => {
@@ -37,6 +41,20 @@ describe('syncProjectWithGitHub', () => {
         expect(packageJSON['version']).toBe('0.3.10');
         expect(await project.readJSON('config.json')).toEqual({ id: 'dpuse-shared', version: '0.3.10', icon: '<svg>light</svg>', iconDark: null });
         expect(spawnedCommands()).toEqual(['git add .', 'git commit -m v0.3.10', 'git push origin main:main']);
+    });
+
+    it.each([
+        ['another branch', 'feature\n', "Projects are synchronised from 'main', but 'feature' is checked out."],
+        ['no branch', '', "Projects are synchronised from 'main', but no branch is checked out."]
+    ])('exits before changing anything when %s is checked out', async (_case, gitOutput, message) => {
+        await project.writeFiles({ 'package.json': JSON.stringify({ name: '@dpuse/dpuse-shared', version: '0.3.9' }), 'config.json': JSON.stringify({ id: 'dpuse-shared' }) });
+        vi.mocked(spawnCommandForOutput).mockResolvedValue(gitOutput);
+
+        await expect(syncProjectWithGitHub()).rejects.toThrow('process.exit(1)');
+        expect(console.error).toHaveBeenCalledWith('❌  Error synchronising project with GitHub', new Error(message));
+        expect(spawnCommandForOutput).toHaveBeenCalledWith(expect.any(String), 'git', ['branch', '--show-current']);
+        expect(await project.readJSON('package.json')).toEqual({ name: '@dpuse/dpuse-shared', version: '0.3.9' });
+        expect(spawnedCommands()).toEqual([]);
     });
 
     it('exits without pushing when the commit fails', async () => {

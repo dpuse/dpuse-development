@@ -4,26 +4,9 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 // ── Local Framework
 import { collectConsoleOutput, useTemporaryProject } from '../support/temporaryProject';
 import { execCommand, readJSONFile, readTextFileOrNull } from '@/utilities';
-import { putState, uploadDirectoryToR2, uploadModuleConfigToDO, uploadModuleToR2, uploadSampleDataToR2 } from '@/utilities/cloudflare';
+import { uploadDirectoryToR2, uploadModuleConfigToDO, uploadModuleToR2, uploadSampleDataToR2 } from '@/utilities/cloudflare';
 
-// ── Mocks ────────────────────────────────────────────────────────────────────────────────────────────────────────────
-
-// Wrangler uploads are recorded rather than run.
-vi.mock('@/utilities', async (importOriginal) => ({ ...(await importOriginal<object>()), execCommand: vi.fn(() => Promise.resolve()) }));
-
-// ── Tests ────────────────────────────────────────────────────────────────────────────────────────────────────────────
-
-const project = useTemporaryProject();
-
-function stubFetch(isOK: boolean): ReturnType<typeof vi.fn> {
-    const fetch = vi.fn(() => Promise.resolve({ ok: isOK, text: () => Promise.resolve('Server error') }));
-    vi.stubGlobal('fetch', fetch);
-    return fetch;
-}
-
-beforeEach(() => {
-    vi.mocked(execCommand).mockClear();
-});
+// ── Types ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 // Each bulk upload's options and the files its list names. The list is read while the call runs, as it is deleted
 // afterwards.
@@ -33,16 +16,20 @@ interface BulkPut {
     options: string[];
 }
 
-function recordBulkPuts(bucket = 'dpuse-sample-data-eu'): BulkPut[] {
-    const bulkPuts: BulkPut[] = [];
-    vi.mocked(execCommand).mockImplementation(async (_label, _command, arguments_) => {
-        expect(arguments_.slice(0, 4)).toEqual(['r2', 'bulk', 'put', bucket]);
-        const listFilePath = arguments_[5] ?? '';
-        const files = await readJSONFile<BulkPut['files']>(listFilePath);
-        bulkPuts.push({ files, listFilePath, options: arguments_.slice(6) });
-    });
-    return bulkPuts;
-}
+// ── Mocks ────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+// Wrangler uploads are recorded rather than run.
+vi.mock('@/utilities', async (importOriginal) => ({ ...(await importOriginal<object>()), execCommand: vi.fn(() => Promise.resolve()) }));
+
+// ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+const project = useTemporaryProject();
+
+// ── Tests ────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+beforeEach(() => {
+    vi.mocked(execCommand).mockClear();
+});
 
 describe('uploadModuleToR2', () => {
     it('uploads the built files under the versioned path in one bulk call per content type, skipping source maps and folders', async () => {
@@ -166,28 +153,37 @@ describe('uploadSampleDataToR2', () => {
 });
 
 describe('configuration uploads', () => {
-    it('stores the app configuration by its id', async () => {
-        await project.writeFiles({ 'config.json': JSON.stringify({ id: 'dpuse-app' }) });
-        const fetch = stubFetch(true);
-
-        await putState();
-
-        expect(fetch).toHaveBeenCalledWith('https://api.dpuse.app/configs/dpuse-app', expect.objectContaining({ method: 'PUT', body: '{"id":"dpuse-app"}' }));
-    });
-
-    it('stores a module configuration by its id', async () => {
+    it('stores a configuration by its id, as JSON', async () => {
         const fetch = stubFetch(true);
 
         await uploadModuleConfigToDO({ id: 'dpuse-connector-example' } as Parameters<typeof uploadModuleConfigToDO>[0]);
 
-        expect(fetch).toHaveBeenCalledWith('https://api.dpuse.app/configs/dpuse-connector-example', expect.objectContaining({ method: 'PUT' }));
+        const expectedRequest = { body: '{"id":"dpuse-connector-example"}', headers: { 'Content-Type': 'application/json' }, method: 'PUT' };
+        expect(fetch).toHaveBeenCalledWith('https://api.dpuse.app/configs/dpuse-connector-example', expectedRequest);
     });
 
     it('rejects with the server message when the store refuses', async () => {
-        await project.writeFiles({ 'config.json': JSON.stringify({ id: 'dpuse-app' }) });
         stubFetch(false);
 
-        await expect(putState()).rejects.toThrow('Server error');
         await expect(uploadModuleConfigToDO({ id: 'x' } as Parameters<typeof uploadModuleConfigToDO>[0])).rejects.toThrow('Server error');
     });
 });
+
+// ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+function stubFetch(isOK: boolean): ReturnType<typeof vi.fn> {
+    const fetch = vi.fn(() => Promise.resolve({ ok: isOK, text: () => Promise.resolve('Server error') }));
+    vi.stubGlobal('fetch', fetch);
+    return fetch;
+}
+
+function recordBulkPuts(bucket = 'dpuse-sample-data-eu'): BulkPut[] {
+    const bulkPuts: BulkPut[] = [];
+    vi.mocked(execCommand).mockImplementation(async (_label, _command, arguments_) => {
+        expect(arguments_.slice(0, 4)).toEqual(['r2', 'bulk', 'put', bucket]);
+        const listFilePath = arguments_[5] ?? '';
+        const files = await readJSONFile<BulkPut['files']>(listFilePath);
+        bulkPuts.push({ files, listFilePath, options: arguments_.slice(6) });
+    });
+    return bulkPuts;
+}

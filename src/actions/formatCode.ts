@@ -11,8 +11,9 @@ export async function formatCode(): Promise<void> {
     try {
         logOperationHeader('Format Code');
 
-        const optionalGlobs = ['app', 'src', 'tests'].filter((directory) => existsSync(directory)).map((directory) => `${directory}/**`);
-        const formatTargets = ['--write', '*.json', '*.md', '*.ts', ...optionalGlobs];
+        const optionalGlobs = ['app', 'e2e', 'scripts', 'src', 'tests'].filter((directory) => existsSync(directory)).map((directory) => `${directory}/**`);
+        // Prettier fails on a pattern that matches nothing, and not every project has a JavaScript file at its root.
+        const formatTargets = ['--write', '--no-error-on-unmatched-pattern', '*.js', '*.json', '*.md', '*.ts', ...optionalGlobs];
         await spawnCommand('1️⃣  Format', 'prettier', formatTargets);
 
         logOperationSuccess('Code formatted');

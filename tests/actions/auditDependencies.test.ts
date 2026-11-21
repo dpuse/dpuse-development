@@ -1,4 +1,5 @@
 // ── External Dependencies & Registrations
+import { promises as fs } from 'node:fs';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 // ── Local Framework
@@ -15,22 +16,22 @@ vi.mock('@/utilities', async (importOriginal) => ({
     spawnCommandForOutput: vi.fn(() => Promise.resolve('{}'))
 }));
 
-// ── Tests ────────────────────────────────────────────────────────────────────────────────────────────────────────────
+// ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+// The project's own list of advisories to ignore: one in a development tool, one in a shipped dependency.
+const IGNORED_ADVISORY_LISTS = {
+    advisories: [{ id: 'GHSA-fx2h-pf6j-xcff', reason: "'vite', used by VitePress, which affects only the local dev server", reviewBy: '2026-12-31' }],
+    shippedAdvisories: [{ id: 'GHSA-fc5q-39xc-vjpf', reason: "'picomatch', which runs only while building", reviewBy: '2026-12-31' }]
+};
+
+// ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const project = useTemporaryProject();
 
-// An 'npm audit --json' report holding the given advisories, each reached through a second package as npm reports it.
-function auditReport(...advisories: { id: string; name: string; severity: string }[]): string {
-    const vulnerabilities: Record<string, { via: unknown[] }> = {};
-    for (const { id, name, severity } of advisories) {
-        vulnerabilities[name] = { via: [{ name, severity, title: `${name} flaw`, url: `https://github.com/advisories/${id}` }] };
-        vulnerabilities[`${name}-parent`] = { via: [name] };
-    }
-    return JSON.stringify({ auditReportVersion: 2, vulnerabilities });
-}
+// ── Tests ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 beforeEach(async () => {
-    await project.writeFiles({ 'package.json': JSON.stringify({ name: '@dpuse/dpuse-connector-example' }) });
+    await project.writeFiles({ 'package.json': JSON.stringify({ name: '@dpuse/dpuse-connector-example' }), 'auditIgnore.json': JSON.stringify(IGNORED_ADVISORY_LISTS) });
     vi.mocked(spawnCommand).mockClear().mockResolvedValue();
     vi.mocked(spawnCommandForOutput).mockClear().mockResolvedValue(auditReport());
     vi.useFakeTimers({ now: new Date('2026-10-03T12:00:00Z'), toFake: ['Date'] });
@@ -95,6 +96,42 @@ describe('auditDependencies', () => {
         await auditDependencies();
 
         expect(console.warn).toHaveBeenCalledWith(expect.stringContaining('⚠️  Ignored GHSA-fx2h-pf6j-xcff, but its review date 2026-12-31 has passed'));
+    });
+
+    it('ignores nothing in a project that has no list of its own', async () => {
+        await fs.rm('auditIgnore.json');
+        vi.mocked(spawnCommandForOutput)
+            .mockResolvedValueOnce(auditReport())
+            .mockResolvedValue(auditReport({ id: 'GHSA-fx2h-pf6j-xcff', name: 'vite', severity: 'high' }));
+
+        await expect(auditDependencies()).rejects.toThrow('process.exit(1)');
+        expect(console.error).toHaveBeenCalledWith('❌  Error auditing dependencies', new Error('1 high or critical vulnerabilities found'));
+    });
+
+    it('reads a list that names only one kind of advisory', async () => {
+        await project.writeFiles({ 'auditIgnore.json': JSON.stringify({ advisories: IGNORED_ADVISORY_LISTS.advisories }) });
+        vi.mocked(spawnCommandForOutput)
+            .mockResolvedValueOnce(auditReport())
+            .mockResolvedValue(auditReport({ id: 'GHSA-fx2h-pf6j-xcff', name: 'vite', severity: 'high' }));
+
+        await auditDependencies();
+
+        expect(collectConsoleOutput()).toContain('ℹ️  Ignored GHSA-fx2h-pf6j-xcff');
+    });
+
+    it.each([
+        ['an entry has no review date', { advisories: [{ id: 'GHSA-fx2h-pf6j-xcff', reason: 'No fix yet' }] }, 'advisories.0.reviewBy'],
+        ['a review date is not a date', { advisories: [{ id: 'GHSA-fx2h-pf6j-xcff', reason: 'No fix yet', reviewBy: 'next year' }] }, 'advisories.0.reviewBy'],
+        ['a list is misnamed', { ignored: [] }, 'ignored']
+    ])('stops, naming what is wrong, when %s in the list', async (_case, lists, issuePath) => {
+        await project.writeFiles({ 'auditIgnore.json': JSON.stringify(lists) });
+
+        await expect(auditDependencies()).rejects.toThrow('process.exit(1)');
+        expect(console.error).toHaveBeenCalledWith(
+            '❌  Error auditing dependencies',
+            expect.objectContaining({ message: expect.stringContaining(`'auditIgnore.json' is not valid. ${issuePath}: `) as string })
+        );
+        expect(spawnCommandForOutput).not.toHaveBeenCalled();
     });
 
     it('fails when the audit itself reports an error', async () => {
@@ -177,3 +214,15 @@ describe('reportIgnoredAdvisories', () => {
         expect(console.warn).toHaveBeenCalledWith('⚠️  Could not check the allow list: registry unreachable');
     });
 });
+
+// ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+// An 'npm audit --json' report holding the given advisories, each reached through a second package as npm reports it.
+function auditReport(...advisories: { id: string; name: string; severity: string }[]): string {
+    const vulnerabilities: Record<string, { via: unknown[] }> = {};
+    for (const { id, name, severity } of advisories) {
+        vulnerabilities[name] = { via: [{ name, severity, title: `${name} flaw`, url: `https://github.com/advisories/${id}` }] };
+        vulnerabilities[`${name}-parent`] = { via: [name] };
+    }
+    return JSON.stringify({ auditReportVersion: 2, vulnerabilities });
+}

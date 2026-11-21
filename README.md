@@ -69,6 +69,67 @@ Every release is listed on the [Releases](https://github.com/dpuse/dpuse-develop
 
 <!-- USAGE_END -->
 
+## How It Works
+
+Each DPUse project has the same `scripts` in its `package.json`, and each script calls one action exported by this package. The actions read the project's `package.json` and `config.json` to decide what to do, so every project calls them the same way.
+
+| Script             | Action                  | What it does                                                                                                                                                        |
+| :----------------- | :---------------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `npm run build`    | `buildProject`          | Bundles the project with Vite, first building its WebAssembly where the project has a `build:wasm` script.                                                          |
+| `npm run lint`     | `lintCode`              | Runs ESLint, then type-checks the whole project with `tsc`, or `vue-tsc` in a Vue project.                                                                          |
+| `npm test`         | `testProject`           | Runs the unit tests with Vitest and, where asked for and set up, the end-to-end tests with Playwright.                                                              |
+| `npm run format`   | `formatCode`            | Formats the project with Prettier.                                                                                                                                  |
+| `npm run audit`    | `auditDependencies`     | Runs `npm audit`. Fails on any vulnerability in a shipped dependency, and on a high or critical one in a development dependency.                                    |
+| `npm run check`    | `checkProject`          | Compares the project's configuration files with the templates this package ships, then walks through updating its dependencies.                                     |
+| `npm run document` | `documentProject`       | Rewrites the generated sections of the README, and `API_REFERENCE.md` where the project has one.                                                                    |
+| `npm run sync`     | `syncProjectWithGitHub` | Checks that `main` is checked out, increases the version, updates `config.json`, then commits and pushes.                                                           |
+| `npm run release`  | `triggerGitHubRelease`  | Runs build, document and sync, then creates a GitHub release. The release starts the publish workflow, which waits for CI to pass before it calls `publishProject`. |
+
+### Module Types
+
+The `id` in `config.json` sets the project's module type by its prefix, such as `dpuse-connector-` or `dpuse-tool-`. The module type decides which templates the project is checked against and where it is published: to npm, to DPUse, or both. The list is `MODULE_TYPE_CONFIGS` in [src/utilities/index.ts](./src/utilities/index.ts).
+
+### Generated README Sections
+
+`npm run document` only rewrites the text between pairs of markers, such as `<!-- USAGE_START -->` and `<!-- USAGE_END -->`. Anything outside the markers, like this section, is written by hand and left alone. The marker pairs are `OPENING`, `SUPPORTED_ACTIONS` (connectors only), `USAGE`, `DEPENDENCY_LICENSES`, `BUNDLE`, `QUALITY_SECURITY` and `CONTRIBUTING_LICENSE`.
+
+### Templates
+
+The package ships the configuration files every project starts from: the GitHub workflows and Dependabot files, the TypeScript, Vite, Vitest and ESLint configurations, and the editor, Git and Markdown settings. They are listed under `files` in [package.json](./package.json). `npm run check` reports any project file that differs from its template. It does not change the file.
+
+Two more entry points are exported: `@dpuse/dpuse-development/prettierrc`, the shared Prettier configuration, and `@dpuse/dpuse-development/vite`, a build plugin that records which packages a build ships so their licences can be documented.
+
+### Ignoring an Advisory
+
+An advisory with no fix yet can be ignored by listing it in an `auditIgnore.json` file at the root of the affected project. A project without the file ignores nothing.
+
+```json
+{
+    "advisories": [{ "id": "GHSA-xxxx-xxxx-xxxx", "reason": "Why the flaw cannot reach a release", "reviewBy": "2027-01-31" }],
+    "shippedAdvisories": []
+}
+```
+
+- `advisories` is for high or critical advisories in development dependencies.
+- `shippedAdvisories` is for advisories in shipped dependencies, and is the only list the check of shipped dependencies reads.
+- After its `reviewBy` date an entry still passes, but the audit warns, so it is looked at again. Remove an entry once a fix is released.
+
+### Adapting It
+
+The values specific to DPUse are in a few places: the module types in [src/utilities/index.ts](./src/utilities/index.ts), the Cloudflare bucket names and API address in [src/utilities/cloudflare.ts](./src/utilities/cloudflare.ts), and the README wording in the `document…` actions in [src/actions](./src/actions).
+
+## Prerequisites
+
+The actions run other tools by name and do not install them. A project using this package needs:
+
+- **In its `devDependencies`:** `eslint`, `prettier`, `typescript`, `vite` and `vitest`. Optional, and used only where installed: `@vitest/coverage-v8` and `fallow` for the coverage and code health figures, `sonda` for the bundle analysis, `@playwright/test` for end-to-end tests, and `wrangler` for projects published to Cloudflare.
+- **On the machine:** [Git](https://git-scm.com/), and the [GitHub CLI](https://cli.github.com/) (`gh`), signed in. `npm run document` reads the repository's settings through it, and `npm run release` creates the release with it. Projects with Rust code also need `cargo` and `wasm-pack`.
+- **macOS or Linux.** Windows is not supported.
+
+In this repository the scripts run the built package from `dist`, so run `npm run build` once after cloning, before any other script.
+
+[resources/vsCodeKeyBindings.json](./resources/vsCodeKeyBindings.json) holds optional VS Code key bindings that run the scripts in the terminal, for example Ctrl+Shift+Alt+L for `npm run lint`. A few are for scripts only some DPUse projects have. Copy the ones you want into your own `keybindings.json`.
+
 ## API Reference
 
 See [API_REFERENCE.md](./API_REFERENCE.md) for the complete API reference, including every exported action and type.
@@ -92,19 +153,19 @@ _Note: Sonda's Vite reports currently exclude CSS files, since Vite does not gen
 
 | Chunk/Module/File                                                     | Composition                                                                                   |
 | :-------------------------------------------------------------------- | :-------------------------------------------------------------------------------------------- |
-| **All 4 files**                                                       | 108.7&nbsp;kB&nbsp;·&nbsp;gzip&nbsp;34.4&nbsp;kB                                              |
-| **dist/dpuse-development.es.js**                                      | 69.3&nbsp;kB&nbsp;·&nbsp;gzip&nbsp;22.3&nbsp;kB&nbsp;·&nbsp;63.8%&nbsp;of&nbsp;the&nbsp;build |
-| &nbsp;&nbsp;&nbsp;&nbsp;src → documentDependencies.ts + 21 more       | `██████████████████░░`&nbsp;88.7%&nbsp;·&nbsp;61.5&nbsp;kB                                    |
-| &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON)           | `██░░░░░░░░░░░░░░░░░░`&nbsp;11.3%&nbsp;·&nbsp;7.8&nbsp;kB                                     |
-| **dist/utilities-CuF6EZKF.js**                                        | 27.6&nbsp;kB&nbsp;·&nbsp;gzip&nbsp;7.5&nbsp;kB&nbsp;·&nbsp;25.3%&nbsp;of&nbsp;the&nbsp;build  |
-| &nbsp;&nbsp;&nbsp;&nbsp;@dpuse/dpuse-shared → dist/dpuse-shared.es.js | `███████████░░░░░░░░░`&nbsp;54.1%&nbsp;·&nbsp;14.9&nbsp;kB                                    |
-| &nbsp;&nbsp;&nbsp;&nbsp;src → index.ts                                | `███████░░░░░░░░░░░░░`&nbsp;33.3%&nbsp;·&nbsp;9.2&nbsp;kB                                     |
-| &nbsp;&nbsp;&nbsp;&nbsp;valibot → dist/index.mjs                      | `░░░░░░░░░░░░░░░░░░░░`&nbsp;1.5%&nbsp;·&nbsp;413&nbsp;B                                       |
-| &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON)           | `██░░░░░░░░░░░░░░░░░░`&nbsp;11.1%&nbsp;·&nbsp;3.1&nbsp;kB                                     |
-| **dist/apiReference-C0j20BHf.js**                                     | 8.4&nbsp;kB&nbsp;·&nbsp;gzip&nbsp;3.1&nbsp;kB&nbsp;·&nbsp;7.8%&nbsp;of&nbsp;the&nbsp;build    |
+| **All 4 files**                                                       | 113.5&nbsp;kB&nbsp;·&nbsp;gzip&nbsp;34.7&nbsp;kB                                              |
+| **dist/dpuse-development.es.js**                                      | 68.7&nbsp;kB&nbsp;·&nbsp;gzip&nbsp;22.3&nbsp;kB&nbsp;·&nbsp;60.5%&nbsp;of&nbsp;the&nbsp;build |
+| &nbsp;&nbsp;&nbsp;&nbsp;src → documentDependencies.ts + 21 more       | `██████████████████░░`&nbsp;91.3%&nbsp;·&nbsp;62.7&nbsp;kB                                    |
+| &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON)           | `██░░░░░░░░░░░░░░░░░░`&nbsp;8.7%&nbsp;·&nbsp;6.0&nbsp;kB                                      |
+| **dist/utilities-DaeO1Tb8.js**                                        | 32.9&nbsp;kB&nbsp;·&nbsp;gzip&nbsp;7.9&nbsp;kB&nbsp;·&nbsp;29.0%&nbsp;of&nbsp;the&nbsp;build  |
+| &nbsp;&nbsp;&nbsp;&nbsp;@dpuse/dpuse-shared → dist/dpuse-shared.es.js | `█████████░░░░░░░░░░░`&nbsp;45.3%&nbsp;·&nbsp;14.9&nbsp;kB                                    |
+| &nbsp;&nbsp;&nbsp;&nbsp;src → index.ts                                | `██████░░░░░░░░░░░░░░`&nbsp;28.1%&nbsp;·&nbsp;9.2&nbsp;kB                                     |
+| &nbsp;&nbsp;&nbsp;&nbsp;valibot → dist/index.mjs                      | `███░░░░░░░░░░░░░░░░░`&nbsp;14.5%&nbsp;·&nbsp;4.8&nbsp;kB                                     |
+| &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON)           | `██░░░░░░░░░░░░░░░░░░`&nbsp;12.1%&nbsp;·&nbsp;4.0&nbsp;kB                                     |
+| **dist/apiReference-BTZpL88c.js**                                     | 8.4&nbsp;kB&nbsp;·&nbsp;gzip&nbsp;3.1&nbsp;kB&nbsp;·&nbsp;7.4%&nbsp;of&nbsp;the&nbsp;build    |
 | &nbsp;&nbsp;&nbsp;&nbsp;src → apiReference.ts                         | `███████████████████░`&nbsp;95.3%&nbsp;·&nbsp;8.0&nbsp;kB                                     |
 | &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON)           | `█░░░░░░░░░░░░░░░░░░░`&nbsp;4.7%&nbsp;·&nbsp;407&nbsp;B                                       |
-| **dist/vite.es.js**                                                   | 3.4&nbsp;kB&nbsp;·&nbsp;gzip&nbsp;1.5&nbsp;kB&nbsp;·&nbsp;3.1%&nbsp;of&nbsp;the&nbsp;build    |
+| **dist/vite.es.js**                                                   | 3.4&nbsp;kB&nbsp;·&nbsp;gzip&nbsp;1.5&nbsp;kB&nbsp;·&nbsp;3.0%&nbsp;of&nbsp;the&nbsp;build    |
 | &nbsp;&nbsp;&nbsp;&nbsp;src → vite.ts                                 | `██████████████████░░`&nbsp;89.3%&nbsp;·&nbsp;3.0&nbsp;kB                                     |
 | &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON)           | `██░░░░░░░░░░░░░░░░░░`&nbsp;10.7%&nbsp;·&nbsp;371&nbsp;B                                      |
 
@@ -163,7 +224,7 @@ This section is updated each time `npm run document` is run. Settings come from 
 This project is working towards the [OpenSSF Best Practices](https://www.bestpractices.dev) Passing badge, a self-certification covering security policy, vulnerability reporting, build processes, code quality, and more. Currently the [OpenSSF Scorecard](https://scorecard.dev) provides an independent automated assessment of the project's security practices and is an ongoing area of improvement.
 
 > [!NOTE]
-> Apart from the Best Practices badge above, the remaining Scorecard gaps need multi-person review or a pull-request workflow, which this solo-maintained project doesn't use.
+> The Scorecard score is below the maximum for two reasons. The project does not have the OpenSSF Best Practices badge yet, and some checks need a second reviewer or a pull-request workflow, which a solo-maintained project cannot provide.
 
 ### Reporting Vulnerabilities
 
@@ -175,7 +236,7 @@ Please do not open public GitHub issues for security vulnerabilities. Use [GitHu
 
 ## Contributing
 
-This repository is maintained solely by its owner and does not, at present, accept external contributions into the canonical repo. Its source is published openly under the MIT License — every DPUse project is fully open source except DPUse Engine and DPUse API, which remain closed and proprietary.
+This repository is maintained solely by its owner and does not, at present, accept external contributions. Its source is published openly under the MIT License — every DPUse project is fully open source except DPUse Engine and DPUse API, which remain closed and proprietary.
 
 For security vulnerabilities, see [Reporting Vulnerabilities](#reporting-vulnerabilities). For bugs, inconsistencies, or other feedback, [open a GitHub issue](https://github.com/dpuse/dpuse-development/issues) — feedback is read, but responses and fixes are at the maintainer's discretion.
 

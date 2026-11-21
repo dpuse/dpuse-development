@@ -10,10 +10,11 @@ import {
     FALLOW_BADGE_PATH,
     FALLOW_REPORT_PATH,
     formatEndpointBadge,
-    getModuleConfig,
+    getModuleTypeConfig,
     logOperationHeader,
     logOperationSuccess,
     logStepHeader,
+    PROPRIETARY_LICENSE,
     readGitHubCheckAppSlugs,
     readJSONFile,
     readTextFileOrNull,
@@ -40,7 +41,7 @@ export async function documentOpening(): Promise<void> {
         const { owner, repository } = resolveOwnerAndRepository(packageJSON, 'document opening');
         const license = resolveLicense(packageJSON);
         const introduction = resolveIntroduction(configJSON);
-        const moduleTypeConfig = getModuleConfig(configJSON.id);
+        const moduleTypeConfig = getModuleTypeConfig(configJSON.id);
         const dpuseModuleId = moduleTypeConfig.uploadGroupName === undefined ? undefined : configJSON.id;
         const npmPackageName = moduleTypeConfig.publishedTo === 'npm' ? resolvePackageName(packageJSON) : undefined;
 
@@ -105,8 +106,8 @@ function resolveIntroduction(configJSON: ModuleConfig): string | undefined {
 // Only modules uploaded to DPUse get the DPUse version badge, and only projects published to npm get the npm badge. The
 // DPUse badge reads the version registered in DPUse, which is only updated once the upload succeeds, so like the npm
 // badge it shows what was actually published, and it works for private repositories too. The badges run from the
-// licence, which never changes, through the checks (CI, CodeQL, coverage, Fallow, SonarCloud), to the published versions, because a
-// version is only published once the checks pass.
+// licence, which never changes, through the checks (CI, CodeQL, coverage, Fallow, SonarCloud), to the published
+// versions, because a version is only published once the checks pass.
 function buildOpeningContent(
     owner: string,
     repository: string,
@@ -125,7 +126,8 @@ function buildOpeningContent(
 ): string {
     const { description, dpuseModuleId, hasCodeQL, hasCoverage, hasFallow, hasSonarCloud, introduction, npmPackageName, version } = options;
     const repositoryURL = `https://github.com/${owner}/${repository}`;
-    const badgeLicense = license.replaceAll('-', '--');
+    const licenseLabel = license === PROPRIETARY_LICENSE ? 'Proprietary' : license; // 'UNLICENSED' reads as if the licence were missing.
+    const badgeLicense = licenseLabel.replaceAll('-', '--');
     const dpuseConfigURL = encodeURIComponent(`https://api.dpuse.app/configs/${dpuseModuleId ?? ''}`);
     const dpuseBadge =
         dpuseModuleId === undefined
@@ -137,7 +139,7 @@ function buildOpeningContent(
     const introductionSection = introduction === undefined ? '' : `\n\n## Introduction\n\n${introduction}`;
 
     const badges = [
-        `[![License: ${license}](https://img.shields.io/badge/License-${badgeLicense}-blue.svg)](./LICENSE)`,
+        `[![License: ${licenseLabel}](https://img.shields.io/badge/License-${badgeLicense}-blue.svg)](./LICENSE)`,
         `[![CI](${repositoryURL}/actions/workflows/ci.yml/badge.svg)](${repositoryURL}/actions/workflows/ci.yml)`,
         hasCodeQL ? `[![CodeQL](${repositoryURL}/actions/workflows/codeql.yml/badge.svg)](${repositoryURL}/security/code-scanning)` : '',
         hasCoverage ? formatEndpointBadge(owner, repository, 'Coverage', COVERAGE_BADGE_PATH) : '',

@@ -21,6 +21,7 @@ Every export, grouped by import path. This file is updated each time `npm run do
 - **`publishProject`**`()`
     > Publishes the project to npm, uploads it to DPUse, or both, as its module type requires. Run by the 'publish.yml' workflow.
 - **`resolveSampleDataContentType`**`(key: string)`
+    > Looks up a sample data file's content type from its key, with dpuse-shared's table, so the bucket and the connectors describe a file the same way. A licence is text. Any other file the table does not cover still goes up, as 'application/octet-stream', with a warning so its extension can be added.
 - **`syncProjectWithGitHub`**`()`
     > Synchronise the local repository with the main GitHub repository.
 - **`testProject`**`(testTypeIds?: TestTypeId[])`

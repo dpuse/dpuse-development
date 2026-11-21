@@ -5,9 +5,7 @@ import { describe, expect, it } from 'vitest';
 import { documentAPIReference } from '@/actions/documentApiReference';
 import { useTemporaryProject } from '../support/temporaryProject';
 
-// ── Tests ────────────────────────────────────────────────────────────────────────────────────────────────────────────
-
-const project = useTemporaryProject();
+// ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const TSCONFIG = JSON.stringify({ compilerOptions: { module: 'ESNext', moduleResolution: 'bundler', strict: true, target: 'ESNext', paths: { '@/*': ['./src/*'] } } });
 
@@ -73,14 +71,11 @@ class BaseError extends Error {}
 export class AppError extends BaseError implements Reportable { report(): void {} }
 `;
 
-async function writeProject(packageJSON: object): Promise<void> {
-    await project.writeFiles({
-        'package.json': JSON.stringify({ name: '@dpuse/dpuse-example', ...packageJSON }),
-        'tsconfig.json': TSCONFIG,
-        'src/index.ts': INDEX_SOURCE,
-        'src/errors/index.ts': ERRORS_SOURCE
-    });
-}
+// ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+const project = useTemporaryProject();
+
+// ── Tests ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 describe('documentAPIReference', () => {
     it('lists every export of each import path, grouped by kind, with the description from its /** */ comment', async () => {
@@ -236,3 +231,14 @@ Every export, grouped by import path. This file is updated each time \`npm run d
         expect(console.error).toHaveBeenCalledWith('❌  Error documenting API reference', expect.objectContaining({ message: expect.stringContaining(message) as unknown }));
     });
 });
+
+// ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+async function writeProject(packageJSON: object): Promise<void> {
+    await project.writeFiles({
+        'package.json': JSON.stringify({ name: '@dpuse/dpuse-example', ...packageJSON }),
+        'tsconfig.json': TSCONFIG,
+        'src/index.ts': INDEX_SOURCE,
+        'src/errors/index.ts': ERRORS_SOURCE
+    });
+}

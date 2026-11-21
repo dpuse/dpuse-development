@@ -89,6 +89,8 @@ const COVERAGE_SUMMARY_PATH = 'coverage/coverage-summary.json';
 const COVERAGE_TARGET_PERCENT = 80;
 const COVERAGE_WARNING_PERCENT = 60; // Below the target the badge turns yellow, and below this it turns red.
 
+const OPENSSF_REQUEST_TIMEOUT = 10_000; // Without one, a request OpenSSF never answers would hang the release.
+
 const CODEQL_LANGUAGE_NAMES: Record<string, string> = { actions: 'GitHub Actions', 'javascript-typescript': 'JavaScript/TypeScript', rust: 'Rust' };
 
 // Fallow — only run where the module has it installed. The full report is published as its own page, linked from the
@@ -226,8 +228,8 @@ async function readSecuritySettings(owner: string, repository: string, packageJS
         secretScanning: readSetting('secret_scanning'),
         socket: checkAppSlugs.has('socket-security'),
         sonarCloud: checkAppSlugs.has('sonarqubecloud'),
-        // The CI workflow runs the tests by calling 'testProject', and a project's own workflow may run 'npm test'. Comment
-        // lines are passed over, as the workflow's notes mention 'npm test' without running it.
+        // The CI workflow runs the tests by calling 'testProject', and a project's own workflow may run 'npm test'.
+        // Comment lines are passed over, as the workflow's notes mention 'npm test' without running it.
         testsInCI: /^(?!\s*#).*(?:npm test|testProject\()/m.test(ciWorkflow ?? '')
     };
 }
@@ -235,7 +237,7 @@ async function readSecuritySettings(owner: string, repository: string, packageJS
 // Found by repository URL, as OpenSSF Scorecard does, so a repository shows its badge as soon as it is registered and nothing
 // needs configuring. Failures throw rather than return nothing, so a network blip can't drop the badge from the README.
 async function lookUpBestPracticesProjectId(repositoryURL: string): Promise<number | undefined> {
-    const response = await fetch(`https://www.bestpractices.dev/projects.json?url=${encodeURIComponent(repositoryURL)}`);
+    const response = await fetch(`https://www.bestpractices.dev/projects.json?url=${encodeURIComponent(repositoryURL)}`, { signal: AbortSignal.timeout(OPENSSF_REQUEST_TIMEOUT) });
     if (!response.ok) throw new Error(`OpenSSF Best Practices lookup failed with status ${String(response.status)}.`);
 
     // The search also matches home page URLs, so keep only the entry registered for this repository.
@@ -245,7 +247,7 @@ async function lookUpBestPracticesProjectId(repositoryURL: string): Promise<numb
 
 // Answers undefined when Scorecard has no results for the repository yet. Other failures throw, as for the badge.
 async function lookUpScorecardResult(scorecardURI: string): Promise<ScorecardResult | undefined> {
-    const response = await fetch(`https://api.scorecard.dev/projects/${scorecardURI}`);
+    const response = await fetch(`https://api.scorecard.dev/projects/${scorecardURI}`, { signal: AbortSignal.timeout(OPENSSF_REQUEST_TIMEOUT) });
     if (response.status === 404) return undefined;
     if (!response.ok) throw new Error(`OpenSSF Scorecard lookup failed with status ${String(response.status)}.`);
     return (await response.json()) as ScorecardResult;
@@ -381,9 +383,12 @@ function buildQualitySecurityContent(
     const repositoryURL = `https://github.com/${owner}/${repository}`;
     const scorecardURI = `github.com/${owner}/${repository}`;
     const bestPracticesURL = `https://www.bestpractices.dev/projects/${String(bestPracticesProjectId)}`;
+    // The note points at the Best Practices badge only where the project has one to show.
+    const bestPracticesReasonText =
+        bestPracticesProjectId === undefined ? 'The project does not have the OpenSSF Best Practices badge yet' : 'The OpenSSF Best Practices badge above is not complete yet';
     const scorecardLimitText =
         scorecardResult !== undefined && isScorecardOnlyPracticeLimited(scorecardResult)
-            ? "\n\n> [!NOTE]\n> Apart from the Best Practices badge above, the remaining Scorecard gaps need multi-person review or a pull-request workflow, which this solo-maintained project doesn't use."
+            ? `\n\n> [!NOTE]\n> The Scorecard score is below the maximum for two reasons. ${bestPracticesReasonText}, and some checks need a second reviewer or a pull-request workflow, which a solo-maintained project cannot provide.`
             : '';
     const bestPracticesBadge = bestPracticesProjectId === undefined ? '' : `[![OpenSSF Best Practices](${bestPracticesURL}/badge)](${bestPracticesURL})\n`;
 

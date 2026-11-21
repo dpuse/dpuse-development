@@ -40,26 +40,35 @@ interface OperationConfig {
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-// Development-only packages — other projects install these only as dev dependencies, so none of their own dependencies
-// ever reach a release.
+// ── Development-Only Packages ─ Other projects install these only as dev dependencies, so none of their own
+// dependencies ever reach a release.
 export const DEVELOPMENT_ONLY_PACKAGE_NAMES = new Set(['@dpuse/dpuse-development', '@dpuse/eslint-config-dpuse']);
 
-// Coverage badge ─ Quality & Security writes this file each time it measures coverage, and the README's opening badge
-// reads it from the repository. Not under a 'coverage' folder, which '.gitignore' leaves out.
+// ── Coverage Badge ─ Quality & Security writes this file each time it measures coverage, and the README's opening
+// badge reads it from the repository. Not under a 'coverage' folder, which '.gitignore' leaves out.
 export const COVERAGE_BADGE_PATH = 'code-health-reports/vitest/badge.json';
 
-// Fallow — Quality & Security writes these each time it runs; the README's opening badge reads the badge file from the repository.
+// ── Fallow ─ Quality & Security writes these each time it runs, and the README's opening badge reads the badge file
+// from the repository.
 export const FALLOW_DIRECTORY = 'code-health-reports/fallow';
 export const FALLOW_BADGE_PATH = `${FALLOW_DIRECTORY}/badge.json`;
 export const FALLOW_REPORT_PATH = `${FALLOW_DIRECTORY}/index.md`;
 
-// README markers
+// ── Proprietary Licence ─ The value npm gives for a package that grants no one the right to use it. Not 'Unlicense',
+// which gives a work to the public domain.
+export const PROPRIETARY_LICENSE = 'UNLICENSED';
+
+// ── README Markers
 export const CONTRIBUTING_LICENSE_END_MARKER = '<!-- CONTRIBUTING_LICENSE_END -->';
 export const CONTRIBUTING_LICENSE_START_MARKER = '<!-- CONTRIBUTING_LICENSE_START -->';
 export const QUALITY_SECURITY_END_MARKER = '<!-- QUALITY_SECURITY_END -->';
 export const QUALITY_SECURITY_START_MARKER = '<!-- QUALITY_SECURITY_START -->';
 
-// Rust — a project has Rust code when it has this workspace file; its templates and checks then include Rust.
+// Node stops a command once its output passes 1 MB unless told otherwise, and a Wrangler upload of many files writes
+// more.
+const EXEC_OUTPUT_LIMIT = 64 * 1024 * 1024;
+
+// ── Rust ─ A project has Rust code when it has this workspace file. Its templates and checks then include Rust.
 export const RUST_WORKSPACE_PATH = 'rust/Cargo.toml';
 
 const MODULE_TYPE_CONFIGS: ModuleTypeConfig[] = [
@@ -83,7 +92,9 @@ const MODULE_TYPE_CONFIGS: ModuleTypeConfig[] = [
 
 const asyncExecFile = promisify(execFile);
 
-// ── Actions - Directory ──────────────────────────────────────────────────────────────────────────────────────────────
+// ── Actions ──────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+// ── Directory
 
 export async function clearDirectory(label: string | undefined, directoryPath: string): Promise<void> {
     if (label !== undefined) logStepHeader(`${label} - clear(${directoryPath})`);
@@ -116,11 +127,11 @@ export async function getDirectoryEntries(path: string, options?: ObjectEncoding
     return fs.readdir(path, options);
 }
 
-// ── Actions - Command ────────────────────────────────────────────────────────────────────────────────────────────────
+// ── Command
 
 export async function execCommand(label: string | undefined, command_: string, arguments_: string[]): Promise<void> {
     if (label !== undefined) logStepHeader(`${label} - exec(${command_} ${arguments_.join(' ')})`);
-    const { stdout, stderr } = await asyncExecFile(command_, arguments_);
+    const { stdout, stderr } = await asyncExecFile(command_, arguments_, { maxBuffer: EXEC_OUTPUT_LIMIT });
     if (stdout.trim()) console.log(stdout.trim());
     if (stderr.trim()) console.error(stderr.trim());
 }
@@ -184,9 +195,10 @@ export async function spawnCommandToFile(label: string, command: string, argumen
     });
 }
 
-// ── Actions - File ───────────────────────────────────────────────────────────────────────────────────────────────────
+// ── File
 
-// A README badge that shields.io draws from a JSON file committed to the repository, so it shows the latest pushed figure.
+// A README badge that shields.io draws from a JSON file committed to the repository, so it shows the latest pushed
+// figure.
 export function formatEndpointBadge(owner: string, repository: string, label: string, badgePath: string): string {
     const badgeSourceURL = encodeURIComponent(`https://raw.githubusercontent.com/${owner}/${repository}/main/${badgePath}`);
     return `![${label}](https://img.shields.io/endpoint?url=${badgeSourceURL})`;
@@ -209,9 +221,9 @@ export async function readTextFileOrNull(path: string): Promise<string | null> {
     }
 }
 
-// Looks up a sample data file's content type from its key, with dpuse-shared's table, so the bucket and the connectors
-// describe a file the same way. A licence is text. Any other file the table does not cover still goes up, as
-// 'application/octet-stream', with a warning so its extension can be added.
+/** Looks up a sample data file's content type from its key, with dpuse-shared's table, so the bucket and the connectors
+ *  describe a file the same way. A licence is text. Any other file the table does not cover still goes up, as
+ *  'application/octet-stream', with a warning so its extension can be added. */
 export function resolveSampleDataContentType(key: string): string {
     const name = key.slice(key.lastIndexOf('/') + 1);
     if (name === 'LICENSE') return 'text/plain';
@@ -236,7 +248,7 @@ export async function writeTextFile(path: string, data: string): Promise<void> {
     await fs.writeFile(path, data, 'utf-8');
 }
 
-// ── Actions - Log ────────────────────────────────────────────────────────────────────────────────────────────────────
+// ── Log
 
 export function logOperationHeader(text: string): void {
     const cyan = '\u{1B}[36m';
@@ -253,15 +265,15 @@ export function logStepHeader(text: string): void {
     console.info(text);
 }
 
-// ── Actions - Module ─────────────────────────────────────────────────────────────────────────────────────────────────
+// ── Module
 
-export function getModuleConfig(configId: string): ModuleTypeConfig {
+export function getModuleTypeConfig(configId: string): ModuleTypeConfig {
     const moduleTypeConfig = MODULE_TYPE_CONFIGS.find((config) => configId.startsWith(config.idPrefix));
     if (!moduleTypeConfig) throw new Error(`Failed to locate module type configuration for identifier '${configId}'.`);
     return moduleTypeConfig;
 }
 
-// ── Actions - Package ────────────────────────────────────────────────────────────────────────────────────────────────
+// ── Package
 
 // 'purpose' completes the error message, e.g. 'document opening'.
 export function resolveOwnerAndRepository(packageJSON: PackageJson, purpose: string): { owner: string; repository: string } {
@@ -276,9 +288,9 @@ export function resolveOwnerAndRepository(packageJSON: PackageJson, purpose: str
     return { owner: match[1], repository: match[2] };
 }
 
-// Reads from the GitHub API through 'gh'. Answers undefined for a 404, which is how some endpoints report a switched-off
-// feature. Any other failure throws, so a missing login or network blip can't be written into the README as settings
-// being off.
+// Reads from the GitHub API through 'gh'. Answers undefined for a 404, which is how some endpoints report a
+// switched-off feature. Any other failure throws, so a missing login or network blip can't be written into the README
+// as settings being off.
 export async function readGitHubAPI(endpoint: string): Promise<string | undefined> {
     try {
         const { stdout } = await asyncExecFile('gh', ['api', endpoint]);
@@ -289,21 +301,21 @@ export async function readGitHubAPI(endpoint: string): Promise<string | undefine
     }
 }
 
-// The GitHub Apps that ran a check on the latest commit to 'main', by slug, such as 'sonarqubecloud'. An app that checks
-// every push shows here without the project holding any file for it.
+// The GitHub Apps that ran a check on the latest commit to 'main', by slug, such as 'sonarqubecloud'. An app that
+// checks every push shows here without the project holding any file for it.
 export async function readGitHubCheckAppSlugs(owner: string, repository: string): Promise<Set<string>> {
     const checkRuns = await readGitHubAPI(`repos/${owner}/${repository}/commits/main/check-runs?per_page=100`);
     const { check_runs: runs } = checkRuns === undefined ? { check_runs: [] } : (JSON.parse(checkRuns) as { check_runs: { app: { slug: string } | null }[] });
     return new Set(runs.map((run) => run.app?.slug).filter((slug) => slug !== undefined));
 }
 
-// ── Actions - Path ───────────────────────────────────────────────────────────────────────────────────────────────────
+// ── Path
 
 export async function getStatsForPath(path: string): Promise<Stats> {
     return await fs.stat(path);
 }
 
-// ── Actions - Project ────────────────────────────────────────────────────────────────────────────────────────────────
+// ── Project
 
 // Connectors, presenters and tools also record the actions their source implements, so their configuration is built from it.
 export async function buildModuleConfig(stepIcon: string, packageJSON: PackageJson, moduleTypeConfig: ModuleTypeConfig): Promise<ModuleConfig> {
@@ -337,7 +349,7 @@ export async function bumpPackageVersion(stepIcon: string, packageJSON: PackageJ
     }
 }
 
-// ── Actions - Source ─────────────────────────────────────────────────────────────────────────────────────────────────
+// ── Source
 
 // The public methods of every class in the source: the actions a connector or presenter implements. TypeScript is an
 // optional peer, loaded only here, so projects that never read their source this way don't need it.

@@ -5,22 +5,11 @@ import { describe, expect, it } from 'vitest';
 import { documentUsage } from '@/actions/documentUsage';
 import { buildReadme, useTemporaryProject } from '../support/temporaryProject';
 
-// ── Tests ────────────────────────────────────────────────────────────────────────────────────────────────────────────
+// ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const project = useTemporaryProject();
 
-async function writeProject(id: string, packageJSON: object): Promise<void> {
-    await project.writeFiles({
-        'config.json': JSON.stringify({ id }),
-        'package.json': JSON.stringify({
-            repository: { type: 'git', url: `git+https://github.com/dpuse/${id}.git` },
-            engines: { node: '>=24', npm: '>=12' },
-            devDependencies: { typescript: '^6.0.3' },
-            ...packageJSON
-        }),
-        'README.md': buildReadme('USAGE')
-    });
-}
+// ── Tests ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 describe('documentUsage', () => {
     it('describes an uploaded module, with clone steps and required versions', async () => {
@@ -141,3 +130,18 @@ describe('documentUsage', () => {
         expect(console.error).toHaveBeenCalledWith('❌  Error documenting usage', new Error(message));
     });
 });
+
+// ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+async function writeProject(id: string, packageJSON: object): Promise<void> {
+    await project.writeFiles({
+        'config.json': JSON.stringify({ id }),
+        'package.json': JSON.stringify({
+            repository: { type: 'git', url: `git+https://github.com/dpuse/${id}.git` },
+            engines: { node: '>=24', npm: '>=12' },
+            devDependencies: { typescript: '^6.0.3' },
+            ...packageJSON
+        }),
+        'README.md': buildReadme('USAGE')
+    });
+}

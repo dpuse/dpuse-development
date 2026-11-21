@@ -16,19 +16,15 @@ vi.mock('@/utilities', async (importOriginal) => ({
 }));
 vi.mock('npm-check-updates', () => ({ run: vi.fn(() => Promise.resolve()) }));
 
-// ── Tests ────────────────────────────────────────────────────────────────────────────────────────────────────────────
-
-const project = useTemporaryProject();
+// ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const originalPlatform = process.platform;
 
-function spawnedCommands(): string[] {
-    return vi.mocked(spawnCommand).mock.calls.map(([, command, arguments_]) => `${command} ${arguments_.join(' ')}`);
-}
+// ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-function setPlatform(platform: string): void {
-    Object.defineProperty(process, 'platform', { value: platform });
-}
+const project = useTemporaryProject();
+
+// ── Tests ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 beforeEach(() => {
     vi.mocked(spawnCommand).mockClear().mockResolvedValue();
@@ -124,3 +120,13 @@ describe('checkDependencies', () => {
         expect(console.error).toHaveBeenCalledWith('❌  Error checking dependencies', expect.any(SyntaxError));
     });
 });
+
+// ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+function spawnedCommands(): string[] {
+    return vi.mocked(spawnCommand).mock.calls.map(([, command, arguments_]) => `${command} ${arguments_.join(' ')}`);
+}
+
+function setPlatform(platform: string): void {
+    Object.defineProperty(process, 'platform', { value: platform });
+}

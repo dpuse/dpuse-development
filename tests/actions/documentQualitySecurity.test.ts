@@ -36,75 +36,22 @@ vi.mock('@/utilities', async (importOriginal) => ({
     })
 }));
 
-// ── Tests ────────────────────────────────────────────────────────────────────────────────────────────────────────────
-
-const project = useTemporaryProject();
+// ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const REPO = 'repos/dpuse/dpuse-shared';
+const TEST_STEP = `  - run: node -e "import('@dpuse/dpuse-development').then(m => m.testProject(['unit']))"\n`;
 
-const TEST_STEP = `  - run: node -e "import('@dpuse/dpuse-development').then(m => m.testProject(['unit']))"\n`; // As the CI workflow template runs the tests.
+// As the CI workflow template runs the tests.
 const CI_WORKFLOW = `steps:\n  - run: npm run lint\n${TEST_STEP}  - run: npm run audit\n`;
+
 const CODEQL_WORKFLOW = 'matrix:\n  include:\n    - language: actions\n    - language: javascript-typescript\n    - language: swift\nqueries: security-extended\n';
 const DEPENDABOT_PAUSED = 'updates:\n  - package-ecosystem: npm\n    open-pull-requests-limit: 0\n';
 
-function stubGitHub(overrides: Record<string, string | Error | undefined> = {}): void {
-    const responses: Record<string, string | Error | undefined> = {
-        [REPO]: JSON.stringify({
-            security_and_analysis: {
-                dependabot_security_updates: { status: 'disabled' },
-                secret_scanning: { status: 'enabled' },
-                secret_scanning_push_protection: { status: 'enabled' }
-            }
-        }),
-        [`${REPO}/private-vulnerability-reporting`]: JSON.stringify({ enabled: true }),
-        [`${REPO}/vulnerability-alerts`]: '',
-        [`${REPO}/commits/main/check-runs?per_page=100`]: JSON.stringify({
-            check_runs: [{ app: { slug: 'socket-security' } }, { app: { slug: 'sonarqubecloud' } }, { app: null }]
-        }),
-        ...overrides
-    };
-    gitHub.responses = Object.fromEntries(Object.entries(responses).filter((entry): entry is [string, string | Error] => entry[1] !== undefined));
-}
+// ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-function stubOpenSSF({
-    bestPractices = [{ id: 14_952, repo_url: 'https://github.com/dpuse/dpuse-shared' }] as object[],
-    scorecard = undefined as object | undefined,
-    failing = ''
-} = {}): void {
-    vi.stubGlobal(
-        'fetch',
-        vi.fn((url: string) => {
-            if (url.startsWith(failing || '-')) return Promise.resolve({ ok: false, status: 500, json: () => Promise.resolve({}) });
-            if (url.startsWith('https://www.bestpractices.dev')) return Promise.resolve({ ok: true, status: 200, json: () => Promise.resolve(bestPractices) });
-            return Promise.resolve(
-                scorecard === undefined ? { ok: false, status: 404, json: () => Promise.resolve({}) } : { ok: true, status: 200, json: () => Promise.resolve(scorecard) }
-            );
-        })
-    );
-}
+const project = useTemporaryProject();
 
-async function writeProject({ files = {}, packageJSON = {} }: { files?: Record<string, string>; packageJSON?: object } = {}): Promise<void> {
-    await project.writeFiles({
-        'config.json': JSON.stringify({ id: 'dpuse-shared' }),
-        'package.json': JSON.stringify({
-            repository: { type: 'git', url: 'git+https://github.com/dpuse/dpuse-shared.git' },
-            devDependencies: { '@vitest/coverage-v8': '^5.0.2', fallow: '^3.30.0', 'fast-check': '^4.10.2' },
-            ...packageJSON
-        }),
-        'README.md': buildReadme('QUALITY_SECURITY'),
-        '.github/workflows/ci.yml': CI_WORKFLOW,
-        '.github/workflows/codeql.yml': CODEQL_WORKFLOW,
-        '.github/dependabot.yml': DEPENDABOT_PAUSED,
-        ...files
-    });
-}
-
-// The README section between two headings, so a check can't pass on text from another table.
-function sectionOf(readme: string, heading: string): string {
-    const start = readme.indexOf(`### ${heading}`);
-    const end = readme.indexOf('\n#', start + 1);
-    return readme.slice(start, end);
-}
+// ── Tests ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 describe('documentQualitySecurity', () => {
     beforeEach(() => {
@@ -360,11 +307,30 @@ describe('documentQualitySecurity', () => {
         stubOpenSSF({ scorecard: { checks: limitedChecks } });
 
         await documentQualitySecurity();
-        expect(await project.readFile('README.md')).toContain('the remaining Scorecard gaps need multi-person review or a pull-request workflow');
+        expect(await project.readFile('README.md')).toContain(
+            'The Scorecard score is below the maximum for two reasons. The OpenSSF Best Practices badge above is not complete yet, and some checks need a second reviewer'
+        );
+
+        stubOpenSSF({ bestPractices: [], scorecard: { checks: limitedChecks } });
+        await documentQualitySecurity();
+        expect(await project.readFile('README.md')).toContain(
+            'The Scorecard score is below the maximum for two reasons. The project does not have the OpenSSF Best Practices badge yet, and some checks need a second reviewer'
+        );
 
         stubOpenSSF({ scorecard: { checks: [...limitedChecks, { name: 'Fuzzing', score: 0 }] } });
         await documentQualitySecurity();
-        expect(await project.readFile('README.md')).not.toContain('the remaining Scorecard gaps');
+        expect(await project.readFile('README.md')).not.toContain('The Scorecard score is below the maximum');
+    });
+
+    it('gives each OpenSSF request a time limit, so one that is never answered cannot hang the release', async () => {
+        await writeProject();
+        stubGitHub();
+        stubOpenSSF();
+
+        await documentQualitySecurity();
+
+        expect(fetch).toHaveBeenCalledWith(expect.stringContaining('https://www.bestpractices.dev/'), { signal: expect.any(AbortSignal) as AbortSignal });
+        expect(fetch).toHaveBeenCalledWith(expect.stringContaining('https://api.scorecard.dev/'), { signal: expect.any(AbortSignal) as AbortSignal });
     });
 
     it.each([
@@ -387,3 +353,64 @@ describe('documentQualitySecurity', () => {
         await expect(documentQualitySecurity()).rejects.toThrow('process.exit(1)');
     });
 });
+
+// ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+function stubGitHub(overrides: Record<string, string | Error | undefined> = {}): void {
+    const responses: Record<string, string | Error | undefined> = {
+        [REPO]: JSON.stringify({
+            security_and_analysis: {
+                dependabot_security_updates: { status: 'disabled' },
+                secret_scanning: { status: 'enabled' },
+                secret_scanning_push_protection: { status: 'enabled' }
+            }
+        }),
+        [`${REPO}/private-vulnerability-reporting`]: JSON.stringify({ enabled: true }),
+        [`${REPO}/vulnerability-alerts`]: '',
+        [`${REPO}/commits/main/check-runs?per_page=100`]: JSON.stringify({
+            check_runs: [{ app: { slug: 'socket-security' } }, { app: { slug: 'sonarqubecloud' } }, { app: null }]
+        }),
+        ...overrides
+    };
+    gitHub.responses = Object.fromEntries(Object.entries(responses).filter((entry): entry is [string, string | Error] => entry[1] !== undefined));
+}
+
+function stubOpenSSF({
+    bestPractices = [{ id: 14_952, repo_url: 'https://github.com/dpuse/dpuse-shared' }] as object[],
+    scorecard = undefined as object | undefined,
+    failing = ''
+} = {}): void {
+    vi.stubGlobal(
+        'fetch',
+        vi.fn((url: string) => {
+            if (url.startsWith(failing || '-')) return Promise.resolve({ ok: false, status: 500, json: () => Promise.resolve({}) });
+            if (url.startsWith('https://www.bestpractices.dev')) return Promise.resolve({ ok: true, status: 200, json: () => Promise.resolve(bestPractices) });
+            return Promise.resolve(
+                scorecard === undefined ? { ok: false, status: 404, json: () => Promise.resolve({}) } : { ok: true, status: 200, json: () => Promise.resolve(scorecard) }
+            );
+        })
+    );
+}
+
+async function writeProject({ files = {}, packageJSON = {} }: { files?: Record<string, string>; packageJSON?: object } = {}): Promise<void> {
+    await project.writeFiles({
+        'config.json': JSON.stringify({ id: 'dpuse-shared' }),
+        'package.json': JSON.stringify({
+            repository: { type: 'git', url: 'git+https://github.com/dpuse/dpuse-shared.git' },
+            devDependencies: { '@vitest/coverage-v8': '^5.0.2', fallow: '^3.30.0', 'fast-check': '^4.10.2' },
+            ...packageJSON
+        }),
+        'README.md': buildReadme('QUALITY_SECURITY'),
+        '.github/workflows/ci.yml': CI_WORKFLOW,
+        '.github/workflows/codeql.yml': CODEQL_WORKFLOW,
+        '.github/dependabot.yml': DEPENDABOT_PAUSED,
+        ...files
+    });
+}
+
+// The README section between two headings, so a check can't pass on text from another table.
+function sectionOf(readme: string, heading: string): string {
+    const start = readme.indexOf(`### ${heading}`);
+    const end = readme.indexOf('\n#', start + 1);
+    return readme.slice(start, end);
+}

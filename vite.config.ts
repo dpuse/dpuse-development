@@ -23,7 +23,6 @@ const viteConfig = defineConfig({
                 'node:fs',
                 'node:os',
                 'node:path',
-                'node:readline',
                 'node:timers/promises',
                 'node:url',
                 'node:util',

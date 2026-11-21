@@ -1,10 +1,12 @@
 // ── External Dependencies & Registrations
-import type { ModuleConfig } from '@dpuse/dpuse-shared';
 import type { PackageJson } from 'type-fest';
+
+// ── DPUse Framework
+import type { ModuleConfig } from '@dpuse/dpuse-shared';
 
 // ── Local Framework
 import type { ModuleTypeConfig } from '@/utilities';
-import { getModuleConfig, logOperationHeader, logOperationSuccess, logStepHeader, readJSONFile, writeReadmeSection } from '@/utilities';
+import { getModuleTypeConfig, logOperationHeader, logOperationSuccess, logStepHeader, readJSONFile, writeReadmeSection } from '@/utilities';
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -40,7 +42,7 @@ export async function documentUsage(): Promise<void> {
         const npmVersion = resolveVersion(packageJSON.engines?.npm);
         const typescriptVersion = resolveVersion(packageJSON.devDependencies?.['typescript']);
 
-        const moduleTypeConfig = getModuleConfig(configJSON.id);
+        const moduleTypeConfig = getModuleTypeConfig(configJSON.id);
         const introduction = buildIntroductionContent(moduleTypeConfig, packageJSON, nodeVersion, npmVersion);
         const requirements = buildRequirementsContent(moduleTypeConfig, nodeVersion, npmVersion, typescriptVersion);
         // A full link, so it still works where the README is shown away from GitHub, such as on npm.

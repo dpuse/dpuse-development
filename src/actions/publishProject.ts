@@ -5,8 +5,8 @@ import type { PackageJson } from 'type-fest';
 import type { ModuleConfig } from '@dpuse/dpuse-shared';
 
 // ── Local Framework
-import { getModuleConfig, logOperationHeader, logOperationSuccess, logStepHeader, type ModuleTypeConfig, readJSONFile, spawnCommand } from '@/utilities';
-import { putState, uploadModuleConfigToDO, uploadModuleToR2, uploadSampleDataToR2 } from '@/utilities/cloudflare';
+import { getModuleTypeConfig, logOperationHeader, logOperationSuccess, logStepHeader, type ModuleTypeConfig, readJSONFile, spawnCommand } from '@/utilities';
+import { uploadModuleConfigToDO, uploadModuleToR2, uploadSampleDataToR2 } from '@/utilities/cloudflare';
 
 // ── Actions ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -17,7 +17,7 @@ export async function publishProject(): Promise<void> {
 
         const packageJSON = await readJSONFile<PackageJson>('package.json');
         const configJSON = await readJSONFile<ModuleConfig>('config.json');
-        const moduleTypeConfig = getModuleConfig(configJSON.id);
+        const moduleTypeConfig = getModuleTypeConfig(configJSON.id);
 
         // Where a module goes is set by its type, so every project calls this the same way. Tools go to both places: npm
         // first, so the app is never told of a version whose npm publish failed.
@@ -52,7 +52,7 @@ export async function publishProject(): Promise<void> {
 export async function registerModule(stepIcon: string, packageJSON: PackageJson, configJSON: ModuleConfig, moduleTypeConfig: ModuleTypeConfig): Promise<void> {
     if (moduleTypeConfig.typeId === 'app') {
         logStepHeader(`${stepIcon} Register module`);
-        await putState();
+        await uploadModuleConfigToDO(configJSON);
     } else if (moduleTypeConfig.typeId === 'engine') {
         logStepHeader(`${stepIcon} Register module`);
         await uploadModuleToR2(packageJSON, `dpuse-engine-eu/${moduleTypeConfig.uploadGroupName ?? 'unknown'}`);

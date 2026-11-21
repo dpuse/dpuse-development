@@ -5,21 +5,11 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { documentContributingLicense } from '@/actions/documentContributingLicense';
 import { buildReadme, useTemporaryProject } from '../support/temporaryProject';
 
-// ── Tests ────────────────────────────────────────────────────────────────────────────────────────────────────────────
+// ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const project = useTemporaryProject();
 
-async function writeProject(packageJSON: object = {}, firstCreatedAt: number | null = Date.UTC(2024, 0, 1)): Promise<void> {
-    await project.writeFiles({
-        'config.json': JSON.stringify({ id: 'dpuse-shared', firstCreatedAt }),
-        'package.json': JSON.stringify({
-            author: 'Jonathan Terrell <terrell.jm@gmail.com>',
-            repository: { type: 'git', url: 'git+https://github.com/dpuse/dpuse-shared.git' },
-            ...packageJSON
-        }),
-        'README.md': buildReadme('CONTRIBUTING_LICENSE')
-    });
-}
+// ── Tests ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 describe('documentContributingLicense', () => {
     beforeEach(() => {
@@ -43,15 +33,29 @@ describe('documentContributingLicense', () => {
     });
 
     it.each([
-        ['a public repository', false, 'Its source is published openly under the MIT License — every DPUse project'],
-        ['a private repository', true, 'Its source is not published — every DPUse project']
-    ])('says whether the source of %s is published, and names the projects that are closed', async (_case, isPrivate, expected) => {
-        await writeProject({ private: isPrivate });
+        ['an open source project', { license: 'MIT' }, 'Its source is published openly under the MIT License — every DPUse project'],
+        ['an open source project that is not published to npm', { license: 'MIT', private: true }, 'Its source is published openly under the MIT License — every DPUse project'],
+        ['a proprietary project', { license: 'UNLICENSED', private: true }, 'Its source is not published — every DPUse project']
+    ])('says whether the source of %s is published, and names the projects that are closed', async (_case, packageJSON, expected) => {
+        await writeProject(packageJSON);
 
         await documentContributingLicense();
 
         const readme = await project.readFile('README.md');
         expect(readme).toContain(`${expected} is fully open source except DPUse Engine and DPUse API, which remain closed and proprietary.`);
+    });
+
+    it('says a project with no licence to grant is proprietary, without naming MIT', async () => {
+        await writeProject({ license: 'UNLICENSED', private: true });
+
+        await documentContributingLicense();
+
+        const readme = await project.readFile('README.md');
+        expect(readme).toContain(
+            '## License\n\nThis project is proprietary. Its source is not published, and no licence is granted to use, modify or distribute it.\n\n© 2024-present Jonathan Terrell'
+        );
+        expect(readme).not.toContain('MIT License');
+        expect(readme).not.toContain('./LICENSE');
     });
 
     it.each([
@@ -75,3 +79,17 @@ describe('documentContributingLicense', () => {
         );
     });
 });
+
+// ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+async function writeProject(packageJSON: object = {}, firstCreatedAt: number | null = Date.UTC(2024, 0, 1)): Promise<void> {
+    await project.writeFiles({
+        'config.json': JSON.stringify({ id: 'dpuse-shared', firstCreatedAt }),
+        'package.json': JSON.stringify({
+            author: 'Jonathan Terrell <terrell.jm@gmail.com>',
+            repository: { type: 'git', url: 'git+https://github.com/dpuse/dpuse-shared.git' },
+            ...packageJSON
+        }),
+        'README.md': buildReadme('CONTRIBUTING_LICENSE')
+    });
+}

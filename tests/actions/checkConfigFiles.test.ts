@@ -17,23 +17,11 @@ vi.mock('node:url', async (importOriginal) => ({
     fileURLToPath: () => `${repositoryDirectory}dist/dpuse-development.es.js`
 }));
 
-// ── Tests ────────────────────────────────────────────────────────────────────────────────────────────────────────────
+// ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const project = useTemporaryProject();
 
-async function copyTemplates(files: Record<string, string>): Promise<void> {
-    for (const [projectPath, templatePath] of Object.entries(files)) {
-        await fs.mkdir(path.dirname(projectPath), { recursive: true });
-        await fs.copyFile(path.join(repositoryDirectory, templatePath), projectPath);
-    }
-}
-
-async function writeProject(id: string, packageJSON: object = {}): Promise<void> {
-    await project.writeFiles({
-        'config.json': JSON.stringify({ id }),
-        'package.json': JSON.stringify({ prettier: '@dpuse/dpuse-development/prettierrc', ...packageJSON })
-    });
-}
+// ── Tests ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 describe('checkConfigFiles', () => {
     it('finds every file of a public connector the same as its template', async () => {
@@ -163,6 +151,17 @@ describe('checkConfigFiles', () => {
         expect(output).not.toContain('codeql.yml');
     });
 
+    it('treats the licence of a proprietary project as its own, and compares every other with the template', async () => {
+        await writeProject('dpuse-engine', { license: 'UNLICENSED', private: true });
+        await project.writeFiles({ LICENSE: 'All rights reserved.' });
+        await checkConfigFiles();
+        expect(collectConsoleOutput()).toContain("🔷 File 'LICENSE' is UNIQUE to this project");
+
+        await writeProject('dpuse-engine', { license: 'MIT', private: true });
+        await checkConfigFiles();
+        expect(collectConsoleOutput()).toContain("⚠️  File 'LICENSE' is NOT the same");
+    });
+
     it('treats the app, API and development configurations as their own', async () => {
         await writeProject('dpuse-app', { private: true });
 
@@ -265,3 +264,19 @@ describe('checkConfigFiles', () => {
         expect(console.error).toHaveBeenCalledWith('❌  Error checking configuration files', expect.any(Error));
     });
 });
+
+// ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+async function copyTemplates(files: Record<string, string>): Promise<void> {
+    for (const [projectPath, templatePath] of Object.entries(files)) {
+        await fs.mkdir(path.dirname(projectPath), { recursive: true });
+        await fs.copyFile(path.join(repositoryDirectory, templatePath), projectPath);
+    }
+}
+
+async function writeProject(id: string, packageJSON: object = {}): Promise<void> {
+    await project.writeFiles({
+        'config.json': JSON.stringify({ id }),
+        'package.json': JSON.stringify({ prettier: '@dpuse/dpuse-development/prettierrc', ...packageJSON })
+    });
+}

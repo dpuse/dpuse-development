@@ -8,11 +8,12 @@ import type { ModuleConfig } from '@dpuse/dpuse-shared';
 
 // ── Local Framework
 import {
-    getModuleConfig,
+    getModuleTypeConfig,
     logOperationHeader,
     logOperationSuccess,
     logStepHeader,
     ModuleTypeConfig,
+    PROPRIETARY_LICENSE,
     readJSONFile,
     readTextFile,
     readTextFileOrNull,
@@ -34,7 +35,7 @@ export async function checkConfigFiles(): Promise<void> {
         const configJSON = await readJSONFile<ModuleConfig>('config.json');
         const packageJSON = await readJSONFile<PackageJson>('package.json');
         const isPrivate = packageJSON.private === true; // Private packages have no CodeQL, Scorecard or security policy.
-        const moduleTypeConfig = getModuleConfig(configJSON.id);
+        const moduleTypeConfig = getModuleTypeConfig(configJSON.id);
         const moduleDirectory = path.dirname(fileURLToPath(import.meta.url));
         await checkConfigFile(moduleDirectory, '.editorconfig');
         await checkConfigFile(moduleDirectory, '.gitattributes');
@@ -42,7 +43,9 @@ export async function checkConfigFiles(): Promise<void> {
         await checkConfigFile(moduleDirectory, '.markdownlint.json');
         await checkConfigFile(moduleDirectory, '.ncurc.json');
         await checkESLintConfig(moduleTypeConfig, moduleDirectory);
-        await checkConfigFile(moduleDirectory, 'LICENSE');
+        // A proprietary project holds its own notice in place of the MIT licence every other project shares.
+        if (packageJSON.license === PROPRIETARY_LICENSE) console.info("🔷 File 'LICENSE' is UNIQUE to this project");
+        else await checkConfigFile(moduleDirectory, 'LICENSE');
         await checkTSConfig(moduleTypeConfig, moduleDirectory);
         await checkTSConfigScripts(moduleTypeConfig, moduleDirectory);
         await checkViteConfig(moduleTypeConfig, moduleDirectory);

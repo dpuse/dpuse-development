@@ -40,26 +40,11 @@ vi.mock('@/utilities/rustCrates', async (importOriginal) => ({
     documentRustCrates: vi.fn(() => Promise.resolve(rustCrates.result))
 }));
 
-// ── Tests ────────────────────────────────────────────────────────────────────────────────────────────────────────────
+// ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const project = useTemporaryProject();
 
-// npm registry answers, keyed by package name.
-function stubRegistry(packages: Record<string, 'fail' | 'reject' | { latest: string; time: Record<string, string> }>): void {
-    vi.stubGlobal(
-        'fetch',
-        vi.fn((url: string) => {
-            const name = decodeURIComponent(url.replace('https://registry.npmjs.org/', ''));
-            const entry = packages[name];
-            if (entry === 'reject') return Promise.reject(new Error('network down'));
-            const response =
-                entry === undefined || entry === 'fail'
-                    ? { ok: false, json: () => Promise.resolve({}) }
-                    : { ok: true, json: () => Promise.resolve({ 'dist-tags': { latest: entry.latest }, time: entry.time }) };
-            return Promise.resolve(response);
-        })
-    );
-}
+// ── Tests ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 describe('documentDependencies', () => {
     beforeEach(() => {
@@ -568,6 +553,23 @@ describe('documentDependencies', () => {
 });
 
 // ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+// npm registry answers, keyed by package name.
+function stubRegistry(packages: Record<string, 'fail' | 'reject' | { latest: string; time: Record<string, string> }>): void {
+    vi.stubGlobal(
+        'fetch',
+        vi.fn((url: string) => {
+            const name = decodeURIComponent(url.replace('https://registry.npmjs.org/', ''));
+            const entry = packages[name];
+            if (entry === 'reject') return Promise.reject(new Error('network down'));
+            const response =
+                entry === undefined || entry === 'fail'
+                    ? { ok: false, json: () => Promise.resolve({}) }
+                    : { ok: true, json: () => Promise.resolve({ 'dist-tags': { latest: entry.latest }, time: entry.time }) };
+            return Promise.resolve(response);
+        })
+    );
+}
 
 // The fixture packages as CycloneDX lists them: a scope is the component's group, and a licence is an identifier, an
 // expression or a plain name according to its form.

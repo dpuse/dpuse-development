@@ -14,17 +14,11 @@ vi.mock('@/utilities', async (importOriginal) => ({
     readGitHubCheckAppSlugs: vi.fn(() => Promise.resolve(new Set(gitHub.checkAppSlugs)))
 }));
 
-// ── Tests ────────────────────────────────────────────────────────────────────────────────────────────────────────────
+// ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const project = useTemporaryProject();
 
-async function writeProject(packageJSON: object, description: string | undefined = 'First paragraph.\n\nSecond paragraph.', id = 'dpuse-shared'): Promise<void> {
-    await project.writeFiles({
-        'config.json': JSON.stringify({ id, description: { en: description } }),
-        'package.json': JSON.stringify({ license: 'Apache-2.0', name: '@dpuse/dpuse-shared', repository: 'git+https://github.com/dpuse/dpuse-shared.git', ...packageJSON }),
-        'README.md': buildReadme('OPENING')
-    });
-}
+// ── Tests ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 describe('documentOpening', () => {
     beforeEach(() => {
@@ -155,6 +149,14 @@ describe('documentOpening', () => {
         expect(console.error).toHaveBeenCalledWith('❌  Error documenting opening', new Error("package.json 'name' field is required to document opening."));
     });
 
+    it('labels the licence of a proprietary project as Proprietary', async () => {
+        await writeProject({ license: 'UNLICENSED', private: true }, undefined, 'dpuse-engine');
+
+        await documentOpening();
+
+        expect(await project.readFile('README.md')).toContain('[![License: Proprietary](https://img.shields.io/badge/License-Proprietary-blue.svg)](./LICENSE)');
+    });
+
     it('exits when the licence is missing', async () => {
         await writeProject({ license: '' });
 
@@ -162,3 +164,13 @@ describe('documentOpening', () => {
         expect(console.error).toHaveBeenCalledWith('❌  Error documenting opening', new Error("package.json 'license' field is required to document opening."));
     });
 });
+
+// ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+async function writeProject(packageJSON: object, description: string | undefined = 'First paragraph.\n\nSecond paragraph.', id = 'dpuse-shared'): Promise<void> {
+    await project.writeFiles({
+        'config.json': JSON.stringify({ id, description: { en: description } }),
+        'package.json': JSON.stringify({ license: 'Apache-2.0', name: '@dpuse/dpuse-shared', repository: 'git+https://github.com/dpuse/dpuse-shared.git', ...packageJSON }),
+        'README.md': buildReadme('OPENING')
+    });
+}

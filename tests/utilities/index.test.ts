@@ -7,7 +7,7 @@ import {
     clearDirectory,
     execCommand,
     extractOperationsFromSource,
-    getModuleConfig,
+    getModuleTypeConfig,
     readTextFileOrNull,
     resolveOwnerAndRepository,
     resolveSampleDataContentType,
@@ -19,9 +19,11 @@ import {
 } from '@/utilities';
 import { collectConsoleOutput, useTemporaryProject } from '../support/temporaryProject';
 
-// ── Tests ────────────────────────────────────────────────────────────────────────────────────────────────────────────
+// ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const project = useTemporaryProject();
+
+// ── Tests ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 describe('resolveOwnerAndRepository', () => {
     it.each([
@@ -45,18 +47,18 @@ describe('resolveOwnerAndRepository', () => {
     });
 });
 
-describe('getModuleConfig', () => {
+describe('getModuleTypeConfig', () => {
     it.each([
         ['dpuse-connector-dropbox', 'connector', 'dpuse'],
         ['dpuse-shared', 'shared', 'npm'],
         ['eslint-config-dpuse', 'eslint', 'npm'],
         ['github', 'github', 'github']
     ])("finds the module type for '%s' by its prefix", (id, typeId, publishedTo) => {
-        expect(getModuleConfig(id)).toMatchObject({ typeId, publishedTo });
+        expect(getModuleTypeConfig(id)).toMatchObject({ typeId, publishedTo });
     });
 
     it('rejects an identifier with no known prefix', () => {
-        expect(() => getModuleConfig('unknown-module')).toThrow("Failed to locate module type configuration for identifier 'unknown-module'.");
+        expect(() => getModuleTypeConfig('unknown-module')).toThrow("Failed to locate module type configuration for identifier 'unknown-module'.");
     });
 });
 
@@ -92,6 +94,11 @@ describe('execCommand', () => {
 
     it('rejects when the command fails', async () => {
         await expect(execCommand(undefined, 'node', ['-e', 'process.exit(3)'])).rejects.toThrow();
+    });
+
+    it('takes more output than the 1 MB Node allows a command by default', async () => {
+        await expect(execCommand(undefined, 'node', ['-e', "process.stdout.write('x'.repeat(3 * 1024 * 1024))"])).resolves.toBeUndefined();
+        expect(console.log).toHaveBeenCalledWith('x'.repeat(3 * 1024 * 1024));
     });
 });
 

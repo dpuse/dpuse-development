@@ -6,9 +6,7 @@ import { describe, expect, it } from 'vitest';
 import { documentBundleSizes } from '@/actions/documentBundleSizes';
 import { buildReadme, useTemporaryProject } from '../support/temporaryProject';
 
-// ── Tests ────────────────────────────────────────────────────────────────────────────────────────────────────────────
-
-const project = useTemporaryProject();
+// ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 // Two output files: 'main.js' holds source, a dependency, runtime helpers, wasm and untraced bytes; 'worker.js' holds a
 // single source file. Sizes are chosen so the percentages come out round.
@@ -34,6 +32,12 @@ const SONDA_REPORT = {
         { name: '@scope/pkg', paths: ['node_modules/@scope/pkg'] }
     ]
 };
+
+// ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+const project = useTemporaryProject();
+
+// ── Tests ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 describe('documentBundleSizes', () => {
     it('breaks each output file down by package, largest first', async () => {

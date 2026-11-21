@@ -26,12 +26,20 @@ beforeEach(() => {
 });
 
 describe('formatCode', () => {
-    it('formats the root files, and the app, src and tests folders only where they exist', async () => {
+    it('formats the root files, and each source folder only where it exists', async () => {
         await project.writeFiles({ 'src/index.ts': '' });
 
         await formatCode();
 
-        expect(spawnedCommands()).toEqual(['prettier --write *.json *.md *.ts src/**']);
+        expect(spawnedCommands()).toEqual(['prettier --write --no-error-on-unmatched-pattern *.js *.json *.md *.ts src/**']);
+    });
+
+    it('formats the app, end-to-end test, script, source and test folders', async () => {
+        await project.writeFiles({ 'app/main.ts': '', 'e2e/home.test.ts': '', 'scripts/build.ts': '', 'src/index.ts': '', 'tests/index.test.ts': '' });
+
+        await formatCode();
+
+        expect(spawnedCommands()).toEqual(['prettier --write --no-error-on-unmatched-pattern *.js *.json *.md *.ts app/** e2e/** scripts/** src/** tests/**']);
     });
 
     it('exits when formatting fails', async () => {

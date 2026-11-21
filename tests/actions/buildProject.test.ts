@@ -16,9 +16,11 @@ vi.mock('@/utilities', async (importOriginal) => ({
     spawnCommand: vi.fn(() => Promise.resolve())
 }));
 
-// ── Tests ────────────────────────────────────────────────────────────────────────────────────────────────────────────
+// ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const project = useTemporaryProject(); // Runs each test in its own folder, with its console output captured.
+
+// ── Tests ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 beforeEach(() => {
     vi.mocked(spawnCommand).mockClear().mockResolvedValue();

@@ -5,7 +5,16 @@ import type { PackageJson } from 'type-fest';
 import type { ModuleConfig } from '@dpuse/dpuse-shared';
 
 // ── Local Framework
-import { buildModuleConfig, bumpPackageVersion, getModuleConfig, logOperationHeader, logOperationSuccess, readJSONFile, spawnCommand } from '@/utilities';
+import {
+    buildModuleConfig,
+    bumpPackageVersion,
+    getModuleTypeConfig,
+    logOperationHeader,
+    logOperationSuccess,
+    readJSONFile,
+    spawnCommand,
+    spawnCommandForOutput
+} from '@/utilities';
 
 // ── Actions ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -16,17 +25,24 @@ export async function syncProjectWithGitHub(): Promise<void> {
 
         const packageJSON = await readJSONFile<PackageJson>('package.json');
         const configJSON = await readJSONFile<ModuleConfig>('config.json');
-        const moduleTypeConfig = getModuleConfig(configJSON.id);
+        const moduleTypeConfig = getModuleTypeConfig(configJSON.id);
 
-        await bumpPackageVersion('1️⃣ ', packageJSON);
+        // The push below sends 'main', and a release tags what is on 'main'. A commit made on any other branch would
+        // be left behind, with the version already bumped, so nothing is changed unless 'main' is checked out. Git
+        // names no branch when a commit, rather than a branch, is checked out.
+        const branchOutput = await spawnCommandForOutput('1️⃣  Check branch', 'git', ['branch', '--show-current']);
+        const branchName = branchOutput.trim();
+        if (branchName !== 'main') throw new Error(`Projects are synchronised from 'main', but ${branchName === '' ? 'no branch' : `'${branchName}'`} is checked out.`);
 
-        await buildModuleConfig('2️⃣ ', packageJSON, moduleTypeConfig);
+        await bumpPackageVersion('2️⃣ ', packageJSON);
 
-        await spawnCommand('3️⃣  Stage changes', 'git', ['add', '.']);
+        await buildModuleConfig('3️⃣ ', packageJSON, moduleTypeConfig);
 
-        await spawnCommand('4️⃣  Commit changes', 'git', ['commit', '-m', `v${packageJSON.version ?? 'unknown'}`]);
+        await spawnCommand('4️⃣  Stage changes', 'git', ['add', '.']);
 
-        await spawnCommand('5️⃣  Push changes', 'git', ['push', 'origin', 'main:main']);
+        await spawnCommand('5️⃣  Commit changes', 'git', ['commit', '-m', `v${packageJSON.version ?? 'unknown'}`]);
+
+        await spawnCommand('6️⃣  Push changes', 'git', ['push', 'origin', 'main:main']);
 
         logOperationSuccess(`Project version '${packageJSON.version ?? 'unknown'}' synchronised with GitHub.`);
     } catch (error) {

@@ -6,7 +6,7 @@ import { publishProject } from '@/actions/publishProject';
 import { spawnCommand } from '@/utilities';
 import { spawnedCommands } from '../support/projectCommands';
 import { collectConsoleOutput, useTemporaryProject } from '../support/temporaryProject';
-import { putState, uploadModuleConfigToDO, uploadModuleToR2, uploadSampleDataToR2 } from '@/utilities/cloudflare';
+import { uploadModuleConfigToDO, uploadModuleToR2, uploadSampleDataToR2 } from '@/utilities/cloudflare';
 
 // ── Mocks ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -16,19 +16,19 @@ vi.mock('@/utilities', async (importOriginal) => ({
     spawnCommand: vi.fn(() => Promise.resolve())
 }));
 vi.mock('@/utilities/cloudflare', () => ({
-    putState: vi.fn(() => Promise.resolve()),
     uploadModuleConfigToDO: vi.fn(() => Promise.resolve()),
     uploadModuleToR2: vi.fn(() => Promise.resolve()),
     uploadSampleDataToR2: vi.fn(() => Promise.resolve())
 }));
 
-// ── Tests ────────────────────────────────────────────────────────────────────────────────────────────────────────────
+// ── State ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const project = useTemporaryProject();
 
+// ── Tests ────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
 beforeEach(() => {
     vi.mocked(spawnCommand).mockClear().mockResolvedValue();
-    vi.mocked(putState).mockClear();
     vi.mocked(uploadModuleConfigToDO).mockClear();
     vi.mocked(uploadModuleToR2).mockClear();
     vi.mocked(uploadSampleDataToR2).mockClear();
@@ -52,7 +52,7 @@ describe('publishProject', () => {
         expect(spawnedCommands()).toEqual(['npm publish --provenance']);
         expect(collectConsoleOutput()).toContain('2️⃣  Registration NOT required');
         expect(uploadModuleToR2).not.toHaveBeenCalled();
-        expect(putState).not.toHaveBeenCalled();
+        expect(uploadModuleConfigToDO).not.toHaveBeenCalled();
     });
 
     it('publishes a tool to npm, then uploads it to DPUse', async () => {
@@ -81,8 +81,9 @@ describe('publishProject', () => {
         await publishProject();
 
         expect(spawnedCommands()).toEqual(['npm run deploy']);
-        expect(putState).toHaveBeenCalledOnce();
-        expect(vi.mocked(spawnCommand).mock.invocationCallOrder[0]).toBeLessThan(vi.mocked(putState).mock.invocationCallOrder[0] ?? 0);
+        expect(uploadModuleConfigToDO).toHaveBeenCalledExactlyOnceWith({ id: 'dpuse-app' });
+        expect(uploadModuleToR2).not.toHaveBeenCalled();
+        expect(vi.mocked(spawnCommand).mock.invocationCallOrder[0]).toBeLessThan(vi.mocked(uploadModuleConfigToDO).mock.invocationCallOrder[0] ?? 0);
         expect(collectConsoleOutput()).toContain("Project version '1.0.0' published.");
     });
 
@@ -126,7 +127,7 @@ describe('publishProject', () => {
 
     it('exits when the upload fails', async () => {
         await project.writeFiles({ 'package.json': JSON.stringify({ version: '1.0.0' }), 'config.json': JSON.stringify({ id: 'dpuse-app' }) });
-        vi.mocked(putState).mockRejectedValueOnce(new Error('offline'));
+        vi.mocked(uploadModuleConfigToDO).mockRejectedValueOnce(new Error('offline'));
 
         await expect(publishProject()).rejects.toThrow('process.exit(1)');
     });
