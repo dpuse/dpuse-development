@@ -153,11 +153,11 @@ _Note: Sonda's Vite reports currently exclude CSS files, since Vite does not gen
 
 | Chunk/Module/File                                                     | Composition                                                                                   |
 | :-------------------------------------------------------------------- | :-------------------------------------------------------------------------------------------- |
-| **All 4 files**                                                       | 113.7&nbsp;kB&nbsp;·&nbsp;gzip&nbsp;34.8&nbsp;kB                                              |
-| **dist/dpuse-development.es.js**                                      | 69.0&nbsp;kB&nbsp;·&nbsp;gzip&nbsp;22.3&nbsp;kB&nbsp;·&nbsp;60.6%&nbsp;of&nbsp;the&nbsp;build |
+| **All 4 files**                                                       | 113.8&nbsp;kB&nbsp;·&nbsp;gzip&nbsp;34.8&nbsp;kB                                              |
+| **dist/dpuse-development.es.js**                                      | 69.0&nbsp;kB&nbsp;·&nbsp;gzip&nbsp;22.4&nbsp;kB&nbsp;·&nbsp;60.6%&nbsp;of&nbsp;the&nbsp;build |
 | &nbsp;&nbsp;&nbsp;&nbsp;src → documentDependencies.ts + 21 more       | `██████████████████░░`&nbsp;91.4%&nbsp;·&nbsp;63.0&nbsp;kB                                    |
 | &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON)           | `██░░░░░░░░░░░░░░░░░░`&nbsp;8.6%&nbsp;·&nbsp;6.0&nbsp;kB                                      |
-| **dist/utilities-DaeO1Tb8.js**                                        | 32.9&nbsp;kB&nbsp;·&nbsp;gzip&nbsp;7.9&nbsp;kB&nbsp;·&nbsp;29.0%&nbsp;of&nbsp;the&nbsp;build  |
+| **dist/utilities-DaeO1Tb8.js**                                        | 32.9&nbsp;kB&nbsp;·&nbsp;gzip&nbsp;7.9&nbsp;kB&nbsp;·&nbsp;28.9%&nbsp;of&nbsp;the&nbsp;build  |
 | &nbsp;&nbsp;&nbsp;&nbsp;@dpuse/dpuse-shared → dist/dpuse-shared.es.js | `█████████░░░░░░░░░░░`&nbsp;45.3%&nbsp;·&nbsp;14.9&nbsp;kB                                    |
 | &nbsp;&nbsp;&nbsp;&nbsp;src → index.ts                                | `██████░░░░░░░░░░░░░░`&nbsp;28.1%&nbsp;·&nbsp;9.2&nbsp;kB                                     |
 | &nbsp;&nbsp;&nbsp;&nbsp;valibot → dist/index.mjs                      | `███░░░░░░░░░░░░░░░░░`&nbsp;14.5%&nbsp;·&nbsp;4.8&nbsp;kB                                     |
@@ -223,7 +223,7 @@ This section is updated each time `npm run document` is run. Settings come from 
 This project is working towards the [OpenSSF Best Practices](https://www.bestpractices.dev) Passing badge, a self-certification covering security policy, vulnerability reporting, build processes, code quality, and more. Currently the [OpenSSF Scorecard](https://scorecard.dev) provides an independent automated assessment of the project's security practices and is an ongoing area of improvement.
 
 > [!NOTE]
-> The Scorecard score is below the maximum for two reasons. The project does not have the OpenSSF Best Practices badge yet, and some checks need a second reviewer or a pull-request workflow, which a solo-maintained project cannot provide.
+> The Scorecard score is below the maximum for two reasons. The project does not have the OpenSSF Best Practices badge yet, and some checks need a second reviewer, which a solo-maintained project cannot provide, or a pull-request workflow, which this project does not use.
 
 ### Reporting Vulnerabilities
 

@@ -389,7 +389,7 @@ function buildQualitySecurityContent(
         bestPracticesProjectId === undefined ? 'The project does not have the OpenSSF Best Practices badge yet' : 'The OpenSSF Best Practices badge above is not complete yet';
     const scorecardLimitText =
         scorecardResult !== undefined && isScorecardOnlyPracticeLimited(scorecardResult)
-            ? `\n\n> [!NOTE]\n> The Scorecard score is below the maximum for two reasons. ${bestPracticesReasonText}, and some checks need a second reviewer or a pull-request workflow, which a solo-maintained project cannot provide.`
+            ? `\n\n> [!NOTE]\n> The Scorecard score is below the maximum for two reasons. ${bestPracticesReasonText}, and some checks need a second reviewer, which a solo-maintained project cannot provide, or a pull-request workflow, which this project does not use.`
             : '';
     const bestPracticesBadge = bestPracticesProjectId === undefined ? '' : `[![OpenSSF Best Practices](${bestPracticesURL}/badge)](${bestPracticesURL})\n`;
 
