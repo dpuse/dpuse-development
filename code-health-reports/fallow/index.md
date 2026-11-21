@@ -21,10 +21,10 @@
 
 | Metric | Value |
 |:-------|------:|
-| Total LOC | 4246 |
+| Total LOC | 4247 |
 | Avg Cyclomatic | 3.0 |
 | P90 Cyclomatic | 7 |
-| Cyclomatic units | Functions: 349, module scopes: 0, templates: 0 |
+| Cyclomatic units | Functions: 350, module scopes: 0, templates: 0 |
 | Dead Files | 0.0% |
 | Dead Exports | 0.0% |
 | Maintainability (avg) | 91.8 |
@@ -37,7 +37,7 @@
 
 | File | Maintainability | Fan-in | Fan-out | Dead Code | Density | Risk |
 |:-----|:---------------|:-------|:--------|:----------|:--------|:-----|
-| `src/actions/documentQualitySecurity.ts` | 92.1 | 1 | 1 | 0% | 0.17 | 15.0 |
+| `src/actions/documentQualitySecurity.ts` | 91.5 | 1 | 1 | 0% | 0.19 | 15.0 |
 | `src/actions/documentDependencies.ts` | 84.3 | 1 | 3 | 0% | 0.34 | 13.1 |
 | `src/actions/documentBundleSizes.ts` | 87.9 | 1 | 1 | 0% | 0.31 | 13.0 |
 | `src/utilities/rustCrates.ts` | 90.0 | 1 | 1 | 0% | 0.24 | 13.0 |
@@ -70,30 +70,30 @@
 
 | File | Score | Commits | Churn | Density | Fan-in | Trend |
 |:-----|:------|:--------|:------|:--------|:-------|:------|
-| `src/actions/documentBundleSizes.ts` | 61.3 | 47 | 1853 | 0.31 | 1 | stable |
-| `src/actions/documentDependencies.ts` | 55.7 | 35 | 1187 | 0.34 | 1 | stable |
-| `src/utilities/index.ts` | 48.9 | 45 | 682 | 0.23 | 23 | stable |
-| `src/actions/checkConfigFiles.ts` | 45.3 | 52 | 577 | 0.22 | 1 | cooling |
-| `src/actions/documentUsage.ts` | 31.5 | 24 | 416 | 0.21 | 1 | accelerating |
-| `src/actions/documentOpening.ts` | 27.4 | 26 | 441 | 0.19 | 1 | accelerating |
-| `src/actions/checkDependencies.ts` | 19.2 | 20 | 256 | 0.20 | 1 | stable |
-| `src/actions/documentQualitySecurity.ts` | 13.5 | 12 | 749 | 0.17 | 1 | cooling |
-| `src/actions/auditDependencies.ts` | 13.4 | 12 | 207 | 0.22 | 2 | accelerating |
-| `src/utilities/cloudflare.ts` | 13.0 | 14 | 283 | 0.17 | 1 | accelerating |
-| `src/actions/publishProject.ts` | 9.5 | 9 | 114 | 0.17 | 1 | cooling |
-| `src/vite.ts` | 9.2 | 4 | 219 | 0.29 | 1 | accelerating |
-| `src/utilities/rustCrates.ts` | 9.0 | 5 | 232 | 0.24 | 1 | stable |
-| `src/utilities/apiReference.ts` | 8.2 | 3 | 404 | 0.47 | 1 | cooling |
-| `src/actions/documentApiReference.ts` | 6.0 | 13 | 772 | 0.08 | 1 | cooling |
-| `src/actions/formatCode.ts` | 5.9 | 8 | 39 | 0.16 | 1 | stable |
-| `src/actions/documentProject.ts` | 4.1 | 6 | 92 | 0.11 | 1 | cooling |
-| `src/actions/lintCode.ts` | 4.1 | 7 | 49 | 0.13 | 1 | stable |
-| `src/actions/documentContributingLicense.ts` | 3.7 | 3 | 107 | 0.18 | 1 | cooling |
-| `src/actions/documentActions.ts` | 2.6 | 10 | 102 | 0.06 | 1 | stable |
-| `src/actions/buildProject.ts` | 2.4 | 3 | 56 | 0.14 | 1 | cooling |
-| `src/actions/testProject.ts` | 2.2 | 3 | 70 | 0.12 | 1 | cooling |
-| `src/actions/syncProjectWithGitHub.ts` | 2.2 | 3 | 46 | 0.11 | 1 | cooling |
-| `vite.config.ts` | 2.1 | 23 | 134 | 0.02 | 0 | stable |
+| `src/actions/documentBundleSizes.ts` | 58.9 | 47 | 1853 | 0.31 | 1 | stable |
+| `src/actions/documentDependencies.ts` | 53.5 | 35 | 1187 | 0.34 | 1 | stable |
+| `src/utilities/index.ts` | 48.9 | 46 | 748 | 0.23 | 23 | stable |
+| `src/actions/checkConfigFiles.ts` | 45.4 | 53 | 586 | 0.22 | 1 | cooling |
+| `src/actions/documentUsage.ts` | 32.0 | 25 | 424 | 0.21 | 1 | accelerating |
+| `src/actions/documentOpening.ts` | 27.9 | 27 | 455 | 0.19 | 1 | accelerating |
+| `src/actions/checkDependencies.ts` | 18.4 | 20 | 256 | 0.20 | 1 | stable |
+| `src/actions/documentQualitySecurity.ts` | 16.1 | 13 | 764 | 0.19 | 1 | cooling |
+| `src/actions/auditDependencies.ts` | 14.7 | 13 | 255 | 0.22 | 2 | accelerating |
+| `src/utilities/cloudflare.ts` | 13.9 | 15 | 324 | 0.17 | 1 | accelerating |
+| `src/actions/publishProject.ts` | 10.6 | 10 | 122 | 0.17 | 1 | cooling |
+| `src/vite.ts` | 8.8 | 4 | 219 | 0.29 | 1 | accelerating |
+| `src/utilities/rustCrates.ts` | 8.7 | 5 | 232 | 0.24 | 1 | stable |
+| `src/utilities/apiReference.ts` | 7.9 | 3 | 404 | 0.47 | 1 | cooling |
+| `src/actions/formatCode.ts` | 7.0 | 9 | 44 | 0.16 | 1 | stable |
+| `src/actions/documentApiReference.ts` | 5.7 | 13 | 772 | 0.08 | 1 | cooling |
+| `src/actions/documentContributingLicense.ts` | 5.0 | 4 | 127 | 0.18 | 1 | stable |
+| `src/actions/documentProject.ts` | 4.9 | 7 | 96 | 0.11 | 1 | cooling |
+| `src/actions/lintCode.ts` | 3.9 | 7 | 49 | 0.13 | 1 | stable |
+| `src/actions/syncProjectWithGitHub.ts` | 3.1 | 4 | 76 | 0.11 | 1 | stable |
+| `src/actions/documentActions.ts` | 2.5 | 10 | 102 | 0.06 | 1 | stable |
+| `src/actions/buildProject.ts` | 2.3 | 3 | 56 | 0.14 | 1 | cooling |
+| `vite.config.ts` | 2.2 | 24 | 135 | 0.02 | 0 | stable |
+| `src/actions/testProject.ts` | 2.1 | 3 | 70 | 0.12 | 1 | cooling |
 
 *2 files excluded (< 3 commits)*
 
@@ -101,27 +101,26 @@
 
 | File A | File B | Degree | Shared | Commits A | Commits B | Strong |
 |:-------|:-------|:-------|:-------|:----------|:----------|:-------|
-| `src/actions/formatCode.ts` | `src/actions/lintCode.ts` | 80% | 6 | 8 | 7 | **strong** |
-| `src/actions/auditDependencies.ts` | `src/actions/lintCode.ts` | 53% | 5 | 12 | 7 | **strong** |
-| `src/actions/checkDependencies.ts` | `src/actions/formatCode.ts` | 50% | 7 | 20 | 8 | **strong** |
-| `src/actions/auditDependencies.ts` | `src/actions/formatCode.ts` | 50% | 5 | 12 | 8 | **strong** |
+| `src/actions/formatCode.ts` | `src/actions/lintCode.ts` | 75% | 6 | 9 | 7 | **strong** |
+| `src/actions/auditDependencies.ts` | `src/actions/formatCode.ts` | 55% | 6 | 13 | 9 | **strong** |
+| `src/actions/auditDependencies.ts` | `src/actions/lintCode.ts` | 50% | 5 | 13 | 7 | **strong** |
+| `src/actions/checkDependencies.ts` | `src/actions/formatCode.ts` | 48% | 7 | 20 | 9 |  |
 | `src/actions/checkDependencies.ts` | `src/actions/lintCode.ts` | 44% | 6 | 20 | 7 |  |
-| `src/actions/documentDependencies.ts` | `src/actions/formatCode.ts` | 37% | 8 | 35 | 8 |  |
-| `src/actions/documentOpening.ts` | `src/actions/documentUsage.ts` | 36% | 9 | 26 | 24 |  |
-| `src/actions/auditDependencies.ts` | `src/actions/documentDependencies.ts` | 34% | 8 | 12 | 35 |  |
-| `src/actions/documentQualitySecurity.ts` | `src/actions/documentUsage.ts` | 33% | 6 | 12 | 24 |  |
-| `src/actions/documentOpening.ts` | `src/actions/documentQualitySecurity.ts` | 32% | 6 | 26 | 12 |  |
+| `src/actions/documentOpening.ts` | `src/actions/documentUsage.ts` | 38% | 10 | 27 | 25 |  |
+| `src/actions/documentQualitySecurity.ts` | `src/actions/documentUsage.ts` | 37% | 7 | 13 | 25 |  |
+| `src/actions/documentDependencies.ts` | `src/actions/formatCode.ts` | 36% | 8 | 35 | 9 |  |
+| `src/actions/documentOpening.ts` | `src/actions/documentQualitySecurity.ts` | 35% | 7 | 27 | 13 |  |
+| `src/actions/auditDependencies.ts` | `src/actions/documentDependencies.ts` | 33% | 8 | 13 | 35 |  |
 
 *Files that change together in the commit history with no import between them.*
 
-### Refactoring Targets (4)
+### Refactoring Targets (3)
 
 | Efficiency | Category | Effort / Confidence | File | Recommendation |
 |:-----------|:---------|:--------------------|:-----|:---------------|
-| 10.5 | hidden coupling | low / medium | `src/actions/formatCode.ts` | Changes with lintCode.ts in 6 commits (80% coupling) without an import, make the dependency explicit or move the shared logic into one module |
-| 9.2 | hidden coupling | low / medium | `src/actions/lintCode.ts` | Changes with formatCode.ts in 6 commits (80% coupling) without an import, make the dependency explicit or move the shared logic into one module |
-| 8.6 | hidden coupling | medium / medium | `src/actions/auditDependencies.ts` | Changes with lintCode.ts in 5 commits (53% coupling) without an import, make the dependency explicit or move the shared logic into one module |
-| 8.2 | hidden coupling | medium / medium | `src/actions/checkDependencies.ts` | Changes with formatCode.ts in 7 commits (50% coupling) without an import, make the dependency explicit or move the shared logic into one module |
+| 10.8 | hidden coupling | low / medium | `src/actions/formatCode.ts` | Changes with lintCode.ts in 6 commits (75% coupling) without an import, make the dependency explicit or move the shared logic into one module |
+| 9.1 | hidden coupling | low / medium | `src/actions/lintCode.ts` | Changes with formatCode.ts in 6 commits (75% coupling) without an import, make the dependency explicit or move the shared logic into one module |
+| 8.8 | hidden coupling | medium / medium | `src/actions/auditDependencies.ts` | Changes with formatCode.ts in 6 commits (55% coupling) without an import, make the dependency explicit or move the shared logic into one module |
 
 ---
 

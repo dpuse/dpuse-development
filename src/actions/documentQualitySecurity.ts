@@ -262,9 +262,18 @@ function isScorecardOnlyPracticeLimited(result: ScorecardResult): boolean {
     );
 }
 
-// Where Dependabot's pull requests are switched off, dependency updates are made by hand.
-function formatManualNote(status: SettingStatus): string {
-    return status === false ? ' These are handled manually.' : '';
+// On when Dependabot opens either kind of update pull request. Unknown when version updates are off and GitHub does not
+// reveal the security updates setting.
+function dependencyUpdatesStatus({ dependabotSecurityUpdates, dependabotVersionUpdates }: SecuritySettings): SettingStatus {
+    return dependabotVersionUpdates || dependabotSecurityUpdates === true ? true : dependabotSecurityUpdates;
+}
+
+// Names the kinds of update pull request Dependabot opens. Where it opens none, dependencies are updated by hand.
+function describeDependencyUpdates({ dependabotSecurityUpdates, dependabotVersionUpdates }: SecuritySettings): string {
+    if (dependabotVersionUpdates && dependabotSecurityUpdates === true) return 'opens pull requests for new dependency versions and for fixes to vulnerable ones.';
+    if (dependabotVersionUpdates) return 'opens pull requests for new dependency versions.';
+    if (dependabotSecurityUpdates === true) return 'opens pull requests that update vulnerable dependencies.';
+    return 'can open pull requests for new and vulnerable dependency versions. Dependencies are updated by hand with `npm run check` instead.';
 }
 
 function formatStatus(status: SettingStatus): string {
@@ -284,7 +293,8 @@ ${rows.map((row) => `|${row.join('|')}|`).join('\n')}
 }
 
 // Grouped by what each check protects against, and within a group in the order the checks act on a change: before a
-// push, on every push, then continuously, and alphabetically within each. Status is only ever on, off or unknown. What
+// push, on every push, then continuously, and alphabetically within each. Linting is the exception and always leads
+// Code Quality. Status is only ever on, off or unknown. What
 // it does names and links the product doing the check. The checks' badges are on the README's opening line.
 function buildChecksContent(owner: string, repository: string, { coveragePercent, fallowHealth, securitySettings: settings }: ChecksResults): string {
     const repositoryURL = `https://github.com/${owner}/${repository}`;
@@ -304,16 +314,16 @@ function buildChecksContent(owner: string, repository: string, { coveragePercent
     }
 
     const codeQualityRows = [
-        ['Code analysis', formatStatus(settings.sonarCloud), '[SonarCloud](https://sonarcloud.io) checks every push for bugs, code smells and vulnerabilities.'],
         [
             'Linting',
             formatStatus(settings.lintInCI),
             `[ESLint](https://eslint.org) checks the code for errors and style problems, and the [TypeScript](https://www.typescriptlang.org/) compiler type-checks the whole project.${ciNote(settings.lintInCI)}`
-        ]
+        ],
+        ['Code analysis', formatStatus(settings.sonarCloud), '[SonarCloud](https://sonarcloud.io) checks every push for bugs, code smells and vulnerabilities.']
     ];
-    // Measured when the README is regenerated, before the changes are pushed, so it comes first.
+    // Shown only when Fallow is installed.
     if (fallowHealth !== undefined) {
-        codeQualityRows.unshift([
+        codeQualityRows.splice(1, 0, [
             'Code health',
             formatStatus(true),
             `[Fallow](https://github.com/fallow-rs/fallow) finds unused code, duplication, complexity and dependency problems. See the [report](./${FALLOW_REPORT_PATH}).`
@@ -332,7 +342,7 @@ function buildChecksContent(owner: string, repository: string, { coveragePercent
         [
             'Static analysis',
             formatStatus(hasCodeQL),
-            `[CodeQL](https://codeql.github.com) scans${codeQLLanguages} for security vulnerabilities, ${codeQLScope}, on every push and pull request to \`main\` and weekly.`
+            `[GitHub CodeQL](https://codeql.github.com) scans${codeQLLanguages} for security vulnerabilities, ${codeQLScope}, on every push and pull request to \`main\` and weekly.`
         ],
         [
             'Secret scanning',
@@ -341,7 +351,7 @@ function buildChecksContent(owner: string, repository: string, { coveragePercent
         ]
     ];
 
-    const dependabotLink = '[Dependabot](https://docs.github.com/en/code-security/dependabot)';
+    const dependabotLink = '[GitHub Dependabot](https://docs.github.com/en/code-security/dependabot)';
     const dependencyRows = [
         [
             'Vulnerability audit',
@@ -353,19 +363,10 @@ function buildChecksContent(owner: string, repository: string, { coveragePercent
         [
             'Supply chain risk',
             formatStatus(settings.socket), // Socket's badge service refuses requests from outside a browser, so GitHub couldn't show it.
-            '[Socket](https://socket.dev) flags malicious packages, typosquatting and suspicious behaviour that may not yet have a CVE.'
+            '[Socket.dev](https://socket.dev) flags malicious packages, typosquatting and suspicious behaviour that may not yet have a CVE.'
         ],
         ['Security alerts', formatStatus(settings.dependabotAlerts), `${dependabotLink} alerts when a dependency has a known vulnerability, using the GitHub Advisory Database.`],
-        [
-            'Security updates',
-            formatStatus(settings.dependabotSecurityUpdates),
-            `${dependabotLink} opens pull requests that update vulnerable dependencies.${formatManualNote(settings.dependabotSecurityUpdates)}`
-        ],
-        [
-            'Version updates',
-            formatStatus(settings.dependabotVersionUpdates),
-            `${dependabotLink} opens pull requests for new dependency versions.${formatManualNote(settings.dependabotVersionUpdates)}`
-        ]
+        ['Dependency updates', formatStatus(dependencyUpdatesStatus(settings)), `${dependabotLink} ${describeDependencyUpdates(settings)}`]
     ];
 
     return `This section is updated each time \`npm run document\` is run. Settings come from the repository's workflow files and GitHub. Test coverage and the Fallow score are measured at the same time.

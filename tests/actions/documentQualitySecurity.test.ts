@@ -109,7 +109,7 @@ describe('documentQualitySecurity', () => {
 
         const securityAnalysis = sectionOf(readme, 'Security Analysis');
         expect(securityAnalysis).toContain(
-            `|Static analysis|✅ On|[CodeQL](https://codeql.github.com) scans GitHub Actions and JavaScript/TypeScript and swift for security vulnerabilities, using the extended security queries,`
+            `|Static analysis|✅ On|[GitHub CodeQL](https://codeql.github.com) scans GitHub Actions and JavaScript/TypeScript and swift for security vulnerabilities, using the extended security queries,`
         );
         expect(securityAnalysis).toContain('|Secret scanning|✅ On|[GitHub secret scanning]');
         expect(securityAnalysis).toContain('|Push protection|✅ On|[GitHub push protection]');
@@ -118,10 +118,11 @@ describe('documentQualitySecurity', () => {
         expect(dependencies).toContain(
             `|Vulnerability audit|✅ On|[npm audit](https://docs.npmjs.com/cli/commands/npm-audit) fails when a shipped dependency has any known vulnerability, or a development dependency has a high or critical one.${ciNote}|`
         );
-        expect(dependencies).toContain('|Supply chain risk|✅ On|[Socket](https://socket.dev) flags');
-        expect(dependencies).toContain('|Security alerts|✅ On|[Dependabot]');
-        expect(dependencies).toContain('opens pull requests that update vulnerable dependencies. These are handled manually.|');
-        expect(dependencies).toContain('opens pull requests for new dependency versions. These are handled manually.|');
+        expect(dependencies).toContain('|Supply chain risk|✅ On|[Socket.dev](https://socket.dev) flags');
+        expect(dependencies).toContain('|Security alerts|✅ On|[GitHub Dependabot]');
+        expect(dependencies).toContain(
+            '|Dependency updates|❌ Off|[GitHub Dependabot](https://docs.github.com/en/code-security/dependabot) can open pull requests for new and vulnerable dependency versions. Dependencies are updated by hand with `npm run check` instead.|'
+        );
 
         expect(readme).toContain('Use [GitHub private vulnerability reporting](https://github.com/dpuse/dpuse-shared/security/advisories/new) instead.');
         expect(readme).toContain('[![OpenSSF Best Practices](https://www.bestpractices.dev/projects/14952/badge)]');
@@ -156,9 +157,9 @@ describe('documentQualitySecurity', () => {
                 .drop(2) // The header and divider rows.
                 .toArray();
         expect(checkNames('Testing')).toEqual(['Unit tests', 'Property-based tests', 'Test coverage']);
-        expect(checkNames('Code Quality')).toEqual(['Code health', 'Code analysis', 'Linting']);
+        expect(checkNames('Code Quality')).toEqual(['Linting', 'Code health', 'Code analysis']);
         expect(checkNames('Security Analysis')).toEqual(['Push protection', 'Static analysis', 'Secret scanning']);
-        expect(checkNames('Dependencies')).toEqual(['Vulnerability audit', 'Supply chain risk', 'Security alerts', 'Security updates', 'Version updates']);
+        expect(checkNames('Dependencies')).toEqual(['Vulnerability audit', 'Supply chain risk', 'Security alerts', 'Dependency updates']);
     });
 
     it.each([
@@ -237,6 +238,19 @@ describe('documentQualitySecurity', () => {
         expect(await project.readFile('README.md')).toContain(`|Unit tests|${status}|`);
     });
 
+    it.each([
+        { dependabot: 'updates:\n  - package-ecosystem: npm\n', text: 'opens pull requests for new dependency versions and for fixes to vulnerable ones.' },
+        { dependabot: DEPENDABOT_PAUSED, text: 'opens pull requests that update vulnerable dependencies.' }
+    ])('names the kinds of Dependabot update pull request that are on: $text', async ({ dependabot, text }) => {
+        await writeProject({ files: { '.github/dependabot.yml': dependabot } });
+        stubGitHub({ [REPO]: JSON.stringify({ security_and_analysis: { dependabot_security_updates: { status: 'enabled' } } }) });
+        stubOpenSSF();
+
+        await documentQualitySecurity();
+
+        expect(await project.readFile('README.md')).toContain(`|Dependency updates|✅ On|[GitHub Dependabot](https://docs.github.com/en/code-security/dependabot) ${text}|`);
+    });
+
     it('reports settings GitHub switches off or does not reveal', async () => {
         await writeProject({
             files: { '.github/workflows/ci.yml': 'steps:\n  - run: npm audit --audit-level=high\n', '.github/dependabot.yml': 'updates:\n  - package-ecosystem: npm\n' }
@@ -255,8 +269,7 @@ describe('documentQualitySecurity', () => {
         expect(readme).toContain('|Unit tests|❌ Off|');
         expect(readme).toContain('|Secret scanning|❔ Unknown|');
         expect(readme).toContain('|Security alerts|❌ Off|');
-        expect(readme).toContain('|Security updates|❔ Unknown|');
-        expect(readme).toContain('|Version updates|✅ On|[Dependabot](https://docs.github.com/en/code-security/dependabot) opens pull requests for new dependency versions.|');
+        expect(readme).toContain('|Dependency updates|✅ On|[GitHub Dependabot](https://docs.github.com/en/code-security/dependabot) opens pull requests for new dependency versions.|');
         expect(readme).toContain('|Code analysis|❌ Off|');
         expect(readme).toContain('|Supply chain risk|❌ Off|');
         expect(readme).toContain(
@@ -276,7 +289,7 @@ describe('documentQualitySecurity', () => {
 
         await documentQualitySecurity();
         expect(await project.readFile('README.md')).toContain(
-            '|Static analysis|❌ Off|[CodeQL](https://codeql.github.com) scans for security vulnerabilities, using the default queries,'
+            '|Static analysis|❌ Off|[GitHub CodeQL](https://codeql.github.com) scans for security vulnerabilities, using the default queries,'
         );
     });
 
@@ -287,11 +300,11 @@ describe('documentQualitySecurity', () => {
         stubOpenSSF();
 
         await documentQualitySecurity();
-        expect(await project.readFile('README.md')).toContain('[CodeQL](https://codeql.github.com) scans JavaScript/TypeScript for security vulnerabilities');
+        expect(await project.readFile('README.md')).toContain('[GitHub CodeQL](https://codeql.github.com) scans JavaScript/TypeScript for security vulnerabilities');
 
         await writeProject({ files: { '.github/workflows/codeql.yml': codeQLWorkflow, 'rust/Cargo.toml': '[workspace]\n' } });
         await documentQualitySecurity();
-        expect(await project.readFile('README.md')).toContain('[CodeQL](https://codeql.github.com) scans JavaScript/TypeScript and Rust for security vulnerabilities');
+        expect(await project.readFile('README.md')).toContain('[GitHub CodeQL](https://codeql.github.com) scans JavaScript/TypeScript and Rust for security vulnerabilities');
     });
 
     it('explains the Scorecard gaps only when every one is down to how a solo project is run', async () => {
