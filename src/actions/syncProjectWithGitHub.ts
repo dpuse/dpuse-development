@@ -5,16 +5,8 @@ import type { PackageJson } from 'type-fest';
 import type { ModuleConfig } from '@dpuse/dpuse-shared';
 
 // ── Local Framework
-import {
-    buildModuleConfig,
-    bumpPackageVersion,
-    getModuleTypeConfig,
-    logOperationHeader,
-    logOperationSuccess,
-    readJSONFile,
-    spawnCommand,
-    spawnCommandForOutput
-} from '@/utilities';
+import { buildModuleConfig, bumpPackageVersion, getModuleTypeConfig, logOperationHeader } from '@/utilities';
+import { logOperationSuccess, readJSONFile, spawnCommand, spawnCommandForOutput } from '@/utilities';
 
 // ── Actions ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 

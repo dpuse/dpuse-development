@@ -1,7 +1,7 @@
 {
   "metadata": {
     "version": "0.14.0",
-    "generatedAt": "2026-11-21T15:49:50.419Z",
+    "generatedAt": "2026-11-22T10:19:13.671Z",
     "integration": "vite",
     "sources": false,
     "gzip": true,
@@ -416,7 +416,7 @@
       "name": "src/actions/syncProjectWithGitHub.ts",
       "type": "script",
       "format": "esm",
-      "uncompressed": 1503
+      "uncompressed": 1533
     },
     {
       "kind": "chunk",

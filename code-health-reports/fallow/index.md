@@ -21,7 +21,7 @@
 
 | Metric | Value |
 |:-------|------:|
-| Total LOC | 4247 |
+| Total LOC | 4243 |
 | Avg Cyclomatic | 3.0 |
 | P90 Cyclomatic | 7 |
 | Cyclomatic units | Functions: 350, module scopes: 0, templates: 0 |
@@ -53,7 +53,7 @@
 | `src/actions/documentContributingLicense.ts` | 91.8 | 1 | 1 | 0% | 0.18 | 7.0 |
 | `src/actions/testProject.ts` | 93.6 | 1 | 1 | 0% | 0.12 | 7.0 |
 | `src/actions/documentProject.ts` | 87.5 | 1 | 9 | 0% | 0.11 | 6.0 |
-| `src/actions/syncProjectWithGitHub.ts` | 93.9 | 1 | 1 | 0% | 0.11 | 6.0 |
+| `src/actions/syncProjectWithGitHub.ts` | 93.7 | 1 | 1 | 0% | 0.13 | 6.0 |
 | `src/utilities/cloudflare.ts` | 92.1 | 1 | 1 | 0% | 0.17 | 4.0 |
 | `src/actions/lintCode.ts` | 94.7 | 1 | 1 | 0% | 0.13 | 4.0 |
 | `src/actions/buildProject.ts` | 94.3 | 1 | 1 | 0% | 0.14 | 3.0 |
@@ -76,8 +76,8 @@
 | `src/actions/checkConfigFiles.ts` | 45.4 | 53 | 586 | 0.22 | 1 | cooling |
 | `src/actions/documentUsage.ts` | 32.0 | 25 | 424 | 0.21 | 1 | accelerating |
 | `src/actions/documentOpening.ts` | 27.9 | 27 | 455 | 0.19 | 1 | accelerating |
+| `src/actions/documentQualitySecurity.ts` | 19.3 | 15 | 809 | 0.19 | 1 | cooling |
 | `src/actions/checkDependencies.ts` | 18.4 | 20 | 256 | 0.20 | 1 | stable |
-| `src/actions/documentQualitySecurity.ts` | 17.7 | 14 | 807 | 0.19 | 1 | cooling |
 | `src/actions/auditDependencies.ts` | 14.7 | 13 | 255 | 0.22 | 2 | accelerating |
 | `src/utilities/cloudflare.ts` | 13.9 | 15 | 324 | 0.17 | 1 | accelerating |
 | `src/actions/publishProject.ts` | 10.6 | 10 | 122 | 0.17 | 1 | cooling |
@@ -89,7 +89,7 @@
 | `src/actions/documentContributingLicense.ts` | 5.0 | 4 | 127 | 0.18 | 1 | stable |
 | `src/actions/documentProject.ts` | 4.9 | 7 | 96 | 0.11 | 1 | cooling |
 | `src/actions/lintCode.ts` | 3.9 | 7 | 49 | 0.13 | 1 | stable |
-| `src/actions/syncProjectWithGitHub.ts` | 3.1 | 4 | 76 | 0.11 | 1 | stable |
+| `src/actions/syncProjectWithGitHub.ts` | 3.6 | 4 | 76 | 0.13 | 1 | stable |
 | `src/actions/documentActions.ts` | 2.5 | 10 | 102 | 0.06 | 1 | stable |
 | `src/actions/buildProject.ts` | 2.3 | 3 | 56 | 0.14 | 1 | cooling |
 | `vite.config.ts` | 2.2 | 24 | 135 | 0.02 | 0 | stable |
@@ -108,9 +108,9 @@
 | `src/actions/checkDependencies.ts` | `src/actions/lintCode.ts` | 44% | 6 | 20 | 7 |  |
 | `src/actions/documentOpening.ts` | `src/actions/documentUsage.ts` | 38% | 10 | 27 | 25 |  |
 | `src/actions/documentDependencies.ts` | `src/actions/formatCode.ts` | 36% | 8 | 35 | 9 |  |
-| `src/actions/documentQualitySecurity.ts` | `src/actions/documentUsage.ts` | 36% | 7 | 14 | 25 |  |
-| `src/actions/documentOpening.ts` | `src/actions/documentQualitySecurity.ts` | 34% | 7 | 27 | 14 |  |
+| `src/actions/documentQualitySecurity.ts` | `src/actions/documentUsage.ts` | 35% | 7 | 15 | 25 |  |
 | `src/actions/auditDependencies.ts` | `src/actions/documentDependencies.ts` | 33% | 8 | 13 | 35 |  |
+| `src/actions/documentOpening.ts` | `src/actions/documentQualitySecurity.ts` | 33% | 7 | 27 | 15 |  |
 
 *Files that change together in the commit history with no import between them.*
 
