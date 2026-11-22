@@ -67,19 +67,18 @@ function resolveCopyrightYear(firstCreatedAt: number | null | undefined): string
     return startYear === currentYear ? String(currentYear) : `${String(startYear)}-present`;
 }
 
-// A proprietary project, such as DPUse Engine or DPUse API, cannot say its source is published or MIT licensed, so it
-// says the opposite. The licence decides, not 'private' in package.json, which only stops a package being published
-// to npm: the organisation's profile repository is 'private' there but open source.
+// A proprietary project, such as DPUse Engine or DPUse API, grants no MIT licence, so its License section says so. The
+// licence decides, not 'private' in package.json, which only stops a package being published to npm: the
+// organisation's profile repository is 'private' there but MIT licensed.
 function buildContributingLicenseContent(owner: string, repository: string, authorName: string, copyrightYear: string, isProprietary: boolean): string {
     const repositoryURL = `https://github.com/${owner}/${repository}`;
-    const sourceText = isProprietary ? 'Its source is not published' : 'Its source is published openly under the MIT License';
     const licenseText = isProprietary
         ? `This project is proprietary. Its source is not published, and no licence is granted to use, modify or distribute it.\n\n© ${copyrightYear} ${authorName}`
         : `This project is licensed under the MIT License, permitting free use, modification, and distribution.\n\n[MIT](./LICENSE) © ${copyrightYear} ${authorName}`;
 
     return `## Contributing
 
-This repository is maintained solely by its owner and does not, at present, accept external contributions. ${sourceText} — every DPUse project is fully open source except DPUse Engine and DPUse API, which remain closed and proprietary.
+This repository is maintained solely by its owner and does not, at present, accept external contributions.
 
 For security vulnerabilities, see [Reporting Vulnerabilities](#reporting-vulnerabilities). For bugs, inconsistencies, or other feedback, [open a GitHub issue](${repositoryURL}/issues) — feedback is read, but responses and fixes are at the maintainer's discretion.
 

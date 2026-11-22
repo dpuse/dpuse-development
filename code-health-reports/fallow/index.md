@@ -21,10 +21,10 @@
 
 | Metric | Value |
 |:-------|------:|
-| Total LOC | 4243 |
+| Total LOC | 4258 |
 | Avg Cyclomatic | 3.0 |
 | P90 Cyclomatic | 7 |
-| Cyclomatic units | Functions: 350, module scopes: 0, templates: 0 |
+| Cyclomatic units | Functions: 352, module scopes: 0, templates: 0 |
 | Dead Files | 0.0% |
 | Dead Exports | 0.0% |
 | Maintainability (avg) | 91.8 |
@@ -50,7 +50,7 @@
 | `src/actions/checkDependencies.ts` | 89.6 | 1 | 2 | 0% | 0.20 | 7.0 |
 | `src/actions/publishProject.ts` | 90.5 | 1 | 2 | 0% | 0.17 | 7.0 |
 | `src/actions/checkConfigFiles.ts` | 90.6 | 1 | 1 | 0% | 0.22 | 7.0 |
-| `src/actions/documentContributingLicense.ts` | 91.8 | 1 | 1 | 0% | 0.18 | 7.0 |
+| `src/actions/documentContributingLicense.ts` | 92.1 | 1 | 1 | 0% | 0.17 | 7.0 |
 | `src/actions/testProject.ts` | 93.6 | 1 | 1 | 0% | 0.12 | 7.0 |
 | `src/actions/documentProject.ts` | 87.5 | 1 | 9 | 0% | 0.11 | 6.0 |
 | `src/actions/syncProjectWithGitHub.ts` | 93.7 | 1 | 1 | 0% | 0.13 | 6.0 |
@@ -86,8 +86,8 @@
 | `src/utilities/apiReference.ts` | 7.9 | 3 | 404 | 0.47 | 1 | cooling |
 | `src/actions/formatCode.ts` | 7.0 | 9 | 44 | 0.16 | 1 | stable |
 | `src/actions/documentApiReference.ts` | 5.7 | 13 | 772 | 0.08 | 1 | cooling |
-| `src/actions/documentContributingLicense.ts` | 5.0 | 4 | 127 | 0.18 | 1 | stable |
 | `src/actions/documentProject.ts` | 4.9 | 7 | 96 | 0.11 | 1 | cooling |
+| `src/actions/documentContributingLicense.ts` | 4.8 | 4 | 127 | 0.17 | 1 | stable |
 | `src/actions/syncProjectWithGitHub.ts` | 4.7 | 5 | 88 | 0.13 | 1 | stable |
 | `src/actions/lintCode.ts` | 3.9 | 7 | 49 | 0.13 | 1 | stable |
 | `src/actions/documentActions.ts` | 2.5 | 10 | 102 | 0.06 | 1 | stable |

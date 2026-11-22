@@ -54,6 +54,11 @@ interface ChecksResults {
     securitySettings: SecuritySettings;
 }
 
+interface OpenSSFResults {
+    bestPracticesProjectId: number | undefined;
+    scorecardResult: ScorecardResult | undefined;
+}
+
 // On or off, or undefined where GitHub doesn't reveal the setting (some need an admin login to read).
 type SettingStatus = boolean | undefined;
 
@@ -116,13 +121,10 @@ export async function documentQualitySecurity(): Promise<void> {
         const securitySettings = await readSecuritySettings(owner, repository, packageJSON);
 
         logStepHeader('5️⃣  Look up OpenSSF Best Practices badge and Scorecard results');
-        const [bestPracticesProjectId, scorecardResult] = await Promise.all([
-            lookUpBestPracticesProjectId(`https://github.com/${owner}/${repository}`),
-            lookUpScorecardResult(`github.com/${owner}/${repository}`)
-        ]);
+        const openSSFResults = await lookUpOpenSSFResults(owner, repository, packageJSON);
 
         logStepHeader("6️⃣  Insert quality and security content into 'README.md'");
-        const content = buildQualitySecurityContent(owner, repository, { coveragePercent, fallowHealth, securitySettings }, bestPracticesProjectId, scorecardResult);
+        const content = buildQualitySecurityContent(owner, repository, { coveragePercent, fallowHealth, securitySettings }, openSSFResults);
 
         await writeReadmeSection(content, QUALITY_SECURITY_START_MARKER, QUALITY_SECURITY_END_MARKER);
 
@@ -232,6 +234,21 @@ async function readSecuritySettings(owner: string, repository: string, packageJS
         // Comment lines are passed over, as the workflow's notes mention 'npm test' without running it.
         testsInCI: /^(?!\s*#).*(?:npm test|testProject\()/m.test(ciWorkflow ?? '')
     };
+}
+
+// Answers undefined for a private package, which has no Scorecard workflow and no public repository for OpenSSF to
+// assess, so its README has no OpenSSF section.
+async function lookUpOpenSSFResults(owner: string, repository: string, packageJSON: PackageJson): Promise<OpenSSFResults | undefined> {
+    if (packageJSON.private === true) {
+        console.info('ℹ️  OpenSSF is NOT reported for a private project');
+        return undefined;
+    }
+
+    const [bestPracticesProjectId, scorecardResult] = await Promise.all([
+        lookUpBestPracticesProjectId(`https://github.com/${owner}/${repository}`),
+        lookUpScorecardResult(`github.com/${owner}/${repository}`)
+    ]);
+    return { bestPracticesProjectId, scorecardResult };
 }
 
 // Found by repository URL, as OpenSSF Scorecard does, so a repository shows its badge as soon as it is registered and nothing
@@ -374,14 +391,23 @@ function buildChecksContent(owner: string, repository: string, { coveragePercent
 ${buildTableContent('Testing', testingRows)}${buildTableContent('Code Quality', codeQualityRows)}${buildTableContent('Security Analysis', securityAnalysisRows)}${buildTableContent('Dependencies', dependencyRows)}`;
 }
 
-function buildQualitySecurityContent(
-    owner: string,
-    repository: string,
-    checksResults: ChecksResults,
-    bestPracticesProjectId: number | undefined,
-    scorecardResult: ScorecardResult | undefined
-): string {
+function buildQualitySecurityContent(owner: string, repository: string, checksResults: ChecksResults, openSSFResults: OpenSSFResults | undefined): string {
     const repositoryURL = `https://github.com/${owner}/${repository}`;
+
+    // Without private reporting switched on, the advisory link leads nowhere, so point only at SECURITY.md.
+    const reportingText =
+        checksResults.securitySettings.privateVulnerabilityReporting === true
+            ? `Use [GitHub private vulnerability reporting](${repositoryURL}/security/advisories/new) instead. See [SECURITY.md](./SECURITY.md) for the full disclosure policy, contact details, and expected response times.`
+            : 'See [SECURITY.md](./SECURITY.md) for how to report one privately, the full disclosure policy, and expected response times.';
+
+    return `## Quality & Security
+
+${buildChecksContent(owner, repository, checksResults)}${openSSFResults === undefined ? '' : buildOpenSSFContent(owner, repository, openSSFResults)}### Reporting Vulnerabilities
+
+Please do not open public GitHub issues for security vulnerabilities. ${reportingText}`;
+}
+
+function buildOpenSSFContent(owner: string, repository: string, { bestPracticesProjectId, scorecardResult }: OpenSSFResults): string {
     const scorecardURI = `github.com/${owner}/${repository}`;
     const bestPracticesURL = `https://www.bestpractices.dev/projects/${String(bestPracticesProjectId)}`;
     // The note points at the Best Practices badge only where the project has one to show.
@@ -393,21 +419,11 @@ function buildQualitySecurityContent(
             : '';
     const bestPracticesBadge = bestPracticesProjectId === undefined ? '' : `[![OpenSSF Best Practices](${bestPracticesURL}/badge)](${bestPracticesURL})\n`;
 
-    // Without private reporting switched on, the advisory link leads nowhere, so point only at SECURITY.md.
-    const reportingText =
-        checksResults.securitySettings.privateVulnerabilityReporting === true
-            ? `Use [GitHub private vulnerability reporting](${repositoryURL}/security/advisories/new) instead. See [SECURITY.md](./SECURITY.md) for the full disclosure policy, contact details, and expected response times.`
-            : 'See [SECURITY.md](./SECURITY.md) for how to report one privately, the full disclosure policy, and expected response times.';
-
-    return `## Quality & Security
-
-${buildChecksContent(owner, repository, checksResults)}### OpenSSF 🚧
+    return `### OpenSSF 🚧
 
 ${bestPracticesBadge}[![OpenSSF Scorecard](https://api.scorecard.dev/projects/${scorecardURI}/badge)](https://scorecard.dev/viewer/?uri=${scorecardURI})
 
 This project is working towards the [OpenSSF Best Practices](https://www.bestpractices.dev) Passing badge, a self-certification covering security policy, vulnerability reporting, build processes, code quality, and more. Currently the [OpenSSF Scorecard](https://scorecard.dev) provides an independent automated assessment of the project's security practices and is an ongoing area of improvement.${scorecardLimitText}
 
-### Reporting Vulnerabilities
-
-Please do not open public GitHub issues for security vulnerabilities. ${reportingText}`;
+`;
 }

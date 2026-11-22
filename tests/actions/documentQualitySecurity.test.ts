@@ -335,6 +335,20 @@ describe('documentQualitySecurity', () => {
         expect(await project.readFile('README.md')).not.toContain('The Scorecard score is below the maximum');
     });
 
+    it('leaves out OpenSSF for a private project, without looking it up', async () => {
+        await writeProject({ packageJSON: { private: true } });
+        stubGitHub();
+        stubOpenSSF();
+
+        await documentQualitySecurity();
+
+        const readme = await project.readFile('README.md');
+        expect(readme).not.toContain('OpenSSF');
+        expect(readme).toContain('### Dependencies');
+        expect(readme).toContain('### Reporting Vulnerabilities');
+        expect(fetch).not.toHaveBeenCalled();
+    });
+
     it('gives each OpenSSF request a time limit, so one that is never answered cannot hang the release', async () => {
         await writeProject();
         stubGitHub();

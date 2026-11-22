@@ -153,10 +153,10 @@ _Note: Sonda's Vite reports currently exclude CSS files, since Vite does not gen
 
 | Chunk/Module/File                                                     | Composition                                                                                   |
 | :-------------------------------------------------------------------- | :-------------------------------------------------------------------------------------------- |
-| **All 4 files**                                                       | 113.8&nbsp;kB&nbsp;·&nbsp;gzip&nbsp;34.8&nbsp;kB                                              |
-| **dist/dpuse-development.es.js**                                      | 69.0&nbsp;kB&nbsp;·&nbsp;gzip&nbsp;22.4&nbsp;kB&nbsp;·&nbsp;60.6%&nbsp;of&nbsp;the&nbsp;build |
-| &nbsp;&nbsp;&nbsp;&nbsp;src → documentDependencies.ts + 21 more       | `██████████████████░░`&nbsp;91.4%&nbsp;·&nbsp;63.0&nbsp;kB                                    |
-| &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON)           | `██░░░░░░░░░░░░░░░░░░`&nbsp;8.6%&nbsp;·&nbsp;6.0&nbsp;kB                                      |
+| **All 4 files**                                                       | 113.9&nbsp;kB&nbsp;·&nbsp;gzip&nbsp;34.9&nbsp;kB                                              |
+| **dist/dpuse-development.es.js**                                      | 69.1&nbsp;kB&nbsp;·&nbsp;gzip&nbsp;22.4&nbsp;kB&nbsp;·&nbsp;60.7%&nbsp;of&nbsp;the&nbsp;build |
+| &nbsp;&nbsp;&nbsp;&nbsp;src → documentDependencies.ts + 21 more       | `██████████████████░░`&nbsp;91.4%&nbsp;·&nbsp;63.2&nbsp;kB                                    |
+| &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON)           | `██░░░░░░░░░░░░░░░░░░`&nbsp;8.6%&nbsp;·&nbsp;5.9&nbsp;kB                                      |
 | **dist/utilities-DaeO1Tb8.js**                                        | 32.9&nbsp;kB&nbsp;·&nbsp;gzip&nbsp;7.9&nbsp;kB&nbsp;·&nbsp;28.9%&nbsp;of&nbsp;the&nbsp;build  |
 | &nbsp;&nbsp;&nbsp;&nbsp;@dpuse/dpuse-shared → dist/dpuse-shared.es.js | `█████████░░░░░░░░░░░`&nbsp;45.3%&nbsp;·&nbsp;14.9&nbsp;kB                                    |
 | &nbsp;&nbsp;&nbsp;&nbsp;src → index.ts                                | `██████░░░░░░░░░░░░░░`&nbsp;28.1%&nbsp;·&nbsp;9.2&nbsp;kB                                     |
@@ -235,7 +235,7 @@ Please do not open public GitHub issues for security vulnerabilities. Use [GitHu
 
 ## Contributing
 
-This repository is maintained solely by its owner and does not, at present, accept external contributions. Its source is published openly under the MIT License — every DPUse project is fully open source except DPUse Engine and DPUse API, which remain closed and proprietary.
+This repository is maintained solely by its owner and does not, at present, accept external contributions.
 
 For security vulnerabilities, see [Reporting Vulnerabilities](#reporting-vulnerabilities). For bugs, inconsistencies, or other feedback, [open a GitHub issue](https://github.com/dpuse/dpuse-development/issues) — feedback is read, but responses and fixes are at the maintainer's discretion.
 

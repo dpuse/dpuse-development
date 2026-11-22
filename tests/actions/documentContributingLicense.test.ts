@@ -33,16 +33,17 @@ describe('documentContributingLicense', () => {
     });
 
     it.each([
-        ['an open source project', { license: 'MIT' }, 'Its source is published openly under the MIT License — every DPUse project'],
-        ['an open source project that is not published to npm', { license: 'MIT', private: true }, 'Its source is published openly under the MIT License — every DPUse project'],
-        ['a proprietary project', { license: 'UNLICENSED', private: true }, 'Its source is not published — every DPUse project']
-    ])('says whether the source of %s is published, and names the projects that are closed', async (_case, packageJSON, expected) => {
+        ['an MIT licensed project', { license: 'MIT' }],
+        ['an MIT licensed project that is not published to npm', { license: 'MIT', private: true }],
+        ['a proprietary project', { license: 'UNLICENSED', private: true }]
+    ])('says the Contributing section of %s without its open source status', async (_case, packageJSON) => {
         await writeProject(packageJSON);
 
         await documentContributingLicense();
 
         const readme = await project.readFile('README.md');
-        expect(readme).toContain(`${expected} is fully open source except DPUse Engine and DPUse API, which remain closed and proprietary.`);
+        expect(readme).toContain('## Contributing\n\nThis repository is maintained solely by its owner and does not, at present, accept external contributions.\n\n');
+        expect(readme).not.toContain('open source');
     });
 
     it('says a project with no licence to grant is proprietary, without naming MIT', async () => {
