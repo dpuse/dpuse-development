@@ -88,8 +88,8 @@
 | `src/actions/documentApiReference.ts` | 5.7 | 13 | 772 | 0.08 | 1 | cooling |
 | `src/actions/documentContributingLicense.ts` | 5.0 | 4 | 127 | 0.18 | 1 | stable |
 | `src/actions/documentProject.ts` | 4.9 | 7 | 96 | 0.11 | 1 | cooling |
+| `src/actions/syncProjectWithGitHub.ts` | 4.7 | 5 | 88 | 0.13 | 1 | stable |
 | `src/actions/lintCode.ts` | 3.9 | 7 | 49 | 0.13 | 1 | stable |
-| `src/actions/syncProjectWithGitHub.ts` | 3.6 | 4 | 76 | 0.13 | 1 | stable |
 | `src/actions/documentActions.ts` | 2.5 | 10 | 102 | 0.06 | 1 | stable |
 | `src/actions/buildProject.ts` | 2.3 | 3 | 56 | 0.14 | 1 | cooling |
 | `vite.config.ts` | 2.2 | 24 | 135 | 0.02 | 0 | stable |
