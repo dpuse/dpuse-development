@@ -68,8 +68,7 @@ function resolveCopyrightYear(firstCreatedAt: number | null | undefined): string
 }
 
 // A proprietary project, such as DPUse Engine or DPUse API, grants no MIT licence, so its License section says so. The
-// licence decides, not 'private' in package.json, which only stops a package being published to npm: the
-// organisation's profile repository is 'private' there but MIT licensed.
+// licence decides, not 'private' in package.json, which only stops a package being published to npm.
 function buildContributingLicenseContent(owner: string, repository: string, authorName: string, copyrightYear: string, isProprietary: boolean): string {
     const repositoryURL = `https://github.com/${owner}/${repository}`;
     const licenseText = isProprietary
